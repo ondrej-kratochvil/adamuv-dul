@@ -88,7 +88,7 @@ button:focus-visible { outline: 4px solid var(--gold); outline-offset: 3px; }
   text-shadow: -3px 0 0 #2e5a7f, 3px 0 0 #2e5a7f, 0 -3px 0 #2e5a7f, 0 3px 0 #2e5a7f, 6px 6px 0 #2e5a7f; margin: 0 0 clamp(18px, 4vh, 40px);
   text-wrap: balance;
 }
-.hero { --h: clamp(96px, 20vh, 168px); height: var(--h); flex: none; margin-left: 0; margin-right: calc(var(--h) * .32); } /* místo pro krumpáč, který přečnívá doprava */
+.hero { cursor: pointer; --h: clamp(96px, 20vh, 168px); height: var(--h); flex: none; margin-left: 0; margin-right: calc(var(--h) * .32); } /* místo pro krumpáč, který přečnívá doprava */
 .home-ground { overflow: auto; }
 .levels { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 18px; padding-block: 22px; max-width: 900px; margin: 0 auto; }
 .lvl { background: none; border: 0; padding: 0; display: grid; justify-items: center; gap: 10px; position: relative; }
@@ -99,6 +99,26 @@ button:focus-visible { outline: 4px solid var(--gold); outline-offset: 3px; }
 .lvl[disabled] .blk { filter: saturate(.55) brightness(.75); }
 .lock { position: absolute; top: 8px; right: calc(50% - clamp(55px, 12vw, 75px) + 6px); width: 34px; height: 34px; }
 .house-card { grid-column: 1 / -1; justify-self: center; background: none; border: 0; padding: 0; display: grid; justify-items: center; gap: 8px; }
+/* šatník */
+.ward { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr); gap: 16px; align-items: center; padding-block: 8px 16px; }
+.ward-preview { display: grid; place-items: center; min-height: 0; }
+.player.big { --h: clamp(150px, 46vh, 380px); height: var(--h); justify-self: center; margin: 0 calc(var(--h) * .32) 0 0; }
+.ward-panel { max-height: 100%; overflow: auto; padding: 16px; display: grid; gap: 14px; align-content: start; }
+.ward-tabs { display: flex; gap: 10px; flex-wrap: wrap; }
+.ward-tabs .gbtn { width: 68px; height: 68px; padding: 6px; }
+.ward-tabs .gbtn[aria-pressed="true"] { background: var(--go); }
+.ward-items { display: grid; grid-template-columns: repeat(auto-fill, minmax(76px, 1fr)); gap: 10px; }
+.swatch { position: relative; aspect-ratio: 1; background: #e6e6e6; border: 3px solid #161616; box-shadow: inset 3px 3px 0 #ffffff, inset -3px -3px 0 #8b8b8b; padding: 8px; display: grid; place-items: center; }
+.swatch canvas, .ward-tabs canvas { width: 100%; height: 100%; }
+.swatch[aria-pressed="true"] { background: #bfe6a8; outline: 4px solid var(--go); outline-offset: 2px; }
+.swatch.locked canvas { opacity: .35; filter: grayscale(.6); }
+.swatch .lock { top: 4px; right: 4px; width: 26px; height: 26px; }
+.ward-title { flex: 1; text-align: center; font-size: 30px; font-weight: 700; color: var(--white); text-shadow: 3px 3px 0 #2e5a7f; }
+.lvl .plate canvas { width: 70%; height: 70%; }
+@media (max-aspect-ratio: 1/1) {
+  .ward { grid-template-columns: 1fr; grid-template-rows: auto minmax(0, 1fr); align-items: start; }
+  .player.big { --h: clamp(130px, 26vh, 260px); }
+}
 .house-card canvas { width: min(360px, 82vw); border: 3px solid #161616; box-shadow: 0 0 0 3px rgba(255,255,255,.25); }
 
 /* kostka */
@@ -246,6 +266,27 @@ button:focus-visible { outline: 4px solid var(--gold); outline-offset: 3px; }
     </div>
   </section>
 
+  <!-- ŠATNÍK -->
+  <section class="screen" id="wardrobe" hidden>
+    <div class="sky" style="flex:1; display:flex; flex-direction:column; min-height:0;">
+      <div class="cloud c1"></div>
+      <div class="inner hud">
+        <button class="gbtn icon" id="btnWardBack" aria-label="Zpět domů">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h3v3h-3v3h-3v4h3v3h3v3h-3v-3h-3v-3H8v-4h3V7h3V4z"/></svg>
+        </button>
+        <div class="ward-title">Šatník</div>
+        <div style="width:56px"></div>
+      </div>
+      <div class="ward inner">
+        <div class="ward-preview"><div class="player big" id="wardPlayer"></div></div>
+        <div class="ward-panel panel">
+          <div class="ward-tabs" id="wardTabs"></div>
+          <div class="ward-items" id="wardItems"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- DŮM -->
   <section class="screen" id="house" hidden>
     <div class="sky" style="flex:1; display:flex; flex-direction:column;">
@@ -269,6 +310,7 @@ button:focus-visible { outline: 4px solid var(--gold); outline-offset: 3px; }
     <p class="end-line" id="endLine"></p>
     <div class="loot" id="loot"></div>
     <div class="newpick" id="newPick" hidden></div>
+    <div class="newpick" id="newOutfit" hidden></div>
     <canvas class="end-house px" id="endHouse"></canvas>
     <div class="actions">
       <button class="gbtn go" id="btnAgain">Další kolo</button>
@@ -330,9 +372,9 @@ let R = null; // běžící kolo
 
 /* ---------- uložený postup ---------- */
 const KEY = 'adamuv-dul-v1';
-function defaults() { return { caseMode: 'both', slow: false, total: 0, rounds: { letters: 0, syllables: 0 }, stats: {} }; }
+function defaults() { return { caseMode: 'both', slow: false, total: 0, rounds: { letters: 0, syllables: 0 }, stats: {}, outfit: { shirt: 'oranzove', pants: 'modre', shoes: 'sede', hat: 'nic' } }; }
 function load() {
-  try { const s = JSON.parse(localStorage.getItem(KEY)); if (s) { const d = defaults(); return Object.assign(d, s, { rounds: Object.assign(d.rounds, s.rounds || {}) }); } } catch (e) {}
+  try { const s = JSON.parse(localStorage.getItem(KEY)); if (s) { const d = defaults(); return Object.assign(d, s, { rounds: Object.assign(d.rounds, s.rounds || {}), outfit: Object.assign(d.outfit, s.outfit || {}) }); } } catch (e) {}
   return defaults();
 }
 let save = load();
@@ -425,17 +467,81 @@ const cracks = [null];
 })();
 
 /* ---------- postava a krumpáče ---------- */
+// oblečení postavy; položky s „at“ se odemknou po tolika odehraných kolech
+const OUTFIT = {
+  shirt: [
+    { id: 'oranzove', name: 'oranžové tričko', c: '#d2552d', d: '#b0441f' },
+    { id: 'modre', name: 'modré tričko', c: '#2f7fd1', d: '#2263a8' },
+    { id: 'zelene', name: 'zelené tričko', c: '#3f9b3a', d: '#2f7a2b' },
+    { id: 'cervene', name: 'červené tričko', c: '#c62f2f', d: '#9c2222' },
+    { id: 'zlute', name: 'žluté tričko', c: '#e0b324', d: '#b88f15' },
+    { id: 'fialove', name: 'fialové tričko', c: '#7d4bc2', d: '#603899' },
+    { id: 'ruzove', name: 'růžové tričko', c: '#e06aa8', d: '#bf4f8a' },
+    { id: 'cerne', name: 'černé tričko', c: '#2b2b2b', d: '#151515' },
+    { id: 'zelezne', name: 'železné brnění', c: '#d8d8d8', d: '#9a9a9a', armor: true, at: 6 },
+    { id: 'diamantove', name: 'diamantové brnění', c: '#5de0e6', d: '#2aa9b3', armor: true, at: 14 },
+  ],
+  pants: [
+    { id: 'modre', name: 'modré kalhoty', c: '#34508f', d: '#2a4074' },
+    { id: 'cerne', name: 'černé kalhoty', c: '#2e2e33', d: '#1b1b1f' },
+    { id: 'hnede', name: 'hnědé kalhoty', c: '#7a5230', d: '#5e3f24' },
+    { id: 'zelene', name: 'zelené kalhoty', c: '#4f6b2c', d: '#3c5221' },
+    { id: 'sede', name: 'šedé kalhoty', c: '#8a8a8a', d: '#6c6c6c' },
+    { id: 'zelezne', name: 'železné chrániče', c: '#d0d0d0', d: '#9a9a9a', armor: true, at: 8 },
+  ],
+  shoes: [
+    { id: 'sede', name: 'šedé boty', c: '#45403a', d: '#2e2a26' },
+    { id: 'hnede', name: 'hnědé boty', c: '#6b4a31', d: '#4a3322' },
+    { id: 'bile', name: 'bílé boty', c: '#ececec', d: '#b5b5b5' },
+    { id: 'cervene', name: 'červené boty', c: '#c62f2f', d: '#9c2222' },
+    { id: 'modre', name: 'modré boty', c: '#2f7fd1', d: '#2263a8' },
+    { id: 'diamantove', name: 'diamantové boty', c: '#5de0e6', d: '#2aa9b3', at: 4 },
+  ],
+  hat: [
+    { id: 'nic', name: 'bez čepice' },
+    { id: 'ksiltovka', name: 'červená kšiltovka', c: '#c62f2f', d: '#9c2222', kind: 'cap' },
+    { id: 'modraksilt', name: 'modrá kšiltovka', c: '#2f7fd1', d: '#2263a8', kind: 'cap' },
+    { id: 'zelezna', name: 'železná helma', c: '#d8d8d8', d: '#9a9a9a', kind: 'helmet', at: 3 },
+    { id: 'zlata', name: 'zlatá helma', c: '#f2c94c', d: '#c9a227', kind: 'helmet', at: 10 },
+    { id: 'diamantova', name: 'diamantová helma', c: '#5de0e6', d: '#2aa9b3', kind: 'helmet', at: 12 },
+  ],
+};
+const OUTFIT_CATS = [['shirt', 'Tričko'], ['pants', 'Kalhoty'], ['shoes', 'Boty'], ['hat', 'Čepice']];
+const unlocked = it => !it.at || save.total >= it.at;
+function outfitItem(cat) { const it = OUTFIT[cat].find(x => x.id === save.outfit[cat]); return it && unlocked(it) ? it : OUTFIT[cat][0]; }
 function playerCanvas() {
   const c = document.createElement('canvas'); c.width = 16; c.height = 32; c.className = 'body px';
   const g = c.getContext('2d');
   const R = (x, y, w, h, col) => { g.fillStyle = col; g.fillRect(x, y, w, h); };
-  const skin = '#d9a066', hair = '#4f321d', shirt = '#d2552d', shirtD = '#b0441f', pants = '#34508f', shoe = '#45403a';
+  const skin = '#d9a066', hair = '#4f321d';
+  const sh = outfitItem('shirt'), pa = outfitItem('pants'), so = outfitItem('shoes'), ha = outfitItem('hat');
   R(4, 0, 8, 8, skin); R(4, 0, 8, 2, hair); R(4, 2, 1, 2, hair); R(11, 2, 1, 2, hair); R(5, 2, 1, 1, hair);
   R(5, 4, 1, 1, '#ffffff'); R(6, 4, 1, 1, '#3b5ba0'); R(9, 4, 1, 1, '#3b5ba0'); R(10, 4, 1, 1, '#ffffff');
   R(7, 6, 2, 1, '#9b5a3c'); R(6, 5, 4, 1, '#c98f58');
-  R(4, 8, 8, 12, shirt); R(4, 18, 8, 2, shirtD); R(7, 8, 2, 2, skin);
-  R(0, 8, 4, 4, shirt); R(12, 8, 4, 4, shirt); R(0, 12, 4, 8, skin); R(12, 12, 4, 8, skin);
-  R(4, 20, 8, 9, pants); R(7, 22, 1, 7, '#2a4074'); R(4, 29, 8, 3, shoe);
+  R(4, 8, 8, 12, sh.c); R(4, 18, 8, 2, sh.d);
+  R(0, 8, 4, 4, sh.c); R(12, 8, 4, 4, sh.c); R(0, 12, 4, 8, skin); R(12, 12, 4, 8, skin);
+  if (sh.armor) { R(4, 8, 8, 1, sh.d); R(4, 13, 8, 1, sh.d); R(7, 9, 2, 4, sh.d); R(0, 11, 4, 1, sh.d); R(12, 11, 4, 1, sh.d); }
+  else R(7, 8, 2, 2, skin);
+  R(4, 20, 8, 9, pa.c); R(7, 22, 1, 7, pa.d);
+  if (pa.armor) { R(4, 20, 8, 1, pa.d); R(4, 25, 3, 1, pa.d); R(8, 25, 4, 1, pa.d); }
+  R(4, 29, 8, 3, so.c); R(4, 31, 8, 1, so.d); R(7, 29, 2, 3, 'rgba(0,0,0,.18)');
+  if (ha.kind === 'cap') { R(4, 0, 8, 2, ha.c); R(3, 2, 10, 1, ha.d); R(7, 0, 2, 1, ha.d); }
+  if (ha.kind === 'helmet') { R(3, 0, 10, 3, ha.c); R(3, 3, 1, 3, ha.c); R(12, 3, 1, 3, ha.c); R(3, 2, 10, 1, ha.d); R(3, 5, 1, 1, ha.d); R(12, 5, 1, 1, ha.d); R(4, 0, 8, 1, 'rgba(255,255,255,.35)'); }
+  return c;
+}
+// malé ikonky do šatníku a do konce kola
+function outfitIcon(cat, it) {
+  const c = document.createElement('canvas'); c.width = c.height = 16; c.className = 'px';
+  const g = c.getContext('2d');
+  const R = (x, y, w, h, col) => { g.fillStyle = col; g.fillRect(x, y, w, h); };
+  if (cat === 'shirt') { R(1, 3, 14, 5, '#161616'); R(3, 3, 10, 12, '#161616'); R(2, 4, 12, 3, it.c); R(4, 4, 8, 10, it.c); R(4, 13, 8, 1, it.d); if (it.armor) { R(4, 8, 8, 1, it.d); R(7, 4, 2, 4, it.d); } else R(7, 4, 2, 1, '#d9a066'); }
+  if (cat === 'pants') { R(3, 1, 10, 15, '#161616'); R(4, 2, 8, 4, it.c); R(4, 6, 3, 9, it.c); R(9, 6, 3, 9, it.c); g.clearRect(7, 7, 2, 9); R(4, 2, 8, 1, it.d); if (it.armor) { R(4, 9, 3, 1, it.d); R(9, 9, 3, 1, it.d); } }
+  if (cat === 'shoes') { R(1, 7, 6, 7, '#161616'); R(9, 7, 6, 7, '#161616'); R(2, 8, 4, 5, it.c); R(10, 8, 4, 5, it.c); R(2, 12, 4, 1, it.d); R(10, 12, 4, 1, it.d); }
+  if (cat === 'hat') {
+    if (!it.kind) { R(4, 4, 8, 8, '#d9a066'); R(4, 4, 8, 2, '#4f321d'); R(5, 8, 1, 1, '#3b5ba0'); R(10, 8, 1, 1, '#3b5ba0'); R(7, 10, 2, 1, '#9b5a3c'); }
+    if (it.kind === 'cap') { R(3, 5, 10, 6, '#161616'); R(4, 6, 8, 4, it.c); R(2, 10, 12, 3, '#161616'); R(3, 10, 10, 2, it.d); }
+    if (it.kind === 'helmet') { R(2, 3, 12, 11, '#161616'); R(3, 4, 10, 4, it.c); R(3, 8, 2, 5, it.c); R(11, 8, 2, 5, it.c); g.clearRect(5, 8, 6, 6); R(3, 7, 10, 1, it.d); }
+  }
   return c;
 }
 const TIERS = [
@@ -620,7 +726,7 @@ function display(it) {
 }
 
 /* ---------- obrazovky ---------- */
-function show(id) { ['home', 'game', 'house'].forEach(s => { $('#' + s).hidden = s !== id; }); }
+function show(id) { ['home', 'game', 'house', 'wardrobe'].forEach(s => { $('#' + s).hidden = s !== id; }); }
 function paintTextures(root = document) {
   root.querySelectorAll('[data-tex]').forEach(el => { el.style.backgroundImage = `url(${tex(el.dataset.tex, el.dataset.dark === '1')})`; });
 }
@@ -654,11 +760,50 @@ function renderHome() {
     btn.insertAdjacentHTML('beforeend', `${LOCK_SVG}<span class="lvl-name">${name}</span><span class="lvl-sub">brzy</span>`);
     wrap.appendChild(btn);
   });
+  const wb = document.createElement('button'); wb.className = 'lvl'; wb.setAttribute('aria-label', 'Šatník');
+  const wblk = blockEl('planks', '', false); wblk.tabIndex = -1; wblk.setAttribute('aria-hidden', 'true');
+  const plate = wblk.querySelector('.plate'); plate.innerHTML = ''; plate.appendChild(outfitIcon('shirt', outfitItem('shirt')));
+  wb.appendChild(wblk);
+  wb.insertAdjacentHTML('beforeend', '<span class="lvl-name">Šatník</span>');
+  wb.addEventListener('click', openWardrobe);
+  wrap.appendChild(wb);
   const hc = document.createElement('button'); hc.className = 'house-card'; hc.setAttribute('aria-label', 'Můj dům');
   const cv = document.createElement('canvas'); cv.className = 'px'; drawHouse(cv); hc.appendChild(cv);
   hc.insertAdjacentHTML('beforeend', '<span class="lvl-name">Můj dům</span>');
   hc.addEventListener('click', openHouse);
   wrap.appendChild(hc);
+}
+let wardCat = 'shirt';
+function openWardrobe() {
+  audio(); speechId++; if (synth) synth.cancel();
+  show('wardrobe'); renderWardrobe();
+  speak('Šatník. Vyber si oblečení.');
+}
+function renderWardrobe() {
+  mountPlayer($('#wardPlayer'));
+  const tabs = $('#wardTabs'); tabs.innerHTML = '';
+  OUTFIT_CATS.forEach(([cat, label]) => {
+    const b = document.createElement('button'); b.className = 'gbtn'; b.setAttribute('aria-label', label);
+    b.setAttribute('aria-pressed', String(cat === wardCat));
+    b.appendChild(outfitIcon(cat, outfitItem(cat)));
+    b.addEventListener('click', () => { wardCat = cat; renderWardrobe(); speak(label); });
+    tabs.appendChild(b);
+  });
+  const items = $('#wardItems'); items.innerHTML = '';
+  OUTFIT[wardCat].forEach(it => {
+    const b = document.createElement('button'); b.className = 'swatch'; b.setAttribute('aria-label', it.name);
+    const open = unlocked(it);
+    b.setAttribute('aria-pressed', String(outfitItem(wardCat).id === it.id));
+    b.appendChild(outfitIcon(wardCat, it));
+    if (!open) { b.classList.add('locked'); b.insertAdjacentHTML('beforeend', LOCK_SVG); }
+    b.addEventListener('click', () => {
+      if (!open) { sfx.nope(); speak(`${it.name} se odemkne, až vykopeš víc kol.`); return; }
+      save.outfit[wardCat] = it.id; persist();
+      tone(880, 0, .08, 'square', .05); tone(1320, .07, .1, 'square', .05);
+      renderWardrobe(); speak(it.name);
+    });
+    items.appendChild(b);
+  });
 }
 function openHouse() {
   speechId++; if (synth) synth.cancel();
@@ -796,11 +941,15 @@ function endRound() {
   const np = $('#newPick');
   if (newTier) { np.hidden = false; np.innerHTML = ''; np.appendChild(pickCanvas(after)); np.insertAdjacentHTML('beforeend', `<span>Nový krumpáč: ${after.name}!</span>`); }
   else np.hidden = true;
+  const fresh = OUTFIT_CATS.flatMap(([cat]) => OUTFIT[cat].filter(it => it.at === st).map(it => [cat, it]));
+  const no = $('#newOutfit');
+  if (fresh.length) { no.hidden = false; no.innerHTML = ''; fresh.forEach(([cat, it]) => no.appendChild(outfitIcon(cat, it))); no.insertAdjacentHTML('beforeend', `<span>Nové oblečení v šatníku: ${fresh.map(([, it]) => it.name).join(', ')}!</span>`); }
+  else no.hidden = true;
   drawHouse($('#endHouse'));
   R = null;
   $('#endOverlay').hidden = false;
   sfx.fanfare(); if (newTier) sfx.sparkle();
-  speak(newTier ? `Výborně, Adame! Máš nový ${after.name} krumpáč!` : 'Výborně, Adame! Kolo je hotové.');
+  speak((newTier ? `Výborně, Adame! Máš nový ${after.name} krumpáč!` : 'Výborně, Adame! Kolo je hotové.') + (fresh.length ? ` V šatníku máš ${fresh.map(([, it]) => it.name).join(' a ')}.` : ''));
   $('#endOverlay').dataset.level = level;
   $('#btnAgain').focus({ preventScroll: true });
 }
@@ -841,11 +990,13 @@ $('#rateSlow').addEventListener('click', () => { save.slow = true; persist(); up
 $('#btnTestVoice').addEventListener('click', () => { loadVoices(); speak('Ahoj Adame! ma, mé, li, lý, so, su.'); setTimeout(loadVoices, 800); });
 $('#btnReset').addEventListener('click', () => { $('#resetConfirm').hidden = false; });
 $('#btnResetNo').addEventListener('click', () => { $('#resetConfirm').hidden = true; });
-$('#btnResetYes').addEventListener('click', () => { const keep = { caseMode: save.caseMode, slow: save.slow }; save = Object.assign(defaults(), keep); persist(); $('#resetConfirm').hidden = true; updateSettings(); });
+$('#btnResetYes').addEventListener('click', () => { const keep = { caseMode: save.caseMode, slow: save.slow, outfit: save.outfit }; save = Object.assign(defaults(), keep); persist(); $('#resetConfirm').hidden = true; updateSettings(); });
 
 /* ---------- tlačítka ---------- */
 $('#btnBack').addEventListener('click', goHome);
 $('#btnHouseBack').addEventListener('click', goHome);
+$('#btnWardBack').addEventListener('click', goHome);
+$('#heroPlayer').addEventListener('click', openWardrobe);
 $('#btnListen').addEventListener('click', () => { audio(); if (R && R.target && !R.busy) speak(sayText(R.level, R.target)); });
 $('#btnAgain').addEventListener('click', () => { const lv = $('#endOverlay').dataset.level; $('#endOverlay').hidden = true; startRound(lv); });
 $('#btnEndHouse').addEventListener('click', () => { $('#endOverlay').hidden = true; openHouse(); });
