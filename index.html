@@ -232,6 +232,9 @@ canvas.ench { animation: ench 1.8s ease-in-out infinite; }
 .hint { position: absolute; top: 10px; left: 0; right: 0; text-align: center; color: var(--white); font-family: var(--f-read); font-size: 18px; text-shadow: 1px 1px 0 #000; pointer-events: none; }
 .task { flex: none; align-self: center; margin-top: 18px; padding: 8px 22px; background-size: 64px 64px; image-rendering: pixelated; border: 4px solid #161616; box-shadow: inset 4px 4px 0 rgba(255,255,255,.2), inset -4px -4px 0 rgba(0,0,0,.3), 0 5px 0 rgba(0,0,0,.35); font-family: var(--f-read); font-weight: 700; font-size: clamp(34px, 8vw, 60px); color: var(--ink); line-height: 1.1; }
 .task span { background: var(--plate); padding: 2px 16px; display: inline-block; border: 3px solid var(--plate-edge); white-space: nowrap; }
+.trace { position: relative; flex: 1; min-height: 0; display: grid; place-items: center; padding: 14px max(16px, env(safe-area-inset-right, 0px)) 18px max(16px, env(safe-area-inset-left, 0px)); }
+.trace canvas { touch-action: none; background: var(--plate); border: 6px solid var(--plate-edge); box-shadow: 0 6px 0 rgba(0,0,0,.35); cursor: crosshair; }
+.trace.slip canvas { animation: nope .4s; }
 .blocks { position: relative; flex: 1; min-height: 0; display: grid; justify-content: center; align-content: center; padding: 44px max(16px, env(safe-area-inset-right, 0px)) 24px max(16px, env(safe-area-inset-left, 0px)); }
 .blocks .blk { width: var(--bs); }
 .blk.hit { animation: hit .14s; }
@@ -338,6 +341,7 @@ canvas.ench { animation: ench 1.8s ease-in-out infinite; }
       <div class="hint" id="hint" hidden></div>
       <div class="task" id="task" data-tex="planks" hidden></div>
       <div class="blocks" id="blocks"></div>
+      <div class="trace" id="trace" hidden><canvas id="traceCanvas" aria-label="Obtahuj prstem"></canvas></div>
     </div>
   </section>
 
@@ -499,7 +503,7 @@ let R = null; // běžící kolo
 
 /* ---------- uložený postup ---------- */
 const KEY = 'adamuv-dul-v1';
-function defaults() { return { caseMode: 'both', slow: false, strict: 'normal', total: 0, rounds: { letters: 0, syllables: 0, numbers: 0, math: 0 }, stats: {}, emeralds: 0, dog: { collar: 'cerveny', owned: ['cerveny'] }, decor: [], streak: { count: 0, best: 0, last: '', totem: 0, days: [] }, outfit: { shirt: 'oranzove', pants: 'modre', shoes: 'sede', hat: 'nic', enchant: 'ne' } }; }
+function defaults() { return { caseMode: 'both', slow: false, strict: 'normal', total: 0, rounds: { letters: 0, syllables: 0, numbers: 0, math: 0, writing: 0 }, stats: {}, emeralds: 0, dog: { collar: 'cerveny', owned: ['cerveny'] }, decor: [], streak: { count: 0, best: 0, last: '', totem: 0, days: [] }, outfit: { shirt: 'oranzove', pants: 'modre', shoes: 'sede', hat: 'nic', enchant: 'ne' } }; }
 function load() {
   try { const s = JSON.parse(localStorage.getItem(KEY)); if (s) { const d = defaults(); return Object.assign(d, s, { rounds: Object.assign(d.rounds, s.rounds || {}), outfit: Object.assign(d.outfit, s.outfit || {}), dog: Object.assign(d.dog, s.dog || {}), streak: Object.assign(d.streak, s.streak || {}) }); } } catch (e) {}
   return defaults();
@@ -529,6 +533,7 @@ const painters = {
   stone(g, r) { noise(g, r, STONE); for (let i = 0; i < 6; i++) { const x = Math.floor(r() * 15), y = Math.floor(r() * 16); px(g, x, y, '#616161'); px(g, x + 1, y, '#5a5a5a'); } },
   ironOre(g, r) { painters.stone(g, r); ore(g, r, ['#d8af93', '#c4936f', '#ecd0b8']); },
   goldOre(g, r) { painters.stone(g, r); ore(g, r, ['#f2c94c', '#d8a23a', '#fff1a6']); },
+  redstoneOre(g, r) { painters.stone(g, r); ore(g, r, ['#d02a1e', '#a01810', '#ff5a3c']); },
   lapisOre(g, r) { painters.stone(g, r); ore(g, r, ['#2f5ec4', '#1f45a0', '#5a86e8']); },
   diamondOre(g, r) { painters.stone(g, r); ore(g, r, ['#5de0e6', '#2fb8c4', '#b1f6f8']); },
   cobble(g, r) {
@@ -885,11 +890,135 @@ function genMath() {
   return { answer: String(ans), choices: pickChoices(ans, near, pool, choiceCount('math')).map(String), say: `Kolik je ${a} ${op === '+' ? 'plus' : 'mínus'} ${b}?`, task: `${a} ${op === '+' ? '+' : '−'} ${b} = ?`, stat: 'math:' + key, key };
 }
 
+/* ---------- psaní: obtahování prstem ---------- */
+// tahy číslic v rámečku 100 × 140, jak se píšou ve škole (pořadí a směr tahů)
+const GLYPHS = {
+  '0': ['M50 15 C16 15 18 125 50 125 C82 125 84 15 50 15'],
+  '1': ['M30 52 L62 15 L62 125'],
+  '2': ['M24 45 C24 8 80 6 78 44 C76 72 42 95 22 125 L82 125'],
+  '3': ['M24 32 C38 4 86 10 76 44 C70 62 56 66 44 66 C62 66 86 76 80 100 C74 132 30 132 21 110'],
+  '4': ['M58 15 L20 90 L85 90', 'M66 52 L66 125'],
+  '5': ['M33 15 L28 66 C46 54 84 58 80 93 C76 130 34 130 21 112', 'M33 15 L78 15'],
+  '6': ['M72 18 C40 18 22 58 24 94 C26 130 78 130 78 98 C78 66 34 64 26 92'],
+  '7': ['M22 18 L80 18 L42 125'],
+  '8': ['M70 36 C70 10 30 10 30 36 C30 62 76 68 76 98 C76 130 24 130 24 98 C24 68 70 62 70 36'],
+  '9': ['M74 42 C70 12 28 12 27 42 C26 72 72 72 74 44 L68 125'],
+};
+const TRACE_TOL = 13, TRACE_SLIP = 28; // v jednotkách rámečku: jak blízko čáry musí prst být a kdy už ujel
+let svgProbe = null;
+function sampleStroke(d) {
+  if (!svgProbe) { svgProbe = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); svgProbe.setAttribute('width', '0'); svgProbe.setAttribute('height', '0'); svgProbe.style.position = 'absolute'; document.body.appendChild(svgProbe); }
+  const el = document.createElementNS('http://www.w3.org/2000/svg', 'path'); el.setAttribute('d', d); svgProbe.appendChild(el);
+  const len = el.getTotalLength(), n = Math.max(8, Math.round(len / 4)), pts = [];
+  for (let i = 0; i <= n; i++) { const q = el.getPointAtLength(len * i / n); pts.push([q.x, q.y]); }
+  el.remove(); return pts;
+}
+let TR = null; // stav obtahování
+function setupTrace(ch) {
+  const strokes = GLYPHS[ch].map(d => ({ d, pts: sampleStroke(d) }));
+  TR = { ch, strokes, si: 0, pi: 0, down: false, trail: [] };
+  layoutTrace();
+}
+function layoutTrace() {
+  if (!TR) return;
+  const box = $('#trace'), cv = $('#traceCanvas'); const cs = getComputedStyle(box);
+  const W = box.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight) - 12;
+  const H = box.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom) - 18;
+  const k = Math.max(1.5, Math.min(W / 100, H / 140));
+  const dpr = window.devicePixelRatio || 1;
+  cv.style.width = 100 * k + 'px'; cv.style.height = 140 * k + 'px';
+  cv.width = Math.round(100 * k * dpr); cv.height = Math.round(140 * k * dpr);
+  TR.k = k; TR.dpr = dpr; drawTrace();
+}
+function drawTrace() {
+  const cv = $('#traceCanvas'), g = cv.getContext('2d'), sc = TR.k * TR.dpr;
+  g.setTransform(1, 0, 0, 1, 0, 0); g.clearRect(0, 0, cv.width, cv.height); g.setTransform(sc, 0, 0, sc, 0, 0);
+  g.lineCap = 'round'; g.lineJoin = 'round';
+  // linky jako v sešitě
+  g.strokeStyle = '#c9d8ea'; g.lineWidth = 1.2; [15, 125].forEach(y => { g.beginPath(); g.moveTo(4, y); g.lineTo(96, y); g.stroke(); });
+  TR.strokes.forEach(st => { g.strokeStyle = '#ddd3bd'; g.lineWidth = 15; g.stroke(new Path2D(st.d)); });
+  const done = (pts, upto) => { if (upto < 1) return; g.strokeStyle = '#3a8a2a'; g.lineWidth = 11; g.beginPath(); g.moveTo(...pts[0]); for (let i = 1; i <= upto; i++) g.lineTo(...pts[i]); g.stroke(); };
+  TR.strokes.forEach((st, i) => { if (i < TR.si) done(st.pts, st.pts.length - 1); else if (i === TR.si) done(st.pts, TR.pi); });
+  if (TR.trail.length > 1) { g.strokeStyle = 'rgba(29,23,18,.35)'; g.lineWidth = 3; g.beginPath(); g.moveTo(...TR.trail[0]); TR.trail.forEach(q => g.lineTo(...q)); g.stroke(); }
+  const st = TR.strokes[TR.si]; if (!st) return;
+  // zelená tečka: kde pokračovat, šipka: kterým směrem
+  const [x, y] = st.pts[TR.pi], nx = st.pts[Math.min(st.pts.length - 1, TR.pi + 5)];
+  const ang = Math.atan2(nx[1] - y, nx[0] - x);
+  g.fillStyle = '#4e9a32'; g.strokeStyle = '#161616'; g.lineWidth = 1.5;
+  g.beginPath(); g.arc(x, y, 8, 0, Math.PI * 2); g.fill(); g.stroke();
+  g.save(); g.translate(x, y); g.rotate(ang); g.strokeStyle = '#4e9a32'; g.lineWidth = 3; g.beginPath(); g.moveTo(9, 0); g.lineTo(17, 0); g.stroke(); g.fillStyle = '#4e9a32'; g.beginPath(); g.moveTo(24, 0); g.lineTo(16, -5); g.lineTo(16, 5); g.closePath(); g.fill(); g.restore();
+  if (TR.strokes.length > 1 && TR.pi === 0) { g.fillStyle = '#161616'; g.font = '700 9px Andika, sans-serif'; g.fillText(String(TR.si + 1), x + 9, y - 7); }
+}
+function tracePoint(e) { const r = $('#traceCanvas').getBoundingClientRect(); return [(e.clientX - r.left) / TR.k, (e.clientY - r.top) / TR.k]; }
+const dist = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1]);
+function traceDown(e) {
+  if (!TR || !R || R.busy) return;
+  audio();
+  const q = tracePoint(e), st = TR.strokes[TR.si];
+  if (dist(q, st.pts[TR.pi]) > TRACE_TOL * 1.4) { sfx.nope(); speak('Začni u zelené tečky.'); return; }
+  TR.down = true; TR.trail = [q]; $('#traceCanvas').setPointerCapture(e.pointerId);
+}
+function traceMove(e) {
+  if (!TR || !TR.down) return;
+  // rychlý tah prstem: projít i mezilehlé body, ať se nic nepřeskočí
+  const evs = e.getCoalescedEvents ? e.getCoalescedEvents() : [];
+  for (const ev of (evs.length ? evs : [e])) { if (!traceStep(tracePoint(ev))) return; }
+  drawTrace();
+}
+// vrací false, když tah skončil (ujel nebo dokončen)
+function traceStep(q) {
+  const st = TR.strokes[TR.si];
+  TR.trail.push(q); if (TR.trail.length > 40) TR.trail.shift();
+  let best = -1, near = Infinity;
+  for (let j = TR.pi; j < Math.min(st.pts.length, TR.pi + 14); j++) { const d = dist(q, st.pts[j]); near = Math.min(near, d); if (d <= TRACE_TOL) best = j; }
+  if (best > TR.pi) TR.pi = best;
+  if (near > TRACE_SLIP) { traceSlip(); return false; }
+  if (TR.pi >= st.pts.length - 2) {
+    TR.si++; TR.pi = 0; TR.down = false; TR.trail = [];
+    tone(990, 0, .08, 'square', .05);
+    drawTrace();
+    if (TR.si >= TR.strokes.length) finishTrace();
+    return false;
+  }
+  return true;
+}
+function traceUp() { if (!TR) return; TR.down = false; TR.trail = []; drawTrace(); }
+// prst ujel z čáry: tah se začíná znovu a úkol už není bez chyby
+function traceSlip() {
+  TR.down = false; TR.pi = 0; TR.trail = [];
+  R.firstTry = false; sfx.nope(); retrigger($('#trace'), 'slip');
+  speak('Ujelo ti to. Zkus ten tah znovu od zelené tečky.');
+  drawTrace();
+}
+function finishTrace() {
+  R.busy = true;
+  const s = save.stats[R.statKey] || { ok: 0, miss: 0 };
+  if (R.firstTry) { s.ok++; s.miss = Math.max(0, s.miss - 1); } else s.miss++;
+  save.stats[R.statKey] = s;
+  const clean = R.firstTry, texName = LEVELS[R.level].tex;
+  if (clean) { R.clean++; save.emeralds++; updateGems('hudGems'); dogHappy($('#gameDog')); }
+  persist();
+  sfx.breakIt();
+  const pip = $('#pips').children[R.i];
+  pip.classList.add('done', clean ? 'clean' : 'miss'); pip.style.backgroundImage = `url(${tex(texName)})`;
+  R.loot.push({ t: texName, clean });
+  R.i++;
+  const ch = TR.ch;
+  setTimeout(() => { if (R && TR && TR.ch === ch) speak(pick(Math.random, PRAISE) + ' To je ' + ch + '.', () => setTimeout(nextTask, 300)); }, 200);
+}
+function genWriting() {
+  const r = save.rounds.writing;
+  const pool = (r < 3 ? '12345' : '0123456789').split('').filter(c => !R.recent.slice(-2).includes(c));
+  const ch = weightedPick(pool, c => weight('writing', c));
+  return ch;
+}
+
 const LEVELS = {
   letters: { name: 'Písmena', tex: 'dirt', items: LETTERS, sample: ['A', 'm'], intro: 'Poslouchej a kopej do správného písmenka.' },
   syllables: { name: 'Slabiky', tex: 'stone', items: SYLL, sample: ['MA', 'lo'], small: true, intro: 'Poslouchej a kopej do správné slabiky.' },
   numbers: { name: 'Čísla', tex: 'goldOre', gen: genNumbers, sample: ['3', '7'], intro: 'Poslouchej číslo a kopej do správné kostky.' },
   math: { name: 'Počty', tex: 'lapisOre', gen: genMath, sample: ['2+3'], small: true, intro: 'Spočítej příklad a kopej do správného výsledku.' },
+  writing: { name: 'Psaní', tex: 'redstoneOre', trace: genWriting, len: 5, sample: ['1 2'], intro: 'Obtahuj číslo prstem. Začni u zelené tečky a jeď po šipce.' },
 };
 function sayText(level, it) { return level === 'letters' ? SAY_LETTER[it] : it.toLocaleLowerCase('cs'); }
 // dvě kostky, které znějí stejně (I a Y, Ú a Ů), nesmí být v jednom úkolu
@@ -1284,21 +1413,32 @@ const NEED_CLEAN = { mild: 4, normal: 5, strict: 6 };
 const STUCK_MS = 2000;
 function startRound(level) {
   const L = LEVELS[level];
-  R = { level, i: 0, busy: true, recent: [], loot: [], clean: 0 };
+  R = { level, i: 0, busy: true, recent: [], loot: [], clean: 0, len: L.len || ROUND_LEN };
+  TR = null; $('#trace').hidden = true; $('#blocks').hidden = false; $('#task').hidden = true;
   show('game');
   $('#gameGround').style.backgroundImage = `url(${tex(L.tex, true)})`;
   mountPlayer($('#gamePlayer')); mountDog($('#gameDog')); updateGems();
   const hp = $('#hudPick'); hp.innerHTML = ''; hp.appendChild(pickCanvas(tierOf(save.total)));
   const pips = $('#pips'); pips.innerHTML = '';
-  for (let i = 0; i < ROUND_LEN; i++) { const p = document.createElement('span'); p.className = 'pip'; pips.appendChild(p); }
+  for (let i = 0; i < R.len; i++) { const p = document.createElement('span'); p.className = 'pip'; pips.appendChild(p); }
   $('#blocks').innerHTML = '';
   speak(L.intro, () => nextTask());
 }
 function nextTask() {
   if (!R) return;
-  if (R.i >= ROUND_LEN) return endRound();
+  if (R.i >= R.len) return endRound();
   const level = R.level, L = LEVELS[level];
   let target;
+  if (L.trace) {
+    const ch = L.trace();
+    R.recent.push(ch); R.target = ch; R.say = `Napiš číslo ${ch}.`; R.statKey = 'writing:' + ch;
+    R.hits = 0; R.wrongs = 0; R.firstTry = true; R.busy = false; R.stuck = false;
+    $('#blocks').hidden = true; $('#trace').hidden = false; $('#task').hidden = true;
+    R.els = null; setupTrace(ch); updateHint();
+    const say = R.say; setTimeout(() => { if (R && R.say === say && !R.busy) speak(say); }, 250);
+    return;
+  }
+  $('#trace').hidden = true; $('#blocks').hidden = false;
   if (L.gen) {
     const t = L.gen();
     target = t.answer; R.choices = t.choices; R.say = t.say; R.statKey = t.stat; R.recent.push(t.key);
@@ -1337,7 +1477,7 @@ function layoutBlocks() {
   box.style.gridTemplateColumns = `repeat(${bestC}, var(--bs))`;
   box.style.gap = gap + 'px';
 }
-addEventListener('resize', () => { layoutBlocks(); if (!$('#house').hidden) fitCanvas($('#houseBig')); if (!$('#farm').hidden) fitCanvas($('#farmBig')); });
+addEventListener('resize', () => { layoutBlocks(); if (TR && !$('#trace').hidden) layoutTrace(); if (!$('#house').hidden) fitCanvas($('#houseBig')); if (!$('#farm').hidden) fitCanvas($('#farmBig')); });
 function retrigger(el, cls) { el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls); }
 function tapBlock(it, el) {
   if (!R || R.busy || R.stuck) return;
@@ -1414,9 +1554,9 @@ function flyTo(rect, pip, texName, cb) {
 }
 function endRound() {
   const level = R.level;
-  const need = NEED_CLEAN[save.strict] || 5;
+  const need = Math.ceil((NEED_CLEAN[save.strict] || 5) * R.len / ROUND_LEN);
   const ok = R.clean >= need;
-  const perfect = R.clean === ROUND_LEN;
+  const perfect = R.clean === R.len;
   const earned = R.clean + (perfect ? PERFECT_BONUS : 0);
   if (perfect) { save.emeralds += PERFECT_BONUS; persist(); }
   const loot = $('#loot'); loot.innerHTML = '';
@@ -1435,15 +1575,15 @@ function endRound() {
   if (!ok) {
     // nepovedené kolo se nepočítá: nic neroste, nic se neodemyká, obtížnost se nezvedá (smaragdy za kostky bez chyby zůstanou)
     title.textContent = 'Skoro!'; title.classList.add('fail');
-    $('#endLine').textContent = `Bez chyby: ${R.clean} z ${ROUND_LEN}. ${building ? 'Dům vyroste' : 'Farma vyroste'}, když jich bude aspoň ${need}.`;
+    $('#endLine').textContent = `Bez chyby: ${R.clean} z ${R.len}. ${building ? 'Dům vyroste' : 'Farma vyroste'}, když jich bude aspoň ${need}.`;
     np.hidden = true; no.hidden = true;
     $('#btnAgain').textContent = 'Zkusit znovu';
     (building ? drawHouse : drawFarm)($('#endHouse'));
-    const got = R.clean;
+    const got = R.clean, R_len = R.len;
     R = null;
     $('#endOverlay').hidden = false;
     sfx.nope();
-    speak(`Tentokrát ${building ? 'dům nevyrostl' : 'farma nevyrostla'}. Bez chyby jsi měl ${got} z ${ROUND_LEN}, potřebuješ aspoň ${need}. Poslouchej pozorně a zkus to znovu!`);
+    speak(`Tentokrát ${building ? 'dům nevyrostl' : 'farma nevyrostla'}. Bez chyby jsi měl ${got} z ${R_len}, potřebuješ aspoň ${need}. Poslouchej pozorně a zkus to znovu!`);
     $('#btnAgain').focus({ preventScroll: true });
     return;
   }
@@ -1458,7 +1598,7 @@ function endRound() {
   const st = save.total;
   const fs = farmStage();
   const grew = st <= FARM_START ? `Přibylo na domě: ${STAGES[st - 1]}.` : st <= FARM_START + FARM_STAGES.length ? `Na farmě přibylo: ${FARM_STAGES[fs - 1]}.` : 'Farma je hotová, brzy přijde vesnice.';
-  $('#endLine').textContent = (perfect ? 'Bez jediné chyby! ' : `Bez chyby: ${R.clean} z ${ROUND_LEN}. `) + grew;
+  $('#endLine').textContent = (perfect ? 'Bez jediné chyby! ' : `Bez chyby: ${R.clean} z ${R.len}. `) + grew;
   if (newTier) { np.hidden = false; np.innerHTML = ''; np.appendChild(pickCanvas(after)); np.insertAdjacentHTML('beforeend', `<span>Nový krumpáč: ${after.name}!</span>`); }
   else np.hidden = true;
   const fresh = OUTFIT_CATS.flatMap(([cat]) => OUTFIT[cat].filter(it => it.at === st || (day && it.streak && day.prevBest < it.streak && day.count >= it.streak)).map(it => [cat, it]));
@@ -1501,7 +1641,7 @@ function updateSettings() {
   $('#rateNormal').setAttribute('aria-pressed', String(!save.slow));
   $('#rateSlow').setAttribute('aria-pressed', String(save.slow));
   const st = Math.min(12, save.total);
-  $('#progressInfo').textContent = `Odehraná kola: písmena ${save.rounds.letters}, slabiky ${save.rounds.syllables}, čísla ${save.rounds.numbers}, počty ${save.rounds.math}. Dům: ${st} z 12 dílů. Farma: ${farmStage()} z ${FARM_STAGES.length}. Smaragdy: ${save.emeralds}. Řada: ${streakNow().count} (nejdelší ${save.streak.best}). Krumpáč: ${tierOf(save.total).name}.`;
+  $('#progressInfo').textContent = `Odehraná kola: písmena ${save.rounds.letters}, slabiky ${save.rounds.syllables}, čísla ${save.rounds.numbers}, počty ${save.rounds.math}, psaní ${save.rounds.writing}. Dům: ${st} z 12 dílů. Farma: ${farmStage()} z ${FARM_STAGES.length}. Smaragdy: ${save.emeralds}. Řada: ${streakNow().count} (nejdelší ${save.streak.best}). Krumpáč: ${tierOf(save.total).name}.`;
   updateVoiceInfo();
 }
 $('#btnSettings').addEventListener('click', () => { updateSettings(); $('#resetConfirm').hidden = true; $('#setOverlay').hidden = false; });
@@ -1522,6 +1662,9 @@ $('#btnWardBack').addEventListener('click', goHome);
 $('#btnFarmBack').addEventListener('click', goHome);
 $('#btnShopBack').addEventListener('click', goHome);
 $('#btnStreak').addEventListener('click', openStreak);
+$('#traceCanvas').addEventListener('pointerdown', traceDown);
+$('#traceCanvas').addEventListener('pointermove', traceMove);
+['pointerup', 'pointercancel'].forEach(t => $('#traceCanvas').addEventListener(t, traceUp));
 $('#btnStreakClose').addEventListener('click', () => { $('#streakOverlay').hidden = true; });
 $('#btnFarmShop').addEventListener('click', openShop);
 $('#btnFarmShop').appendChild(sprIcon('emerald'));
