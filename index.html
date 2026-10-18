@@ -230,7 +230,9 @@ canvas.ench { animation: ench 1.8s ease-in-out infinite; }
 .listen.talking { animation: talk .6s ease-in-out infinite; }
 @keyframes talk { 50% { transform: scale(1.07); } }
 .hint { position: absolute; top: 10px; left: 0; right: 0; text-align: center; color: var(--white); font-family: var(--f-read); font-size: 18px; text-shadow: 1px 1px 0 #000; pointer-events: none; }
-.blocks { position: absolute; inset: 0; display: grid; justify-content: center; align-content: center; padding: 44px max(16px, env(safe-area-inset-right, 0px)) 24px max(16px, env(safe-area-inset-left, 0px)); }
+.task { flex: none; align-self: center; margin-top: 18px; padding: 8px 22px; background-size: 64px 64px; image-rendering: pixelated; border: 4px solid #161616; box-shadow: inset 4px 4px 0 rgba(255,255,255,.2), inset -4px -4px 0 rgba(0,0,0,.3), 0 5px 0 rgba(0,0,0,.35); font-family: var(--f-read); font-weight: 700; font-size: clamp(34px, 8vw, 60px); color: var(--ink); line-height: 1.1; }
+.task span { background: var(--plate); padding: 2px 16px; display: inline-block; border: 3px solid var(--plate-edge); white-space: nowrap; }
+.blocks { position: relative; flex: 1; min-height: 0; display: grid; justify-content: center; align-content: center; padding: 44px max(16px, env(safe-area-inset-right, 0px)) 24px max(16px, env(safe-area-inset-left, 0px)); }
 .blocks .blk { width: var(--bs); }
 .blk.hit { animation: hit .14s; }
 @keyframes hit { 50% { transform: scale(.93); } }
@@ -332,8 +334,9 @@ canvas.ench { animation: ench 1.8s ease-in-out infinite; }
       </div>
       <div class="grass-strip px" data-tex="grass"></div>
     </div>
-    <div class="ground px" id="gameGround">
+    <div class="ground px" id="gameGround" style="display:flex; flex-direction:column;">
       <div class="hint" id="hint" hidden></div>
+      <div class="task" id="task" data-tex="planks" hidden></div>
       <div class="blocks" id="blocks"></div>
     </div>
   </section>
@@ -496,7 +499,7 @@ let R = null; // běžící kolo
 
 /* ---------- uložený postup ---------- */
 const KEY = 'adamuv-dul-v1';
-function defaults() { return { caseMode: 'both', slow: false, strict: 'normal', total: 0, rounds: { letters: 0, syllables: 0 }, stats: {}, emeralds: 0, dog: { collar: 'cerveny', owned: ['cerveny'] }, decor: [], streak: { count: 0, best: 0, last: '', totem: 0, days: [] }, outfit: { shirt: 'oranzove', pants: 'modre', shoes: 'sede', hat: 'nic', enchant: 'ne' } }; }
+function defaults() { return { caseMode: 'both', slow: false, strict: 'normal', total: 0, rounds: { letters: 0, syllables: 0, numbers: 0, math: 0 }, stats: {}, emeralds: 0, dog: { collar: 'cerveny', owned: ['cerveny'] }, decor: [], streak: { count: 0, best: 0, last: '', totem: 0, days: [] }, outfit: { shirt: 'oranzove', pants: 'modre', shoes: 'sede', hat: 'nic', enchant: 'ne' } }; }
 function load() {
   try { const s = JSON.parse(localStorage.getItem(KEY)); if (s) { const d = defaults(); return Object.assign(d, s, { rounds: Object.assign(d.rounds, s.rounds || {}), outfit: Object.assign(d.outfit, s.outfit || {}), dog: Object.assign(d.dog, s.dog || {}), streak: Object.assign(d.streak, s.streak || {}) }); } } catch (e) {}
   return defaults();
@@ -525,6 +528,8 @@ const painters = {
   grass(g, r) { noise(g, r, DIRT); for (let x = 0; x < 16; x++) { const h = 3 + Math.floor(r() * 3); for (let y = 0; y < h; y++) px(g, x, y, pick(r, ['#5fa83a', '#539a31', '#6cb845', '#4a8b2b'])); } },
   stone(g, r) { noise(g, r, STONE); for (let i = 0; i < 6; i++) { const x = Math.floor(r() * 15), y = Math.floor(r() * 16); px(g, x, y, '#616161'); px(g, x + 1, y, '#5a5a5a'); } },
   ironOre(g, r) { painters.stone(g, r); ore(g, r, ['#d8af93', '#c4936f', '#ecd0b8']); },
+  goldOre(g, r) { painters.stone(g, r); ore(g, r, ['#f2c94c', '#d8a23a', '#fff1a6']); },
+  lapisOre(g, r) { painters.stone(g, r); ore(g, r, ['#2f5ec4', '#1f45a0', '#5a86e8']); },
   diamondOre(g, r) { painters.stone(g, r); ore(g, r, ['#5de0e6', '#2fb8c4', '#b1f6f8']); },
   cobble(g, r) {
     noise(g, r, ['#7d7d7d', '#8a8a8a', '#6f6f6f', '#999999']);
@@ -835,9 +840,56 @@ const SYL_V = ['A', 'Á', 'E', 'É', 'I', 'Í', 'O', 'U', 'Y', 'Ý'];
 const SYLL = CONS.flatMap(c => SYL_V.map(v => c + v));
 const vFam = v => ({ I: 'i', Í: 'i', Y: 'y', Ý: 'y' })[v];
 
+/* ---------- matematika ---------- */
+const rnd = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
+const range = (a, b, step = 1) => { const out = []; for (let i = a; i <= b; i += step) out.push(i); return out; };
+function weightedPick(items, w) {
+  const ws = items.map(w); let t = Math.random() * ws.reduce((a, b) => a + b, 0);
+  for (let i = 0; i < items.length; i++) { t -= ws[i]; if (t <= 0) return items[i]; }
+  return items[items.length - 1];
+}
+// správná odpověď + podobné (o jedna vedle, prohozené číslice…) + doplnit náhodnými
+function pickChoices(ans, near, pool, k) {
+  const out = [ans];
+  for (const x of shuffle(near.filter(x => pool.includes(x) && x !== ans))) { if (out.length >= k) break; if (!out.includes(x) && Math.random() < .8) out.push(x); }
+  for (const x of shuffle(pool.slice())) { if (out.length >= k) break; if (!out.includes(x)) out.push(x); }
+  return shuffle(out);
+}
+// čísla: do 10, po 3 povedených kolech do 20, po 7 do 100
+function genNumbers() {
+  const r = save.rounds.numbers, max = r < 3 ? 10 : r < 7 ? 20 : 100;
+  const pool = range(0, max);
+  const avoid = R.recent.slice(-3);
+  const n = weightedPick(pool.filter(x => !avoid.includes('n' + x)), x => weight('numbers', String(x)));
+  const rev = n > 9 ? Number(String(n).split('').reverse().join('')) : -1;
+  const near = [n - 1, n + 1, n - 10, n + 10, rev, n === 6 ? 9 : n === 9 ? 6 : -1];
+  return { answer: String(n), choices: pickChoices(n, near, pool, choiceCount('numbers')).map(String), say: String(n), stat: 'numbers:' + n, key: 'n' + n };
+}
+// příklady: do 10, po 3 povedených kolech do 20, po 7 i celé desítky do 100
+function genMath() {
+  const r = save.rounds.math;
+  let a, b, op, key, tens = false, tries = 0;
+  do {
+    op = Math.random() < .5 ? '+' : '-';
+    tens = r >= 7 && Math.random() < .4;
+    const max = r < 3 ? 10 : 20;
+    if (tens) { if (op === '+') { a = rnd(1, 9) * 10; b = rnd(1, 10 - a / 10) * 10; } else { a = rnd(2, 10) * 10; b = rnd(1, a / 10 - 1) * 10; } }
+    else if (op === '+') { a = rnd(0, max - 1); b = rnd(0, max - a); }
+    else { a = rnd(1, max); b = rnd(0, a); }
+    key = a + op + b;
+  } while ((R.recent.includes(key) || ((a === 0 || b === 0) && Math.random() < .8)) && ++tries < 40);
+  const ans = op === '+' ? a + b : a - b;
+  const step = tens ? 10 : 1;
+  const pool = tens ? range(0, 100, 10) : range(0, r < 3 ? 10 : 20);
+  const near = [ans + step, ans - step, ans + 2 * step, ans - 2 * step, op === '+' ? a - b : a + b];
+  return { answer: String(ans), choices: pickChoices(ans, near, pool, choiceCount('math')).map(String), say: `Kolik je ${a} ${op === '+' ? 'plus' : 'mínus'} ${b}?`, task: `${a} ${op === '+' ? '+' : '−'} ${b} = ?`, stat: 'math:' + key, key };
+}
+
 const LEVELS = {
-  letters: { name: 'Písmena', tex: 'dirt', items: LETTERS, sample: ['A', 'm'] },
-  syllables: { name: 'Slabiky', tex: 'stone', items: SYLL, sample: ['MA', 'lo'] },
+  letters: { name: 'Písmena', tex: 'dirt', items: LETTERS, sample: ['A', 'm'], intro: 'Poslouchej a kopej do správného písmenka.' },
+  syllables: { name: 'Slabiky', tex: 'stone', items: SYLL, sample: ['MA', 'lo'], small: true, intro: 'Poslouchej a kopej do správné slabiky.' },
+  numbers: { name: 'Čísla', tex: 'goldOre', gen: genNumbers, sample: ['3', '7'], intro: 'Poslouchej číslo a kopej do správné kostky.' },
+  math: { name: 'Počty', tex: 'lapisOre', gen: genMath, sample: ['2+3'], small: true, intro: 'Spočítej příklad a kopej do správného výsledku.' },
 };
 function sayText(level, it) { return level === 'letters' ? SAY_LETTER[it] : it.toLocaleLowerCase('cs'); }
 // dvě kostky, které znějí stejně (I a Y, Ú a Ů), nesmí být v jednom úkolu
@@ -904,7 +956,7 @@ function renderHome() {
   const wrap = $('#levels'); wrap.innerHTML = '';
   Object.entries(LEVELS).forEach(([key, L]) => {
     const btn = document.createElement('button'); btn.className = 'lvl'; btn.setAttribute('aria-label', L.name);
-    const b = blockEl(L.tex, '', key === 'syllables'); b.tabIndex = -1; b.setAttribute('aria-hidden', 'true');
+    const b = blockEl(L.tex, '', !!L.small); b.tabIndex = -1; b.setAttribute('aria-hidden', 'true');
     setGlyph(b.querySelector('.glyph'), save.caseMode === 'lower' ? L.sample.join(' ').toLocaleLowerCase('cs') : save.caseMode === 'upper' ? L.sample.join(' ').toLocaleUpperCase('cs') : L.sample.join(' '));
     btn.appendChild(b);
     btn.insertAdjacentHTML('beforeend', `<span class="lvl-name">${L.name}</span>`);
@@ -1240,27 +1292,37 @@ function startRound(level) {
   const pips = $('#pips'); pips.innerHTML = '';
   for (let i = 0; i < ROUND_LEN; i++) { const p = document.createElement('span'); p.className = 'pip'; pips.appendChild(p); }
   $('#blocks').innerHTML = '';
-  speak(level === 'letters' ? 'Poslouchej a kopej do správného písmenka.' : 'Poslouchej a kopej do správné slabiky.', () => nextTask());
+  speak(L.intro, () => nextTask());
 }
 function nextTask() {
   if (!R) return;
   if (R.i >= ROUND_LEN) return endRound();
-  const level = R.level;
-  const target = pickTarget(level, R.recent.slice(-2));
-  R.recent.push(target);
-  R.target = target; R.choices = makeChoices(level, target, choiceCount(level));
+  const level = R.level, L = LEVELS[level];
+  let target;
+  if (L.gen) {
+    const t = L.gen();
+    target = t.answer; R.choices = t.choices; R.say = t.say; R.statKey = t.stat; R.recent.push(t.key);
+    $('#task').hidden = !t.task; if (t.task) $('#task').innerHTML = `<span>${t.task}</span>`;
+  } else {
+    target = pickTarget(level, R.recent.slice(-2));
+    R.recent.push(target);
+    R.choices = makeChoices(level, target, choiceCount(level)); R.say = sayText(level, target); R.statKey = level + ':' + target;
+    $('#task').hidden = true;
+  }
+  R.target = target;
   R.hits = 0; R.wrongs = 0; R.firstTry = true; R.busy = false; R.stuck = false;
   $('#blocks').classList.remove('stuck'); $('#hudPick').classList.remove('stuck');
   const box = $('#blocks'); box.innerHTML = '';
   R.els = R.choices.map(it => {
-    const b = blockEl(LEVELS[level].tex, display(it), level === 'syllables');
+    const b = blockEl(L.tex, display(it), it.length > 1);
     b.setAttribute('aria-label', 'kostka');
     b.addEventListener('click', () => tapBlock(it, b));
     box.appendChild(b); return b;
   });
   layoutBlocks();
   updateHint();
-  setTimeout(() => { if (R && R.target === target && !R.busy) speak(sayText(level, target)); }, 250);
+  const say = R.say;
+  setTimeout(() => { if (R && R.say === say && !R.busy) speak(say); }, 250);
 }
 function layoutBlocks() {
   if (!R || !R.els) return;
@@ -1288,7 +1350,7 @@ function tapBlock(it, el) {
     $('#blocks').classList.add('stuck'); retrigger($('#hudPick'), 'stuck');
     if (R.wrongs >= 2) R.els[R.choices.indexOf(R.target)].classList.add('glow');
     const t = R.target;
-    setTimeout(() => { if (R && R.target === t && !R.busy) speak('Chyba, krumpáč se zasekl. Poslouchej: ' + sayText(R.level, t)); }, 300);
+    setTimeout(() => { if (R && R.target === t && !R.busy) speak((LEVELS[R.level].gen === genMath ? 'Chyba, krumpáč se zasekl. Zkus to znovu: ' : 'Chyba, krumpáč se zasekl. Poslouchej: ') + R.say); }, 300);
     setTimeout(() => { if (R && R.target === t) { R.stuck = false; $('#blocks').classList.remove('stuck'); $('#hudPick').classList.remove('stuck'); } }, STUCK_MS);
     return;
   }
@@ -1304,7 +1366,7 @@ function tapBlock(it, el) {
 const PRAISE = ['Výborně!', 'Super!', 'Ano!', 'Paráda!', 'Skvěle!', 'To je ono!', 'Přesně tak!'];
 function breakBlock(el) {
   R.busy = true;
-  const key = R.level + ':' + R.target;
+  const key = R.statKey;
   const s = save.stats[key] || { ok: 0, miss: 0 };
   if (R.firstTry) { s.ok++; s.miss = Math.max(0, s.miss - 1); } else s.miss++;
   save.stats[key] = s; persist();
@@ -1421,7 +1483,7 @@ function goHome() {
 /* ---------- nápověda bez hlasu ---------- */
 function updateHint() {
   const h = $('#hint');
-  if (R && R.target && noVoice()) { h.hidden = false; h.textContent = 'Řekni nahlas: ' + sayText(R.level, R.target); }
+  if (R && R.target && noVoice()) { h.hidden = false; h.textContent = 'Řekni nahlas: ' + R.say; }
   else h.hidden = true;
 }
 
@@ -1439,7 +1501,7 @@ function updateSettings() {
   $('#rateNormal').setAttribute('aria-pressed', String(!save.slow));
   $('#rateSlow').setAttribute('aria-pressed', String(save.slow));
   const st = Math.min(12, save.total);
-  $('#progressInfo').textContent = `Odehraná kola: písmena ${save.rounds.letters}, slabiky ${save.rounds.syllables}. Dům: ${st} z 12 dílů. Farma: ${farmStage()} z ${FARM_STAGES.length}. Smaragdy: ${save.emeralds}. Řada: ${streakNow().count} (nejdelší ${save.streak.best}). Krumpáč: ${tierOf(save.total).name}.`;
+  $('#progressInfo').textContent = `Odehraná kola: písmena ${save.rounds.letters}, slabiky ${save.rounds.syllables}, čísla ${save.rounds.numbers}, počty ${save.rounds.math}. Dům: ${st} z 12 dílů. Farma: ${farmStage()} z ${FARM_STAGES.length}. Smaragdy: ${save.emeralds}. Řada: ${streakNow().count} (nejdelší ${save.streak.best}). Krumpáč: ${tierOf(save.total).name}.`;
   updateVoiceInfo();
 }
 $('#btnSettings').addEventListener('click', () => { updateSettings(); $('#resetConfirm').hidden = true; $('#setOverlay').hidden = false; });
@@ -1464,7 +1526,7 @@ $('#btnStreakClose').addEventListener('click', () => { $('#streakOverlay').hidde
 $('#btnFarmShop').addEventListener('click', openShop);
 $('#btnFarmShop').appendChild(sprIcon('emerald'));
 $('#heroPlayer').addEventListener('click', openWardrobe);
-$('#btnListen').addEventListener('click', () => { audio(); if (R && R.target && !R.busy) speak(sayText(R.level, R.target)); });
+$('#btnListen').addEventListener('click', () => { audio(); if (R && R.say && !R.busy) speak(R.say); });
 $('#btnAgain').addEventListener('click', () => { const lv = $('#endOverlay').dataset.level; $('#endOverlay').hidden = true; startRound(lv); });
 $('#btnEndHouse').addEventListener('click', () => { $('#endOverlay').hidden = true; openHouse(); });
 $('#btnEndHome').addEventListener('click', goHome);
