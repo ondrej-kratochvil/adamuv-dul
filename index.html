@@ -149,6 +149,11 @@ button:focus-visible { outline: 4px solid var(--gold); outline-offset: 3px; }
 .pips { flex: 1; display: flex; justify-content: center; gap: clamp(4px, 1vw, 8px); flex-wrap: wrap; }
 .pip { width: clamp(18px, 4vw, 28px); aspect-ratio: 1; background: rgba(0,0,0,.25); border: 2px solid rgba(0,0,0,.55); background-size: 100% 100%; image-rendering: pixelated; }
 .pip.done { border-color: #161616; }
+.pip.clean, .loot span.clean { border-color: var(--gold); box-shadow: 0 0 0 2px #161616; }
+.pip.miss, .loot span.miss { filter: grayscale(.8) brightness(.6); border-color: #8a2a17; }
+.blocks.stuck .blk { opacity: .5; filter: grayscale(.5); pointer-events: none; transition: opacity .15s; }
+.hud-pick.stuck { animation: nope .4s; background: rgba(160, 40, 20, .45); }
+.end-title.fail { color: #a8541c; }
 .hud-pick { width: 56px; height: 56px; display: grid; place-items: center; background: rgba(0,0,0,.18); border: 3px solid rgba(0,0,0,.45); }
 .hud-pick canvas { width: 40px; height: 40px; }
 .stage-row { display: grid; grid-template-columns: 1fr auto 1fr; align-items: end; position: relative; z-index: 1; }
@@ -339,6 +344,14 @@ canvas.ench { animation: ench 1.8s ease-in-out infinite; }
       <button class="gbtn" data-case="both" id="caseBoth">obojí</button>
     </div>
 
+    <h3>Přísnost</h3>
+    <p>Za chybu se krumpáč na 2 sekundy zasekne. Dům roste, jen když má Adam v kole dost kostek bez chyby (z 8).</p>
+    <div class="seg" id="segStrict">
+      <button class="gbtn" data-strict="mild" id="strictMild">mírná (4)</button>
+      <button class="gbtn" data-strict="normal" id="strictNormal">střední (5)</button>
+      <button class="gbtn" data-strict="strict" id="strictHard">přísná (6)</button>
+    </div>
+
     <h3>Hlas</h3>
     <p id="voiceInfo"></p>
     <div class="seg">
@@ -379,7 +392,7 @@ let R = null; // běžící kolo
 
 /* ---------- uložený postup ---------- */
 const KEY = 'adamuv-dul-v1';
-function defaults() { return { caseMode: 'both', slow: false, total: 0, rounds: { letters: 0, syllables: 0 }, stats: {}, outfit: { shirt: 'oranzove', pants: 'modre', shoes: 'sede', hat: 'nic', enchant: 'ne' } }; }
+function defaults() { return { caseMode: 'both', slow: false, strict: 'normal', total: 0, rounds: { letters: 0, syllables: 0 }, stats: {}, outfit: { shirt: 'oranzove', pants: 'modre', shoes: 'sede', hat: 'nic', enchant: 'ne' } }; }
 function load() {
   try { const s = JSON.parse(localStorage.getItem(KEY)); if (s) { const d = defaults(); return Object.assign(d, s, { rounds: Object.assign(d.rounds, s.rounds || {}), outfit: Object.assign(d.outfit, s.outfit || {}) }); } } catch (e) {}
   return defaults();
@@ -852,9 +865,12 @@ function openHouse() {
 
 /* ---------- herní kolo ---------- */
 const ROUND_LEN = 8;
+// kolik kostek z 8 musí být bez chyby, aby dům rostl
+const NEED_CLEAN = { mild: 4, normal: 5, strict: 6 };
+const STUCK_MS = 2000;
 function startRound(level) {
   const L = LEVELS[level];
-  R = { level, i: 0, busy: true, recent: [], loot: [] };
+  R = { level, i: 0, busy: true, recent: [], loot: [], clean: 0 };
   show('game');
   $('#gameGround').style.backgroundImage = `url(${tex(L.tex, true)})`;
   mountPlayer($('#gamePlayer'));
@@ -871,7 +887,8 @@ function nextTask() {
   const target = pickTarget(level, R.recent.slice(-2));
   R.recent.push(target);
   R.target = target; R.choices = makeChoices(level, target, choiceCount(level));
-  R.hits = 0; R.wrongs = 0; R.firstTry = true; R.busy = false;
+  R.hits = 0; R.wrongs = 0; R.firstTry = true; R.busy = false; R.stuck = false;
+  $('#blocks').classList.remove('stuck'); $('#hudPick').classList.remove('stuck');
   const box = $('#blocks'); box.innerHTML = '';
   R.els = R.choices.map(it => {
     const b = blockEl(LEVELS[level].tex, display(it), level === 'syllables');
@@ -899,14 +916,18 @@ function layoutBlocks() {
 addEventListener('resize', () => { layoutBlocks(); if (!$('#house').hidden) openHouse(); });
 function retrigger(el, cls) { el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls); }
 function tapBlock(it, el) {
-  if (!R || R.busy) return;
+  if (!R || R.busy || R.stuck) return;
   audio();
   const pl = $('#gamePlayer'); retrigger(pl, 'swing');
   if (it !== R.target) {
-    R.firstTry = false; R.wrongs++;
+    // chyba: krumpáč se na chvíli zasekne, takže tipování se nevyplácí
+    R.firstTry = false; R.wrongs++; R.stuck = true;
     sfx.nope(); retrigger(el, 'nope');
+    $('#blocks').classList.add('stuck'); retrigger($('#hudPick'), 'stuck');
     if (R.wrongs >= 2) R.els[R.choices.indexOf(R.target)].classList.add('glow');
-    const t = R.target; setTimeout(() => { if (R && R.target === t && !R.busy) speak(sayText(R.level, t)); }, 450);
+    const t = R.target;
+    setTimeout(() => { if (R && R.target === t && !R.busy) speak('Chyba, krumpáč se zasekl. Poslouchej: ' + sayText(R.level, t)); }, 300);
+    setTimeout(() => { if (R && R.target === t) { R.stuck = false; $('#blocks').classList.remove('stuck'); $('#hudPick').classList.remove('stuck'); } }, STUCK_MS);
     return;
   }
   const taps = tierOf(save.total).taps;
@@ -932,8 +953,10 @@ function breakBlock(el) {
   if (!REDUCED) burst(rect, texName);
   el.classList.add('gone');
   const pip = $('#pips').children[R.i];
-  R.loot.push(texName);
-  const done = () => { pip.classList.add('done'); pip.style.backgroundImage = `url(${tex(texName)})`; };
+  if (R.firstTry) R.clean++;
+  const clean = R.firstTry;
+  R.loot.push({ t: texName, clean });
+  const done = () => { pip.classList.add('done', clean ? 'clean' : 'miss'); pip.style.backgroundImage = `url(${tex(texName)})`; };
   if (REDUCED) done(); else flyTo(rect, pip, texName, done);
   R.i++;
   const target = R.target;
@@ -967,27 +990,47 @@ function flyTo(rect, pip, texName, cb) {
 }
 function endRound() {
   const level = R.level;
+  const need = NEED_CLEAN[save.strict] || 5;
+  const ok = R.clean >= need;
+  const loot = $('#loot'); loot.innerHTML = '';
+  R.loot.forEach(({ t, clean }) => { const sp = document.createElement('span'); sp.className = clean ? 'clean' : 'miss'; sp.style.backgroundImage = `url(${tex(t)})`; loot.appendChild(sp); });
+  const np = $('#newPick'), no = $('#newOutfit');
+  const title = $('#endTitle');
+  $('#endOverlay').dataset.level = level;
+  if (!ok) {
+    // nepovedené kolo se nepočítá: dům neroste, nic se neodemyká, obtížnost se nezvedá
+    title.textContent = 'Skoro!'; title.classList.add('fail');
+    $('#endLine').textContent = `Bez chyby: ${R.clean} z ${ROUND_LEN}. Dům vyroste, když jich bude aspoň ${need}.`;
+    np.hidden = true; no.hidden = true;
+    $('#btnAgain').textContent = 'Zkusit znovu';
+    drawHouse($('#endHouse'));
+    const got = R.clean;
+    R = null;
+    $('#endOverlay').hidden = false;
+    sfx.nope();
+    speak(`Tentokrát dům nevyrostl. Bez chyby jsi měl ${got} z ${ROUND_LEN}, potřebuješ aspoň ${need}. Poslouchej pozorně a zkus to znovu!`);
+    $('#btnAgain').focus({ preventScroll: true });
+    return;
+  }
+  title.textContent = 'Výborně, Adame!'; title.classList.remove('fail');
+  $('#btnAgain').textContent = 'Další kolo';
+  const perfect = R.clean === ROUND_LEN;
   const before = tierOf(save.total);
   save.total++; save.rounds[level]++; persist();
   const after = tierOf(save.total);
   const newTier = after !== before;
   const st = save.total;
-  $('#endLine').textContent = st <= 12 ? `Přibylo na domě: ${STAGES[st - 1]}.` : 'Na zahradě vykvetla nová květina.';
-  const loot = $('#loot'); loot.innerHTML = '';
-  R.loot.forEach(t => { const sp = document.createElement('span'); sp.style.backgroundImage = `url(${tex(t)})`; loot.appendChild(sp); });
-  const np = $('#newPick');
+  $('#endLine').textContent = (perfect ? 'Bez jediné chyby! ' : `Bez chyby: ${R.clean} z ${ROUND_LEN}. `) + (st <= 12 ? `Přibylo na domě: ${STAGES[st - 1]}.` : 'Na zahradě vykvetla nová květina.');
   if (newTier) { np.hidden = false; np.innerHTML = ''; np.appendChild(pickCanvas(after)); np.insertAdjacentHTML('beforeend', `<span>Nový krumpáč: ${after.name}!</span>`); }
   else np.hidden = true;
   const fresh = OUTFIT_CATS.flatMap(([cat]) => OUTFIT[cat].filter(it => it.at === st).map(it => [cat, it]));
-  const no = $('#newOutfit');
   if (fresh.length) { no.hidden = false; no.innerHTML = ''; fresh.forEach(([cat, it]) => no.appendChild(outfitIcon(cat, it))); no.insertAdjacentHTML('beforeend', `<span>Nové oblečení v šatníku: ${fresh.map(([, it]) => it.name).join(', ')}!</span>`); }
   else no.hidden = true;
   drawHouse($('#endHouse'));
   R = null;
   $('#endOverlay').hidden = false;
-  sfx.fanfare(); if (newTier) sfx.sparkle();
-  speak((newTier ? `Výborně, Adame! Máš nový ${after.name} krumpáč!` : 'Výborně, Adame! Kolo je hotové.') + (fresh.length ? ` V šatníku máš ${fresh.map(([, it]) => it.name).join(' a ')}.` : ''));
-  $('#endOverlay').dataset.level = level;
+  sfx.fanfare(); if (newTier || perfect) sfx.sparkle();
+  speak((perfect ? 'Bez jediné chyby! ' : '') + (newTier ? `Výborně, Adame! Máš nový ${after.name} krumpáč!` : 'Výborně, Adame! Kolo je hotové.') + (fresh.length ? ` V šatníku máš ${fresh.map(([, it]) => it.name).join(' a ')}.` : ''));
   $('#btnAgain').focus({ preventScroll: true });
 }
 function goHome() {
@@ -1013,6 +1056,7 @@ function updateVoiceInfo() {
 }
 function updateSettings() {
   document.querySelectorAll('#segCase [data-case]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.case === save.caseMode)));
+  document.querySelectorAll('#segStrict [data-strict]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.strict === save.strict)));
   $('#rateNormal').setAttribute('aria-pressed', String(!save.slow));
   $('#rateSlow').setAttribute('aria-pressed', String(save.slow));
   const st = Math.min(12, save.total);
@@ -1022,12 +1066,13 @@ function updateSettings() {
 $('#btnSettings').addEventListener('click', () => { updateSettings(); $('#resetConfirm').hidden = true; $('#setOverlay').hidden = false; });
 $('#btnSetClose').addEventListener('click', () => { $('#setOverlay').hidden = true; renderHome(); });
 document.querySelectorAll('#segCase [data-case]').forEach(b => b.addEventListener('click', () => { save.caseMode = b.dataset.case; persist(); updateSettings(); }));
+document.querySelectorAll('#segStrict [data-strict]').forEach(b => b.addEventListener('click', () => { save.strict = b.dataset.strict; persist(); updateSettings(); }));
 $('#rateNormal').addEventListener('click', () => { save.slow = false; persist(); updateSettings(); });
 $('#rateSlow').addEventListener('click', () => { save.slow = true; persist(); updateSettings(); });
 $('#btnTestVoice').addEventListener('click', () => { loadVoices(); speak('Ahoj Adame! ma, mé, li, lý, so, su.'); setTimeout(loadVoices, 800); });
 $('#btnReset').addEventListener('click', () => { $('#resetConfirm').hidden = false; });
 $('#btnResetNo').addEventListener('click', () => { $('#resetConfirm').hidden = true; });
-$('#btnResetYes').addEventListener('click', () => { const keep = { caseMode: save.caseMode, slow: save.slow, outfit: save.outfit }; save = Object.assign(defaults(), keep); persist(); $('#resetConfirm').hidden = true; updateSettings(); });
+$('#btnResetYes').addEventListener('click', () => { const keep = { caseMode: save.caseMode, slow: save.slow, strict: save.strict, outfit: save.outfit }; save = Object.assign(defaults(), keep); persist(); $('#resetConfirm').hidden = true; updateSettings(); });
 
 /* ---------- tlačítka ---------- */
 $('#btnBack').addEventListener('click', goHome);
