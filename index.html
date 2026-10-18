@@ -68,6 +68,7 @@ button:focus-visible { outline: 4px solid var(--gold); outline-offset: 3px; }
 .gbtn:active { box-shadow: inset -3px -3px 0 rgba(255,255,255,.35), inset 3px 3px 0 rgba(0,0,0,.35); }
 .gbtn.go { background: var(--go); }
 .gbtn.icon { padding: 8px; width: 56px; height: 56px; }
+.gbtn.icon canvas { width: 32px; height: 32px; }
 .gbtn svg { width: 28px; height: 28px; fill: currentColor; filter: drop-shadow(2px 2px 0 var(--shadow-text)); }
 .panel {
   background: var(--gui); color: #262626;
@@ -81,10 +82,10 @@ button:focus-visible { outline: 4px solid var(--gold); outline-offset: 3px; }
 
 /* domovská obrazovka */
 .home-sky { padding-block: 14px 0; }
-.home-top { display: flex; justify-content: flex-end; position: relative; z-index: 2; }
+.home-top { display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 2; }
 .title-row { display: flex; align-items: flex-end; gap: clamp(12px, 3vw, 32px); justify-content: center; position: relative; z-index: 1; margin-top: -24px; }
 .title {
-  font-size: clamp(38px, 8vw, 76px); font-weight: 700; color: var(--white); line-height: 1;
+  font-size: clamp(30px, 8vw, 76px); font-weight: 700; color: var(--white); line-height: 1;
   text-shadow: -3px 0 0 #2e5a7f, 3px 0 0 #2e5a7f, 0 -3px 0 #2e5a7f, 0 3px 0 #2e5a7f, 6px 6px 0 #2e5a7f; margin: 0 0 clamp(18px, 4vh, 40px);
   text-wrap: balance;
 }
@@ -98,7 +99,8 @@ button:focus-visible { outline: 4px solid var(--gold); outline-offset: 3px; }
 .lvl[disabled] { cursor: default; }
 .lvl[disabled] .blk { filter: saturate(.55) brightness(.75); }
 .lock { position: absolute; top: 8px; right: calc(50% - clamp(55px, 12vw, 75px) + 6px); width: 34px; height: 34px; }
-.house-card { grid-column: 1 / -1; justify-self: center; background: none; border: 0; padding: 0; display: grid; justify-items: center; gap: 8px; }
+.places { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 18px; justify-items: center; }
+.house-card { position: relative; justify-self: center; background: none; border: 0; padding: 0; display: grid; justify-items: center; gap: 8px; }
 /* šatník */
 .ward { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr); gap: 16px; align-items: center; padding-block: 8px 16px; }
 .ward-preview { display: grid; place-items: center; min-height: 0; }
@@ -119,7 +121,9 @@ button:focus-visible { outline: 4px solid var(--gold); outline-offset: 3px; }
   .ward { grid-template-columns: 1fr; grid-template-rows: auto minmax(0, 1fr); align-items: start; }
   .player.big { --h: clamp(130px, 26vh, 260px); }
 }
-.house-card canvas { width: min(360px, 82vw); border: 3px solid #161616; box-shadow: 0 0 0 3px rgba(255,255,255,.25); }
+.house-card.locked canvas { filter: saturate(.45) brightness(.8); }
+.house-card .lock { top: 10px; right: 10px; }
+.house-card canvas { width: min(380px, 100%); border: 3px solid #161616; box-shadow: 0 0 0 3px rgba(255,255,255,.25); }
 
 /* kostka */
 .blk {
@@ -147,13 +151,46 @@ button:focus-visible { outline: 4px solid var(--gold); outline-offset: 3px; }
 /* hra */
 .hud { display: flex; align-items: center; gap: 12px; padding-block: 12px 0; position: relative; z-index: 2; }
 .pips { flex: 1; display: flex; justify-content: center; gap: clamp(4px, 1vw, 8px); flex-wrap: wrap; }
-.pip { width: clamp(18px, 4vw, 28px); aspect-ratio: 1; background: rgba(0,0,0,.25); border: 2px solid rgba(0,0,0,.55); background-size: 100% 100%; image-rendering: pixelated; }
+.pip { width: clamp(14px, 3.2vw, 28px); aspect-ratio: 1; background: rgba(0,0,0,.25); border: 2px solid rgba(0,0,0,.55); background-size: 100% 100%; image-rendering: pixelated; }
 .pip.done { border-color: #161616; }
 .pip.clean, .loot span.clean { border-color: var(--gold); box-shadow: 0 0 0 2px #161616; }
 .pip.miss, .loot span.miss { filter: grayscale(.8) brightness(.6); border-color: #8a2a17; }
 .blocks.stuck .blk { opacity: .5; filter: grayscale(.5); pointer-events: none; transition: opacity .15s; }
 .hud-pick.stuck { animation: nope .4s; background: rgba(160, 40, 20, .45); }
 .end-title.fail { color: #a8541c; }
+/* smaragdy, pes, obchod */
+.gems { display: inline-flex; align-items: center; gap: 6px; font-family: var(--f-read); font-weight: 700; font-size: 22px; color: var(--white); text-shadow: 2px 2px 0 #000; font-variant-numeric: tabular-nums; }
+.gems canvas { width: 28px; height: 28px; }
+.gems.pop { animation: pop .3s; }
+@keyframes pop { 50% { transform: scale(1.3); } }
+.hud-gems { height: 56px; padding: 0 8px; font-size: 20px; background: rgba(0,0,0,.18); border: 3px solid rgba(0,0,0,.45); }
+.game-dog { justify-self: center; height: clamp(34px, 7vh, 60px); }
+.game-dog canvas { transform: scaleX(-1); } /* pes kouká k Adamovi */
+.dog { position: relative; height: clamp(30px, 6vh, 54px); aspect-ratio: 16 / 12; flex: none; }
+.dog canvas { width: 100%; height: 100%; display: block; }
+.hero-dog { height: clamp(30px, 6vh, 60px); margin-right: 2px; }
+.shop-dog { height: clamp(60px, 14vh, 120px); }
+.dog.happy { animation: hop .55s ease-out; }
+@keyframes hop { 30% { transform: translateY(-40%); } 60% { transform: translateY(0); } 80% { transform: translateY(-12%); } }
+.heart { position: absolute; left: 60%; top: -20%; width: 40%; aspect-ratio: 1; pointer-events: none; }
+.shop-top { display: flex; align-items: flex-end; justify-content: center; gap: 24px; padding-block: 4px 12px; }
+.shop-top .gems { font-size: 30px; }
+.shop-top .gems canvas { width: 40px; height: 40px; }
+.shop-panel { flex: 1; min-height: 0; overflow: auto; margin-bottom: 16px; }
+.shop-items { display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 10px; }
+.shop-h { grid-column: 1 / -1; margin: 6px 0 0; font-size: 20px; }
+.shop-item { position: relative; display: grid; grid-template-rows: 1fr auto; gap: 4px; justify-items: center; padding: 8px 6px 6px; background: #e6e6e6; border: 3px solid #161616; box-shadow: inset 3px 3px 0 #ffffff, inset -3px -3px 0 #8b8b8b; }
+.shop-icon { width: 56px; height: 56px; display: grid; place-items: center; }
+.shop-icon canvas { height: 100%; width: auto; max-width: 100%; }
+.price { display: inline-flex; align-items: center; gap: 4px; font-family: var(--f-read); font-weight: 700; font-size: 18px; color: #1f5e2e; font-variant-numeric: tabular-nums; }
+.price canvas { width: 18px; height: 18px; }
+.shop-item[aria-pressed="true"] { background: #bfe6a8; }
+.shop-item.poor { opacity: .55; }
+.shop-item.armed { outline: 5px solid var(--gold); outline-offset: 2px; animation: glow 1s ease-in-out infinite; }
+.shop-item.locked .shop-icon { opacity: .35; filter: grayscale(.6); }
+.shop-item .lock { top: 4px; right: 4px; width: 24px; height: 24px; }
+.end-gems { color: #1f5e2e; text-shadow: none; font-size: 20px; margin: 0 0 12px; font-family: var(--f-read); }
+.end-gems canvas { width: 24px; height: 24px; }
 .hud-pick { width: 56px; height: 56px; display: grid; place-items: center; background: rgba(0,0,0,.18); border: 3px solid rgba(0,0,0,.45); }
 .hud-pick canvas { width: 40px; height: 40px; }
 .stage-row { display: grid; grid-template-columns: 1fr auto 1fr; align-items: end; position: relative; z-index: 1; }
@@ -232,11 +269,13 @@ canvas.ench { animation: ench 1.8s ease-in-out infinite; }
       <div class="cloud c1"></div><div class="cloud c2"></div>
       <div class="inner">
         <div class="home-top">
+          <div class="gems" id="homeGems" aria-label="Smaragdy"></div>
           <button class="gbtn icon" id="btnSettings" aria-label="Nastavení pro rodiče">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 2h4v3h2V3h2v2h2v2h-2v2h3v4h-3v2h2v2h-2v2h-2v-2h-2v3h-4v-3H8v2H6v-2H4v-2h2v-2H3V9h3V7H4V5h2V3h2v2h2V2zm0 7v6h4V9h-4z"/></svg>
           </button>
         </div>
         <div class="title-row">
+          <div class="dog hero-dog" id="heroDog" hidden></div>
           <div class="player hero" id="heroPlayer"></div>
           <h1 class="title">Adamův<br>důl</h1>
         </div>
@@ -260,6 +299,7 @@ canvas.ench { animation: ench 1.8s ease-in-out infinite; }
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h3v3h-3v3h-3v4h3v3h3v3h-3v-3h-3v-3H8v-4h3V7h3V4z"/></svg>
           </button>
           <div class="pips" id="pips"></div>
+          <div class="gems hud-gems" id="hudGems" aria-label="Smaragdy"></div>
           <div class="hud-pick" id="hudPick" aria-hidden="true"></div>
         </div>
         <div class="stage-row">
@@ -267,7 +307,7 @@ canvas.ench { animation: ench 1.8s ease-in-out infinite; }
           <button class="listen" id="btnListen" aria-label="Poslechni znovu">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9h4l5-5h2v16h-2l-5-5H3V9zm14-1h2v2h1v4h-1v2h-2v-2h1v-4h-1V8zm3-3h2v2h1v10h-1v2h-2v-2h1V7h-1V5z"/></svg>
           </button>
-          <div></div>
+          <div class="dog game-dog" id="gameDog" hidden></div>
         </div>
       </div>
       <div class="grass-strip px" data-tex="grass"></div>
@@ -299,6 +339,39 @@ canvas.ench { animation: ench 1.8s ease-in-out infinite; }
     </div>
   </section>
 
+  <!-- FARMA -->
+  <section class="screen" id="farm" hidden>
+    <div class="sky" style="flex:1; display:flex; flex-direction:column; min-height:0;">
+      <div class="cloud c1"></div>
+      <div class="inner hud">
+        <button class="gbtn icon" id="btnFarmBack" aria-label="Zpět domů"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h3v3h-3v3h-3v4h3v3h3v3h-3v-3h-3v-3H8v-4h3V7h3V4z"/></svg></button>
+        <div class="ward-title">Farma</div>
+        <button class="gbtn icon" id="btnFarmShop" aria-label="Obchod"></button>
+      </div>
+      <div class="house-view inner"><canvas id="farmBig" class="px" aria-label="Adamova farma"></canvas></div>
+      <div class="house-cap inner" id="farmCap"></div>
+    </div>
+  </section>
+
+  <!-- OBCHOD -->
+  <section class="screen" id="shop" hidden>
+    <div class="sky" style="flex:1; display:flex; flex-direction:column; min-height:0;">
+      <div class="cloud c1"></div>
+      <div class="inner hud">
+        <button class="gbtn icon" id="btnShopBack" aria-label="Zpět domů"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h3v3h-3v3h-3v4h3v3h3v3h-3v-3h-3v-3H8v-4h3V7h3V4z"/></svg></button>
+        <div class="ward-title">Obchod</div>
+        <div style="width:56px"></div>
+      </div>
+      <div class="inner shop-top">
+        <div class="dog shop-dog" id="shopDog" hidden></div>
+        <div class="gems" id="shopGems" aria-label="Smaragdy"></div>
+      </div>
+      <div class="inner" style="flex:1; min-height:0; display:flex;">
+        <div class="panel shop-panel" style="flex:1"><div class="shop-items" id="shopItems"></div></div>
+      </div>
+    </div>
+  </section>
+
   <!-- DŮM -->
   <section class="screen" id="house" hidden>
     <div class="sky" style="flex:1; display:flex; flex-direction:column;">
@@ -321,6 +394,7 @@ canvas.ench { animation: ench 1.8s ease-in-out infinite; }
     <h2 class="end-title" id="endTitle">Výborně, Adame!</h2>
     <p class="end-line" id="endLine"></p>
     <div class="loot" id="loot"></div>
+    <p class="gems end-gems" id="endGems"></p>
     <div class="newpick" id="newPick" hidden></div>
     <div class="newpick" id="newOutfit" hidden></div>
     <canvas class="end-house px" id="endHouse"></canvas>
@@ -392,9 +466,9 @@ let R = null; // běžící kolo
 
 /* ---------- uložený postup ---------- */
 const KEY = 'adamuv-dul-v1';
-function defaults() { return { caseMode: 'both', slow: false, strict: 'normal', total: 0, rounds: { letters: 0, syllables: 0 }, stats: {}, outfit: { shirt: 'oranzove', pants: 'modre', shoes: 'sede', hat: 'nic', enchant: 'ne' } }; }
+function defaults() { return { caseMode: 'both', slow: false, strict: 'normal', total: 0, rounds: { letters: 0, syllables: 0 }, stats: {}, emeralds: 0, dog: { collar: 'cerveny', owned: ['cerveny'] }, decor: [], outfit: { shirt: 'oranzove', pants: 'modre', shoes: 'sede', hat: 'nic', enchant: 'ne' } }; }
 function load() {
-  try { const s = JSON.parse(localStorage.getItem(KEY)); if (s) { const d = defaults(); return Object.assign(d, s, { rounds: Object.assign(d.rounds, s.rounds || {}), outfit: Object.assign(d.outfit, s.outfit || {}) }); } } catch (e) {}
+  try { const s = JSON.parse(localStorage.getItem(KEY)); if (s) { const d = defaults(); return Object.assign(d, s, { rounds: Object.assign(d.rounds, s.rounds || {}), outfit: Object.assign(d.outfit, s.outfit || {}), dog: Object.assign(d.dog, s.dog || {}) }); } } catch (e) {}
   return defaults();
 }
 let save = load();
@@ -449,6 +523,8 @@ const painters = {
     g.fillStyle = '#b8b0a8'; g.fillRect(0, 0, 16, 16);
     for (let row = 0; row < 4; row++) { const off = row % 2 ? 4 : 0; for (let b = -1; b < 3; b++) { const x0 = b * 8 + off; for (let x = x0; x < x0 + 7; x++) for (let y = row * 4; y < row * 4 + 3; y++) if (x >= 0 && x < 16) px(g, x, y, pick(r, ['#9c4a37', '#8a3f2e', '#a85540'])); } }
   },
+  farmland(g, r) { noise(g, r, ['#5a3d27', '#4f3522', '#664630']); for (let x = 0; x < 16; x++) { px(g, x, 0, '#3f2a1a'); px(g, x, 5, '#47301e'); px(g, x, 10, '#47301e'); } },
+  water(g, r) { noise(g, r, ['#3f76e4', '#3566d0', '#4a82ec', '#2f5ec4']); },
   flowerR(g, r) { flower(g, '#e0402e', '#f7e27a'); },
   flowerY(g, r) { flower(g, '#f2d024', '#7a4a1e'); },
   torch(g, r) {
@@ -770,7 +846,7 @@ function display(it) {
 }
 
 /* ---------- obrazovky ---------- */
-function show(id) { ['home', 'game', 'house', 'wardrobe'].forEach(s => { $('#' + s).hidden = s !== id; }); }
+function show(id) { ['home', 'game', 'house', 'wardrobe', 'farm', 'shop'].forEach(s => { $('#' + s).hidden = s !== id; }); }
 function paintTextures(root = document) {
   root.querySelectorAll('[data-tex]').forEach(el => { el.style.backgroundImage = `url(${tex(el.dataset.tex, el.dataset.dark === '1')})`; });
 }
@@ -816,11 +892,26 @@ function renderHome() {
   wb.insertAdjacentHTML('beforeend', '<span class="lvl-name">Šatník</span>');
   wb.addEventListener('click', openWardrobe);
   wrap.appendChild(wb);
-  const hc = document.createElement('button'); hc.className = 'house-card'; hc.setAttribute('aria-label', 'Můj dům');
-  const cv = document.createElement('canvas'); cv.className = 'px'; drawHouse(cv); hc.appendChild(cv);
-  hc.insertAdjacentHTML('beforeend', '<span class="lvl-name">Můj dům</span>');
-  hc.addEventListener('click', openHouse);
-  wrap.appendChild(hc);
+  const sb = document.createElement('button'); sb.className = 'lvl'; sb.setAttribute('aria-label', 'Obchod');
+  const sblk = blockEl('planks', '', false); sblk.tabIndex = -1; sblk.setAttribute('aria-hidden', 'true');
+  const splate = sblk.querySelector('.plate'); splate.innerHTML = ''; splate.appendChild(sprIcon('emerald'));
+  sb.appendChild(sblk);
+  sb.insertAdjacentHTML('beforeend', '<span class="lvl-name">Obchod</span>');
+  sb.addEventListener('click', openShop);
+  wrap.appendChild(sb);
+  const places = document.createElement('div'); places.className = 'places';
+  const card = (label, draw, open, locked) => {
+    const c = document.createElement('button'); c.className = 'house-card' + (locked ? ' locked' : ''); c.setAttribute('aria-label', label);
+    const cv = document.createElement('canvas'); cv.className = 'px'; draw(cv); c.appendChild(cv);
+    c.insertAdjacentHTML('beforeend', (locked ? LOCK_SVG : '') + `<span class="lvl-name">${label}</span>`);
+    c.addEventListener('click', open);
+    places.appendChild(c);
+  };
+  card('Můj dům', drawHouse, openHouse, false);
+  card('Farma', drawFarm, openFarm, farmStage() === 0);
+  wrap.appendChild(places);
+  mountDog($('#heroDog'));
+  updateGems();
 }
 let wardCat = 'shirt';
 function openWardrobe() {
@@ -860,7 +951,176 @@ function openHouse() {
   show('house'); drawHouse($('#houseBig'));
   const st = Math.min(12, save.total);
   $('#houseCap').textContent = st === 0 ? 'Dům zatím nestojí. Vykopej první kolo!' : st < 12 ? `Postaveno ${st} z 12 dílů` : 'Dům je hotový! Každé kolo přidá zahradu.';
-  const cv = $('#houseBig'); requestAnimationFrame(() => { const box = cv.parentElement; const s = Math.max(1, Math.floor(Math.min(box.clientWidth / 320, (box.clientHeight - 8) / 224) * 4) / 4); cv.style.width = 320 * s + 'px'; cv.style.height = 224 * s + 'px'; });
+  fitCanvas($('#houseBig'));
+}
+
+/* ---------- farma, pes a smaragdy ---------- */
+const FARM_START = 12; // farma roste po dostavění domu (12 dílů)
+const FARM_STAGES = ['pes', 'ohrada', 'mrkev', 'studna', 'pšenice', 'kuřata', 'ovce', 'kráva', 'strom s úlem', 'strašák'];
+const farmStage = () => Math.max(0, Math.min(FARM_STAGES.length, save.total - FARM_START));
+const hasDog = () => farmStage() >= 1;
+const PERFECT_BONUS = 3, TREAT_PRICE = 2;
+const COLLARS = [
+  { id: 'cerveny', name: 'červený obojek', c: '#c62f2f', price: 0 },
+  { id: 'modry', name: 'modrý obojek', c: '#2f7fd1', price: 5 },
+  { id: 'zeleny', name: 'zelený obojek', c: '#3f9b3a', price: 5 },
+  { id: 'zlaty', name: 'zlatý obojek', c: '#f2c94c', price: 10 },
+  { id: 'diamantovy', name: 'diamantový obojek', c: '#5de0e6', price: 15 },
+];
+const DECOR = [
+  { id: 'slunecnice', name: 'slunečnice', price: 6, sprite: 'sunflower' },
+  { id: 'dyne', name: 'dýně', price: 6, sprite: 'pumpkin' },
+  { id: 'prase', name: 'prasátko', price: 12, sprite: 'pig' },
+  { id: 'kocka', name: 'kočka', price: 15, sprite: 'cat' },
+];
+const gemWord = n => n === 1 ? 'smaragd' : n >= 2 && n <= 4 ? 'smaragdy' : 'smaragdů';
+// pixelové obrázky [šířka, výška, kreslení]; R(x, y, w, h, barva)
+const SPRITES = {
+  emerald: [16, 16, R => { const G = '#2fbf5a'; R(6, 1, 4, 1, G); R(4, 2, 8, 2, G); R(3, 4, 10, 6, G); R(4, 10, 8, 2, G); R(6, 12, 4, 2, G); R(9, 7, 3, 4, '#1f9446'); R(7, 12, 3, 1, '#1f9446'); R(5, 3, 2, 3, '#a6f5bb'); R(4, 5, 1, 3, '#a6f5bb'); }],
+  bone: [16, 16, R => { const B = '#efe9dc'; R(4, 7, 8, 2, B); R(2, 5, 3, 3, B); R(2, 8, 3, 3, B); R(11, 5, 3, 3, B); R(11, 8, 3, 3, B); R(4, 9, 8, 1, '#cfc7b6'); }],
+  fence: [16, 16, R => { const F = '#a37f4c', D = '#7c5f37'; R(0, 5, 16, 2, F); R(0, 10, 16, 2, F); R(0, 6, 16, 1, D); R(0, 11, 16, 1, D); R(6, 1, 4, 15, F); R(9, 1, 1, 15, D); }],
+  carrot: [16, 16, R => { [[2, 9], [6, 7], [10, 9], [13, 10]].forEach(([x, y], i) => { R(x, y, 2, 14 - y, i % 2 ? '#3f8a2a' : '#4c9c33'); R(x, 14, 2, 2, '#e8862a'); }); }],
+  wheat: [16, 16, R => { [1, 4, 7, 10, 13].forEach((x, i) => { R(x, 6 + (i % 2), 1, 10, '#c9a83c'); R(x, 2 + (i % 2), 2, 4, '#e8c860'); R(x + 1, 4 + (i % 2), 1, 2, '#c9a83c'); }); }],
+  chicken: [16, 16, R => { const W = '#f4f4f4'; R(3, 7, 9, 6, W); R(10, 3, 4, 5, W); R(14, 5, 2, 1, '#e8a33c'); R(13, 7, 1, 2, '#d33b2f'); R(12, 4, 1, 1, '#222222'); R(4, 9, 4, 3, '#dcdcdc'); R(6, 13, 1, 3, '#e8a33c'); R(9, 13, 1, 3, '#e8a33c'); }],
+  sheep: [32, 16, R => { const W = '#efefef', F = '#d9c4a8'; R(2, 3, 23, 10, W); R(6, 5, 2, 2, '#dcdcdc'); R(14, 8, 3, 2, '#dcdcdc'); R(20, 4, 2, 2, '#dcdcdc'); R(23, 1, 9, 10, W); R(25, 3, 6, 6, F); R(29, 5, 1, 1, '#222222'); R(30, 7, 1, 1, '#b08a6a'); [4, 9, 17, 21].forEach(x => R(x, 13, 3, 3, F)); }],
+  cow: [32, 16, R => { const B = '#4a3524'; R(2, 3, 23, 10, B); R(6, 4, 6, 4, '#f0f0f0'); R(16, 8, 5, 4, '#f0f0f0'); R(24, 1, 8, 8, B); R(29, 5, 3, 3, '#d9b49a'); R(24, 0, 1, 2, '#e0d8c8'); R(28, 0, 1, 2, '#e0d8c8'); R(27, 3, 1, 1, '#111111'); R(12, 13, 4, 2, '#e8a0b0'); [4, 8, 18, 22].forEach(x => R(x, 13, 3, 3, B)); }],
+  pig: [16, 16, R => { const P = '#f0a8b0', D = '#e08890'; R(1, 6, 12, 7, P); R(11, 4, 5, 6, P); R(14, 6, 2, 2, D); R(15, 6, 1, 1, '#a85060'); R(12, 5, 1, 1, '#222222'); R(2, 13, 2, 3, D); R(9, 13, 2, 3, D); }],
+  cat: [16, 16, R => { const O = '#e8963c', D = '#c8762c'; R(4, 8, 7, 8, O); R(5, 3, 6, 5, O); R(5, 2, 1, 1, O); R(10, 2, 1, 1, O); R(6, 5, 1, 1, '#3c9b3a'); R(9, 5, 1, 1, '#3c9b3a'); R(7, 6, 2, 1, '#d06070'); R(4, 10, 7, 1, D); R(4, 13, 7, 1, D); R(11, 13, 3, 2, O); R(13, 10, 1, 3, O); }],
+  beehive: [16, 16, R => { R(1, 2, 14, 13, '#d8a23a'); R(1, 5, 14, 1, '#a8781e'); R(1, 10, 14, 1, '#a8781e'); R(6, 7, 4, 2, '#3a2a10'); R(10, 11, 2, 3, '#f2c94c'); R(10, 14, 1, 1, '#f2c94c'); }],
+  scarecrow: [16, 32, R => { R(7, 9, 2, 23, '#7a5e3b'); R(0, 12, 16, 2, '#7a5e3b'); R(4, 11, 8, 8, '#3f6fb0'); R(3, 19, 10, 2, '#d8b84a'); R(3, 0, 10, 9, '#e8862a'); R(7, 0, 2, 1, '#4c7a2a'); R(5, 3, 2, 2, '#3a2410'); R(9, 3, 2, 2, '#3a2410'); R(5, 6, 6, 1, '#3a2410'); }],
+  sunflower: [16, 32, R => { R(7, 10, 2, 22, '#3f8a2a'); R(3, 18, 4, 2, '#4c9c33'); R(9, 23, 4, 2, '#4c9c33'); R(4, 1, 8, 10, '#f2d024'); R(3, 2, 10, 8, '#f2d024'); R(5, 3, 6, 6, '#6b4424'); }],
+  pumpkin: [16, 16, R => { R(1, 5, 14, 11, '#e8862a'); R(5, 5, 1, 11, '#c86a1a'); R(10, 5, 1, 11, '#c86a1a'); R(7, 2, 2, 3, '#4c7a2a'); }],
+};
+const sprCache = {};
+function spr(name) {
+  if (sprCache[name]) return sprCache[name];
+  const [w, h, draw] = SPRITES[name];
+  const c = document.createElement('canvas'); c.width = w; c.height = h;
+  const g = c.getContext('2d'); draw((x, y, ww, hh, col) => { g.fillStyle = col; g.fillRect(x, y, ww, hh); });
+  return sprCache[name] = c;
+}
+function sprIcon(name) { const src = spr(name); const c = document.createElement('canvas'); c.width = src.width; c.height = src.height; c.className = 'px'; c.getContext('2d').drawImage(src, 0, 0); return c; }
+function dogCanvas() {
+  const col = (COLLARS.find(c => c.id === save.dog.collar) || COLLARS[0]).c;
+  const c = document.createElement('canvas'); c.width = 16; c.height = 12; c.className = 'px';
+  const g = c.getContext('2d'); const R = (x, y, w, h, k) => { g.fillStyle = k; g.fillRect(x, y, w, h); };
+  const w = '#ece8e0', s = '#c9c2b6', d = '#2b2b2b';
+  R(0, 2, 2, 1, w); R(1, 3, 2, 2, w);
+  R(2, 4, 9, 4, w); R(2, 7, 9, 1, s);
+  R(2, 8, 2, 4, w); R(4, 8, 1, 4, s); R(8, 8, 1, 4, s); R(9, 8, 2, 4, w);
+  R(10, 1, 5, 5, w); R(10, 0, 2, 2, s); R(14, 3, 2, 2, '#ddd7cb'); R(15, 3, 1, 1, d); R(12, 2, 1, 1, d);
+  R(10, 4, 1, 3, col); R(11, 6, 1, 1, col);
+  return c;
+}
+function collarIcon(col) {
+  const c = document.createElement('canvas'); c.width = c.height = 16; c.className = 'px';
+  const g = c.getContext('2d'); const R = (x, y, w, h, k) => { g.fillStyle = k; g.fillRect(x, y, w, h); };
+  R(3, 3, 10, 10, '#161616'); R(4, 4, 8, 8, col); g.clearRect(6, 6, 4, 4); R(7, 11, 2, 3, '#f2c94c');
+  return c;
+}
+function mountDog(el) { el.innerHTML = ''; el.hidden = !hasDog(); if (hasDog()) el.appendChild(dogCanvas()); }
+const HEART_SVG = '<svg class="heart" viewBox="0 0 7 6" aria-hidden="true"><path fill="#e0402e" d="M1 0h2v1h1V0h2v1h1v2H6v1H5v1H4v1H3V5H2V4H1V3H0V1h1z"/></svg>';
+function dogHappy(el) {
+  if (el.hidden) return;
+  retrigger(el, 'happy');
+  if (REDUCED) return;
+  el.insertAdjacentHTML('beforeend', HEART_SVG);
+  const h = el.lastElementChild; h.animate([{ transform: 'translateY(0)', opacity: 1 }, { transform: 'translateY(-120%)', opacity: 0 }], { duration: 900 }).onfinish = () => h.remove();
+}
+function bark() {
+  const a = audio(); if (!a) return;
+  [0, .18].forEach(t0 => { const o = a.createOscillator(), gn = a.createGain(); o.type = 'square'; const t = a.currentTime + t0; o.frequency.setValueAtTime(560, t); o.frequency.exponentialRampToValueAtTime(260, t + .12); gn.gain.setValueAtTime(.08, t); gn.gain.exponentialRampToValueAtTime(.0001, t + .14); o.connect(gn).connect(a.destination); o.start(t); o.stop(t + .16); });
+}
+function updateGems(popId) {
+  ['homeGems', 'hudGems', 'shopGems'].forEach(id => { const el = $('#' + id); if (!el) return; el.innerHTML = ''; el.appendChild(sprIcon('emerald')); el.append(String(save.emeralds)); });
+  if (popId) retrigger($('#' + popId), 'pop');
+}
+function drawFarm(cv) {
+  const C = 16, W = 24, H = 14; cv.width = W * C; cv.height = H * C;
+  const g = cv.getContext('2d'); g.imageSmoothingEnabled = false;
+  const grd = g.createLinearGradient(0, 0, 0, 11 * C); grd.addColorStop(0, '#6fb2ea'); grd.addColorStop(1, '#c6e6f8');
+  g.fillStyle = grd; g.fillRect(0, 0, cv.width, cv.height);
+  g.fillStyle = '#fff3a6'; g.fillRect(21 * C, C, 24, 24);
+  g.fillStyle = '#ffffff'; g.fillRect(9 * C, 1.5 * C, 40, 10); g.fillRect(9 * C + 10, 1.5 * C - 8, 22, 8); g.fillRect(15 * C, 0.8 * C, 34, 8);
+  const fs = farmStage();
+  const cell = (t, x, y) => g.drawImage(texCanvas(t), x * C, y * C);
+  for (let x = 0; x < W; x++) { cell('grass', x, 11); cell('dirt', x, 12); cell('dirt', x, 13); }
+  if (fs >= 3) for (let x = 6; x <= 9; x++) cell('farmland', x, 11);
+  if (fs >= 5) for (let x = 10; x <= 13; x++) cell('farmland', x, 11);
+  const at = (name, x, row) => { const sp = spr(name); g.drawImage(sp, x * C, (row + 1) * C - sp.height); };
+  if (fs >= 2) for (let x = 15; x <= 23; x++) at('fence', x, 10);
+  if (fs >= 3) for (let x = 6; x <= 9; x++) at('carrot', x, 10);
+  if (fs >= 4) { cell('cobble', 2, 10); cell('water', 3, 10); cell('cobble', 4, 10); cell('log', 2, 9); cell('log', 4, 9); for (let x = 2; x <= 4; x++) cell('roof', x, 8); }
+  if (fs >= 5) for (let x = 10; x <= 13; x++) at('wheat', x, 10);
+  if (fs >= 6) { at('chicken', 16, 10); at('chicken', 17, 10); }
+  if (fs >= 7) at('sheep', 18, 10);
+  if (fs >= 8) at('cow', 21, 10);
+  if (fs >= 9) { for (let y = 8; y <= 10; y++) cell('log', 5, y); for (let y = 5; y <= 7; y++) for (let x = 4; x <= 6; x++) cell('leaves', x, y); cell('leaves', 5, 4); at('beehive', 6, 8); }
+  if (fs >= 10) at('scarecrow', 14, 10);
+  if (save.decor.includes('slunecnice')) at('sunflower', 0, 10);
+  if (save.decor.includes('dyne')) at('pumpkin', 20, 10);
+  if (save.decor.includes('prase')) at('pig', 23, 10);
+  if (save.decor.includes('kocka')) at('cat', 3, fs >= 4 ? 7 : 10);
+  if (fs >= 1) g.drawImage(dogCanvas(), 1 * C, 11 * C - 12);
+}
+function fitCanvas(cv) {
+  requestAnimationFrame(() => { const box = cv.parentElement; const s = Math.max(.5, Math.floor(Math.min(box.clientWidth / cv.width, (box.clientHeight - 8) / cv.height) * 4) / 4); cv.style.width = cv.width * s + 'px'; cv.style.height = cv.height * s + 'px'; });
+}
+function openFarm() {
+  speechId++; if (synth) synth.cancel();
+  show('farm'); drawFarm($('#farmBig'));
+  const fs = farmStage();
+  $('#farmCap').textContent = fs === 0 ? 'Farma začne, až dostavíš dům.' : fs < FARM_STAGES.length ? `Farma: ${fs} z ${FARM_STAGES.length} dílů` : 'Farma je hotová! Brzy přijde vesnice.';
+  fitCanvas($('#farmBig'));
+}
+let shopArmed = null;
+function openShop() {
+  audio(); speechId++; if (synth) synth.cancel();
+  shopArmed = null; show('shop'); renderShop();
+  speak('Obchod. Za smaragdy si můžeš koupit věci pro psa a na farmu.');
+}
+function renderShop() {
+  updateGems(); mountDog($('#shopDog'));
+  const list = $('#shopItems'); list.innerHTML = '';
+  const head = t => list.insertAdjacentHTML('beforeend', `<h3 class="shop-h">${t}</h3>`);
+  head('Pro psa');
+  shopItem({ key: 'treat', name: 'pamlsek', price: TREAT_PRICE, icon: sprIcon('bone'), needDog: true });
+  COLLARS.forEach(c => shopItem({ key: 'collar:' + c.id, name: c.name, price: c.price, icon: collarIcon(c.c), needDog: true, owned: save.dog.owned.includes(c.id), selected: save.dog.collar === c.id }));
+  head('Na farmu');
+  DECOR.forEach(d => shopItem({ key: 'decor:' + d.id, name: d.name, price: d.price, icon: sprIcon(d.sprite), owned: save.decor.includes(d.id) }));
+}
+function shopItem(o) {
+  const b = document.createElement('button'); b.className = 'shop-item'; b.setAttribute('aria-label', o.name);
+  const locked = o.needDog && !hasDog();
+  const ic = document.createElement('span'); ic.className = 'shop-icon'; ic.appendChild(o.icon); b.appendChild(ic);
+  const pr = document.createElement('span'); pr.className = 'price';
+  if (o.owned) pr.textContent = o.selected ? 'nosí' : 'máš';
+  else { pr.appendChild(sprIcon('emerald')); pr.append(String(o.price)); }
+  b.appendChild(pr);
+  if (locked) { b.classList.add('locked'); b.insertAdjacentHTML('beforeend', LOCK_SVG); }
+  else if (!o.owned && save.emeralds < o.price) b.classList.add('poor');
+  if (o.selected) b.setAttribute('aria-pressed', 'true');
+  if (shopArmed === o.key) b.classList.add('armed');
+  b.addEventListener('click', () => shopTap(o, locked));
+  $('#shopItems').appendChild(b);
+}
+// první klepnutí vybere, druhé koupí (aby Adam nekoupil omylem)
+function shopTap(o, locked) {
+  audio();
+  if (locked) { sfx.nope(); speak('Nejdřív potřebuješ psa. Přiběhne, až dostavíš dům.'); return; }
+  if (o.owned) {
+    if (o.key.startsWith('collar:')) { save.dog.collar = o.key.slice(7); persist(); renderShop(); bark(); dogHappy($('#shopDog')); speak(o.name); }
+    else speak(`${o.name} už máš na farmě.`);
+    return;
+  }
+  if (save.emeralds < o.price) { shopArmed = null; renderShop(); sfx.nope(); speak(`${o.name} stojí ${o.price} ${gemWord(o.price)}. Máš ${save.emeralds}. Kopej bez chyby a získáš další!`); return; }
+  if (shopArmed !== o.key) { shopArmed = o.key; renderShop(); speak(`${o.name} za ${o.price} ${gemWord(o.price)}. Klepni ještě jednou a koupíš.`); return; }
+  save.emeralds -= o.price; shopArmed = null;
+  if (o.key === 'treat') { persist(); renderShop(); bark(); dogHappy($('#shopDog')); speak('Mňam! Pejsek má radost.'); return; }
+  if (o.key.startsWith('collar:')) { const id = o.key.slice(7); save.dog.owned.push(id); save.dog.collar = id; }
+  else save.decor.push(o.key.slice(6));
+  persist(); renderShop(); sfx.fanfare(); dogHappy($('#shopDog'));
+  speak(`Koupeno: ${o.name}!` + (o.key.startsWith('decor:') ? ' Najdeš ji na farmě.' : ''));
 }
 
 /* ---------- herní kolo ---------- */
@@ -873,7 +1133,7 @@ function startRound(level) {
   R = { level, i: 0, busy: true, recent: [], loot: [], clean: 0 };
   show('game');
   $('#gameGround').style.backgroundImage = `url(${tex(L.tex, true)})`;
-  mountPlayer($('#gamePlayer'));
+  mountPlayer($('#gamePlayer')); mountDog($('#gameDog')); updateGems();
   const hp = $('#hudPick'); hp.innerHTML = ''; hp.appendChild(pickCanvas(tierOf(save.total)));
   const pips = $('#pips'); pips.innerHTML = '';
   for (let i = 0; i < ROUND_LEN; i++) { const p = document.createElement('span'); p.className = 'pip'; pips.appendChild(p); }
@@ -913,7 +1173,7 @@ function layoutBlocks() {
   box.style.gridTemplateColumns = `repeat(${bestC}, var(--bs))`;
   box.style.gap = gap + 'px';
 }
-addEventListener('resize', () => { layoutBlocks(); if (!$('#house').hidden) openHouse(); });
+addEventListener('resize', () => { layoutBlocks(); if (!$('#house').hidden) fitCanvas($('#houseBig')); if (!$('#farm').hidden) fitCanvas($('#farmBig')); });
 function retrigger(el, cls) { el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls); }
 function tapBlock(it, el) {
   if (!R || R.busy || R.stuck) return;
@@ -953,8 +1213,8 @@ function breakBlock(el) {
   if (!REDUCED) burst(rect, texName);
   el.classList.add('gone');
   const pip = $('#pips').children[R.i];
-  if (R.firstTry) R.clean++;
   const clean = R.firstTry;
+  if (clean) { R.clean++; save.emeralds++; persist(); updateGems('hudGems'); dogHappy($('#gameDog')); }
   R.loot.push({ t: texName, clean });
   const done = () => { pip.classList.add('done', clean ? 'clean' : 'miss'); pip.style.backgroundImage = `url(${tex(texName)})`; };
   if (REDUCED) done(); else flyTo(rect, pip, texName, done);
@@ -992,45 +1252,54 @@ function endRound() {
   const level = R.level;
   const need = NEED_CLEAN[save.strict] || 5;
   const ok = R.clean >= need;
+  const perfect = R.clean === ROUND_LEN;
+  const earned = R.clean + (perfect ? PERFECT_BONUS : 0);
+  if (perfect) { save.emeralds += PERFECT_BONUS; persist(); }
   const loot = $('#loot'); loot.innerHTML = '';
   R.loot.forEach(({ t, clean }) => { const sp = document.createElement('span'); sp.className = clean ? 'clean' : 'miss'; sp.style.backgroundImage = `url(${tex(t)})`; loot.appendChild(sp); });
+  const eg = $('#endGems'); eg.innerHTML = ''; eg.appendChild(sprIcon('emerald'));
+  eg.append(`+${earned}` + (perfect ? ` (z toho ${PERFECT_BONUS} za kolo bez chyby)` : '') + `, máš ${save.emeralds}`);
   const np = $('#newPick'), no = $('#newOutfit');
   const title = $('#endTitle');
+  const building = save.total < FARM_START;
   $('#endOverlay').dataset.level = level;
   if (!ok) {
-    // nepovedené kolo se nepočítá: dům neroste, nic se neodemyká, obtížnost se nezvedá
+    // nepovedené kolo se nepočítá: nic neroste, nic se neodemyká, obtížnost se nezvedá (smaragdy za kostky bez chyby zůstanou)
     title.textContent = 'Skoro!'; title.classList.add('fail');
-    $('#endLine').textContent = `Bez chyby: ${R.clean} z ${ROUND_LEN}. Dům vyroste, když jich bude aspoň ${need}.`;
+    $('#endLine').textContent = `Bez chyby: ${R.clean} z ${ROUND_LEN}. ${building ? 'Dům vyroste' : 'Farma vyroste'}, když jich bude aspoň ${need}.`;
     np.hidden = true; no.hidden = true;
     $('#btnAgain').textContent = 'Zkusit znovu';
-    drawHouse($('#endHouse'));
+    (building ? drawHouse : drawFarm)($('#endHouse'));
     const got = R.clean;
     R = null;
     $('#endOverlay').hidden = false;
     sfx.nope();
-    speak(`Tentokrát dům nevyrostl. Bez chyby jsi měl ${got} z ${ROUND_LEN}, potřebuješ aspoň ${need}. Poslouchej pozorně a zkus to znovu!`);
+    speak(`Tentokrát ${building ? 'dům nevyrostl' : 'farma nevyrostla'}. Bez chyby jsi měl ${got} z ${ROUND_LEN}, potřebuješ aspoň ${need}. Poslouchej pozorně a zkus to znovu!`);
     $('#btnAgain').focus({ preventScroll: true });
     return;
   }
   title.textContent = 'Výborně, Adame!'; title.classList.remove('fail');
   $('#btnAgain').textContent = 'Další kolo';
-  const perfect = R.clean === ROUND_LEN;
   const before = tierOf(save.total);
   save.total++; save.rounds[level]++; persist();
   const after = tierOf(save.total);
   const newTier = after !== before;
   const st = save.total;
-  $('#endLine').textContent = (perfect ? 'Bez jediné chyby! ' : `Bez chyby: ${R.clean} z ${ROUND_LEN}. `) + (st <= 12 ? `Přibylo na domě: ${STAGES[st - 1]}.` : 'Na zahradě vykvetla nová květina.');
+  const fs = farmStage();
+  const grew = st <= FARM_START ? `Přibylo na domě: ${STAGES[st - 1]}.` : st <= FARM_START + FARM_STAGES.length ? `Na farmě přibylo: ${FARM_STAGES[fs - 1]}.` : 'Farma je hotová, brzy přijde vesnice.';
+  $('#endLine').textContent = (perfect ? 'Bez jediné chyby! ' : `Bez chyby: ${R.clean} z ${ROUND_LEN}. `) + grew;
   if (newTier) { np.hidden = false; np.innerHTML = ''; np.appendChild(pickCanvas(after)); np.insertAdjacentHTML('beforeend', `<span>Nový krumpáč: ${after.name}!</span>`); }
   else np.hidden = true;
   const fresh = OUTFIT_CATS.flatMap(([cat]) => OUTFIT[cat].filter(it => it.at === st).map(it => [cat, it]));
   if (fresh.length) { no.hidden = false; no.innerHTML = ''; fresh.forEach(([cat, it]) => no.appendChild(outfitIcon(cat, it))); no.insertAdjacentHTML('beforeend', `<span>Nové oblečení v šatníku: ${fresh.map(([, it]) => it.name).join(', ')}!</span>`); }
   else no.hidden = true;
-  drawHouse($('#endHouse'));
+  (st <= FARM_START ? drawHouse : drawFarm)($('#endHouse'));
   R = null;
   $('#endOverlay').hidden = false;
   sfx.fanfare(); if (newTier || perfect) sfx.sparkle();
-  speak((perfect ? 'Bez jediné chyby! ' : '') + (newTier ? `Výborně, Adame! Máš nový ${after.name} krumpáč!` : 'Výborně, Adame! Kolo je hotové.') + (fresh.length ? ` V šatníku máš ${fresh.map(([, it]) => it.name).join(' a ')}.` : ''));
+  if (st === FARM_START + 1) bark();
+  const story = st === FARM_START ? ' Dům je hotový! Příště začneš stavět farmu.' : st === FARM_START + 1 ? ' Přiběhl k tobě pejsek! Je tvůj a bude s tebou kopat.' : st === FARM_START + FARM_STAGES.length ? ' Farma je hotová!' : '';
+  speak((perfect ? 'Bez jediné chyby! ' : '') + (newTier ? `Výborně, Adame! Máš nový ${after.name} krumpáč!` : 'Výborně, Adame! Kolo je hotové.') + story + (fresh.length ? ` V šatníku máš ${fresh.map(([, it]) => it.name).join(' a ')}.` : ''));
   $('#btnAgain').focus({ preventScroll: true });
 }
 function goHome() {
@@ -1060,7 +1329,7 @@ function updateSettings() {
   $('#rateNormal').setAttribute('aria-pressed', String(!save.slow));
   $('#rateSlow').setAttribute('aria-pressed', String(save.slow));
   const st = Math.min(12, save.total);
-  $('#progressInfo').textContent = `Odehraná kola: písmena ${save.rounds.letters}, slabiky ${save.rounds.syllables}. Dům: ${st} z 12 dílů. Krumpáč: ${tierOf(save.total).name}.`;
+  $('#progressInfo').textContent = `Odehraná kola: písmena ${save.rounds.letters}, slabiky ${save.rounds.syllables}. Dům: ${st} z 12 dílů. Farma: ${farmStage()} z ${FARM_STAGES.length}. Smaragdy: ${save.emeralds}. Krumpáč: ${tierOf(save.total).name}.`;
   updateVoiceInfo();
 }
 $('#btnSettings').addEventListener('click', () => { updateSettings(); $('#resetConfirm').hidden = true; $('#setOverlay').hidden = false; });
@@ -1078,6 +1347,10 @@ $('#btnResetYes').addEventListener('click', () => { const keep = { caseMode: sav
 $('#btnBack').addEventListener('click', goHome);
 $('#btnHouseBack').addEventListener('click', goHome);
 $('#btnWardBack').addEventListener('click', goHome);
+$('#btnFarmBack').addEventListener('click', goHome);
+$('#btnShopBack').addEventListener('click', goHome);
+$('#btnFarmShop').addEventListener('click', openShop);
+$('#btnFarmShop').appendChild(sprIcon('emerald'));
 $('#heroPlayer').addEventListener('click', openWardrobe);
 $('#btnListen').addEventListener('click', () => { audio(); if (R && R.target && !R.busy) speak(sayText(R.level, R.target)); });
 $('#btnAgain').addEventListener('click', () => { const lv = $('#endOverlay').dataset.level; $('#endOverlay').hidden = true; startRound(lv); });
