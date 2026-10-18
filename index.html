@@ -83,7 +83,7 @@ button:focus-visible { outline: 4px solid var(--gold); outline-offset: 3px; }
 /* domovská obrazovka */
 .home-sky { padding-block: 14px 0; }
 .home-top { display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 2; }
-.title-row { display: flex; align-items: flex-end; gap: clamp(12px, 3vw, 32px); justify-content: center; position: relative; z-index: 1; margin-top: -24px; }
+.title-row { display: flex; align-items: flex-end; gap: clamp(12px, 3vw, 32px); justify-content: center; position: relative; z-index: 1; margin-top: 4px; }
 .title {
   font-size: clamp(30px, 8vw, 76px); font-weight: 700; color: var(--white); line-height: 1;
   text-shadow: -3px 0 0 #2e5a7f, 3px 0 0 #2e5a7f, 0 -3px 0 #2e5a7f, 0 3px 0 #2e5a7f, 6px 6px 0 #2e5a7f; margin: 0 0 clamp(18px, 4vh, 40px);
@@ -163,6 +163,23 @@ button:focus-visible { outline: 4px solid var(--gold); outline-offset: 3px; }
 .gems canvas { width: 28px; height: 28px; }
 .gems.pop { animation: pop .3s; }
 @keyframes pop { 50% { transform: scale(1.3); } }
+.home-stats { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.streak { display: inline-flex; align-items: center; gap: 6px; background: rgba(0,0,0,.2); border: 3px solid rgba(0,0,0,.45); padding: 4px 10px 4px 6px; font-family: var(--f-read); font-weight: 700; font-size: 22px; color: var(--white); text-shadow: 2px 2px 0 #000; font-variant-numeric: tabular-nums; }
+.streak canvas { width: 34px; height: 34px; }
+.streak.cold canvas { filter: grayscale(.4); }
+.streak.hot canvas { animation: flicker 1.2s ease-in-out infinite; }
+@keyframes flicker { 50% { transform: scaleY(1.08) translateY(-1px); filter: brightness(1.15); } }
+.streak-big { display: flex; align-items: center; gap: 14px; margin-bottom: 12px; }
+.streak-big canvas { width: 72px; height: 72px; }
+.streak-big b { font-size: 34px; }
+.week { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-bottom: 14px; }
+.day { display: grid; justify-items: center; gap: 4px; font-family: var(--f-read); font-weight: 700; font-size: 15px; }
+.day span { width: 100%; max-width: 40px; aspect-ratio: 1; border: 3px solid #161616; background: #8b8b8b; display: grid; place-items: center; }
+.day span canvas { width: 80%; height: 80%; }
+.day.on span { background: #f6cf45; }
+.day.today { text-decoration: underline 3px; }
+.streak-info p { font-family: var(--f-read); font-size: 17px; margin: 0 0 8px; display: flex; align-items: center; gap: 8px; }
+.streak-info canvas { width: 28px; height: 28px; flex: none; }
 .hud-gems { height: 56px; padding: 0 8px; font-size: 20px; background: rgba(0,0,0,.18); border: 3px solid rgba(0,0,0,.45); }
 .game-dog { justify-self: center; height: clamp(34px, 7vh, 60px); }
 .game-dog canvas { transform: scaleX(-1); } /* pes kouká k Adamovi */
@@ -269,7 +286,10 @@ canvas.ench { animation: ench 1.8s ease-in-out infinite; }
       <div class="cloud c1"></div><div class="cloud c2"></div>
       <div class="inner">
         <div class="home-top">
-          <div class="gems" id="homeGems" aria-label="Smaragdy"></div>
+          <div class="home-stats">
+            <div class="gems" id="homeGems" aria-label="Smaragdy"></div>
+            <button class="streak" id="btnStreak" aria-label="Řada dní"></button>
+          </div>
           <button class="gbtn icon" id="btnSettings" aria-label="Nastavení pro rodiče">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 2h4v3h2V3h2v2h2v2h-2v2h3v4h-3v2h2v2h-2v2h-2v-2h-2v3h-4v-3H8v2H6v-2H4v-2h2v-2H3V9h3V7H4V5h2V3h2v2h2V2zm0 7v6h4V9h-4z"/></svg>
           </button>
@@ -406,6 +426,16 @@ canvas.ench { animation: ench 1.8s ease-in-out infinite; }
   </div>
 </div>
 
+<!-- ŘADA DNÍ -->
+<div class="overlay" id="streakOverlay" hidden>
+  <div class="panel" role="dialog" aria-labelledby="streakTitle">
+    <div class="streak-big" id="streakBig"></div>
+    <div class="week" id="streakWeek"></div>
+    <div class="streak-info" id="streakInfo"></div>
+    <div class="actions" style="margin-top:14px"><button class="gbtn go" id="btnStreakClose">Hotovo</button></div>
+  </div>
+</div>
+
 <!-- NASTAVENÍ -->
 <div class="overlay" id="setOverlay" hidden>
   <div class="panel set" role="dialog" aria-labelledby="setTitle">
@@ -466,9 +496,9 @@ let R = null; // běžící kolo
 
 /* ---------- uložený postup ---------- */
 const KEY = 'adamuv-dul-v1';
-function defaults() { return { caseMode: 'both', slow: false, strict: 'normal', total: 0, rounds: { letters: 0, syllables: 0 }, stats: {}, emeralds: 0, dog: { collar: 'cerveny', owned: ['cerveny'] }, decor: [], outfit: { shirt: 'oranzove', pants: 'modre', shoes: 'sede', hat: 'nic', enchant: 'ne' } }; }
+function defaults() { return { caseMode: 'both', slow: false, strict: 'normal', total: 0, rounds: { letters: 0, syllables: 0 }, stats: {}, emeralds: 0, dog: { collar: 'cerveny', owned: ['cerveny'] }, decor: [], streak: { count: 0, best: 0, last: '', totem: 0, days: [] }, outfit: { shirt: 'oranzove', pants: 'modre', shoes: 'sede', hat: 'nic', enchant: 'ne' } }; }
 function load() {
-  try { const s = JSON.parse(localStorage.getItem(KEY)); if (s) { const d = defaults(); return Object.assign(d, s, { rounds: Object.assign(d.rounds, s.rounds || {}), outfit: Object.assign(d.outfit, s.outfit || {}), dog: Object.assign(d.dog, s.dog || {}) }); } } catch (e) {}
+  try { const s = JSON.parse(localStorage.getItem(KEY)); if (s) { const d = defaults(); return Object.assign(d, s, { rounds: Object.assign(d.rounds, s.rounds || {}), outfit: Object.assign(d.outfit, s.outfit || {}), dog: Object.assign(d.dog, s.dog || {}), streak: Object.assign(d.streak, s.streak || {}) }); } } catch (e) {}
   return defaults();
 }
 let save = load();
@@ -605,6 +635,7 @@ const OUTFIT = {
     { id: 'zlata', name: 'zlatá helma', c: '#f2c94c', d: '#c9a227', kind: 'helmet', at: 10 },
     { id: 'diamantova', name: 'diamantová helma', c: '#5de0e6', d: '#2aa9b3', kind: 'helmet', at: 12 },
     { id: 'netheritova', name: 'netheritová helma', c: '#4a4245', d: '#2b2628', kind: 'helmet', at: 17 },
+    { id: 'koruna', name: 'královská koruna', c: '#f2c94c', d: '#c9a227', kind: 'crown', streak: 7 },
   ],
   // očarování (enchant): fialový třpyt na brnění, helmách, kovových botách a krumpáči
   enchant: [
@@ -615,7 +646,7 @@ const OUTFIT = {
 const OUTFIT_CATS = [['shirt', 'Tričko'], ['pants', 'Kalhoty'], ['shoes', 'Boty'], ['hat', 'Čepice'], ['enchant', 'Očarování']];
 const isMetal = it => !!(it.armor || it.metal || it.kind === 'helmet');
 const enchanted = () => outfitItem('enchant').id === 'ano';
-const unlocked = it => !it.at || save.total >= it.at;
+const unlocked = it => (!it.at || save.total >= it.at) && (!it.streak || save.streak.best >= it.streak);
 function outfitItem(cat) { const it = OUTFIT[cat].find(x => x.id === save.outfit[cat]); return it && unlocked(it) ? it : OUTFIT[cat][0]; }
 function playerCanvas() {
   const c = document.createElement('canvas'); c.width = 16; c.height = 32; c.className = 'body px';
@@ -639,6 +670,7 @@ function playerCanvas() {
   if (pa.armor) { R(4, 20, 8, 1, pa.d, pa); R(4, 25, 3, 1, pa.d, pa); R(8, 25, 4, 1, pa.d, pa); }
   R(4, 29, 8, 3, so.c, so); R(4, 31, 8, 1, so.d, so); R(7, 29, 2, 3, 'rgba(0,0,0,.18)');
   if (ha.kind === 'cap') { R(4, 0, 8, 2, ha.c); R(3, 2, 10, 1, ha.d); R(7, 0, 2, 1, ha.d); }
+  if (ha.kind === 'crown') { R(4, 1, 8, 2, ha.c); R(4, 0, 1, 1, ha.c); R(7, 0, 2, 1, ha.c); R(11, 0, 1, 1, ha.c); R(7, 1, 2, 1, '#c62f2f'); R(4, 2, 8, 1, ha.d); }
   if (ha.kind === 'helmet') { R(3, 0, 10, 3, ha.c, ha); R(3, 3, 1, 3, ha.c, ha); R(12, 3, 1, 3, ha.c, ha); R(3, 2, 10, 1, ha.d, ha); R(3, 5, 1, 1, ha.d, ha); R(12, 5, 1, 1, ha.d, ha); R(4, 0, 8, 1, 'rgba(255,255,255,.35)'); }
   c.glint = glow ? gl : null;
   return c;
@@ -659,6 +691,7 @@ function outfitIcon(cat, it) {
   if (cat === 'hat') {
     if (!it.kind) { R(4, 4, 8, 8, '#d9a066'); R(4, 4, 8, 2, '#4f321d'); R(5, 8, 1, 1, '#3b5ba0'); R(10, 8, 1, 1, '#3b5ba0'); R(7, 10, 2, 1, '#9b5a3c'); }
     if (it.kind === 'cap') { R(3, 5, 10, 6, '#161616'); R(4, 6, 8, 4, it.c); R(2, 10, 12, 3, '#161616'); R(3, 10, 10, 2, it.d); }
+    if (it.kind === 'crown') { R(3, 7, 10, 5, it.c); R(3, 4, 2, 3, it.c); R(7, 3, 2, 4, it.c); R(11, 4, 2, 3, it.c); R(7, 8, 2, 2, '#c62f2f'); R(4, 9, 1, 1, '#2f7fd1'); R(11, 9, 1, 1, '#2f7fd1'); R(3, 11, 10, 1, it.d); }
     if (it.kind === 'helmet') { R(2, 3, 12, 11, '#161616'); R(3, 4, 10, 4, it.c); R(3, 8, 2, 5, it.c); R(11, 8, 2, 5, it.c); g.clearRect(5, 8, 6, 6); R(3, 7, 10, 1, it.d); }
   }
   return c;
@@ -911,7 +944,7 @@ function renderHome() {
   card('Farma', drawFarm, openFarm, farmStage() === 0);
   wrap.appendChild(places);
   mountDog($('#heroDog'));
-  updateGems();
+  updateGems(); renderStreakBtn();
 }
 let wardCat = 'shirt';
 function openWardrobe() {
@@ -937,7 +970,7 @@ function renderWardrobe() {
     b.appendChild(outfitIcon(wardCat, it));
     if (!open) { b.classList.add('locked'); b.insertAdjacentHTML('beforeend', LOCK_SVG); }
     b.addEventListener('click', () => {
-      if (!open) { sfx.nope(); speak(`${it.name} se odemkne, až vykopeš víc kol.`); return; }
+      if (!open) { sfx.nope(); speak(it.streak ? `${it.name} se odemkne, až budeš hrát ${it.streak} dní v řadě.` : `${it.name} se odemkne, až vykopeš víc kol.`); return; }
       save.outfit[wardCat] = it.id; persist();
       if (wardCat === 'enchant' && it.id === 'ano' && !['shirt', 'pants', 'shoes', 'hat'].some(k => isMetal(outfitItem(k)))) { renderWardrobe(); speak('Očarovat jde brnění, helmy a kovové boty. A krumpáč!'); return; }
       tone(880, 0, .08, 'square', .05); tone(1320, .07, .1, 'square', .05);
@@ -989,6 +1022,9 @@ const SPRITES = {
   beehive: [16, 16, R => { R(1, 2, 14, 13, '#d8a23a'); R(1, 5, 14, 1, '#a8781e'); R(1, 10, 14, 1, '#a8781e'); R(6, 7, 4, 2, '#3a2a10'); R(10, 11, 2, 3, '#f2c94c'); R(10, 14, 1, 1, '#f2c94c'); }],
   scarecrow: [16, 32, R => { R(7, 9, 2, 23, '#7a5e3b'); R(0, 12, 16, 2, '#7a5e3b'); R(4, 11, 8, 8, '#3f6fb0'); R(3, 19, 10, 2, '#d8b84a'); R(3, 0, 10, 9, '#e8862a'); R(7, 0, 2, 1, '#4c7a2a'); R(5, 3, 2, 2, '#3a2410'); R(9, 3, 2, 2, '#3a2410'); R(5, 6, 6, 1, '#3a2410'); }],
   sunflower: [16, 32, R => { R(7, 10, 2, 22, '#3f8a2a'); R(3, 18, 4, 2, '#4c9c33'); R(9, 23, 4, 2, '#4c9c33'); R(4, 1, 8, 10, '#f2d024'); R(3, 2, 10, 8, '#f2d024'); R(5, 3, 6, 6, '#6b4424'); }],
+  campfire: [16, 16, R => { R(1, 12, 14, 2, '#6b4a31'); R(3, 14, 10, 2, '#4a3322'); R(2, 11, 3, 1, '#7a5e3b'); R(11, 11, 3, 1, '#7a5e3b'); R(4, 4, 8, 7, '#ff8a2a'); R(5, 2, 6, 3, '#ff8a2a'); R(7, 0, 2, 2, '#ff8a2a'); R(5, 6, 6, 5, '#f7c548'); R(7, 4, 2, 3, '#f7c548'); R(7, 8, 2, 3, '#fff1b0'); }],
+  campfireOut: [16, 16, R => { R(1, 12, 14, 2, '#6b4a31'); R(3, 14, 10, 2, '#4a3322'); R(2, 11, 3, 1, '#7a5e3b'); R(11, 11, 3, 1, '#7a5e3b'); R(4, 10, 8, 2, '#7d7d7d'); R(6, 6, 2, 2, '#bdbdbd'); R(8, 3, 2, 2, '#d6d6d6'); R(6, 0, 2, 2, '#e6e6e6'); }],
+  totem: [16, 16, R => { const G = '#f2c94c', D = '#c9a227'; R(5, 1, 6, 5, G); R(6, 3, 1, 1, '#2fbf5a'); R(9, 3, 1, 1, '#2fbf5a'); R(4, 6, 8, 6, G); R(1, 6, 3, 4, D); R(12, 6, 3, 4, D); R(5, 12, 2, 3, D); R(9, 12, 2, 3, D); R(6, 8, 4, 2, '#2fbf5a'); }],
   pumpkin: [16, 16, R => { R(1, 5, 14, 11, '#e8862a'); R(5, 5, 1, 11, '#c86a1a'); R(10, 5, 1, 11, '#c86a1a'); R(7, 2, 2, 3, '#4c7a2a'); }],
 };
 const sprCache = {};
@@ -1086,6 +1122,8 @@ function renderShop() {
   head('Pro psa');
   shopItem({ key: 'treat', name: 'pamlsek', price: TREAT_PRICE, icon: sprIcon('bone'), needDog: true });
   COLLARS.forEach(c => shopItem({ key: 'collar:' + c.id, name: c.name, price: c.price, icon: collarIcon(c.c), needDog: true, owned: save.dog.owned.includes(c.id), selected: save.dog.collar === c.id }));
+  head('Pro tebe');
+  shopItem({ key: 'totem', name: 'totem nesmrtelnosti', price: TOTEM_PRICE, icon: sprIcon('totem'), owned: save.streak.totem > 0 });
   head('Na farmu');
   DECOR.forEach(d => shopItem({ key: 'decor:' + d.id, name: d.name, price: d.price, icon: sprIcon(d.sprite), owned: save.decor.includes(d.id) }));
 }
@@ -1110,17 +1148,81 @@ function shopTap(o, locked) {
   if (locked) { sfx.nope(); speak('Nejdřív potřebuješ psa. Přiběhne, až dostavíš dům.'); return; }
   if (o.owned) {
     if (o.key.startsWith('collar:')) { save.dog.collar = o.key.slice(7); persist(); renderShop(); bark(); dogHappy($('#shopDog')); speak(o.name); }
-    else speak(`${o.name} už máš na farmě.`);
+    else speak(o.key === 'totem' ? 'Totem už máš. Zachrání tvou řadu, když jeden den vynecháš.' : `${o.name} už máš na farmě.`);
     return;
   }
   if (save.emeralds < o.price) { shopArmed = null; renderShop(); sfx.nope(); speak(`${o.name} stojí ${o.price} ${gemWord(o.price)}. Máš ${save.emeralds}. Kopej bez chyby a získáš další!`); return; }
   if (shopArmed !== o.key) { shopArmed = o.key; renderShop(); speak(`${o.name} za ${o.price} ${gemWord(o.price)}. Klepni ještě jednou a koupíš.`); return; }
   save.emeralds -= o.price; shopArmed = null;
+  if (o.key === 'totem') { save.streak.totem = 1; persist(); renderShop(); sfx.sparkle(); speak('Koupeno: totem nesmrtelnosti! Zachrání tvou řadu, když jeden den vynecháš.'); return; }
   if (o.key === 'treat') { persist(); renderShop(); bark(); dogHappy($('#shopDog')); speak('Mňam! Pejsek má radost.'); return; }
   if (o.key.startsWith('collar:')) { const id = o.key.slice(7); save.dog.owned.push(id); save.dog.collar = id; }
   else save.decor.push(o.key.slice(6));
   persist(); renderShop(); sfx.fanfare(); dogHappy($('#shopDog'));
   speak(`Koupeno: ${o.name}!` + (o.key.startsWith('decor:') ? ' Najdeš ji na farmě.' : ''));
+}
+
+/* ---------- řada dní ---------- */
+// den se počítá, když má Adam aspoň jedno povedené kolo; totem (z obchodu) zachrání řadu při jednom vynechaném dni
+const TOTEM_PRICE = 20, STREAK_BONUS_MAX = 10;
+const pad2 = n => String(n).padStart(2, '0');
+const dayStr = (d = new Date()) => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
+const dayNum = str => { const [y, m, d] = str.split('-').map(Number); return Date.UTC(y, m - 1, d) / 864e5; };
+const dayWord = n => n === 1 ? 'den' : n >= 2 && n <= 4 ? 'dny' : 'dní';
+// jak řada stojí dnes (bez zápisu): hraje se dál, nebo už spadla
+function streakNow() {
+  const st = save.streak; if (!st.last) return { count: 0, today: false, saved: false };
+  const gap = dayNum(dayStr()) - dayNum(st.last);
+  if (gap === 0) return { count: st.count, today: true, saved: false };
+  if (gap === 1) return { count: st.count, today: false, saved: false };
+  if (gap === 2 && st.totem > 0) return { count: st.count, today: false, saved: true };
+  return { count: 0, today: false, saved: false };
+}
+// zapíše dnešní den po povedeném kole; vrací, co se stalo
+function registerDay() {
+  const st = save.streak, today = dayStr();
+  if (st.last === today) return null;
+  const gap = st.last ? dayNum(today) - dayNum(st.last) : 99;
+  let usedTotem = false;
+  if (gap === 1) st.count++;
+  else if (gap === 2 && st.totem > 0) { st.totem--; st.count++; usedTotem = true; }
+  else st.count = 1;
+  const prevBest = st.best;
+  st.last = today; st.best = Math.max(st.best, st.count);
+  st.days = [...st.days.filter(d => dayNum(today) - dayNum(d) < 60), today];
+  const bonus = Math.min(st.count, STREAK_BONUS_MAX);
+  save.emeralds += bonus; persist();
+  return { count: st.count, bonus, usedTotem, prevBest };
+}
+function renderStreakBtn() {
+  const b = $('#btnStreak'); const n = streakNow();
+  b.innerHTML = ''; b.appendChild(sprIcon(n.today ? 'campfire' : 'campfireOut')); b.append(String(n.count));
+  b.classList.toggle('hot', n.today); b.classList.toggle('cold', !n.today);
+}
+function openStreak() {
+  audio();
+  const n = streakNow(), st = save.streak;
+  $('#streakBig').innerHTML = ''; $('#streakBig').appendChild(sprIcon(n.today ? 'campfire' : 'campfireOut'));
+  $('#streakBig').insertAdjacentHTML('beforeend', `<div><b>${n.count} ${dayWord(n.count)}</b><br>v řadě</div>`);
+  const week = $('#streakWeek'); week.innerHTML = '';
+  const names = ['Ne', 'Po', 'Út', 'St', 'Čt', 'Pá', 'So'];
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(); d.setDate(d.getDate() - i); const ds = dayStr(d);
+    const on = st.days.includes(ds);
+    const el = document.createElement('div'); el.className = 'day' + (on ? ' on' : '') + (i === 0 ? ' today' : '');
+    const box = document.createElement('span'); if (on) box.appendChild(sprIcon('campfire'));
+    el.appendChild(box); el.append(names[d.getDay()]); week.appendChild(el);
+  }
+  const info = $('#streakInfo'); info.innerHTML = '';
+  const line = (icon, text) => { const p = document.createElement('p'); if (icon) p.appendChild(icon); p.append(text); info.appendChild(p); };
+  line(null, n.today ? 'Dnes máš hotovo. Přijď zase zítra!' : 'Dnes ještě chybí jedno povedené kolo.');
+  line(sprIcon('emerald'), `Za první povedené kolo dne dostaneš tolik smaragdů, kolik dní máš v řadě (nejvíc ${STREAK_BONUS_MAX}).`);
+  const crown = OUTFIT.hat.find(h => h.id === 'koruna');
+  line(outfitIcon('hat', crown), st.best >= crown.streak ? 'Královskou korunu už máš v šatníku.' : `Za ${crown.streak} dní v řadě dostaneš královskou korunu.`);
+  line(sprIcon('totem'), st.totem > 0 ? (n.saved ? 'Včera jsi nehrál, ale totem tvou řadu zachrání, když dnes zahraješ.' : 'Máš totem. Když jeden den vynecháš, řada nespadne.') : `Totem z obchodu (${TOTEM_PRICE} smaragdů) zachrání řadu, když jeden den vynecháš.`);
+  if (st.best) line(null, `Nejdelší řada: ${st.best} ${dayWord(st.best)}.`);
+  $('#streakOverlay').hidden = false;
+  speak(n.count ? `Hraješ ${n.count} ${dayWord(n.count)} v řadě.` + (n.today ? ' Přijď zase zítra!' : ' Dnes si ještě zahraj, ať řada nespadne.') : 'Zahraj si každý den a postav si řadu.');
 }
 
 /* ---------- herní kolo ---------- */
@@ -1257,8 +1359,13 @@ function endRound() {
   if (perfect) { save.emeralds += PERFECT_BONUS; persist(); }
   const loot = $('#loot'); loot.innerHTML = '';
   R.loot.forEach(({ t, clean }) => { const sp = document.createElement('span'); sp.className = clean ? 'clean' : 'miss'; sp.style.backgroundImage = `url(${tex(t)})`; loot.appendChild(sp); });
-  const eg = $('#endGems'); eg.innerHTML = ''; eg.appendChild(sprIcon('emerald'));
-  eg.append(`+${earned}` + (perfect ? ` (z toho ${PERFECT_BONUS} za kolo bez chyby)` : '') + `, máš ${save.emeralds}`);
+  const eg = $('#endGems');
+  const showGems = (bonus = 0) => {
+    const extra = [perfect ? `${PERFECT_BONUS} za kolo bez chyby` : '', bonus ? `${bonus} za řadu dní` : ''].filter(Boolean).join(', ');
+    eg.innerHTML = ''; eg.appendChild(sprIcon('emerald'));
+    eg.append(`+${earned + bonus}` + (extra ? ` (z toho ${extra})` : '') + `, máš ${save.emeralds}`);
+  };
+  showGems();
   const np = $('#newPick'), no = $('#newOutfit');
   const title = $('#endTitle');
   const building = save.total < FARM_START;
@@ -1282,6 +1389,8 @@ function endRound() {
   $('#btnAgain').textContent = 'Další kolo';
   const before = tierOf(save.total);
   save.total++; save.rounds[level]++; persist();
+  const day = registerDay();
+  if (day) showGems(day.bonus);
   const after = tierOf(save.total);
   const newTier = after !== before;
   const st = save.total;
@@ -1290,7 +1399,7 @@ function endRound() {
   $('#endLine').textContent = (perfect ? 'Bez jediné chyby! ' : `Bez chyby: ${R.clean} z ${ROUND_LEN}. `) + grew;
   if (newTier) { np.hidden = false; np.innerHTML = ''; np.appendChild(pickCanvas(after)); np.insertAdjacentHTML('beforeend', `<span>Nový krumpáč: ${after.name}!</span>`); }
   else np.hidden = true;
-  const fresh = OUTFIT_CATS.flatMap(([cat]) => OUTFIT[cat].filter(it => it.at === st).map(it => [cat, it]));
+  const fresh = OUTFIT_CATS.flatMap(([cat]) => OUTFIT[cat].filter(it => it.at === st || (day && it.streak && day.prevBest < it.streak && day.count >= it.streak)).map(it => [cat, it]));
   if (fresh.length) { no.hidden = false; no.innerHTML = ''; fresh.forEach(([cat, it]) => no.appendChild(outfitIcon(cat, it))); no.insertAdjacentHTML('beforeend', `<span>Nové oblečení v šatníku: ${fresh.map(([, it]) => it.name).join(', ')}!</span>`); }
   else no.hidden = true;
   (st <= FARM_START ? drawHouse : drawFarm)($('#endHouse'));
@@ -1299,7 +1408,8 @@ function endRound() {
   sfx.fanfare(); if (newTier || perfect) sfx.sparkle();
   if (st === FARM_START + 1) bark();
   const story = st === FARM_START ? ' Dům je hotový! Příště začneš stavět farmu.' : st === FARM_START + 1 ? ' Přiběhl k tobě pejsek! Je tvůj a bude s tebou kopat.' : st === FARM_START + FARM_STAGES.length ? ' Farma je hotová!' : '';
-  speak((perfect ? 'Bez jediné chyby! ' : '') + (newTier ? `Výborně, Adame! Máš nový ${after.name} krumpáč!` : 'Výborně, Adame! Kolo je hotové.') + story + (fresh.length ? ` V šatníku máš ${fresh.map(([, it]) => it.name).join(' a ')}.` : ''));
+  const dayTalk = day ? (day.usedTotem ? ` Totem zachránil tvou řadu!` : '') + (day.count > 1 ? ` Hraješ ${day.count} ${dayWord(day.count)} v řadě, bonus ${day.bonus} ${gemWord(day.bonus)}.` : ` Dnešní den se počítá do řady, bonus ${day.bonus} ${gemWord(day.bonus)}.`) : '';
+  speak((perfect ? 'Bez jediné chyby! ' : '') + (newTier ? `Výborně, Adame! Máš nový ${after.name} krumpáč!` : 'Výborně, Adame! Kolo je hotové.') + story + dayTalk + (fresh.length ? ` V šatníku máš ${fresh.map(([, it]) => it.name).join(' a ')}.` : ''));
   $('#btnAgain').focus({ preventScroll: true });
 }
 function goHome() {
@@ -1329,7 +1439,7 @@ function updateSettings() {
   $('#rateNormal').setAttribute('aria-pressed', String(!save.slow));
   $('#rateSlow').setAttribute('aria-pressed', String(save.slow));
   const st = Math.min(12, save.total);
-  $('#progressInfo').textContent = `Odehraná kola: písmena ${save.rounds.letters}, slabiky ${save.rounds.syllables}. Dům: ${st} z 12 dílů. Farma: ${farmStage()} z ${FARM_STAGES.length}. Smaragdy: ${save.emeralds}. Krumpáč: ${tierOf(save.total).name}.`;
+  $('#progressInfo').textContent = `Odehraná kola: písmena ${save.rounds.letters}, slabiky ${save.rounds.syllables}. Dům: ${st} z 12 dílů. Farma: ${farmStage()} z ${FARM_STAGES.length}. Smaragdy: ${save.emeralds}. Řada: ${streakNow().count} (nejdelší ${save.streak.best}). Krumpáč: ${tierOf(save.total).name}.`;
   updateVoiceInfo();
 }
 $('#btnSettings').addEventListener('click', () => { updateSettings(); $('#resetConfirm').hidden = true; $('#setOverlay').hidden = false; });
@@ -1349,6 +1459,8 @@ $('#btnHouseBack').addEventListener('click', goHome);
 $('#btnWardBack').addEventListener('click', goHome);
 $('#btnFarmBack').addEventListener('click', goHome);
 $('#btnShopBack').addEventListener('click', goHome);
+$('#btnStreak').addEventListener('click', openStreak);
+$('#btnStreakClose').addEventListener('click', () => { $('#streakOverlay').hidden = true; });
 $('#btnFarmShop').addEventListener('click', openShop);
 $('#btnFarmShop').appendChild(sprIcon('emerald'));
 $('#heroPlayer').addEventListener('click', openWardrobe);
