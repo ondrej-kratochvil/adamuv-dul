@@ -88,7 +88,7 @@ button:focus-visible { outline: 4px solid var(--gold); outline-offset: 3px; }
   text-shadow: -3px 0 0 #2e5a7f, 3px 0 0 #2e5a7f, 0 -3px 0 #2e5a7f, 0 3px 0 #2e5a7f, 6px 6px 0 #2e5a7f; margin: 0 0 clamp(18px, 4vh, 40px);
   text-wrap: balance;
 }
-.hero { height: clamp(96px, 20vh, 168px); }
+.hero { --h: clamp(96px, 20vh, 168px); height: var(--h); flex: none; margin-left: 0; margin-right: calc(var(--h) * .32); } /* místo pro krumpáč, který přečnívá doprava */
 .home-ground { overflow: auto; }
 .levels { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 18px; padding-block: 22px; max-width: 900px; margin: 0 auto; }
 .lvl { background: none; border: 0; padding: 0; display: grid; justify-items: center; gap: 10px; position: relative; }
