@@ -1,0 +1,859 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#6fb2ea">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);box-sizing:border-box;height:100%}*,*::before,*::after{box-sizing:border-box}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Adamův důl</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Andika:wght@400;700&family=Pixelify+Sans:wght@500;700&display=swap">
+<style>
+/* Layout: celoplošný svět z kostek, nahoře nebe s postavou a ovládáním, dole důl s kostkami k vykopání. Záměrně jeden vzhled (herní svět), barvy nastavené explicitně. */
+:root {
+  --sky-top: #6fb2ea;
+  --sky-bottom: #c6e6f8;
+  --ink: #1d1712;
+  --plate: #f8f2e2;
+  --plate-edge: #3b2a1a;
+  --gui: #c6c6c6;
+  --gui-dark: #555555;
+  --gui-btn: #8b8b8b;
+  --go: #4e9a32;
+  --gold: #f6cf45;
+  --white: #ffffff;
+  --shadow-text: #3a3a3a;
+  --f-pixel: "Pixelify Sans", ui-monospace, "Courier New", monospace;
+  --f-read: "Andika", "Trebuchet MS", "Segoe UI", sans-serif;
+  color-scheme: light;
+}
+html, body, #app { height: 100%; }
+body {
+  background: var(--sky-top);
+  color: var(--ink);
+  font-family: var(--f-pixel);
+  overflow: hidden;
+  -webkit-user-select: none; user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+button { font: inherit; color: inherit; cursor: pointer; touch-action: manipulation; }
+button:focus-visible { outline: 4px solid var(--gold); outline-offset: 3px; }
+.px { image-rendering: pixelated; image-rendering: crisp-edges; }
+
+.screen { height: 100%; display: flex; flex-direction: column; }
+.inner { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+
+/* nebe */
+.sky { flex: none; position: relative; background: linear-gradient(var(--sky-top), var(--sky-bottom)); overflow: hidden; }
+.cloud { position: absolute; height: 18px; background: var(--white); opacity: .9; box-shadow: 18px -12px 0 0 var(--white), 36px 0 0 0 var(--white); width: 54px; animation: drift 70s linear infinite; }
+.cloud.c2 { top: 30%; opacity: .6; animation-duration: 95s; animation-delay: -40s; transform: scale(1.4); }
+.cloud.c1 { top: 8%; opacity: .75; }
+@keyframes drift { from { left: -120px; } to { left: 110%; } }
+.grass-strip { height: 22px; background-size: 44px 44px; background-position: 0 0; }
+.ground { flex: 1; min-height: 0; background-size: 72px 72px; position: relative; }
+
+/* GUI prvky ve stylu hry */
+.gbtn {
+  background: var(--gui-btn); color: var(--white);
+  border: 3px solid #161616;
+  box-shadow: inset 3px 3px 0 rgba(255,255,255,.45), inset -3px -3px 0 rgba(0,0,0,.35);
+  text-shadow: 2px 2px 0 var(--shadow-text);
+  padding: 10px 18px; font-size: 20px; font-weight: 700;
+  display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+}
+.gbtn:active { box-shadow: inset -3px -3px 0 rgba(255,255,255,.35), inset 3px 3px 0 rgba(0,0,0,.35); }
+.gbtn.go { background: var(--go); }
+.gbtn.icon { padding: 8px; width: 56px; height: 56px; }
+.gbtn svg { width: 28px; height: 28px; fill: currentColor; filter: drop-shadow(2px 2px 0 var(--shadow-text)); }
+.panel {
+  background: var(--gui); color: #262626;
+  border: 3px solid #161616;
+  box-shadow: inset 4px 4px 0 var(--white), inset -4px -4px 0 var(--gui-dark);
+  padding: 22px 22px 20px;
+}
+.overlay { position: fixed; inset: 0; background: rgba(10, 8, 6, .62); display: grid; place-items: center; z-index: 20;
+  padding: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(16px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); }
+.overlay .panel { width: min(560px, 100%); max-height: 100%; overflow: auto; }
+
+/* domovská obrazovka */
+.home-sky { padding-block: 14px 0; }
+.home-top { display: flex; justify-content: flex-end; position: relative; z-index: 2; }
+.title-row { display: flex; align-items: flex-end; gap: clamp(12px, 3vw, 32px); justify-content: center; position: relative; z-index: 1; margin-top: -24px; }
+.title {
+  font-size: clamp(38px, 8vw, 76px); font-weight: 700; color: var(--white); line-height: 1;
+  text-shadow: -3px 0 0 #2e5a7f, 3px 0 0 #2e5a7f, 0 -3px 0 #2e5a7f, 0 3px 0 #2e5a7f, 6px 6px 0 #2e5a7f; margin: 0 0 clamp(18px, 4vh, 40px);
+  text-wrap: balance;
+}
+.hero { height: clamp(96px, 20vh, 168px); }
+.home-ground { overflow: auto; }
+.levels { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 18px; padding-block: 22px; max-width: 900px; margin: 0 auto; }
+.lvl { background: none; border: 0; padding: 0; display: grid; justify-items: center; gap: 10px; position: relative; }
+.lvl .blk { width: clamp(110px, 24vw, 150px); }
+.lvl-name { font-size: 22px; font-weight: 700; color: var(--white); text-shadow: 2px 2px 0 #000; }
+.lvl-sub { font-size: 15px; color: #e9dcc8; text-shadow: 1px 1px 0 #000; margin-top: -8px; }
+.lvl[disabled] { cursor: default; }
+.lvl[disabled] .blk { filter: saturate(.55) brightness(.75); }
+.lock { position: absolute; top: 8px; right: calc(50% - clamp(55px, 12vw, 75px) + 6px); width: 34px; height: 34px; }
+.house-card { grid-column: 1 / -1; justify-self: center; background: none; border: 0; padding: 0; display: grid; justify-items: center; gap: 8px; }
+.house-card canvas { width: min(360px, 82vw); border: 3px solid #161616; box-shadow: 0 0 0 3px rgba(255,255,255,.25); }
+
+/* kostka */
+.blk {
+  position: relative; aspect-ratio: 1; max-width: 100%;
+  background-size: 100% 100%;
+  image-rendering: pixelated; image-rendering: crisp-edges;
+  box-shadow: inset -6px -6px 0 rgba(0,0,0,.32), inset 6px 6px 0 rgba(255,255,255,.16), 0 6px 0 rgba(0,0,0,.35);
+  border: 0; padding: 0;
+}
+.plate {
+  position: absolute; inset: 15%;
+  background: var(--plate);
+  border: max(3px, calc(var(--bs, 120px) * .03)) solid var(--plate-edge);
+  display: grid; place-items: center;
+  box-shadow: inset -4px -4px 0 rgba(0,0,0,.08);
+}
+.glyph { font-family: var(--f-read); font-weight: 700; color: var(--ink); line-height: 1; font-size: calc(var(--bs, 120px) * .44); padding-top: .08em; white-space: nowrap; }
+.syl .glyph { font-size: calc(var(--bs, 120px) * .32); }
+.lvl .glyph { font-size: clamp(26px, 5.5vw, 38px); }
+.lvl .syl .glyph { font-size: clamp(18px, 3.6vw, 26px); }
+.crack { position: absolute; inset: 0; opacity: .5; background-size: 100% 100%; image-rendering: pixelated; pointer-events: none; }
+
+/* hra */
+.hud { display: flex; align-items: center; gap: 12px; padding-block: 12px 0; position: relative; z-index: 2; }
+.pips { flex: 1; display: flex; justify-content: center; gap: clamp(4px, 1vw, 8px); flex-wrap: wrap; }
+.pip { width: clamp(18px, 4vw, 28px); aspect-ratio: 1; background: rgba(0,0,0,.25); border: 2px solid rgba(0,0,0,.55); background-size: 100% 100%; image-rendering: pixelated; }
+.pip.done { border-color: #161616; }
+.hud-pick { width: 56px; height: 56px; display: grid; place-items: center; background: rgba(0,0,0,.18); border: 3px solid rgba(0,0,0,.45); }
+.hud-pick canvas { width: 40px; height: 40px; }
+.stage-row { display: grid; grid-template-columns: 1fr auto 1fr; align-items: end; position: relative; z-index: 1; }
+.player { position: relative; height: clamp(72px, 15vh, 132px); aspect-ratio: 16 / 32; justify-self: start; margin-left: 4%; }
+.player canvas.body { width: 100%; height: 100%; }
+.player canvas.tool { position: absolute; width: 90%; right: -55%; top: 38%; transform-origin: 18% 82%; transform: rotate(10deg); }
+.player.swing canvas.tool { animation: swing .22s ease-out; }
+@keyframes swing { 40% { transform: rotate(-55deg); } 100% { transform: rotate(10deg); } }
+.listen {
+  width: clamp(72px, 13vh, 104px); height: clamp(72px, 13vh, 104px); margin-bottom: 14px;
+  background: var(--gold); color: #3a2a00; border: 4px solid #161616;
+  box-shadow: inset 4px 4px 0 rgba(255,255,255,.55), inset -4px -4px 0 rgba(0,0,0,.25), 0 5px 0 rgba(0,0,0,.35);
+  display: grid; place-items: center;
+}
+.listen svg { width: 58%; height: 58%; fill: currentColor; }
+.listen.talking { animation: talk .6s ease-in-out infinite; }
+@keyframes talk { 50% { transform: scale(1.07); } }
+.hint { position: absolute; top: 10px; left: 0; right: 0; text-align: center; color: var(--white); font-family: var(--f-read); font-size: 18px; text-shadow: 1px 1px 0 #000; pointer-events: none; }
+.blocks { position: absolute; inset: 0; display: grid; justify-content: center; align-content: center; padding: 44px max(16px, env(safe-area-inset-right, 0px)) 24px max(16px, env(safe-area-inset-left, 0px)); }
+.blocks .blk { width: var(--bs); }
+.blk.hit { animation: hit .14s; }
+@keyframes hit { 50% { transform: scale(.93); } }
+.blk.nope { animation: nope .4s; }
+@keyframes nope { 20% { transform: translateX(-7%) rotate(-3deg); } 50% { transform: translateX(6%) rotate(3deg); } 80% { transform: translateX(-3%); } }
+.blk.glow { outline: 6px solid var(--gold); outline-offset: 4px; animation: glow 1s ease-in-out infinite; }
+@keyframes glow { 50% { outline-color: rgba(246, 207, 69, .25); } }
+.blk.gone { animation: gone .25s forwards; pointer-events: none; }
+@keyframes gone { to { transform: scale(.15); opacity: 0; } }
+.chip { position: fixed; width: 9px; height: 9px; z-index: 30; pointer-events: none; }
+.flyer { position: fixed; z-index: 31; pointer-events: none; background-size: 100% 100%; image-rendering: pixelated; }
+
+/* konec kola */
+.end-title { font-size: clamp(30px, 6vw, 44px); font-weight: 700; margin: 0 0 6px; color: #2c5e1a; text-wrap: balance; }
+.end-line { font-family: var(--f-read); font-size: 19px; margin: 0 0 14px; }
+.loot { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+.loot span { width: 30px; height: 30px; background-size: 100% 100%; image-rendering: pixelated; border: 2px solid #161616; }
+.end-house { width: 100%; border: 3px solid #161616; display: block; margin-bottom: 14px; }
+.newpick { display: flex; align-items: center; gap: 12px; background: #fff7d1; border: 3px solid #161616; padding: 8px 12px; margin-bottom: 14px; font-family: var(--f-read); font-size: 18px; font-weight: 700; }
+.newpick canvas { width: 48px; height: 48px; }
+.actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.actions .gbtn { flex: 1 1 auto; }
+
+/* dům */
+.house-view { flex: 1; min-height: 0; display: grid; place-items: center; padding-block: 12px 16px; }
+.house-view canvas { max-width: 100%; max-height: 100%; border: 3px solid #161616; }
+.house-cap { color: #1f3a52; font-size: 22px; font-weight: 700; text-align: center; padding-bottom: 8px; }
+
+/* nastavení pro rodiče */
+.set h2 { margin: 0 0 14px; font-size: 26px; }
+.set h3 { margin: 18px 0 8px; font-size: 18px; }
+.set p, .set li { font-family: var(--f-read); font-size: 16px; line-height: 1.45; margin: 0 0 8px; max-width: 62ch; }
+.set ul { padding-left: 20px; margin: 0 0 8px; }
+.seg { display: flex; flex-wrap: wrap; gap: 8px; }
+.seg .gbtn { font-size: 17px; padding: 8px 14px; }
+.seg .gbtn[aria-pressed="true"] { background: var(--go); }
+.voice-ok { color: #2c5e1a; font-weight: 700; }
+.voice-bad { color: #9a2a14; font-weight: 700; }
+.confirm { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 8px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .cloud, .listen.talking, .blk.glow { animation: none; }
+}
+</style>
+
+</head>
+<body>
+<div id="app">
+  <!-- DOMŮ -->
+  <section class="screen" id="home">
+    <div class="sky home-sky">
+      <div class="cloud c1"></div><div class="cloud c2"></div>
+      <div class="inner">
+        <div class="home-top">
+          <button class="gbtn icon" id="btnSettings" aria-label="Nastavení pro rodiče">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 2h4v3h2V3h2v2h2v2h-2v2h3v4h-3v2h2v2h-2v2h-2v-2h-2v3h-4v-3H8v2H6v-2H4v-2h2v-2H3V9h3V7H4V5h2V3h2v2h2V2zm0 7v6h4V9h-4z"/></svg>
+          </button>
+        </div>
+        <div class="title-row">
+          <div class="player hero" id="heroPlayer"></div>
+          <h1 class="title">Adamův<br>důl</h1>
+        </div>
+      </div>
+      <div class="grass-strip px" data-tex="grass"></div>
+    </div>
+    <div class="ground home-ground px" data-tex="dirt" data-dark="1">
+      <div class="inner">
+        <div class="levels" id="levels"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HRA -->
+  <section class="screen" id="game" hidden>
+    <div class="sky">
+      <div class="cloud c1"></div><div class="cloud c2"></div>
+      <div class="inner">
+        <div class="hud">
+          <button class="gbtn icon" id="btnBack" aria-label="Zpět domů">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h3v3h-3v3h-3v4h3v3h3v3h-3v-3h-3v-3H8v-4h3V7h3V4z"/></svg>
+          </button>
+          <div class="pips" id="pips"></div>
+          <div class="hud-pick" id="hudPick" aria-hidden="true"></div>
+        </div>
+        <div class="stage-row">
+          <div class="player" id="gamePlayer"></div>
+          <button class="listen" id="btnListen" aria-label="Poslechni znovu">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9h4l5-5h2v16h-2l-5-5H3V9zm14-1h2v2h1v4h-1v2h-2v-2h1v-4h-1V8zm3-3h2v2h1v10h-1v2h-2v-2h1V7h-1V5z"/></svg>
+          </button>
+          <div></div>
+        </div>
+      </div>
+      <div class="grass-strip px" data-tex="grass"></div>
+    </div>
+    <div class="ground px" id="gameGround">
+      <div class="hint" id="hint" hidden></div>
+      <div class="blocks" id="blocks"></div>
+    </div>
+  </section>
+
+  <!-- DŮM -->
+  <section class="screen" id="house" hidden>
+    <div class="sky" style="flex:1; display:flex; flex-direction:column;">
+      <div class="cloud c1"></div>
+      <div class="inner hud">
+        <button class="gbtn icon" id="btnHouseBack" aria-label="Zpět domů">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h3v3h-3v3h-3v4h3v3h3v3h-3v-3h-3v-3H8v-4h3V7h3V4z"/></svg>
+        </button>
+        <div style="flex:1"></div>
+      </div>
+      <div class="house-view inner"><canvas id="houseBig" class="px" aria-label="Adamův dům"></canvas></div>
+      <div class="house-cap inner" id="houseCap"></div>
+    </div>
+  </section>
+</div>
+
+<!-- KONEC KOLA -->
+<div class="overlay" id="endOverlay" hidden>
+  <div class="panel" role="dialog" aria-labelledby="endTitle">
+    <h2 class="end-title" id="endTitle">Výborně, Adame!</h2>
+    <p class="end-line" id="endLine"></p>
+    <div class="loot" id="loot"></div>
+    <div class="newpick" id="newPick" hidden></div>
+    <canvas class="end-house px" id="endHouse"></canvas>
+    <div class="actions">
+      <button class="gbtn go" id="btnAgain">Další kolo</button>
+      <button class="gbtn" id="btnEndHouse">Můj dům</button>
+      <button class="gbtn" id="btnEndHome">Domů</button>
+    </div>
+  </div>
+</div>
+
+<!-- NASTAVENÍ -->
+<div class="overlay" id="setOverlay" hidden>
+  <div class="panel set" role="dialog" aria-labelledby="setTitle">
+    <h2 id="setTitle">Pro rodiče</h2>
+
+    <h3>Písmo na kostkách</h3>
+    <div class="seg" id="segCase">
+      <button class="gbtn" data-case="upper" id="caseUpper">VELKÁ</button>
+      <button class="gbtn" data-case="lower" id="caseLower">malá</button>
+      <button class="gbtn" data-case="both" id="caseBoth">obojí</button>
+    </div>
+
+    <h3>Hlas</h3>
+    <p id="voiceInfo"></p>
+    <div class="seg">
+      <button class="gbtn" data-rate="normal" id="rateNormal">normálně</button>
+      <button class="gbtn" data-rate="slow" id="rateSlow">pomalu</button>
+      <button class="gbtn go" id="btnTestVoice">Vyzkoušet hlas</button>
+    </div>
+    <div id="voiceHelp" hidden>
+      <p>Tablet nemá český hlas. Bez něj ukazuje hra nahoře malým písmem, co má rodič říct nahlas.</p>
+      <ul>
+        <li><b>Android:</b> Nastavení → Usnadnění (nebo Systém) → Převod textu na řeč → Google → nainstalovat hlasová data → čeština.</li>
+        <li><b>iPad:</b> Nastavení → Zpřístupnění → Předčítaný obsah → Hlasy → Čeština → stáhnout hlas Zuzana.</li>
+      </ul>
+      <p>Potom stránku zavřete a otevřete znovu.</p>
+    </div>
+
+    <h3>Postup</h3>
+    <p id="progressInfo"></p>
+    <button class="gbtn" id="btnReset">Začít od začátku</button>
+    <div class="confirm" id="resetConfirm" hidden>
+      <p style="margin:0">Smazat dům, krumpáče i statistiku?</p>
+      <button class="gbtn" id="btnResetYes" style="background:#a8341c">Ano, smazat</button>
+      <button class="gbtn" id="btnResetNo">Nechat</button>
+    </div>
+
+    <div class="actions" style="margin-top:20px">
+      <button class="gbtn go" id="btnSetClose">Hotovo</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+'use strict';
+const $ = s => document.querySelector(s);
+const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+let R = null; // běžící kolo
+
+/* ---------- uložený postup ---------- */
+const KEY = 'adamuv-dul-v1';
+function defaults() { return { caseMode: 'both', slow: false, total: 0, rounds: { letters: 0, syllables: 0 }, stats: {} }; }
+function load() {
+  try { const s = JSON.parse(localStorage.getItem(KEY)); if (s) { const d = defaults(); return Object.assign(d, s, { rounds: Object.assign(d.rounds, s.rounds || {}) }); } } catch (e) {}
+  return defaults();
+}
+let save = load();
+function persist() { try { localStorage.setItem(KEY, JSON.stringify(save)); } catch (e) {} }
+
+/* ---------- pixelové textury ---------- */
+function rng(seed) { return () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function hashStr(s) { let h = 2166136261; for (const ch of s) { h ^= ch.charCodeAt(0); h = Math.imul(h, 16777619); } return h >>> 0; }
+const pick = (r, a) => a[Math.floor(r() * a.length)];
+function px(g, x, y, c) { g.fillStyle = c; g.fillRect(x, y, 1, 1); }
+function noise(g, r, cols, x0 = 0, y0 = 0, w = 16, h = 16) { for (let y = y0; y < y0 + h; y++) for (let x = x0; x < x0 + w; x++) px(g, x, y, pick(r, cols)); }
+function ore(g, r, cols) { for (let i = 0; i < 4; i++) { const x = 1 + Math.floor(r() * 12), y = 1 + Math.floor(r() * 12); [[0,0],[1,0],[0,1],[1,1],[2,1]].forEach(([dx, dy]) => { if (r() < .8) px(g, x + dx, y + dy, pick(r, cols)); }); } }
+function planks(g, r, cols, dark) {
+  noise(g, r, cols);
+  for (let y = 0; y < 16; y++) {
+    if (y % 4 === 3) for (let x = 0; x < 16; x++) px(g, x, y, dark);
+    else { const k = Math.floor(y / 4); px(g, k % 2 ? 4 : 11, y, dark); }
+  }
+}
+const DIRT = ['#866043', '#79553a', '#966c4a', '#6b4a30', '#5d4029'];
+const STONE = ['#8f8f8f', '#828282', '#9a9a9a', '#767676', '#6c6c6c'];
+const painters = {
+  dirt(g, r) { noise(g, r, DIRT); },
+  grass(g, r) { noise(g, r, DIRT); for (let x = 0; x < 16; x++) { const h = 3 + Math.floor(r() * 3); for (let y = 0; y < h; y++) px(g, x, y, pick(r, ['#5fa83a', '#539a31', '#6cb845', '#4a8b2b'])); } },
+  stone(g, r) { noise(g, r, STONE); for (let i = 0; i < 6; i++) { const x = Math.floor(r() * 15), y = Math.floor(r() * 16); px(g, x, y, '#616161'); px(g, x + 1, y, '#5a5a5a'); } },
+  ironOre(g, r) { painters.stone(g, r); ore(g, r, ['#d8af93', '#c4936f', '#ecd0b8']); },
+  diamondOre(g, r) { painters.stone(g, r); ore(g, r, ['#5de0e6', '#2fb8c4', '#b1f6f8']); },
+  cobble(g, r) {
+    noise(g, r, ['#7d7d7d', '#8a8a8a', '#6f6f6f', '#999999']);
+    const bands = [[0, 4], [5, 9], [10, 13], [14, 16]];
+    bands.forEach(([a, b], i) => {
+      if (b < 16) for (let x = 0; x < 16; x++) px(g, x, b, '#4f4f4f');
+      const xs = [2 + Math.floor(r() * 5), 9 + Math.floor(r() * 5)];
+      xs.forEach(x => { for (let y = a; y < b; y++) px(g, x, y, '#555555'); });
+    });
+  },
+  planks(g, r) { planks(g, r, ['#b8945f', '#a7834f', '#c39f69'], '#7c5f37'); },
+  roof(g, r) { planks(g, r, ['#6b4428', '#5d3a22', '#7a5030'], '#3e2615'); },
+  log(g, r) { for (let x = 0; x < 16; x++) for (let y = 0; y < 16; y++) px(g, x, y, x % 5 === 0 || r() < .12 ? '#4a3622' : pick(r, ['#6b5132', '#5a432a', '#7a5e3b'])); },
+  leaves(g, r) { noise(g, r, ['#3f8a2a', '#357a23', '#4c9c33', '#2c661c', '#24541a']); },
+  glass(g, r) {
+    g.fillStyle = '#a9dbea'; g.fillRect(0, 0, 16, 16);
+    g.fillStyle = '#eef9fc'; g.fillRect(0, 0, 16, 1); g.fillRect(0, 15, 16, 1); g.fillRect(0, 0, 1, 16); g.fillRect(15, 0, 1, 16);
+    [[3,4],[4,3],[5,2],[10,12],[11,11],[12,10]].forEach(([x, y]) => px(g, x, y, '#ffffff'));
+  },
+  doorT(g, r) {
+    planks(g, r, ['#8e6a3c', '#7d5c33', '#9b7646'], '#5a4024');
+    g.fillStyle = '#a9dbea'; g.fillRect(3, 3, 4, 5); g.fillRect(9, 3, 4, 5);
+  },
+  doorB(g, r) { planks(g, r, ['#8e6a3c', '#7d5c33', '#9b7646'], '#5a4024'); px(g, 12, 3, '#2a2a2a'); px(g, 12, 4, '#2a2a2a'); },
+  brick(g, r) {
+    g.fillStyle = '#b8b0a8'; g.fillRect(0, 0, 16, 16);
+    for (let row = 0; row < 4; row++) { const off = row % 2 ? 4 : 0; for (let b = -1; b < 3; b++) { const x0 = b * 8 + off; for (let x = x0; x < x0 + 7; x++) for (let y = row * 4; y < row * 4 + 3; y++) if (x >= 0 && x < 16) px(g, x, y, pick(r, ['#9c4a37', '#8a3f2e', '#a85540'])); } }
+  },
+  flowerR(g, r) { flower(g, '#e0402e', '#f7e27a'); },
+  flowerY(g, r) { flower(g, '#f2d024', '#7a4a1e'); },
+  torch(g, r) {
+    g.fillStyle = '#7a5e3b'; g.fillRect(7, 7, 2, 9);
+    g.fillStyle = '#ff8a2a'; g.fillRect(7, 3, 2, 2); g.fillStyle = '#f7c548'; g.fillRect(7, 5, 2, 2); px(g, 7, 4, '#ffe9a0');
+  },
+};
+function flower(g, petal, mid) {
+  g.fillStyle = '#3f8a2a'; g.fillRect(8, 8, 1, 8); px(g, 7, 12, '#4c9c33'); px(g, 9, 11, '#4c9c33'); px(g, 6, 12, '#4c9c33');
+  g.fillStyle = petal; g.fillRect(7, 4, 3, 1); g.fillRect(6, 5, 5, 2); g.fillRect(7, 7, 3, 1); px(g, 8, 5, mid); px(g, 8, 6, mid);
+}
+const texCache = {};
+function texCanvas(name, dark) {
+  const k = name + (dark ? ':d' : '');
+  if (texCache[k]) return texCache[k].c;
+  const c = document.createElement('canvas'); c.width = c.height = 16;
+  const g = c.getContext('2d');
+  painters[name](g, rng(hashStr(name)));
+  if (dark) { g.fillStyle = 'rgba(12,8,4,.55)'; g.fillRect(0, 0, 16, 16); }
+  texCache[k] = { c, url: c.toDataURL() };
+  return c;
+}
+function tex(name, dark) { texCanvas(name, dark); return texCache[name + (dark ? ':d' : '')].url; }
+
+// praskliny: tři stupně, každý delší (stejné semínko, takže rostou)
+const cracks = [null];
+(function makeCracks() {
+  const r = rng(77);
+  const branches = [];
+  for (let b = 0; b < 6; b++) { let x = 8, y = 8; const steps = []; for (let s = 0; s < 9; s++) { x += Math.round(r() * 2 - 1) || (b % 2 ? 1 : -1); y += Math.round(r() * 2 - 1) || (b < 3 ? -1 : 1); steps.push([x, y]); } branches.push(steps); }
+  [2, 5, 9].forEach(L => {
+    const c = document.createElement('canvas'); c.width = c.height = 16; const g = c.getContext('2d');
+    branches.forEach(st => st.slice(0, L).forEach(([x, y]) => { if (x >= 0 && x < 16 && y >= 0 && y < 16) px(g, x, y, 'rgba(18,12,8,.85)'); }));
+    cracks.push(c.toDataURL());
+  });
+})();
+
+/* ---------- postava a krumpáče ---------- */
+function playerCanvas() {
+  const c = document.createElement('canvas'); c.width = 16; c.height = 32; c.className = 'body px';
+  const g = c.getContext('2d');
+  const R = (x, y, w, h, col) => { g.fillStyle = col; g.fillRect(x, y, w, h); };
+  const skin = '#d9a066', hair = '#4f321d', shirt = '#d2552d', shirtD = '#b0441f', pants = '#34508f', shoe = '#45403a';
+  R(4, 0, 8, 8, skin); R(4, 0, 8, 2, hair); R(4, 2, 1, 2, hair); R(11, 2, 1, 2, hair); R(5, 2, 1, 1, hair);
+  R(5, 4, 1, 1, '#ffffff'); R(6, 4, 1, 1, '#3b5ba0'); R(9, 4, 1, 1, '#3b5ba0'); R(10, 4, 1, 1, '#ffffff');
+  R(7, 6, 2, 1, '#9b5a3c'); R(6, 5, 4, 1, '#c98f58');
+  R(4, 8, 8, 12, shirt); R(4, 18, 8, 2, shirtD); R(7, 8, 2, 2, skin);
+  R(0, 8, 4, 4, shirt); R(12, 8, 4, 4, shirt); R(0, 12, 4, 8, skin); R(12, 12, 4, 8, skin);
+  R(4, 20, 8, 9, pants); R(7, 22, 1, 7, '#2a4074'); R(4, 29, 8, 3, shoe);
+  return c;
+}
+const TIERS = [
+  { at: 0, name: 'dřevěný', taps: 3, head: '#a37f4c', dark: '#6b4a31' },
+  { at: 2, name: 'kamenný', taps: 2, head: '#9a9a9a', dark: '#5c5c5c' },
+  { at: 5, name: 'železný', taps: 2, head: '#e2e2e2', dark: '#8f8f8f' },
+  { at: 9, name: 'diamantový', taps: 1, head: '#5de0e6', dark: '#1f8f99' },
+];
+function tierOf(total) { let t = TIERS[0]; TIERS.forEach(x => { if (total >= x.at) t = x; }); return t; }
+const PICK_MAP = [
+  '................',
+  '....DDDDD.......',
+  '...DHHHHHDD.....',
+  '....DDDDHHHD....',
+  '........KSHHD...',
+  '.......KSK.HD...',
+  '......KSK..HHD..',
+  '.....KSK...DHD..',
+  '....KSK.....HD..',
+  '...KSK......HD..',
+  '..KSK.......DD..',
+  '.KSK............',
+  '.KK.............',
+  '................',
+  '................',
+  '................',
+];
+function pickCanvas(tier, cls) {
+  const c = document.createElement('canvas'); c.width = c.height = 16; if (cls) c.className = cls + ' px';
+  const g = c.getContext('2d');
+  const col = { H: tier.head, D: tier.dark, S: '#8a6440', K: '#4a3322' };
+  PICK_MAP.forEach((row, y) => [...row].forEach((ch, x) => { if (col[ch]) px(g, x, y, col[ch]); }));
+  return c;
+}
+function mountPlayer(el) {
+  el.innerHTML = '';
+  el.appendChild(playerCanvas());
+  el.appendChild(pickCanvas(tierOf(save.total), 'tool'));
+}
+
+/* ---------- dům ---------- */
+const STAGES = ['základy', 'první řada zdi', 'druhá řada zdi', 'třetí řada zdi', 'dveře', 'okno', 'střecha', 'další kus střechy', 'komín', 'strom', 'květiny', 'lucerna a druhý strom'];
+const GARDEN = [[4, 'flowerY'], [14, 'flowerR'], [0, 'flowerR'], [17, 'flowerY'], [1, 'flowerY'], [3, 'flowerR'], [19, 'flowerR']];
+function houseCells(stage, garden) {
+  const m = new Map(); const set = (x, y, t) => m.set(x + ',' + y, t);
+  if (stage >= 1) for (let x = 6; x <= 13; x++) set(x, 10, 'cobble');
+  [9, 8, 7].forEach((y, i) => { if (stage >= 2 + i) for (let x = 6; x <= 13; x++) set(x, y, x === 6 || x === 13 ? 'log' : 'planks'); });
+  if (stage >= 5) { set(8, 9, 'doorB'); set(8, 8, 'doorT'); }
+  if (stage >= 6) { set(10, 8, 'glass'); set(11, 8, 'glass'); }
+  if (stage >= 7) for (let x = 5; x <= 14; x++) set(x, 6, 'roof');
+  if (stage >= 8) { for (let x = 6; x <= 13; x++) set(x, 5, 'roof'); for (let x = 7; x <= 12; x++) set(x, 4, 'roof'); }
+  if (stage >= 9) { for (let x = 8; x <= 11; x++) set(x, 3, 'roof'); set(12, 3, 'brick'); set(12, 2, 'brick'); }
+  const tree = cx => { for (let y = 8; y <= 10; y++) set(cx, y, 'log'); for (let y = 5; y <= 7; y++) for (let x = cx - 1; x <= cx + 1; x++) set(x, y, 'leaves'); set(cx, 4, 'leaves'); };
+  if (stage >= 10) tree(2);
+  if (stage >= 11) { set(15, 10, 'flowerR'); set(16, 10, 'flowerY'); }
+  if (stage >= 12) { set(5, 10, 'torch'); tree(18); }
+  GARDEN.slice(0, garden).forEach(([x, t]) => set(x, 10, t));
+  return m;
+}
+function drawHouse(cv) {
+  const stage = Math.min(12, save.total), garden = Math.max(0, save.total - 12);
+  const C = 16, W = 20, H = 14; cv.width = W * C; cv.height = H * C;
+  const g = cv.getContext('2d'); g.imageSmoothingEnabled = false;
+  const grd = g.createLinearGradient(0, 0, 0, 11 * C); grd.addColorStop(0, '#6fb2ea'); grd.addColorStop(1, '#c6e6f8');
+  g.fillStyle = grd; g.fillRect(0, 0, cv.width, cv.height);
+  g.fillStyle = '#fff3a6'; g.fillRect(16 * C, C, 24, 24);
+  g.fillStyle = '#ffffff'; g.fillRect(2 * C, 1.5 * C, 40, 10); g.fillRect(2 * C + 10, 1.5 * C - 8, 22, 8); g.fillRect(12 * C, 0.8 * C, 34, 8);
+  for (let x = 0; x < W; x++) { g.drawImage(texCanvas('grass'), x * C, 11 * C); g.drawImage(texCanvas('dirt'), x * C, 12 * C); g.drawImage(texCanvas('dirt'), x * C, 13 * C); }
+  for (const [k, t] of houseCells(stage, garden)) { const [x, y] = k.split(',').map(Number); g.drawImage(texCanvas(t), x * C, y * C); }
+}
+
+/* ---------- řeč ---------- */
+const synth = 'speechSynthesis' in window ? window.speechSynthesis : null;
+let csVoice = null, voicesKnown = false;
+function loadVoices() {
+  if (!synth) return;
+  const vs = synth.getVoices();
+  if (vs.length) voicesKnown = true;
+  const cs = vs.filter(v => /^cs/i.test(v.lang));
+  csVoice = cs.find(v => /zuzana|google/i.test(v.name)) || cs[0] || null;
+  updateVoiceInfo(); updateHint();
+}
+if (synth) { loadVoices(); synth.addEventListener ? synth.addEventListener('voiceschanged', loadVoices) : (synth.onvoiceschanged = loadVoices); }
+const noVoice = () => !synth || (voicesKnown && !csVoice);
+let speechId = 0;
+function speak(text, onend) {
+  const id = ++speechId;
+  const fin = () => { if (id !== speechId) return; speechId++; $('#btnListen').classList.remove('talking'); onend && onend(); };
+  if (!synth) { setTimeout(fin, 500); return; }
+  synth.cancel();
+  setTimeout(() => {
+    if (id !== speechId) return;
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = 'cs-CZ'; if (csVoice) u.voice = csVoice;
+    u.rate = save.slow ? 0.62 : 0.85; u.pitch = 1.05;
+    u.onend = fin; u.onerror = fin;
+    $('#btnListen').classList.add('talking');
+    synth.speak(u);
+    setTimeout(fin, 1600 + text.length * 140);
+  }, 60);
+}
+
+/* ---------- zvuky ---------- */
+let ac = null;
+function audio() { if (!ac) { try { ac = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) {} } if (ac && ac.state === 'suspended') ac.resume(); return ac; }
+function noiseHit(dur, freq, vol) {
+  const a = audio(); if (!a) return;
+  const n = a.createBuffer(1, a.sampleRate * dur, a.sampleRate), d = n.getChannelData(0);
+  for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / d.length, 2);
+  const s = a.createBufferSource(); s.buffer = n;
+  const f = a.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = freq;
+  const gn = a.createGain(); gn.gain.value = vol;
+  s.connect(f).connect(gn).connect(a.destination); s.start();
+}
+function tone(freq, t0, dur, type = 'square', vol = .07) {
+  const a = audio(); if (!a) return;
+  const o = a.createOscillator(), gn = a.createGain(); o.type = type; o.frequency.value = freq;
+  const t = a.currentTime + t0; gn.gain.setValueAtTime(vol, t); gn.gain.exponentialRampToValueAtTime(.0001, t + dur);
+  o.connect(gn).connect(a.destination); o.start(t); o.stop(t + dur + .02);
+}
+const sfx = {
+  dig: () => noiseHit(.09, 1400, .5),
+  breakIt: () => { noiseHit(.22, 2400, .6); tone(660, .02, .08, 'square', .05); tone(990, .09, .12, 'square', .05); },
+  nope: () => { tone(196, 0, .14, 'triangle', .14); tone(147, .12, .2, 'triangle', .14); },
+  fanfare: () => [523, 659, 784, 1046].forEach((f, i) => tone(f, i * .12, .22, 'square', .06)),
+  sparkle: () => [1318, 1568, 2093, 2637].forEach((f, i) => tone(f, .55 + i * .07, .15, 'triangle', .07)),
+};
+
+/* ---------- obsah: písmena a slabiky ---------- */
+const LETTERS = ['A', 'Á', 'E', 'É', 'I', 'Í', 'O', 'Ó', 'U', 'Ú', 'Ů', 'Y', 'Ý', 'M', 'L', 'S'];
+const VOWELS = new Set(['A', 'Á', 'E', 'É', 'I', 'Í', 'O', 'Ó', 'U', 'Ú', 'Ů', 'Y', 'Ý']);
+const SAY_LETTER = { A: 'a', Á: 'dlouhé á', E: 'e', É: 'dlouhé é', I: 'i', Í: 'dlouhé í', O: 'o', Ó: 'dlouhé ó', U: 'u', Ú: 'dlouhé ú', Ů: 'ů s kroužkem', Y: 'ypsilon', Ý: 'dlouhé ypsilon', M: 'em', L: 'el', S: 'es' };
+const PARTNER = { A: 'Á', Á: 'A', E: 'É', É: 'E', I: 'Í', Í: 'I', O: 'Ó', Ó: 'O', U: 'Ú', Ú: 'U', Ů: 'U', Y: 'Ý', Ý: 'Y' };
+const SAME_SOUND = { Y: 'I', Ý: 'Í', Ů: 'Ú' };
+const CONS = ['M', 'L', 'S'];
+const SYL_V = ['A', 'Á', 'E', 'É', 'I', 'Í', 'O', 'U', 'Y', 'Ý'];
+const SYLL = CONS.flatMap(c => SYL_V.map(v => c + v));
+const vFam = v => ({ I: 'i', Í: 'i', Y: 'y', Ý: 'y' })[v];
+
+const LEVELS = {
+  letters: { name: 'Písmena', tex: 'dirt', items: LETTERS, sample: ['A', 'm'] },
+  syllables: { name: 'Slabiky', tex: 'stone', items: SYLL, sample: ['MA', 'lo'] },
+};
+function sayText(level, it) { return level === 'letters' ? SAY_LETTER[it] : it.toLocaleLowerCase('cs'); }
+// dvě kostky, které znějí stejně (I a Y, Ú a Ů), nesmí být v jednom úkolu
+function conflict(level, a, b) {
+  if (level === 'letters') return (SAME_SOUND[a] || a) === (SAME_SOUND[b] || b);
+  const fa = vFam(a[1]), fb = vFam(b[1]);
+  return a[0] === b[0] && fa && fb && fa !== fb;
+}
+function partnerOf(level, it) {
+  if (level === 'letters') return PARTNER[it] || null;
+  const p = PARTNER[it[1]]; return p && SYL_V.includes(p) ? it[0] + p : null;
+}
+function similar(level, a, b) {
+  if (level === 'letters') return VOWELS.has(a) === VOWELS.has(b);
+  return a[0] === b[0] || a[1] === b[1];
+}
+function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+function weight(level, it) { const s = save.stats[level + ':' + it] || { ok: 0, miss: 0 }; return Math.max(.5, Math.min(5, 1 + s.miss * 1.5 - s.ok * .25)); }
+function pickTarget(level, avoid) {
+  const items = LEVELS[level].items.filter(x => !avoid.includes(x));
+  const ws = items.map(x => weight(level, x)); let t = Math.random() * ws.reduce((a, b) => a + b, 0);
+  for (let i = 0; i < items.length; i++) { t -= ws[i]; if (t <= 0) return items[i]; }
+  return items[items.length - 1];
+}
+function choiceCount(level) { const r = save.rounds[level]; return r < 2 ? 2 : r < 5 ? 3 : 4; }
+function makeChoices(level, target, n) {
+  const chosen = [target];
+  const ok = x => !chosen.includes(x) && !chosen.some(c => conflict(level, c, x));
+  const p = partnerOf(level, target);
+  if (p && ok(p) && Math.random() < Math.min(.75, .35 + save.rounds[level] * .08)) chosen.push(p);
+  for (const x of shuffle(LEVELS[level].items.filter(x => similar(level, target, x)))) { if (chosen.length >= n) break; if (ok(x) && Math.random() < .7) chosen.push(x); }
+  for (const x of shuffle(LEVELS[level].items.slice())) { if (chosen.length >= n) break; if (ok(x)) chosen.push(x); }
+  return shuffle(chosen);
+}
+function display(it) {
+  const m = save.caseMode;
+  const lower = m === 'lower' || (m === 'both' && Math.random() < .5);
+  return lower ? it.toLocaleLowerCase('cs') : it;
+}
+
+/* ---------- obrazovky ---------- */
+function show(id) { ['home', 'game', 'house'].forEach(s => { $('#' + s).hidden = s !== id; }); }
+function paintTextures(root = document) {
+  root.querySelectorAll('[data-tex]').forEach(el => { el.style.backgroundImage = `url(${tex(el.dataset.tex, el.dataset.dark === '1')})`; });
+}
+function blockEl(texName, label, isSyl) {
+  const b = document.createElement('button');
+  b.className = 'blk' + (isSyl ? ' syl' : '');
+  b.style.backgroundImage = `url(${tex(texName)})`;
+  const plate = document.createElement('span'); plate.className = 'plate';
+  const gl = document.createElement('span'); gl.className = 'glyph'; gl.textContent = label;
+  plate.appendChild(gl); b.appendChild(plate);
+  const cr = document.createElement('span'); cr.className = 'crack'; b.appendChild(cr);
+  return b;
+}
+const LOCK_SVG = '<svg class="lock" viewBox="0 0 16 16" aria-hidden="true"><path fill="#161616" d="M4 6V4h1V3h1V2h4v1h1v1h1v2h1v9H3V6h1zm2 0h4V4H6v2z"/><path fill="#f6cf45" d="M4 7h8v7H4z"/><path fill="#161616" d="M7 9h2v3H7z"/></svg>';
+function renderHome() {
+  mountPlayer($('#heroPlayer'));
+  const wrap = $('#levels'); wrap.innerHTML = '';
+  Object.entries(LEVELS).forEach(([key, L]) => {
+    const btn = document.createElement('button'); btn.className = 'lvl'; btn.setAttribute('aria-label', L.name);
+    const b = blockEl(L.tex, '', key === 'syllables'); b.tabIndex = -1; b.setAttribute('aria-hidden', 'true');
+    b.querySelector('.glyph').textContent = save.caseMode === 'lower' ? L.sample.join(' ').toLocaleLowerCase('cs') : save.caseMode === 'upper' ? L.sample.join(' ').toLocaleUpperCase('cs') : L.sample.join(' ');
+    btn.appendChild(b);
+    btn.insertAdjacentHTML('beforeend', `<span class="lvl-name">${L.name}</span>`);
+    btn.addEventListener('click', () => { audio(); startRound(key); });
+    wrap.appendChild(btn);
+  });
+  [['Slova', 'ironOre', 'MÁMA'], ['Čtení', 'diamondOre', 'OSA']].forEach(([name, t, s]) => {
+    const btn = document.createElement('button'); btn.className = 'lvl'; btn.disabled = true;
+    const b = blockEl(t, s, true); b.tabIndex = -1; b.setAttribute('aria-hidden', 'true');
+    btn.appendChild(b);
+    btn.insertAdjacentHTML('beforeend', `${LOCK_SVG}<span class="lvl-name">${name}</span><span class="lvl-sub">brzy</span>`);
+    wrap.appendChild(btn);
+  });
+  const hc = document.createElement('button'); hc.className = 'house-card'; hc.setAttribute('aria-label', 'Můj dům');
+  const cv = document.createElement('canvas'); cv.className = 'px'; drawHouse(cv); hc.appendChild(cv);
+  hc.insertAdjacentHTML('beforeend', '<span class="lvl-name">Můj dům</span>');
+  hc.addEventListener('click', openHouse);
+  wrap.appendChild(hc);
+}
+function openHouse() {
+  speechId++; if (synth) synth.cancel();
+  show('house'); drawHouse($('#houseBig'));
+  const st = Math.min(12, save.total);
+  $('#houseCap').textContent = st === 0 ? 'Dům zatím nestojí. Vykopej první kolo!' : st < 12 ? `Postaveno ${st} z 12 dílů` : 'Dům je hotový! Každé kolo přidá zahradu.';
+  const cv = $('#houseBig'); requestAnimationFrame(() => { const box = cv.parentElement; const s = Math.max(1, Math.floor(Math.min(box.clientWidth / 320, (box.clientHeight - 8) / 224) * 4) / 4); cv.style.width = 320 * s + 'px'; cv.style.height = 224 * s + 'px'; });
+}
+
+/* ---------- herní kolo ---------- */
+const ROUND_LEN = 8;
+function startRound(level) {
+  const L = LEVELS[level];
+  R = { level, i: 0, busy: true, recent: [], loot: [] };
+  show('game');
+  $('#gameGround').style.backgroundImage = `url(${tex(L.tex, true)})`;
+  mountPlayer($('#gamePlayer'));
+  const hp = $('#hudPick'); hp.innerHTML = ''; hp.appendChild(pickCanvas(tierOf(save.total)));
+  const pips = $('#pips'); pips.innerHTML = '';
+  for (let i = 0; i < ROUND_LEN; i++) { const p = document.createElement('span'); p.className = 'pip'; pips.appendChild(p); }
+  $('#blocks').innerHTML = '';
+  speak(level === 'letters' ? 'Poslouchej a kopej do správného písmenka.' : 'Poslouchej a kopej do správné slabiky.', () => nextTask());
+}
+function nextTask() {
+  if (!R) return;
+  if (R.i >= ROUND_LEN) return endRound();
+  const level = R.level;
+  const target = pickTarget(level, R.recent.slice(-2));
+  R.recent.push(target);
+  R.target = target; R.choices = makeChoices(level, target, choiceCount(level));
+  R.hits = 0; R.wrongs = 0; R.firstTry = true; R.busy = false;
+  const box = $('#blocks'); box.innerHTML = '';
+  R.els = R.choices.map(it => {
+    const b = blockEl(LEVELS[level].tex, display(it), level === 'syllables');
+    b.setAttribute('aria-label', 'kostka');
+    b.addEventListener('click', () => tapBlock(it, b));
+    box.appendChild(b); return b;
+  });
+  layoutBlocks();
+  updateHint();
+  setTimeout(() => { if (R && R.target === target && !R.busy) speak(sayText(level, target)); }, 250);
+}
+function layoutBlocks() {
+  if (!R || !R.els) return;
+  const box = $('#blocks'); const cs = getComputedStyle(box);
+  const W = box.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+  const H = box.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+  const n = R.els.length, gap = Math.max(14, Math.min(W, H) * .05);
+  let best = 0, bestC = n;
+  for (let c = 1; c <= n; c++) { const r = Math.ceil(n / c); const s = Math.min((W - gap * (c - 1)) / c, (H - gap * (r - 1)) / r); if (s > best) { best = s; bestC = c; } }
+  best = Math.max(60, Math.min(best, 240));
+  box.style.setProperty('--bs', best + 'px');
+  box.style.gridTemplateColumns = `repeat(${bestC}, var(--bs))`;
+  box.style.gap = gap + 'px';
+}
+addEventListener('resize', () => { layoutBlocks(); if (!$('#house').hidden) openHouse(); });
+function retrigger(el, cls) { el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls); }
+function tapBlock(it, el) {
+  if (!R || R.busy) return;
+  audio();
+  const pl = $('#gamePlayer'); retrigger(pl, 'swing');
+  if (it !== R.target) {
+    R.firstTry = false; R.wrongs++;
+    sfx.nope(); retrigger(el, 'nope');
+    if (R.wrongs >= 2) R.els[R.choices.indexOf(R.target)].classList.add('glow');
+    const t = R.target; setTimeout(() => { if (R && R.target === t && !R.busy) speak(sayText(R.level, t)); }, 450);
+    return;
+  }
+  const taps = tierOf(save.total).taps;
+  R.hits++;
+  if (R.hits < taps) {
+    sfx.dig(); retrigger(el, 'hit');
+    el.querySelector('.crack').style.backgroundImage = `url(${cracks[Math.min(3, Math.ceil(R.hits / taps * 3))]})`;
+    return;
+  }
+  breakBlock(el);
+}
+const PRAISE = ['Výborně!', 'Super!', 'Ano!', 'Paráda!', 'Skvěle!', 'To je ono!', 'Přesně tak!'];
+function breakBlock(el) {
+  R.busy = true;
+  const key = R.level + ':' + R.target;
+  const s = save.stats[key] || { ok: 0, miss: 0 };
+  if (R.firstTry) { s.ok++; s.miss = Math.max(0, s.miss - 1); } else s.miss++;
+  save.stats[key] = s; persist();
+  el.querySelector('.crack').style.backgroundImage = `url(${cracks[3]})`;
+  sfx.breakIt();
+  const rect = el.getBoundingClientRect();
+  const texName = LEVELS[R.level].tex;
+  if (!REDUCED) burst(rect, texName);
+  el.classList.add('gone');
+  const pip = $('#pips').children[R.i];
+  R.loot.push(texName);
+  const done = () => { pip.classList.add('done'); pip.style.backgroundImage = `url(${tex(texName)})`; };
+  if (REDUCED) done(); else flyTo(rect, pip, texName, done);
+  R.i++;
+  const target = R.target;
+  setTimeout(() => {
+    if (!R || R.target !== target) return;
+    speak(pick(Math.random, PRAISE), () => setTimeout(nextTask, 200));
+  }, 250);
+}
+function burst(rect, texName) {
+  const c = texCanvas(texName).getContext('2d').getImageData(0, 0, 16, 16).data;
+  const cx = rect.left + rect.width / 2, cy = rect.top + rect.height / 2;
+  for (let i = 0; i < 14; i++) {
+    const d = document.createElement('div'); d.className = 'chip';
+    const p = Math.floor(Math.random() * 256) * 4; d.style.background = `rgb(${c[p]},${c[p + 1]},${c[p + 2]})`;
+    d.style.left = cx + (Math.random() - .5) * rect.width * .5 + 'px'; d.style.top = cy + (Math.random() - .5) * rect.height * .5 + 'px';
+    document.body.appendChild(d);
+    const dx = (Math.random() - .5) * rect.width * 1.2, up = -40 - Math.random() * 70, fall = 80 + Math.random() * 90;
+    const an = d.animate([{ transform: 'translate(0,0)' }, { transform: `translate(${dx * .6}px,${up}px)`, offset: .35 }, { transform: `translate(${dx}px,${fall}px)`, opacity: 0 }], { duration: 650 + Math.random() * 250, easing: 'ease-out' });
+    an.onfinish = () => d.remove();
+  }
+}
+function flyTo(rect, pip, texName, cb) {
+  const pr = pip.getBoundingClientRect();
+  const f = document.createElement('div'); f.className = 'flyer';
+  const s = Math.min(70, rect.width * .4);
+  Object.assign(f.style, { width: s + 'px', height: s + 'px', left: rect.left + rect.width / 2 - s / 2 + 'px', top: rect.top + rect.height / 2 - s / 2 + 'px', backgroundImage: `url(${tex(texName)})` });
+  document.body.appendChild(f);
+  const dx = pr.left + pr.width / 2 - (rect.left + rect.width / 2), dy = pr.top + pr.height / 2 - (rect.top + rect.height / 2);
+  const an = f.animate([{ transform: 'translate(0,0) scale(1) rotate(0)' }, { transform: `translate(${dx * .4}px,${dy * .4 - 40}px) scale(.9) rotate(90deg)`, offset: .4 }, { transform: `translate(${dx}px,${dy}px) scale(${pr.width / s}) rotate(180deg)` }], { duration: 600, easing: 'ease-in' });
+  an.onfinish = () => { f.remove(); cb(); };
+}
+function endRound() {
+  const level = R.level;
+  const before = tierOf(save.total);
+  save.total++; save.rounds[level]++; persist();
+  const after = tierOf(save.total);
+  const newTier = after !== before;
+  const st = save.total;
+  $('#endLine').textContent = st <= 12 ? `Přibylo na domě: ${STAGES[st - 1]}.` : 'Na zahradě vykvetla nová květina.';
+  const loot = $('#loot'); loot.innerHTML = '';
+  R.loot.forEach(t => { const sp = document.createElement('span'); sp.style.backgroundImage = `url(${tex(t)})`; loot.appendChild(sp); });
+  const np = $('#newPick');
+  if (newTier) { np.hidden = false; np.innerHTML = ''; np.appendChild(pickCanvas(after)); np.insertAdjacentHTML('beforeend', `<span>Nový krumpáč: ${after.name}!</span>`); }
+  else np.hidden = true;
+  drawHouse($('#endHouse'));
+  R = null;
+  $('#endOverlay').hidden = false;
+  sfx.fanfare(); if (newTier) sfx.sparkle();
+  speak(newTier ? `Výborně, Adame! Máš nový ${after.name} krumpáč!` : 'Výborně, Adame! Kolo je hotové.');
+  $('#endOverlay').dataset.level = level;
+  $('#btnAgain').focus({ preventScroll: true });
+}
+function goHome() {
+  speechId++; if (synth) synth.cancel();
+  R = null; $('#endOverlay').hidden = true;
+  renderHome(); show('home');
+}
+
+/* ---------- nápověda bez hlasu ---------- */
+function updateHint() {
+  const h = $('#hint');
+  if (R && R.target && noVoice()) { h.hidden = false; h.textContent = 'Řekni nahlas: ' + sayText(R.level, R.target); }
+  else h.hidden = true;
+}
+
+/* ---------- nastavení ---------- */
+function updateVoiceInfo() {
+  const el = $('#voiceInfo'); if (!el) return;
+  if (!synth) { el.innerHTML = '<span class="voice-bad">Prohlížeč neumí předčítat.</span>'; $('#voiceHelp').hidden = false; return; }
+  if (csVoice) { el.innerHTML = `<span class="voice-ok">Český hlas: ${csVoice.name}</span>`; $('#voiceHelp').hidden = true; }
+  else if (voicesKnown) { el.innerHTML = '<span class="voice-bad">Český hlas nebyl nalezen.</span>'; $('#voiceHelp').hidden = false; }
+  else { el.textContent = 'Zjišťuji dostupné hlasy… Klepněte na Vyzkoušet hlas.'; $('#voiceHelp').hidden = true; }
+}
+function updateSettings() {
+  document.querySelectorAll('#segCase [data-case]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.case === save.caseMode)));
+  $('#rateNormal').setAttribute('aria-pressed', String(!save.slow));
+  $('#rateSlow').setAttribute('aria-pressed', String(save.slow));
+  const st = Math.min(12, save.total);
+  $('#progressInfo').textContent = `Odehraná kola: písmena ${save.rounds.letters}, slabiky ${save.rounds.syllables}. Dům: ${st} z 12 dílů. Krumpáč: ${tierOf(save.total).name}.`;
+  updateVoiceInfo();
+}
+$('#btnSettings').addEventListener('click', () => { updateSettings(); $('#resetConfirm').hidden = true; $('#setOverlay').hidden = false; });
+$('#btnSetClose').addEventListener('click', () => { $('#setOverlay').hidden = true; renderHome(); });
+document.querySelectorAll('#segCase [data-case]').forEach(b => b.addEventListener('click', () => { save.caseMode = b.dataset.case; persist(); updateSettings(); }));
+$('#rateNormal').addEventListener('click', () => { save.slow = false; persist(); updateSettings(); });
+$('#rateSlow').addEventListener('click', () => { save.slow = true; persist(); updateSettings(); });
+$('#btnTestVoice').addEventListener('click', () => { loadVoices(); speak('Ahoj Adame! ma, mé, li, lý, so, su.'); setTimeout(loadVoices, 800); });
+$('#btnReset').addEventListener('click', () => { $('#resetConfirm').hidden = false; });
+$('#btnResetNo').addEventListener('click', () => { $('#resetConfirm').hidden = true; });
+$('#btnResetYes').addEventListener('click', () => { const keep = { caseMode: save.caseMode, slow: save.slow }; save = Object.assign(defaults(), keep); persist(); $('#resetConfirm').hidden = true; updateSettings(); });
+
+/* ---------- tlačítka ---------- */
+$('#btnBack').addEventListener('click', goHome);
+$('#btnHouseBack').addEventListener('click', goHome);
+$('#btnListen').addEventListener('click', () => { audio(); if (R && R.target && !R.busy) speak(sayText(R.level, R.target)); });
+$('#btnAgain').addEventListener('click', () => { const lv = $('#endOverlay').dataset.level; $('#endOverlay').hidden = true; startRound(lv); });
+$('#btnEndHouse').addEventListener('click', () => { $('#endOverlay').hidden = true; openHouse(); });
+$('#btnEndHome').addEventListener('click', goHome);
+
+paintTextures();
+renderHome();
+})();
+</script>
+
+</body>
+</html>
