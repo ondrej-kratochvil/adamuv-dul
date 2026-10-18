@@ -104,8 +104,8 @@ button:focus-visible { outline: 4px solid var(--gold); outline-offset: 3px; }
 .ward-preview { display: grid; place-items: center; min-height: 0; }
 .player.big { --h: clamp(150px, 46vh, 380px); height: var(--h); justify-self: center; margin: 0 calc(var(--h) * .32) 0 0; }
 .ward-panel { max-height: 100%; overflow: auto; padding: 16px; display: grid; gap: 14px; align-content: start; }
-.ward-tabs { display: flex; gap: 10px; flex-wrap: wrap; }
-.ward-tabs .gbtn { width: 68px; height: 68px; padding: 6px; }
+.ward-tabs { display: flex; gap: 8px; flex-wrap: wrap; }
+.ward-tabs .gbtn { width: clamp(52px, 14vw, 68px); height: clamp(52px, 14vw, 68px); padding: 6px; }
 .ward-tabs .gbtn[aria-pressed="true"] { background: var(--go); }
 .ward-items { display: grid; grid-template-columns: repeat(auto-fill, minmax(76px, 1fr)); gap: 10px; }
 .swatch { position: relative; aspect-ratio: 1; background: #e6e6e6; border: 3px solid #161616; box-shadow: inset 3px 3px 0 #ffffff, inset -3px -3px 0 #8b8b8b; padding: 8px; display: grid; place-items: center; }
@@ -154,6 +154,10 @@ button:focus-visible { outline: 4px solid var(--gold); outline-offset: 3px; }
 .stage-row { display: grid; grid-template-columns: 1fr auto 1fr; align-items: end; position: relative; z-index: 1; }
 .player { position: relative; height: clamp(72px, 15vh, 132px); aspect-ratio: 16 / 32; justify-self: start; margin-left: 4%; }
 .player canvas.body { width: 100%; height: 100%; }
+.player canvas.glint { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; mix-blend-mode: screen; animation: glint 1.8s ease-in-out infinite; }
+@keyframes glint { 0%, 100% { opacity: .12; } 50% { opacity: .45; } }
+canvas.ench { animation: ench 1.8s ease-in-out infinite; }
+@keyframes ench { 0%, 100% { filter: drop-shadow(0 0 1px #c58cff); } 50% { filter: drop-shadow(0 0 5px #c58cff) brightness(1.25); } }
 .player canvas.tool { position: absolute; width: 90%; right: -55%; top: 38%; transform-origin: 18% 82%; transform: rotate(10deg); }
 .player.swing canvas.tool { animation: swing .22s ease-out; }
 @keyframes swing { 40% { transform: rotate(-55deg); } 100% { transform: rotate(10deg); } }
@@ -209,7 +213,8 @@ button:focus-visible { outline: 4px solid var(--gold); outline-offset: 3px; }
 .confirm { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 8px; }
 
 @media (prefers-reduced-motion: reduce) {
-  .cloud, .listen.talking, .blk.glow { animation: none; }
+  .cloud, .listen.talking, .blk.glow, .player canvas.glint, canvas.ench { animation: none; }
+  .player canvas.glint { opacity: .45; }
 }
 </style>
 
@@ -374,7 +379,7 @@ let R = null; // běžící kolo
 
 /* ---------- uložený postup ---------- */
 const KEY = 'adamuv-dul-v1';
-function defaults() { return { caseMode: 'both', slow: false, total: 0, rounds: { letters: 0, syllables: 0 }, stats: {}, outfit: { shirt: 'oranzove', pants: 'modre', shoes: 'sede', hat: 'nic' } }; }
+function defaults() { return { caseMode: 'both', slow: false, total: 0, rounds: { letters: 0, syllables: 0 }, stats: {}, outfit: { shirt: 'oranzove', pants: 'modre', shoes: 'sede', hat: 'nic', enchant: 'ne' } }; }
 function load() {
   try { const s = JSON.parse(localStorage.getItem(KEY)); if (s) { const d = defaults(); return Object.assign(d, s, { rounds: Object.assign(d.rounds, s.rounds || {}), outfit: Object.assign(d.outfit, s.outfit || {}) }); } } catch (e) {}
   return defaults();
@@ -482,6 +487,7 @@ const OUTFIT = {
     { id: 'cerne', name: 'černé tričko', c: '#2b2b2b', d: '#151515' },
     { id: 'zelezne', name: 'železné brnění', c: '#d8d8d8', d: '#9a9a9a', armor: true, at: 6 },
     { id: 'diamantove', name: 'diamantové brnění', c: '#5de0e6', d: '#2aa9b3', armor: true, at: 14 },
+    { id: 'netheritove', name: 'netheritové brnění', c: '#4a4245', d: '#2b2628', armor: true, at: 18 },
   ],
   pants: [
     { id: 'modre', name: 'modré kalhoty', c: '#34508f', d: '#2a4074' },
@@ -490,6 +496,8 @@ const OUTFIT = {
     { id: 'zelene', name: 'zelené kalhoty', c: '#4f6b2c', d: '#3c5221' },
     { id: 'sede', name: 'šedé kalhoty', c: '#8a8a8a', d: '#6c6c6c' },
     { id: 'zelezne', name: 'železné chrániče', c: '#d0d0d0', d: '#9a9a9a', armor: true, at: 8 },
+    { id: 'diamantove', name: 'diamantové chrániče', c: '#5de0e6', d: '#2aa9b3', armor: true, at: 11 },
+    { id: 'netheritove', name: 'netheritové chrániče', c: '#4a4245', d: '#2b2628', armor: true, at: 19 },
   ],
   shoes: [
     { id: 'sede', name: 'šedé boty', c: '#45403a', d: '#2e2a26' },
@@ -497,7 +505,8 @@ const OUTFIT = {
     { id: 'bile', name: 'bílé boty', c: '#ececec', d: '#b5b5b5' },
     { id: 'cervene', name: 'červené boty', c: '#c62f2f', d: '#9c2222' },
     { id: 'modre', name: 'modré boty', c: '#2f7fd1', d: '#2263a8' },
-    { id: 'diamantove', name: 'diamantové boty', c: '#5de0e6', d: '#2aa9b3', at: 4 },
+    { id: 'diamantove', name: 'diamantové boty', c: '#5de0e6', d: '#2aa9b3', metal: true, at: 4 },
+    { id: 'netheritove', name: 'netheritové boty', c: '#4a4245', d: '#2b2628', metal: true, at: 16 },
   ],
   hat: [
     { id: 'nic', name: 'bez čepice' },
@@ -506,29 +515,43 @@ const OUTFIT = {
     { id: 'zelezna', name: 'železná helma', c: '#d8d8d8', d: '#9a9a9a', kind: 'helmet', at: 3 },
     { id: 'zlata', name: 'zlatá helma', c: '#f2c94c', d: '#c9a227', kind: 'helmet', at: 10 },
     { id: 'diamantova', name: 'diamantová helma', c: '#5de0e6', d: '#2aa9b3', kind: 'helmet', at: 12 },
+    { id: 'netheritova', name: 'netheritová helma', c: '#4a4245', d: '#2b2628', kind: 'helmet', at: 17 },
+  ],
+  // očarování (enchant): fialový třpyt na brnění, helmách, kovových botách a krumpáči
+  enchant: [
+    { id: 'ne', name: 'bez očarování' },
+    { id: 'ano', name: 'očarování', at: 15 },
   ],
 };
-const OUTFIT_CATS = [['shirt', 'Tričko'], ['pants', 'Kalhoty'], ['shoes', 'Boty'], ['hat', 'Čepice']];
+const OUTFIT_CATS = [['shirt', 'Tričko'], ['pants', 'Kalhoty'], ['shoes', 'Boty'], ['hat', 'Čepice'], ['enchant', 'Očarování']];
+const isMetal = it => !!(it.armor || it.metal || it.kind === 'helmet');
+const enchanted = () => outfitItem('enchant').id === 'ano';
 const unlocked = it => !it.at || save.total >= it.at;
 function outfitItem(cat) { const it = OUTFIT[cat].find(x => x.id === save.outfit[cat]); return it && unlocked(it) ? it : OUTFIT[cat][0]; }
 function playerCanvas() {
   const c = document.createElement('canvas'); c.width = 16; c.height = 32; c.className = 'body px';
   const g = c.getContext('2d');
-  const R = (x, y, w, h, col) => { g.fillStyle = col; g.fillRect(x, y, w, h); };
-  const skin = '#d9a066', hair = '#4f321d';
   const sh = outfitItem('shirt'), pa = outfitItem('pants'), so = outfitItem('shoes'), ha = outfitItem('hat');
+  const ench = enchanted();
+  const gl = document.createElement('canvas'); gl.width = 16; gl.height = 32; gl.className = 'glint px';
+  const gg = gl.getContext('2d'); gg.fillStyle = '#c58cff';
+  let glow = false;
+  // R kreslí; když kus oblečení je kovový a očarovaný, zapíše stejný obdélník i do vrstvy třpytu
+  const R = (x, y, w, h, col, it) => { g.fillStyle = col; g.fillRect(x, y, w, h); if (it && ench && isMetal(it)) { gg.fillRect(x, y, w, h); glow = true; } };
+  const skin = '#d9a066', hair = '#4f321d';
   R(4, 0, 8, 8, skin); R(4, 0, 8, 2, hair); R(4, 2, 1, 2, hair); R(11, 2, 1, 2, hair); R(5, 2, 1, 1, hair);
   R(5, 4, 1, 1, '#ffffff'); R(6, 4, 1, 1, '#3b5ba0'); R(9, 4, 1, 1, '#3b5ba0'); R(10, 4, 1, 1, '#ffffff');
   R(7, 6, 2, 1, '#9b5a3c'); R(6, 5, 4, 1, '#c98f58');
-  R(4, 8, 8, 12, sh.c); R(4, 18, 8, 2, sh.d);
-  R(0, 8, 4, 4, sh.c); R(12, 8, 4, 4, sh.c); R(0, 12, 4, 8, skin); R(12, 12, 4, 8, skin);
-  if (sh.armor) { R(4, 8, 8, 1, sh.d); R(4, 13, 8, 1, sh.d); R(7, 9, 2, 4, sh.d); R(0, 11, 4, 1, sh.d); R(12, 11, 4, 1, sh.d); }
+  R(4, 8, 8, 12, sh.c, sh); R(4, 18, 8, 2, sh.d, sh);
+  R(0, 8, 4, 4, sh.c, sh); R(12, 8, 4, 4, sh.c, sh); R(0, 12, 4, 8, skin); R(12, 12, 4, 8, skin);
+  if (sh.armor) { R(4, 8, 8, 1, sh.d, sh); R(4, 13, 8, 1, sh.d, sh); R(7, 9, 2, 4, sh.d, sh); R(0, 11, 4, 1, sh.d, sh); R(12, 11, 4, 1, sh.d, sh); }
   else R(7, 8, 2, 2, skin);
-  R(4, 20, 8, 9, pa.c); R(7, 22, 1, 7, pa.d);
-  if (pa.armor) { R(4, 20, 8, 1, pa.d); R(4, 25, 3, 1, pa.d); R(8, 25, 4, 1, pa.d); }
-  R(4, 29, 8, 3, so.c); R(4, 31, 8, 1, so.d); R(7, 29, 2, 3, 'rgba(0,0,0,.18)');
+  R(4, 20, 8, 9, pa.c, pa); R(7, 22, 1, 7, pa.d, pa);
+  if (pa.armor) { R(4, 20, 8, 1, pa.d, pa); R(4, 25, 3, 1, pa.d, pa); R(8, 25, 4, 1, pa.d, pa); }
+  R(4, 29, 8, 3, so.c, so); R(4, 31, 8, 1, so.d, so); R(7, 29, 2, 3, 'rgba(0,0,0,.18)');
   if (ha.kind === 'cap') { R(4, 0, 8, 2, ha.c); R(3, 2, 10, 1, ha.d); R(7, 0, 2, 1, ha.d); }
-  if (ha.kind === 'helmet') { R(3, 0, 10, 3, ha.c); R(3, 3, 1, 3, ha.c); R(12, 3, 1, 3, ha.c); R(3, 2, 10, 1, ha.d); R(3, 5, 1, 1, ha.d); R(12, 5, 1, 1, ha.d); R(4, 0, 8, 1, 'rgba(255,255,255,.35)'); }
+  if (ha.kind === 'helmet') { R(3, 0, 10, 3, ha.c, ha); R(3, 3, 1, 3, ha.c, ha); R(12, 3, 1, 3, ha.c, ha); R(3, 2, 10, 1, ha.d, ha); R(3, 5, 1, 1, ha.d, ha); R(12, 5, 1, 1, ha.d, ha); R(4, 0, 8, 1, 'rgba(255,255,255,.35)'); }
+  c.glint = glow ? gl : null;
   return c;
 }
 // malé ikonky do šatníku a do konce kola
@@ -539,6 +562,11 @@ function outfitIcon(cat, it) {
   if (cat === 'shirt') { R(1, 3, 14, 5, '#161616'); R(3, 3, 10, 12, '#161616'); R(2, 4, 12, 3, it.c); R(4, 4, 8, 10, it.c); R(4, 13, 8, 1, it.d); if (it.armor) { R(4, 8, 8, 1, it.d); R(7, 4, 2, 4, it.d); } else R(7, 4, 2, 1, '#d9a066'); }
   if (cat === 'pants') { R(3, 1, 10, 15, '#161616'); R(4, 2, 8, 4, it.c); R(4, 6, 3, 9, it.c); R(9, 6, 3, 9, it.c); g.clearRect(7, 7, 2, 9); R(4, 2, 8, 1, it.d); if (it.armor) { R(4, 9, 3, 1, it.d); R(9, 9, 3, 1, it.d); } }
   if (cat === 'shoes') { R(1, 7, 6, 7, '#161616'); R(9, 7, 6, 7, '#161616'); R(2, 8, 4, 5, it.c); R(10, 8, 4, 5, it.c); R(2, 12, 4, 1, it.d); R(10, 12, 4, 1, it.d); }
+  if (cat === 'enchant') {
+    const on = it.id === 'ano';
+    R(2, 2, 12, 13, '#161616'); R(3, 3, 10, 11, on ? '#7d4bc2' : '#8a5a2e'); R(3, 3, 2, 11, on ? '#5a3290' : '#6b4424'); R(6, 5, 5, 1, '#e8dcc0'); R(6, 7, 5, 1, '#e8dcc0');
+    if (on) [[7, 10], [10, 9], [12, 3], [1, 6], [9, 12], [5, 1]].forEach(([x, y]) => R(x, y, 1, 1, '#f1dcff'));
+  }
   if (cat === 'hat') {
     if (!it.kind) { R(4, 4, 8, 8, '#d9a066'); R(4, 4, 8, 2, '#4f321d'); R(5, 8, 1, 1, '#3b5ba0'); R(10, 8, 1, 1, '#3b5ba0'); R(7, 10, 2, 1, '#9b5a3c'); }
     if (it.kind === 'cap') { R(3, 5, 10, 6, '#161616'); R(4, 6, 8, 4, it.c); R(2, 10, 12, 3, '#161616'); R(3, 10, 10, 2, it.d); }
@@ -551,6 +579,7 @@ const TIERS = [
   { at: 2, name: 'kamenný', taps: 2, head: '#9a9a9a', dark: '#5c5c5c' },
   { at: 5, name: 'železný', taps: 2, head: '#e2e2e2', dark: '#8f8f8f' },
   { at: 9, name: 'diamantový', taps: 1, head: '#5de0e6', dark: '#1f8f99' },
+  { at: 20, name: 'netheritový', taps: 1, head: '#4a4245', dark: '#2b2628' },
 ];
 function tierOf(total) { let t = TIERS[0]; TIERS.forEach(x => { if (total >= x.at) t = x; }); return t; }
 const PICK_MAP = [
@@ -572,7 +601,7 @@ const PICK_MAP = [
   '................',
 ];
 function pickCanvas(tier, cls) {
-  const c = document.createElement('canvas'); c.width = c.height = 16; if (cls) c.className = cls + ' px';
+  const c = document.createElement('canvas'); c.width = c.height = 16; c.className = ((cls || '') + ' px' + (enchanted() ? ' ench' : '')).trim();
   const g = c.getContext('2d');
   const col = { H: tier.head, D: tier.dark, S: '#8a6440', K: '#4a3322' };
   PICK_MAP.forEach((row, y) => [...row].forEach((ch, x) => { if (col[ch]) px(g, x, y, col[ch]); }));
@@ -580,7 +609,7 @@ function pickCanvas(tier, cls) {
 }
 function mountPlayer(el) {
   el.innerHTML = '';
-  el.appendChild(playerCanvas());
+  const body = playerCanvas(); el.appendChild(body); if (body.glint) el.appendChild(body.glint);
   el.appendChild(pickCanvas(tierOf(save.total), 'tool'));
 }
 
@@ -806,6 +835,7 @@ function renderWardrobe() {
     b.addEventListener('click', () => {
       if (!open) { sfx.nope(); speak(`${it.name} se odemkne, až vykopeš víc kol.`); return; }
       save.outfit[wardCat] = it.id; persist();
+      if (wardCat === 'enchant' && it.id === 'ano' && !['shirt', 'pants', 'shoes', 'hat'].some(k => isMetal(outfitItem(k)))) { renderWardrobe(); speak('Očarovat jde brnění, helmy a kovové boty. A krumpáč!'); return; }
       tone(880, 0, .08, 'square', .05); tone(1320, .07, .1, 'square', .05);
       renderWardrobe(); speak(it.name);
     });
