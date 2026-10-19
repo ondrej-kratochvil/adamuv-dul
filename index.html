@@ -337,6 +337,16 @@ canvas.ench { animation: ench 1.8s ease-in-out infinite; }
 .wcard.back .q { font-size: 40px; font-weight: 700; color: #f6cf45; text-shadow: 2px 2px 0 #000; grid-row: 1 / -1; }
 .newpick .wcard { width: 54px; flex: none; padding: 2px; }
 .newpick .wcard .w { font-size: 11px; }
+#ender .sky, #game.ender .sky { background: radial-gradient(circle at 50% 30%, #2a1840, #0a0612 70%); }
+#ender .house-cap, #ender .ward-title { color: #e8dcff; }
+#game.ender .cloud { display: none; }
+.boss-bar { display: flex; align-items: center; gap: 10px; justify-content: center; padding-top: 6px; }
+.boss-bar canvas { width: 96px; height: 48px; }
+.boss-bar canvas.hit { animation: nope .35s; filter: brightness(2) hue-rotate(90deg); }
+.boss-bar .hp { width: min(260px, 50vw); height: 16px; border: 3px solid #161616; background: #3a1a3a; }
+.boss-bar .hp i { display: block; height: 100%; background: linear-gradient(#ff7ae0, #c03ab0); transition: width .3s; }
+.arrow { position: fixed; z-index: 32; width: 30px; height: 4px; background: #e8d6b0; pointer-events: none; }
+.victory canvas { width: 100%; border: 3px solid #161616; margin-bottom: 10px; }
 .village-cap { font-family: var(--f-read); font-size: 18px; color: #1f3a52; text-align: center; margin: 0 0 10px; }
 .village-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; max-width: 980px; margin: 0 auto; }
 .bld { background: none; border: 0; padding: 0; display: grid; gap: 4px; justify-items: center; font-family: var(--f-read); color: #1f3a52; }
@@ -433,6 +443,7 @@ canvas.ench { animation: ench 1.8s ease-in-out infinite; }
           <div class="gems hud-gems" id="hudGems" aria-label="Smaragdy"></div>
           <div class="hud-pick" id="hudPick" aria-hidden="true"></div>
         </div>
+        <div class="boss-bar" id="bossBar" hidden><canvas id="bossDragon" class="px"></canvas><span class="hp"><i id="bossHp"></i></span></div>
         <div class="stage-row">
           <div class="player" id="gamePlayer"></div>
           <button class="listen" id="btnListen" aria-label="Poslechni znovu">
@@ -516,6 +527,20 @@ canvas.ench { animation: ench 1.8s ease-in-out infinite; }
       <div class="inner" style="flex:1; min-height:0; display:flex;">
         <div class="panel shop-panel" style="flex:1"><div class="shop-items" id="shopItems"></div></div>
       </div>
+    </div>
+  </section>
+
+  <!-- END -->
+  <section class="screen" id="ender" hidden>
+    <div class="sky" style="flex:1; display:flex; flex-direction:column; min-height:0;">
+      <div class="inner hud">
+        <button class="gbtn icon" id="btnEnderBack" aria-label="Zpět domů"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h3v3h-3v3h-3v4h3v3h3v3h-3v-3h-3v-3H8v-4h3V7h3V4z"/></svg></button>
+        <div class="ward-title">End</div>
+        <div style="width:56px"></div>
+      </div>
+      <div class="house-view inner"><canvas id="enderBig" class="px" aria-label="Portál do Endu"></canvas></div>
+      <div class="house-cap inner" id="enderCap" style="font-family: var(--f-read); font-size: 18px;"></div>
+      <div class="inner" style="display:flex; justify-content:center; padding-bottom:14px;"><button class="gbtn go" id="btnFight" data-icon="sword" hidden>Bojovat s drakem</button></div>
     </div>
   </section>
 
@@ -644,6 +669,17 @@ canvas.ench { animation: ench 1.8s ease-in-out infinite; }
   </div>
 </div>
 
+<!-- VÍTĚZSTVÍ NAD DRAKEM -->
+<div class="overlay" id="victoryOverlay" hidden>
+  <div class="panel victory" role="dialog" aria-labelledby="victoryTitle">
+    <canvas id="victoryCanvas" class="px"></canvas>
+    <h2 class="end-title" id="victoryTitle">Adam porazil Ender draka!</h2>
+    <div class="cheer" id="victoryCheer"></div>
+    <p class="end-line" id="victoryLine"></p>
+    <div class="actions"><button class="gbtn go" id="btnVictoryHome" data-icon="house">Domů</button></div>
+  </div>
+</div>
+
 <!-- ŘADA DNÍ -->
 <div class="overlay" id="streakOverlay" hidden>
   <div class="panel" role="dialog" aria-labelledby="streakTitle">
@@ -726,7 +762,7 @@ let R = null; // běžící kolo
 
 /* ---------- uložený postup ---------- */
 const KEY = 'adamuv-dul-v1';
-function defaults() { return { caseMode: 'both', slow: false, strict: 'normal', total: 0, rounds: { letters: 0, syllables: 0, words: 0, numbers: 0, math: 0, writing: 0, reading: 0 }, stats: {}, log: [], ench: [], emeralds: 0, notes: [], dogName: '', gifts: {}, bday: 0, lastCheer: '', village: null, obsidian: null, netherMine: false, cards: null, weeks: null, babies: null, seenVersion: 0, gameName: 'Adamův důl', dog: { collar: 'cerveny', owned: ['cerveny'], coat: 'bily' }, decor: [], streak: { count: 0, best: 0, last: '', totem: 0, days: [] }, outfit: { shirt: 'oranzove', pants: 'modre', shoes: 'sede', hat: 'nic', enchant: 'ne' } }; }
+function defaults() { return { caseMode: 'both', slow: false, strict: 'normal', total: 0, rounds: { letters: 0, syllables: 0, words: 0, numbers: 0, math: 0, writing: 0, reading: 0 }, stats: {}, log: [], ench: [], emeralds: 0, notes: [], dogName: '', gifts: {}, bday: 0, lastCheer: '', village: null, obsidian: null, netherMine: false, cards: null, weeks: null, babies: null, eyes: 0, dragon: 0, seenVersion: 0, gameName: 'Adamův důl', dog: { collar: 'cerveny', owned: ['cerveny'], coat: 'bily' }, decor: [], streak: { count: 0, best: 0, last: '', totem: 0, days: [] }, outfit: { shirt: 'oranzove', pants: 'modre', shoes: 'sede', hat: 'nic', enchant: 'ne' } }; }
 function load() {
   try { const s = JSON.parse(localStorage.getItem(KEY)); if (s) { const d = defaults(); return Object.assign(d, s, { rounds: Object.assign(d.rounds, s.rounds || {}), outfit: Object.assign(d.outfit, s.outfit || {}), dog: Object.assign(d.dog, s.dog || {}), gifts: Object.assign(d.gifts, s.gifts || {}), streak: Object.assign(d.streak, s.streak || {}) }); } } catch (e) {}
   return defaults();
@@ -784,6 +820,8 @@ const painters = {
     g.fillStyle = '#a9dbea'; g.fillRect(3, 3, 4, 5); g.fillRect(9, 3, 4, 5);
   },
   doorB(g, r) { planks(g, r, ['#8e6a3c', '#7d5c33', '#9b7646'], '#5a4024'); px(g, 12, 3, '#2a2a2a'); px(g, 12, 4, '#2a2a2a'); },
+  endStone(g, r) { noise(g, r, ['#dedb9c', '#e8e6a8', '#cfcb88', '#d6d290']); for (let i = 0; i < 5; i++) px(g, Math.floor(r() * 16), Math.floor(r() * 16), '#b8b470'); },
+  endFrame(g, r) { noise(g, r, ['#3a6a5a', '#2e5a4c', '#467a68']); g.fillStyle = '#dedb9c'; g.fillRect(0, 10, 16, 6); for (let x = 0; x < 16; x += 3) px(g, x, 10, '#b8b470'); },
   quartz(g, r) { noise(g, r, ['#ece6dc', '#e2dbcf', '#f4efe6']); for (let x = 0; x < 16; x++) { px(g, x, 0, '#d2cabb'); px(g, x, 15, '#cbc2b2'); } },
   darkstone(g, r) { noise(g, r, ['#4a4a52', '#40404a', '#55555e', '#3a3a42']); },
   planksY(g, r) { planks(g, r, ['#e2b84a', '#d4a83a', '#ecc65e'], '#a8822a'); },
@@ -896,6 +934,7 @@ const OUTFIT = {
     { id: 'zlata', name: 'zlatá helma', c: '#f2c94c', d: '#c9a227', kind: 'helmet', at: 10 },
     { id: 'diamantova', name: 'diamantová helma', c: '#5de0e6', d: '#2aa9b3', kind: 'helmet', at: 12 },
     { id: 'netheritova', name: 'netheritová helma', c: '#4a4245', d: '#2b2628', kind: 'helmet', at: 17 },
+    { id: 'drak', name: 'dračí hlava', c: '#1a1a22', d: '#2e2e3e', kind: 'dragon', boss: 1 },
     { id: 'koruna', name: 'královská koruna', c: '#f2c94c', d: '#c9a227', kind: 'crown', streak: 7 },
   ],
   // očarování (enchant): fialový třpyt na brnění, helmách, kovových botách a krumpáči
@@ -909,7 +948,7 @@ const PIECE_OF = { hat: 'hat', shirt: 'shirt', pants: 'pants', shoes: 'shoes' };
 const OUTFIT_CATS = [['shirt', 'Tričko'], ['pants', 'Kalhoty'], ['shoes', 'Boty'], ['hat', 'Čepice'], ['enchant', 'Očarování']];
 const isMetal = it => !!(it.armor || it.metal || it.kind === 'helmet');
 const enchanted = () => outfitItem('enchant').id === 'ano';
-const unlocked = it => (!it.at || save.total >= it.at) && (!it.streak || save.streak.best >= it.streak) && (!it.ench || save.ench.length >= it.ench);
+const unlocked = it => (!it.boss || (save.dragon || 0) >= it.boss) && (!it.at || save.total >= it.at) && (!it.streak || save.streak.best >= it.streak) && (!it.ench || save.ench.length >= it.ench);
 function outfitItem(cat) { const it = OUTFIT[cat].find(x => x.id === save.outfit[cat]); return it && unlocked(it) ? it : OUTFIT[cat][0]; }
 function playerCanvas() {
   const c = document.createElement('canvas'); c.width = 16; c.height = 32; c.className = 'body px';
@@ -934,6 +973,7 @@ function playerCanvas() {
   if (pa.armor) { R(4, 20, 8, 1, pa.d, pa); R(4, 25, 3, 1, pa.d, pa); R(8, 25, 4, 1, pa.d, pa); }
   R(4, 29, 8, 3, so.c, so); R(4, 31, 8, 1, so.d, so); R(7, 29, 2, 3, 'rgba(0,0,0,.18)');
   if (ha.kind === 'cap') { R(4, 0, 8, 2, ha.c); R(3, 2, 10, 1, ha.d); R(7, 0, 2, 1, ha.d); }
+  if (ha.kind === 'dragon') { R(3, 0, 10, 3, ha.c); R(3, 3, 1, 3, ha.c); R(12, 3, 1, 3, ha.c); R(4, 0, 1, 1, ha.d); R(11, 0, 1, 1, ha.d); R(5, 2, 2, 1, '#d070ff'); R(9, 2, 2, 1, '#d070ff'); }
   if (ha.kind === 'crown') { R(4, 1, 8, 2, ha.c); R(4, 0, 1, 1, ha.c); R(7, 0, 2, 1, ha.c); R(11, 0, 1, 1, ha.c); R(7, 1, 2, 1, '#c62f2f'); R(4, 2, 8, 1, ha.d); }
   if (ha.kind === 'helmet') { R(3, 0, 10, 3, ha.c, ha); R(3, 3, 1, 3, ha.c, ha); R(12, 3, 1, 3, ha.c, ha); R(3, 2, 10, 1, ha.d, ha); R(3, 5, 1, 1, ha.d, ha); R(12, 5, 1, 1, ha.d, ha); R(4, 0, 8, 1, 'rgba(255,255,255,.35)'); }
   c.glint = glow ? gl : null;
@@ -956,6 +996,7 @@ function outfitIcon(cat, it) {
   if (cat === 'hat') {
     if (!it.kind) { R(4, 4, 8, 8, '#d9a066'); R(4, 4, 8, 2, '#4f321d'); R(5, 8, 1, 1, '#3b5ba0'); R(10, 8, 1, 1, '#3b5ba0'); R(7, 10, 2, 1, '#9b5a3c'); }
     if (it.kind === 'cap') { R(3, 5, 10, 6, '#161616'); R(4, 6, 8, 4, it.c); R(2, 10, 12, 3, '#161616'); R(3, 10, 10, 2, it.d); }
+    if (it.kind === 'dragon') { R(2, 4, 12, 9, '#161616'); R(3, 5, 10, 7, it.c); R(3, 3, 2, 2, it.d); R(11, 3, 2, 2, it.d); R(5, 7, 2, 1, '#d070ff'); R(9, 7, 2, 1, '#d070ff'); R(5, 10, 6, 1, '#4a4a5a'); }
     if (it.kind === 'crown') { R(3, 7, 10, 5, it.c); R(3, 4, 2, 3, it.c); R(7, 3, 2, 4, it.c); R(11, 4, 2, 3, it.c); R(7, 8, 2, 2, '#c62f2f'); R(4, 9, 1, 1, '#2f7fd1'); R(11, 9, 1, 1, '#2f7fd1'); R(3, 11, 10, 1, it.d); }
     if (it.kind === 'helmet') { R(2, 3, 12, 11, '#161616'); R(3, 4, 10, 4, it.c); R(3, 8, 2, 5, it.c); R(11, 8, 2, 5, it.c); g.clearRect(5, 8, 6, 6); R(3, 7, 10, 1, it.d); }
   }
@@ -1299,7 +1340,7 @@ function finishTrace() {
   if (R.firstTry) { s.ok++; s.miss = Math.max(0, s.miss - 1); } else { s.miss++; s.bad = (s.bad || 0) + 1; }
   s.n = (s.n || 0) + 1;
   save.stats[R.statKey] = s;
-  const clean = R.firstTry, texName = mineTex(LEVELS[R.level].tex);
+  const clean = R.firstTry, texName = mineTex(curLevel().tex);
   if (clean) { R.clean++; save.emeralds += 1 + luckBonus(); updateGems('hudGems'); dogHappy($('#gameDog')); }
   persist();
   sfx.breakIt();
@@ -1427,7 +1468,7 @@ function display(it) {
 }
 
 /* ---------- obrazovky ---------- */
-function show(id) { ['home', 'game', 'house', 'wardrobe', 'farm', 'shop', 'stats', 'village', 'nether', 'album', 'prerov'].forEach(s => { $('#' + s).hidden = s !== id; }); }
+function show(id) { ['home', 'game', 'house', 'wardrobe', 'farm', 'shop', 'stats', 'village', 'nether', 'album', 'prerov', 'ender'].forEach(s => { $('#' + s).hidden = s !== id; }); }
 function paintTextures(root = document) {
   root.querySelectorAll('[data-tex]').forEach(el => { el.style.backgroundImage = `url(${tex(el.dataset.tex, el.dataset.dark === '1')})`; });
 }
@@ -1502,6 +1543,7 @@ function renderHome() {
   card('Vesnice', drawVillage, openVillage, false);
   card('Nether', drawNether, openNether, !portalLit());
   card('Přerov', drawPrerov, openPrerov, prerovStage() === 0);
+  card('End', drawEnder, openEnder, !endOpen());
   wrap.appendChild(places);
   mountDog($('#heroDog'));
   updateGems(); renderStreakBtn();
@@ -1530,7 +1572,7 @@ function renderWardrobe() {
     b.appendChild(outfitIcon(wardCat, it));
     if (!open) { b.classList.add('locked'); b.insertAdjacentHTML('beforeend', LOCK_SVG); }
     b.addEventListener('click', () => {
-      if (!open) { sfx.nope(); speak(it.streak ? `${it.name} se odemkne, až budeš hrát ${it.streak} dní v řadě.` : it.ench ? 'Očarování získáš za zvládnuté úkoly. Podívej se do knihy očarování.' : `${it.name} se odemkne, až vykopeš víc kol.`); return; }
+      if (!open) { sfx.nope(); speak(it.boss ? `${it.name} je odměna za poražení Ender draka.` : it.streak ? `${it.name} se odemkne, až budeš hrát ${it.streak} dní v řadě.` : it.ench ? 'Očarování získáš za zvládnuté úkoly. Podívej se do knihy očarování.' : `${it.name} se odemkne, až vykopeš víc kol.`); return; }
       save.outfit[wardCat] = it.id; persist();
       if (wardCat === 'enchant' && it.id === 'ano' && !['shirt', 'pants', 'shoes', 'hat'].some(k => isMetal(outfitItem(k)))) { renderWardrobe(); speak('Očarovat jde brnění, helmy a kovové boty. A krumpáč!'); return; }
       tone(880, 0, .08, 'square', .05); tone(1320, .07, .1, 'square', .05);
@@ -1583,6 +1625,9 @@ const SPRITES = {
   beehive: [16, 16, R => { R(1, 2, 14, 13, '#d8a23a'); R(1, 5, 14, 1, '#a8781e'); R(1, 10, 14, 1, '#a8781e'); R(6, 7, 4, 2, '#3a2a10'); R(10, 11, 2, 3, '#f2c94c'); R(10, 14, 1, 1, '#f2c94c'); }],
   scarecrow: [16, 32, R => { R(7, 9, 2, 23, '#7a5e3b'); R(0, 12, 16, 2, '#7a5e3b'); R(4, 11, 8, 8, '#3f6fb0'); R(3, 19, 10, 2, '#d8b84a'); R(3, 0, 10, 9, '#e8862a'); R(7, 0, 2, 1, '#4c7a2a'); R(5, 3, 2, 2, '#3a2410'); R(9, 3, 2, 2, '#3a2410'); R(5, 6, 6, 1, '#3a2410'); }],
   sunflower: [16, 32, R => { R(7, 10, 2, 22, '#3f8a2a'); R(3, 18, 4, 2, '#4c9c33'); R(9, 23, 4, 2, '#4c9c33'); R(4, 1, 8, 10, '#f2d024'); R(3, 2, 10, 8, '#f2d024'); R(5, 3, 6, 6, '#6b4424'); }],
+  eye: [16, 16, R => { R(4, 2, 8, 7, '#2a8a5a'); R(3, 3, 10, 5, '#2a8a5a'); R(6, 4, 4, 3, '#0e3a24'); R(7, 5, 2, 1, '#b8ffd0'); }],
+  dragon: [32, 16, R => { const B = '#1a1a22', W = '#2e2e3e'; R(4, 6, 18, 5, B); R(0, 8, 5, 2, B); R(21, 4, 8, 5, B); R(28, 6, 4, 2, B); R(25, 5, 2, 1, '#d070ff'); R(8, 0, 6, 6, W); R(12, 1, 8, 4, W); R(6, 11, 2, 4, B); R(16, 11, 2, 4, B); [8, 12, 16].forEach(x => R(x, 5, 1, 1, '#4a4a5a')); }],
+  egg: [16, 16, R => { R(5, 3, 6, 11, '#1a0e24'); R(4, 5, 8, 8, '#1a0e24'); R(6, 5, 1, 2, '#7a3aa0'); R(9, 9, 1, 1, '#7a3aa0'); R(7, 12, 2, 1, '#5a2a80'); }],
   rail: [16, 16, R => { R(0, 13, 16, 2, '#5a4030'); [1, 6, 11].forEach(x => R(x, 11, 3, 5, '#6b4a31')); R(0, 11, 16, 1, '#a0a0a0'); R(0, 14, 16, 1, '#a0a0a0'); }],
   loco: [32, 16, R => { R(2, 4, 22, 8, '#c0392b'); R(16, 0, 9, 12, '#a82e22'); R(18, 2, 5, 4, '#a9dbea'); R(5, 0, 3, 4, '#333333'); R(0, 9, 3, 3, '#333333'); [4, 12, 20].forEach(x => { R(x, 12, 4, 4, '#222222'); R(x + 1, 13, 2, 2, '#888888'); }); R(2, 8, 22, 1, '#f2c94c'); }],
   wagon: [32, 16, R => { R(1, 2, 30, 10, '#2f6fb0'); R(1, 2, 30, 1, '#4a86c8'); [4, 11, 18, 25].forEach(x => R(x, 4, 4, 4, '#a9dbea')); [5, 23].forEach(x => { R(x, 12, 4, 4, '#222222'); R(x + 1, 13, 2, 2, '#888888'); }); }],
@@ -1695,6 +1740,7 @@ function drawFarm(cv) {
   if (save.decor.includes('slunecnice')) at('sunflower', 0, 10);
   if (save.decor.includes('dyne')) at('pumpkin', 20, 10);
   if (save.decor.includes('prase')) at('pig', 23, 10);
+  if (save.dragon) at('egg', 12, 10 - 0); // dračí vejce za poraženého draka
   if (save.decor.includes('kocka')) at('cat', 3, fs >= 4 ? 7 : 10);
   if (fs >= 1) g.drawImage(dogCanvas(), 1 * C, 11 * C - 12);
   (save.babies || []).forEach(id => { const b = BABIES.find(x => x.id === id); if (b) g.drawImage(babyCanvas(b), Math.round(b.x * C), 11 * C - 10); });
@@ -2296,9 +2342,76 @@ function openPrerov() {
   speak(cap);
 }
 
+/* ---------- finále: End a Ender drak ---------- */
+// Oči Enderu přibývají se zvládnutými úkoly (12 očí = vše zvládnuto). Portál do Endu se otevře, až má Adam zvládnuté všechno;
+// to je strop hry podle pravidla „maximum až po zvládnutí všeho“. Bitvu jde pak opakovat, odměny jsou jednou.
+const EYES = 12, BOSS_HITS = 20, BOSS_BONUS = 100;
+const eyesHave = () => { const { pts, max } = masteryPoints(); return Math.max(save.eyes || 0, Math.min(EYES, Math.floor(pts / max * EYES))); };
+const endOpen = () => eyesHave() >= EYES;
+const RING = [[1, 0], [2, 0], [3, 0], [4, 1], [4, 2], [4, 3], [3, 4], [2, 4], [1, 4], [0, 3], [0, 2], [0, 1]]; // rám 5 × 5 bez rohů
+function drawEnder(cv) {
+  const C = 16, W = 20, H = 14; cv.width = W * C; cv.height = H * C;
+  const g = cv.getContext('2d'); g.imageSmoothingEnabled = false;
+  g.fillStyle = '#0a0612'; g.fillRect(0, 0, cv.width, cv.height);
+  const r = rng(3); g.fillStyle = '#e8dcff'; for (let i = 0; i < 50; i++) g.fillRect(Math.floor(r() * cv.width), Math.floor(r() * 150), 1 + (i % 3 === 0), 1 + (i % 3 === 0));
+  for (let x = 0; x < W; x++) for (let y = 11; y < H; y++) g.drawImage(texCanvas('endStone'), x * C, y * C);
+  const n = eyesHave(), ox = 7.5, oy = 3.5;
+  RING.forEach(([dx, dy], i) => { g.drawImage(texCanvas('endFrame'), (ox + dx) * C, (oy + dy) * C); if (i < n) g.drawImage(spr('eye'), (ox + dx) * C, (oy + dy) * C - 3); });
+  if (n >= EYES) { for (let dx = 1; dx <= 3; dx++) for (let dy = 1; dy <= 3; dy++) { g.fillStyle = '#05030a'; g.fillRect((ox + dx) * C, (oy + dy) * C, C, C); } g.fillStyle = '#9a6aff'; for (let i = 0; i < 14; i++) g.fillRect((ox + 1) * C + Math.floor(r() * 48), (oy + 1) * C + Math.floor(r() * 48), 2, 2); }
+  if (!save.dragon) g.drawImage(spr('dragon'), 13 * C, 1 * C, 64, 32);
+  else g.drawImage(spr('egg'), 2 * C, 10 * C);
+}
+function openEnder() {
+  speechId++; if (synth) synth.cancel();
+  save.eyes = eyesHave(); persist();
+  show('ender'); drawEnder($('#enderBig')); fitCanvas($('#enderBig'));
+  const n = eyesHave(), { pts, max } = masteryPoints();
+  const cap = n < EYES ? `Oči Enderu: ${n} z ${EYES}. Přibývají, jak zvládáš úkoly (zvládnuto ${pts} z ${max}). Když budou všechna, otevře se portál a čeká tě Ender drak.`
+    : save.dragon ? `Ender drak je poražený! Vyhrál jsi ${save.dragon}×. Můžeš bojovat znovu.` : 'Portál do Endu je otevřený! Ender drak čeká. Každá správná odpověď je šíp.';
+  $('#enderCap').textContent = cap;
+  $('#btnFight').hidden = n < EYES;
+  speak(cap + (n >= EYES ? ' Boj začneš zeleným tlačítkem s mečem, je na něm napsáno Bojovat s drakem.' : ''));
+}
+// smíšené úkoly ze všech pater
+function genBoss() {
+  const lv = pick(Math.random, ['syllables', 'words', 'reading', 'numbers', 'math']);
+  if (LEVELS[lv].gen) return LEVELS[lv].gen();
+  const t = pickTarget(lv, R.recent.slice(-3));
+  return { answer: t, choices: makeChoices(lv, t, choiceCount(lv)), say: sayText(lv, t), stat: lv + ':' + t, key: t };
+}
+const BOSS = { name: 'Ender drak', tex: 'endStone', gen: genBoss, len: BOSS_HITS, intro: 'Ender drak! Každá správná odpověď je šíp. Poraz ho!' };
+const curLevel = () => LEVELS[R.level] || BOSS;
+function bossHit(fromEl) {
+  const left = R.len - R.i;
+  $('#bossHp').style.width = (left / R.len * 100) + '%';
+  const d = $('#bossDragon'); retrigger(d, 'hit');
+  if (REDUCED || !fromEl) return;
+  const a = fromEl.getBoundingClientRect(), b = d.getBoundingClientRect(), ar = document.createElement('div'); ar.className = 'arrow';
+  Object.assign(ar.style, { left: a.left + a.width / 2 + 'px', top: a.top + 'px' }); document.body.appendChild(ar);
+  const dx = b.left + b.width / 2 - (a.left + a.width / 2), dy = b.top + b.height / 2 - a.top, ang = Math.atan2(dy, dx);
+  ar.animate([{ transform: `rotate(${ang}rad)` }, { transform: `translate(${dx}px,${dy}px) rotate(${ang}rad)` }], { duration: 450, easing: 'ease-in' }).onfinish = () => ar.remove();
+}
+function bossVictory() {
+  const first = !save.dragon;
+  save.dragon = (save.dragon || 0) + 1;
+  if (first) save.emeralds += BOSS_BONUS;
+  persist(); R = null;
+  sfx.fanfare(); sfx.sparkle();
+  const cv = $('#victoryCanvas'); drawEnder(cv);
+  const g = cv.getContext('2d'), r = rng(21);
+  for (let k = 0; k < 7; k++) { const cx = 30 + r() * (cv.width - 60), cy = 20 + r() * 80, col = pick(r, ['#ff5a5a', '#f6cf45', '#5ad0ff', '#9b5de5', '#6bd96b']); g.fillStyle = col; for (let i = 0; i < 12; i++) { const an = i / 12 * Math.PI * 2; for (let dd = 4; dd <= 14; dd += 5) g.fillRect(Math.round(cx + Math.cos(an) * dd), Math.round(cy + Math.sin(an) * dd), 2, 2); } }
+  const vc = $('#victoryCheer'); vc.innerHTML = ''; const faces = document.createElement('div'); faces.className = 'faces many'; FAMILY.forEach(p => faces.appendChild(famCanvas(p))); vc.appendChild(faces);
+  const bb = document.createElement('div'); bb.className = 'bubble'; bb.innerHTML = '<b>celá rodina</b>'; bb.append('Adame, jsi hrdina! Jsme na tebe moc pyšní!'); vc.appendChild(bb);
+  const line = first ? `Za vítězství dostáváš dračí hlavu do šatníku, dračí vejce na farmu a ${BOSS_BONUS} smaragdů!` : `Draka jsi porazil už ${save.dragon}×!`;
+  $('#victoryLine').textContent = line;
+  $('#victoryOverlay').hidden = false;
+  speak(`${gameName()}. Adam porazil Ender draka! Celá rodina říká: Adame, jsi hrdina! Jsme na tebe moc pyšní! ${line} Domů se vrátíš zeleným tlačítkem s domečkem.`);
+}
+function startBoss() { audio(); startRound('boss'); }
+
 /* ---------- verze hry a aktualizace ---------- */
 // Při každé úpravě hry zvýšit APP_VERSION a do version.json přidat záznam se stejným číslem (co je nového, pro Adama).
-const APP_VERSION = 14;
+const APP_VERSION = 15;
 /* ---------- název hry, který si vybral Adam ---------- */
 // jen názvy bez háčků: pixelové písmo háčky neumí (č, ě, ř, š, ž vypadají jako s tečkou)
 const GAME_NAMES = ['Adamův důl', 'Adamcraft', 'Adamovo království', 'Adamova farma', 'Adamův hrad'];
@@ -2372,6 +2485,7 @@ const ICONS = {
   house: '<path d="M11 2h2v2h2v2h2v2h2v2h2v2h-2v10h-6v-6h-2v6H5V12H3v-2h2V8h2V6h2V4h2V2z"/>',
   back: '<path d="M14 4h3v3h-3v3h-3v4h3v3h3v3h-3v-3h-3v-3H8v-4h3V7h3V4z"/>',
   check: '<path d="M18 5h3v3h-2v2h-2v2h-2v2h-2v2h-2v2H9v-2H7v-2H5v-2H3V9h3v2h2v2h2v-2h2V9h2V7h2V5h2z"/>',
+  sword: '<path d="M19 2h3v3h-1v2h-2v2h-2v2h-2v2h-2v2h1v2h-2v1H9v1H7v2H4v-3h2v-2h1v-2h1v-1h1v-2h2v1h2v-2h2V9h2V7h2V5h1V2z"/>',
   speaker: '<path d="M3 9h4l5-5h2v16h-2l-5-5H3V9zm14-1h2v2h1v4h-1v2h-2v-2h1v-4h-1V8z"/>',
   refresh: '<path d="M11 2h2v2h2v2h-2v2h-2V6H8v2H6v8h2v2h8v-2h2v-6h3v7h-2v2h-2v2H7v-2H5v-2H3V7h2V5h2V3h4V2z"/>',
 };
@@ -2480,12 +2594,14 @@ const STUCK_MS = 2000;
 const protectionLevels = () => ['hat', 'shirt', 'pants', 'shoes'].reduce((a, pc) => a + enchLevel(pc, 'Ochrana'), 0);
 const stuckMs = () => STUCK_MS - 50 * protectionLevels();
 function startRound(level) {
-  const L = LEVELS[level];
+  const L = LEVELS[level] || BOSS;
   R = { level, i: 0, busy: true, recent: [], loot: [], clean: 0, len: L.len || ROUND_LEN, start: Date.now() };
   TR = null; $('#trace').hidden = true; $('#blocks').hidden = false; $('#task').hidden = true;
   show('game');
   $('#gameGround').style.backgroundImage = `url(${tex(mineTex(L.tex), true)})`;
-  const nm = mineTex(L.tex) !== L.tex; $('#game').classList.toggle('nethered', nm); $('#game .grass-strip').style.backgroundImage = `url(${tex(nm ? 'netherrack' : 'grass')})`;
+  const isBoss = level === 'boss'; $('#game').classList.toggle('ender', isBoss); $('#bossBar').hidden = !isBoss;
+  if (isBoss) { const dc = $('#bossDragon'); dc.width = 32; dc.height = 16; dc.getContext('2d').drawImage(spr('dragon'), 0, 0); $('#bossHp').style.width = '100%'; }
+  const nm = mineTex(L.tex) !== L.tex; $('#game').classList.toggle('nethered', nm); $('#game .grass-strip').style.backgroundImage = `url(${tex(isBoss ? 'endStone' : nm ? 'netherrack' : 'grass')})`;
   mountPlayer($('#gamePlayer')); mountDog($('#gameDog')); updateGems();
   const hp = $('#hudPick'); hp.innerHTML = ''; hp.appendChild(pickCanvas(tierOf(save.total)));
   const pips = $('#pips'); pips.innerHTML = '';
@@ -2496,7 +2612,7 @@ function startRound(level) {
 function nextTask() {
   if (!R) return;
   if (R.i >= R.len) return endRound();
-  const level = R.level, L = LEVELS[level];
+  const level = R.level, L = curLevel();
   let target;
   if (L.trace) {
     const ch = L.trace();
@@ -2510,12 +2626,12 @@ function nextTask() {
   $('#trace').hidden = true; $('#blocks').hidden = false;
   if (L.gen) {
     const t = L.gen();
-    target = t.answer; R.choices = t.choices; R.say = t.say; R.statKey = t.stat; R.recent.push(t.key); R.after = t.after || '';
+    target = t.answer; R.choices = t.choices; R.say = t.say; R.statKey = t.stat; R.recent.push(t.key); R.after = t.after || ''; R.picture = !!t.picture;
     $('#task').hidden = !t.task; if (t.task) $('#task').innerHTML = `<span>${t.task}</span>`;
   } else {
     target = pickTarget(level, R.recent.slice(-2));
     R.recent.push(target);
-    R.choices = makeChoices(level, target, choiceCount(level)); R.say = sayText(level, target); R.statKey = level + ':' + target; R.after = '';
+    R.choices = makeChoices(level, target, choiceCount(level)); R.say = sayText(level, target); R.statKey = level + ':' + target; R.after = ''; R.picture = false;
     $('#task').hidden = true;
   }
   R.target = target;
@@ -2523,8 +2639,8 @@ function nextTask() {
   $('#blocks').classList.remove('stuck'); $('#hudPick').classList.remove('stuck');
   const box = $('#blocks'); box.innerHTML = '';
   R.els = R.choices.map(it => {
-    const b = blockEl(mineTex(L.tex), L.picture ? '' : display(it), it.length > 1);
-    if (L.picture) { const pl = b.querySelector('.plate'); pl.innerHTML = ''; pl.appendChild(picCanvas(it)); }
+    const b = blockEl(mineTex(L.tex), R.picture ? '' : display(it), it.length > 1);
+    if (R.picture) { const pl = b.querySelector('.plate'); pl.innerHTML = ''; pl.appendChild(picCanvas(it)); }
     else if (it.length >= 3) b.querySelector('.glyph').style.fontSize = `calc(var(--bs, 120px) * ${Math.min(.32, 1 / it.length).toFixed(3)})`; // delší slova menším písmem, ať se vejdou
     b.setAttribute('aria-label', 'kostka');
     b.addEventListener('click', () => tapBlock(it, b));
@@ -2548,7 +2664,7 @@ function layoutBlocks() {
   box.style.gridTemplateColumns = `repeat(${bestC}, var(--bs))`;
   box.style.gap = gap + 'px';
 }
-addEventListener('resize', () => { layoutBlocks(); if (TR && !$('#trace').hidden) layoutTrace(); if (!$('#house').hidden) fitCanvas($('#houseBig')); if (!$('#farm').hidden) fitCanvas($('#farmBig')); if (!$('#nether').hidden) fitCanvas($('#netherBig')); if (!$('#prerov').hidden) fitCanvas($('#prerovBig')); });
+addEventListener('resize', () => { layoutBlocks(); if (TR && !$('#trace').hidden) layoutTrace(); if (!$('#house').hidden) fitCanvas($('#houseBig')); if (!$('#farm').hidden) fitCanvas($('#farmBig')); if (!$('#nether').hidden) fitCanvas($('#netherBig')); if (!$('#prerov').hidden) fitCanvas($('#prerovBig')); if (!$('#ender').hidden) fitCanvas($('#enderBig')); });
 function retrigger(el, cls) { el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls); }
 function tapBlock(it, el) {
   if (!R || R.busy || R.stuck) return;
@@ -2561,7 +2677,7 @@ function tapBlock(it, el) {
     $('#blocks').classList.add('stuck'); retrigger($('#hudPick'), 'stuck');
     if (R.wrongs >= 2) R.els[R.choices.indexOf(R.target)].classList.add('glow');
     const t = R.target;
-    setTimeout(() => { if (R && R.target === t && !R.busy) speak(LEVELS[R.level].picture ? 'Chyba, krumpáč se zasekl. Přečti slovo ještě jednou, písmenko po písmenku.' : (LEVELS[R.level].gen === genMath ? 'Chyba, krumpáč se zasekl. Zkus to znovu: ' : 'Chyba, krumpáč se zasekl. Poslouchej: ') + R.say); }, 300);
+    setTimeout(() => { if (R && R.target === t && !R.busy) speak(R.picture ? 'Chyba, krumpáč se zasekl. Přečti slovo ještě jednou, písmenko po písmenku.' : (/^math:/.test(R.statKey) ? 'Chyba, krumpáč se zasekl. Zkus to znovu: ' : 'Chyba, krumpáč se zasekl. Poslouchej: ') + R.say); }, 300);
     setTimeout(() => { if (R && R.target === t) { R.stuck = false; $('#blocks').classList.remove('stuck'); $('#hudPick').classList.remove('stuck'); } }, stuckMs());
     return;
   }
@@ -2585,7 +2701,7 @@ function breakBlock(el) {
   el.querySelector('.crack').style.backgroundImage = `url(${cracks[3]})`;
   sfx.breakIt();
   const rect = el.getBoundingClientRect();
-  const texName = mineTex(LEVELS[R.level].tex);
+  const texName = mineTex(curLevel().tex);
   if (!REDUCED) burst(rect, texName);
   el.classList.add('gone');
   const pip = $('#pips').children[R.i];
@@ -2595,6 +2711,7 @@ function breakBlock(el) {
   const done = () => { pip.classList.add('done', clean ? 'clean' : 'miss'); pip.style.backgroundImage = `url(${tex(texName)})`; };
   if (REDUCED) done(); else flyTo(rect, pip, texName, done);
   R.i++;
+  if (R.level === 'boss') bossHit(el);
   const target = R.target;
   setTimeout(() => {
     if (!R || R.target !== target) return;
@@ -2625,6 +2742,7 @@ function flyTo(rect, pip, texName, cb) {
   an.onfinish = () => { f.remove(); cb(); };
 }
 function endRound() {
+  if (R.level === 'boss') return bossVictory();
   const level = R.level;
   const need = Math.ceil((NEED_CLEAN[save.strict] || 5) * R.len / ROUND_LEN);
   const ok = R.clean >= need;
@@ -2722,7 +2840,7 @@ function endRound() {
 }
 function goHome() {
   speechId++; if (synth) synth.cancel();
-  if (R && R.i > 0 && R.i < R.len) logRound(false, true); // rozehrané a opuštěné kolo: signál, že nebaví
+  if (R && R.level !== 'boss' && R.i > 0 && R.i < R.len) logRound(false, true); // rozehrané a opuštěné kolo: signál, že nebaví
   R = null; $('#endOverlay').hidden = true;
   renderHome(); show('home');
 }
@@ -2771,6 +2889,9 @@ $('#btnVillageBack').addEventListener('click', goHome);
 $('#btnNetherBack').addEventListener('click', goHome);
 $('#btnAlbumBack').addEventListener('click', goHome);
 $('#btnPrerovBack').addEventListener('click', goHome);
+$('#btnEnderBack').addEventListener('click', goHome);
+$('#btnFight').addEventListener('click', startBoss);
+$('#btnVictoryHome').addEventListener('click', () => { speechId++; if (synth) synth.cancel(); $('#victoryOverlay').hidden = true; goHome(); });
 $('#btnNetherMine').addEventListener('click', () => { audio(); save.netherMine = !save.netherMine; persist(); openNether(); speak(save.netherMine ? 'Teď kopeš v Netheru.' : 'Teď kopeš doma v dole.'); });
 $('#btnShopBack').addEventListener('click', goHome);
 $('#btnStreak').addEventListener('click', openStreak);
