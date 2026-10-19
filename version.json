@@ -1,6 +1,14 @@
 {
-  "version": 5,
+  "version": 6,
   "changes": [
+    {
+      "version": 6,
+      "date": "2026-10-19",
+      "notes": [
+        "Portál do Netheru! Každý den, kdy se ti povede aspoň jedno kolo, dostaneš obsidián.",
+        "Z deseti obsidiánů postavíš portál. Pak každý den přibude něco v Netheru a můžeš tam i kopat."
+      ]
+    },
     {
       "version": 5,
       "date": "2026-10-19",
