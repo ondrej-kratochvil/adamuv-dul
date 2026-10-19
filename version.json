@@ -1,6 +1,13 @@
 {
-  "version": 9,
+  "version": 10,
   "changes": [
+    {
+      "version": 10,
+      "date": "2026-10-19",
+      "notes": [
+        "Když ti hra radí, kam klepnout, řekne obrázek na tlačítku i to, co je na něm napsáno."
+      ]
+    },
     {
       "version": 9,
       "date": "2026-10-19",
