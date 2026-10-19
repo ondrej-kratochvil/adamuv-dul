@@ -65,10 +65,9 @@ test('zálohu jde vrátit a vrácení jde vrátit zpátky', async ({ page }) => 
   expect(backup.total).toBe(0);
 });
 
-test('krátké stisknutí ozubeného kola ukáže i řekne, že se má podržet', async ({ page }) => {
+test('ozubené kolo řekne, že nastavení je pro rodiče', async ({ page }) => {
   await openGame(page);
   await page.locator('#btnSettings').click();
-  await expect(page.locator('#gearHint')).toBeVisible();
-  await expect.poll(() => said(page)).toContain('Podrž ozubené kolo');
+  await expect.poll(() => said(page)).toContain('nastavení pro rodiče');
   await expect(page.locator('#setOverlay')).toBeHidden();
 });

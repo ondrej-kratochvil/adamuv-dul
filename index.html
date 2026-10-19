@@ -29,10 +29,9 @@
             <div class="gems" id="homeGems" aria-label="Smaragdy"></div>
             <button class="streak" id="btnStreak" aria-label="Řada dní"></button>
           </div>
-          <button class="gbtn icon" id="btnSettings" aria-label="Nastavení pro rodiče (podržet)">
+          <button class="gbtn icon" id="btnSettings" aria-label="Nastavení pro rodiče">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 2h4v3h2V3h2v2h2v2h-2v2h3v4h-3v2h2v2h-2v2h-2v-2h-2v3h-4v-3H8v2H6v-2H4v-2h2v-2H3V9h3V7H4V5h2V3h2v2h2V2zm0 7v6h4V9h-4z"/></svg>
           </button>
-          <span class="gear-hint" id="gearHint" hidden>Podržte 2 sekundy</span>
         </div>
         <div class="title-row">
           <div class="dog hero-dog" id="heroDog" hidden></div>
@@ -320,6 +319,23 @@
     <div class="week" id="streakWeek"></div>
     <div class="streak-info" id="streakInfo"></div>
     <div class="actions" style="margin-top:14px"><button class="gbtn go" id="btnStreakClose" data-icon="check">Hotovo</button></div>
+  </div>
+</div>
+
+<!-- ZÁMEK NASTAVENÍ (příklad pro dospělého) -->
+<div class="overlay" id="gateOverlay" hidden>
+  <div class="panel gate" role="dialog" aria-labelledby="gateTitle">
+    <h2 id="gateTitle">Pro rodiče</h2>
+    <p>Nastavení otevřete, když spočítáte příklad.</p>
+    <form id="gateForm" autocomplete="off">
+      <label for="gateInput" class="gate-q">Kolik je <b id="gateQ"></b>?</label>
+      <input id="gateInput" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="4">
+      <p class="gate-msg" id="gateMsg" role="status"></p>
+      <div class="actions">
+        <button class="gbtn go" type="submit" id="btnGateOk" data-icon="check">Otevřít</button>
+        <button class="gbtn" type="button" id="btnGateNo" data-icon="back">Zpět</button>
+      </div>
+    </form>
   </div>
 </div>
 

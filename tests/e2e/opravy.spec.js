@@ -36,11 +36,18 @@ test('střední přísnost v psaní dovolí jednu chybu z 5', async ({ page }) =
   await expect(page.locator('#endTitle')).toHaveText('Výborně, Adame!');
 });
 
-test('nastavení se krátkým klepnutím neotevře, podržením ano', async ({ page }) => {
+test('nastavení se otevře jen po správném příkladu; po chybě přijde nový', async ({ page }) => {
   await openGame(page);
   await page.locator('#btnSettings').click();
-  await page.waitForTimeout(300);
+  await expect(page.locator('#gateOverlay')).toBeVisible();
+  const q1 = await page.locator('#gateQ').textContent();
+  const [a, b] = q1.split(' × ').map(Number);
+  await page.locator('#gateInput').fill(String(a * b + 1));
+  await page.locator('#btnGateOk').click();
   await expect(page.locator('#setOverlay')).toBeHidden();
+  await expect(page.locator('#gateMsg')).toContainText('nový příklad');
+  await page.locator('#btnGateNo').click();
+  await expect(page.locator('#gateOverlay')).toBeHidden();
   await openSettings(page);
 });
 

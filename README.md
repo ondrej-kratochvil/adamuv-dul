@@ -66,7 +66,7 @@ z `MASTERY_SETS()` + max. 30 příkladů + max. 20 čísel 21 až 99 mimo desít
   podle Ondřeje (19. 10. 2026), děda Marek téměř holohlavý; nic dalšího nedomýšlet. Chválí, povzbuzují, „dnes ti fandí“.
 - Vzkazy od rodiny i od kamarádů Toma a Médi (nastavení; kamarádi bez podoby, jen obálka), jméno a barvu psa vybírá Adam,
   název hry volí Adam (`GAME_NAMES`).
-- Nastavení pro rodiče se otevře jen podržením ozubeného kola 2 s; přenos postupu na jiný tablet (zkopírovat, vložit).
+- Nastavení pro rodiče se otevře jen po vyřešení příkladu pro dospělého (násobení, `logic/gate.ts`); přenos postupu na jiný tablet (zkopírovat, vložit).
 - České svátky s dárkem (`holiday()`), roční období ve scénách (`season()`), kimono na karate.
 - Statistiky pro rodiče a hodnocení kola 1–10 (`renderStats`, `logRound`, `renderRate`), kopírování přehledu.
 

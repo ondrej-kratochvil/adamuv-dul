@@ -32,12 +32,12 @@ export async function openGame(page, state = null) {
   return errors;
 }
 
-// nastavení pro rodiče: ozubené kolo podržet 2 sekundy
+// nastavení pro rodiče: ozubené kolo a pak příklad pro dospělého (násobení)
 export async function openSettings(page) {
-  const gear = page.locator('#btnSettings');
-  await gear.dispatchEvent('pointerdown');
-  await page.waitForTimeout(2100);
-  await gear.dispatchEvent('pointerup');
+  await page.locator('#btnSettings').click();
+  const [a, b] = (await page.locator('#gateQ').textContent()).split(' × ').map(Number);
+  await page.locator('#gateInput').fill(String(a * b));
+  await page.locator('#btnGateOk').click();
   await expect(page.locator('#setOverlay')).toBeVisible();
 }
 

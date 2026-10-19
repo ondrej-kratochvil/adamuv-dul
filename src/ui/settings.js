@@ -4,6 +4,7 @@ import { BACKUP_KEY, defaults, persist, save, replaceSave } from '../save/save.t
 import { exportText, importText } from '../save/schema.ts';
 import { PRON_MODES, RISKY_SYLLABLES, RISKY_WORDS, defaultMode, pronounceAs } from '../logic/pronounce.ts';
 import { iconSvg } from './icons.js';
+import { gateOk, makeGate } from '../logic/gate.ts';
 import { tierOf } from '../gfx/player.js';
 import { csVoice, loadVoices, speak, synth, voicesKnown } from '../audio/speech.js';
 import { renderHome } from './screens.js';
@@ -28,25 +29,24 @@ function updateSettings() {
   $('#progressInfo').textContent = `Odehraná kola: písmena ${save.rounds.letters}, slabiky ${save.rounds.syllables}, slova ${save.rounds.words}, čtení ${save.rounds.reading}, čísla ${save.rounds.numbers}, počty ${save.rounds.math}, psaní ${save.rounds.writing}. Dům: ${st} z 12 dílů. Farma: ${farmStage()} z ${FARM_STAGES.length}. Smaragdy: ${save.emeralds}. Řada: ${streakNow().count} (nejdelší ${save.streak.best}). Krumpáč: ${tierOf(save.total).name}. Očarování: ${save.ench.length} z ${ENCH_ORDER.length} (zvládnuto ${masteryPoints().pts} z ${masteryPoints().max} úkolů).`;
   updateVoiceInfo();
 }
-// Nastavení je pro rodiče: ozubené kolo se musí podržet 2 sekundy. Krátké klepnutí jen řekne, že je pro rodiče.
-const HOLD_MS = 2000;
-let holdTimer = null;
+// Nastavení je pro rodiče: otevře se po vyřešení příkladu pro dospělého (logic/gate.ts)
+let gate = null;
 function openSettings() { updateSettings(); renderNotes(); updateRestore(); renderPron(); $('#resetConfirm').hidden = true; $('#setOverlay').hidden = false; }
-const gear = $('#btnSettings');
-function gearHint() {
-  const h = $('#gearHint'); h.hidden = false; clearTimeout(gearHint.t); gearHint.t = setTimeout(() => { h.hidden = true; }, 3000);
-  speak('Tohle je nastavení pro rodiče. Podrž ozubené kolo, dokud se nevyplní.');
+function openGate() {
+  gate = makeGate();
+  $('#gateQ').textContent = gate.text; $('#gateInput').value = ''; $('#gateMsg').textContent = '';
+  $('#gateOverlay').hidden = false; $('#gateInput').focus();
+  speak('Tohle je nastavení pro rodiče.');
 }
-gear.addEventListener('pointerdown', e => {
-  try { gear.setPointerCapture(e.pointerId); } catch (err) {} // prst smí z malého tlačítka sjet, odpočet běží dál
-  clearTimeout(holdTimer); gear.classList.add('holding');
-  holdTimer = setTimeout(() => { holdTimer = null; gear.classList.remove('holding'); $('#gearHint').hidden = true; openSettings(); }, HOLD_MS);
+$('#btnSettings').addEventListener('click', openGate);
+$('#gateForm').addEventListener('submit', e => {
+  e.preventDefault();
+  if (gate && gateOk(gate, $('#gateInput').value)) { $('#gateOverlay').hidden = true; gate = null; openSettings(); return; }
+  gate = makeGate(); // po chybě nový příklad, tipovat nejde
+  $('#gateQ').textContent = gate.text; $('#gateInput').value = ''; $('#gateMsg').textContent = 'To není správně. Tady je nový příklad.';
+  $('#gateInput').focus();
 });
-['pointerup', 'pointercancel'].forEach(t => gear.addEventListener(t, () => {
-  gear.classList.remove('holding');
-  if (holdTimer) { clearTimeout(holdTimer); holdTimer = null; gearHint(); }
-}));
-gear.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openSettings(); } });
+$('#btnGateNo').addEventListener('click', () => { $('#gateOverlay').hidden = true; gate = null; });
 $('#btnSetClose').addEventListener('click', () => { $('#setOverlay').hidden = true; renderHome(); });
 document.querySelectorAll('#segCase [data-case]').forEach(b => b.addEventListener('click', () => { save.caseMode = b.dataset.case; persist(); updateSettings(); }));
 document.querySelectorAll('#segStrict [data-strict]').forEach(b => b.addEventListener('click', () => { save.strict = b.dataset.strict; persist(); updateSettings(); }));

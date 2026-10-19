@@ -1,6 +1,13 @@
 {
-  "version": 19,
+  "version": 20,
   "changes": [
+    {
+      "version": 20,
+      "date": "2026-10-19",
+      "notes": [
+        "Nastavení je jen pro rodiče: otevře se, až spočítají těžký příklad."
+      ]
+    },
     {
       "version": 19,
       "date": "2026-10-19",
