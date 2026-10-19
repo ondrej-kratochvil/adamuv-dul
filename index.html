@@ -52,6 +52,8 @@ button:focus-visible { outline: 4px solid var(--gold); outline-offset: 3px; }
 .cloud { position: absolute; height: 18px; background: var(--white); opacity: .9; box-shadow: 18px -12px 0 0 var(--white), 36px 0 0 0 var(--white); width: 54px; animation: drift 70s linear infinite; }
 .cloud.c2 { top: 30%; opacity: .6; animation-duration: 95s; animation-delay: -40s; transform: scale(1.4); }
 .cloud.c1 { top: 8%; opacity: .75; }
+.winter .sky::before { content: ""; position: absolute; inset: 0; pointer-events: none; background-image: radial-gradient(#ffffff 1.5px, transparent 2.2px), radial-gradient(#ffffff 1px, transparent 1.6px); background-size: 64px 64px, 38px 38px; background-position: 0 0, 19px 27px; animation: snow 9s linear infinite; opacity: .85; }
+@keyframes snow { to { background-position: 0 64px, 19px 103px; } }
 @keyframes drift { from { left: -120px; } to { left: 110%; } }
 .grass-strip { height: 22px; background-size: 44px 44px; background-position: 0 0; }
 .ground { flex: 1; min-height: 0; background-size: 72px 72px; position: relative; }
@@ -196,6 +198,13 @@ button:focus-visible { outline: 4px solid var(--gold); outline-offset: 3px; }
 .dog.happy { animation: hop .55s ease-out; }
 @keyframes hop { 30% { transform: translateY(-40%); } 60% { transform: translateY(0); } 80% { transform: translateY(-12%); } }
 .heart { position: absolute; left: 60%; top: -20%; width: 40%; aspect-ratio: 1; pointer-events: none; }
+.dog-panel h3 { margin: 14px 0 8px; font-size: 18px; }
+.dog-panel .seg .gbtn { font-family: var(--f-read); font-size: 19px; padding: 6px 14px; }
+.dog-panel .seg .gbtn[aria-pressed="true"] { background: var(--go); }
+.dog-head { display: flex; align-items: flex-end; gap: 16px; }
+.dog-big { height: 84px; }
+.dog-panel .swatch canvas { width: 100%; height: auto; }
+.hero-dog, .shop-dog { cursor: pointer; }
 .shop-top { display: flex; align-items: flex-end; justify-content: center; gap: 24px; padding-block: 4px 12px; }
 .shop-top .gems { font-size: 30px; }
 .shop-top .gems canvas { width: 40px; height: 40px; }
@@ -293,6 +302,9 @@ canvas.ench { animation: ench 1.8s ease-in-out infinite; }
 .bubble b { display: block; font-size: 14px; color: #5a4a3a; }
 .fan { grid-column: 1 / -1; display: flex; align-items: center; gap: 10px; background: none; border: 0; padding: 0; text-align: left; justify-self: center; max-width: 640px; }
 .fan .bubble { font-size: 18px; }
+.faces.many { flex-wrap: wrap; width: 120px; row-gap: 4px; } /* celá rodina: obličeje ve dvou řadách */
+.faces.many canvas { width: 40px; height: 40px; }
+.faces.many canvas + canvas { margin-left: -6px; }
 .family-notes .seg .gbtn { font-size: 15px; padding: 6px 10px; }
 .family-notes textarea, .family-notes input { width: 100%; font-family: var(--f-read); font-size: 16px; padding: 6px; border: 3px solid #161616; margin: 6px 0; }
 .note-list { margin: 6px 0; padding-left: 18px; }
@@ -323,7 +335,7 @@ canvas.ench { animation: ench 1.8s ease-in-out infinite; }
 .confirm { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 8px; }
 
 @media (prefers-reduced-motion: reduce) {
-  .cloud, .listen.talking, .blk.glow, .player canvas.glint, canvas.ench { animation: none; }
+  .winter .sky::before, .cloud, .listen.talking, .blk.glow, .player canvas.glint, canvas.ench { animation: none; }
   .player canvas.glint { opacity: .45; }
 }
 </style>
@@ -497,6 +509,18 @@ canvas.ench { animation: ench 1.8s ease-in-out infinite; }
   </div>
 </div>
 
+<!-- PES -->
+<div class="overlay" id="dogOverlay" hidden>
+  <div class="panel dog-panel" role="dialog" aria-labelledby="dogTitle">
+    <div class="dog-head"><div class="dog dog-big" id="dogPreview"></div><h2 class="end-title" id="dogTitle">Tvůj pejsek</h2></div>
+    <h3>Jméno</h3>
+    <div class="seg" id="dogNames"></div>
+    <h3>Barva</h3>
+    <div class="ward-items" id="dogCoats"></div>
+    <div class="actions" style="margin-top:16px"><button class="gbtn go" id="btnDogClose">Hotovo</button></div>
+  </div>
+</div>
+
 <!-- ŘADA DNÍ -->
 <div class="overlay" id="streakOverlay" hidden>
   <div class="panel" role="dialog" aria-labelledby="streakTitle">
@@ -579,9 +603,9 @@ let R = null; // běžící kolo
 
 /* ---------- uložený postup ---------- */
 const KEY = 'adamuv-dul-v1';
-function defaults() { return { caseMode: 'both', slow: false, strict: 'normal', total: 0, rounds: { letters: 0, syllables: 0, words: 0, numbers: 0, math: 0, writing: 0, reading: 0 }, stats: {}, log: [], emeralds: 0, notes: [], dogName: '', bday: 0, lastCheer: '', dog: { collar: 'cerveny', owned: ['cerveny'] }, decor: [], streak: { count: 0, best: 0, last: '', totem: 0, days: [] }, outfit: { shirt: 'oranzove', pants: 'modre', shoes: 'sede', hat: 'nic', enchant: 'ne' } }; }
+function defaults() { return { caseMode: 'both', slow: false, strict: 'normal', total: 0, rounds: { letters: 0, syllables: 0, words: 0, numbers: 0, math: 0, writing: 0, reading: 0 }, stats: {}, log: [], emeralds: 0, notes: [], dogName: '', gifts: {}, bday: 0, lastCheer: '', dog: { collar: 'cerveny', owned: ['cerveny'], coat: 'bily' }, decor: [], streak: { count: 0, best: 0, last: '', totem: 0, days: [] }, outfit: { shirt: 'oranzove', pants: 'modre', shoes: 'sede', hat: 'nic', enchant: 'ne' } }; }
 function load() {
-  try { const s = JSON.parse(localStorage.getItem(KEY)); if (s) { const d = defaults(); return Object.assign(d, s, { rounds: Object.assign(d.rounds, s.rounds || {}), outfit: Object.assign(d.outfit, s.outfit || {}), dog: Object.assign(d.dog, s.dog || {}), streak: Object.assign(d.streak, s.streak || {}) }); } } catch (e) {}
+  try { const s = JSON.parse(localStorage.getItem(KEY)); if (s) { const d = defaults(); return Object.assign(d, s, { rounds: Object.assign(d.rounds, s.rounds || {}), outfit: Object.assign(d.outfit, s.outfit || {}), dog: Object.assign(d.dog, s.dog || {}), gifts: Object.assign(d.gifts, s.gifts || {}), streak: Object.assign(d.streak, s.streak || {}) }); } } catch (e) {}
   return defaults();
 }
 let save = load();
@@ -624,6 +648,8 @@ const painters = {
   planks(g, r) { planks(g, r, ['#b8945f', '#a7834f', '#c39f69'], '#7c5f37'); },
   roof(g, r) { planks(g, r, ['#6b4428', '#5d3a22', '#7a5030'], '#3e2615'); },
   log(g, r) { for (let x = 0; x < 16; x++) for (let y = 0; y < 16; y++) px(g, x, y, x % 5 === 0 || r() < .12 ? '#4a3622' : pick(r, ['#6b5132', '#5a432a', '#7a5e3b'])); },
+  leavesAutumn(g, r) { noise(g, r, ['#d9822b', '#c0602a', '#e8a33c', '#b8481e', '#9a6a2e']); },
+  leavesXmas(g, r) { painters.leaves(g, r); [[2, 3, '#e0402e'], [7, 2, '#f2d024'], [12, 4, '#2f7fd1'], [4, 9, '#f2d024'], [10, 8, '#e0402e'], [6, 13, '#2f7fd1'], [13, 12, '#f2d024']].forEach(([x, y, k]) => px(g, x, y, k)); },
   leaves(g, r) { noise(g, r, ['#3f8a2a', '#357a23', '#4c9c33', '#2c661c', '#24541a']); },
   glass(g, r) {
     g.fillStyle = '#a9dbea'; g.fillRect(0, 0, 16, 16);
@@ -853,7 +879,25 @@ function drawHouse(cv) {
   g.fillStyle = '#fff3a6'; g.fillRect(16 * C, C, 24, 24);
   g.fillStyle = '#ffffff'; g.fillRect(2 * C, 1.5 * C, 40, 10); g.fillRect(2 * C + 10, 1.5 * C - 8, 22, 8); g.fillRect(12 * C, 0.8 * C, 34, 8);
   for (let x = 0; x < W; x++) { g.drawImage(texCanvas('grass'), x * C, 11 * C); g.drawImage(texCanvas('dirt'), x * C, 12 * C); g.drawImage(texCanvas('dirt'), x * C, 13 * C); }
-  for (const [k, t] of houseCells(stage, garden)) { const [x, y] = k.split(',').map(Number); g.drawImage(texCanvas(t), x * C, y * C); }
+  for (const [k, t] of houseCells(stage, garden)) { const [x, y] = k.split(',').map(Number); g.drawImage(texCanvas(seasonTex(t)), x * C, y * C); }
+  snowFx(g, cv.width, cv.height);
+}
+
+// roční období: podzim barví listí, v prosinci svítí na stromech světýlka, v zimě sněží
+function season() { const n = new Date(), m = n.getMonth() + 1, d = n.getDate(); if (m === 12 || (m === 1 && d <= 6)) return 'xmas'; if (m <= 2) return 'winter'; if (m >= 9 && m <= 11) return 'autumn'; return ''; }
+function seasonTex(t) { const se = season(); return t === 'leaves' ? (se === 'autumn' ? 'leavesAutumn' : se === 'xmas' ? 'leavesXmas' : t) : t; }
+function snowFx(g, w, h) {
+  const se = season(); if (se !== 'winter' && se !== 'xmas') return;
+  const img = g.getImageData(0, 0, w, h), D = img.data;
+  const skyAt = y => { const t = Math.min(1, y / 176); return [0x6f + (0xc6 - 0x6f) * t, 0xb2 + (0xe6 - 0xb2) * t, 0xea + (0xf8 - 0xea) * t]; };
+  // čepice sněhu na všem, co je nejvýš v daném sloupci
+  for (let x = 0; x < w; x++) for (let y = 0; y < h; y++) {
+    const i = (y * w + x) * 4, [r, gg, b] = skyAt(y);
+    const bright = D[i] > 235 && D[i + 1] > 230;
+    if (!bright && Math.abs(D[i] - r) + Math.abs(D[i + 1] - gg) + Math.abs(D[i + 2] - b) > 40) { for (let k = Math.max(0, y - 2); k <= y + 1; k++) { const j = (k * w + x) * 4; D[j] = 250; D[j + 1] = 252; D[j + 2] = 255; } break; }
+  }
+  g.putImageData(img, 0, 0);
+  g.fillStyle = '#ffffff'; const r = rng(7); for (let i = 0; i < 40; i++) g.fillRect(Math.floor(r() * w), Math.floor(r() * h * .75), 2, 2);
 }
 
 /* ---------- řeč ---------- */
@@ -1387,15 +1431,40 @@ function spr(name) {
   return sprCache[name] = c;
 }
 function sprIcon(name) { const src = spr(name); const c = document.createElement('canvas'); c.width = src.width; c.height = src.height; c.className = 'px'; c.getContext('2d').drawImage(src, 0, 0); return c; }
+const DOG_COATS = [
+  { id: 'bily', name: 'bílý', w: '#ece8e0', s: '#c9c2b6' },
+  { id: 'hnedy', name: 'hnědý', w: '#9a6a3c', s: '#7a5230' },
+  { id: 'cerny', name: 'černý', w: '#3e3e3e', s: '#262626' },
+  { id: 'zlaty', name: 'zlatý', w: '#e0b06a', s: '#c08f4a' },
+  { id: 'sedy', name: 'šedý', w: '#a0a0a0', s: '#7c7c7c' },
+  { id: 'strakaty', name: 'strakatý', w: '#ece8e0', s: '#c9c2b6', spots: '#7a5230' },
+];
+// jména k výběru; SAM, LOLA a MIA si Adam už přečte sám
+const DOG_NAMES = ['Sam', 'Lola', 'Mia', 'Max', 'Rex', 'Alík', 'Ben', 'Brok', 'Luna', 'Fík'];
+function openDog() {
+  if (!hasDog()) { audio(); speak('Pejsek k tobě přiběhne, až dostavíš dům.'); return; }
+  audio(); renderDog(); $('#dogOverlay').hidden = false;
+  speak(`Tvůj pejsek${dogName() ? ' ' + dogName() : ''}. Vyber mu jméno a barvu.`);
+}
+function renderDog() {
+  const pv = $('#dogPreview'); pv.innerHTML = ''; pv.appendChild(dogCanvas());
+  $('#dogTitle').textContent = dogName() || 'Tvůj pejsek';
+  const names = $('#dogNames'); names.innerHTML = '';
+  DOG_NAMES.forEach(n => { const b = document.createElement('button'); b.className = 'gbtn'; b.textContent = n; b.setAttribute('aria-pressed', String(dogName() === n)); b.addEventListener('click', () => { save.dogName = n; persist(); renderDog(); bark(); retrigger($('#dogPreview'), 'happy'); speak(n); }); names.appendChild(b); });
+  const coats = $('#dogCoats'); coats.innerHTML = '';
+  DOG_COATS.forEach(k => { const b = document.createElement('button'); b.className = 'swatch'; b.setAttribute('aria-label', k.name + ' pejsek'); b.setAttribute('aria-pressed', String((save.dog.coat || 'bily') === k.id)); const keep = save.dog.coat; save.dog.coat = k.id; b.appendChild(dogCanvas()); save.dog.coat = keep; b.addEventListener('click', () => { save.dog.coat = k.id; persist(); renderDog(); bark(); speak(`${k.name} pejsek`); }); coats.appendChild(b); });
+}
 function dogCanvas() {
   const col = (COLLARS.find(c => c.id === save.dog.collar) || COLLARS[0]).c;
   const c = document.createElement('canvas'); c.width = 16; c.height = 12; c.className = 'px';
   const g = c.getContext('2d'); const R = (x, y, w, h, k) => { g.fillStyle = k; g.fillRect(x, y, w, h); };
-  const w = '#ece8e0', s = '#c9c2b6', d = '#2b2b2b';
+  const coat = DOG_COATS.find(k => k.id === save.dog.coat) || DOG_COATS[0];
+  const w = coat.w, s = coat.s, d = '#2b2b2b';
   R(0, 2, 2, 1, w); R(1, 3, 2, 2, w);
   R(2, 4, 9, 4, w); R(2, 7, 9, 1, s);
   R(2, 8, 2, 4, w); R(4, 8, 1, 4, s); R(8, 8, 1, 4, s); R(9, 8, 2, 4, w);
   R(10, 1, 5, 5, w); R(10, 0, 2, 2, s); R(14, 3, 2, 2, '#ddd7cb'); R(15, 3, 1, 1, d); R(12, 2, 1, 1, d);
+  if (coat.spots) { R(4, 4, 3, 2, coat.spots); R(8, 6, 2, 2, coat.spots); R(10, 0, 2, 2, coat.spots); R(12, 1, 2, 1, coat.spots); }
   R(10, 4, 1, 3, col); R(11, 6, 1, 1, col);
   return c;
 }
@@ -1430,7 +1499,7 @@ function drawFarm(cv) {
   g.fillStyle = '#fff3a6'; g.fillRect(21 * C, C, 24, 24);
   g.fillStyle = '#ffffff'; g.fillRect(9 * C, 1.5 * C, 40, 10); g.fillRect(9 * C + 10, 1.5 * C - 8, 22, 8); g.fillRect(15 * C, 0.8 * C, 34, 8);
   const fs = farmStage();
-  const cell = (t, x, y) => g.drawImage(texCanvas(t), x * C, y * C);
+  const cell = (t, x, y) => g.drawImage(texCanvas(seasonTex(t)), x * C, y * C);
   for (let x = 0; x < W; x++) { cell('grass', x, 11); cell('dirt', x, 12); cell('dirt', x, 13); }
   if (fs >= 3) for (let x = 6; x <= 9; x++) cell('farmland', x, 11);
   if (fs >= 5) for (let x = 10; x <= 13; x++) cell('farmland', x, 11);
@@ -1449,6 +1518,7 @@ function drawFarm(cv) {
   if (save.decor.includes('prase')) at('pig', 23, 10);
   if (save.decor.includes('kocka')) at('cat', 3, fs >= 4 ? 7 : 10);
   if (fs >= 1) g.drawImage(dogCanvas(), 1 * C, 11 * C - 12);
+  snowFx(g, cv.width, cv.height);
 }
 function fitCanvas(cv) {
   requestAnimationFrame(() => { const box = cv.parentElement; const s = Math.max(.5, Math.floor(Math.min(box.clientWidth / cv.width, (box.clientHeight - 8) / cv.height) * 4) / 4); cv.style.width = cv.width * s + 'px'; cv.style.height = cv.height * s + 'px'; });
@@ -1585,6 +1655,9 @@ const FAMILY = [
   { id: 'bob', name: 'děda Bob', f: false, hair: '#d6d6d6', top: '#7a5230', beard: true },
   { id: 'iva', name: 'babička Iva', f: true, hair: '#b8b2aa', long: false, top: '#3f9b3a' },
   { id: 'marek', name: 'děda Marek', f: false, hair: '#9a9a9a', top: '#c0392b', glasses: true, bald: true },
+  { id: 'david', name: 'brácha Davídek', f: false, hair: '#8a5a2e', top: '#e0b324', small: true,
+    cheers: ['Bráško, ty jsi nejlepší!', 'Hurá! Adame, to je paráda!', 'Já taky chci kopat jako ty!', 'Bráško, naučíš to i mě?'],
+    enc: ['Bráško, to nevadí. Zkus to znovu!', 'Adame, já ti fandím!'] },
 ];
 const fam = id => FAMILY.find(p => p.id === id);
 const g2 = (p, f, m) => p.f ? f : m;
@@ -1597,6 +1670,7 @@ function famCanvas(p) {
   R(4, 3, 8, 8, S);
   if (p.bald) { R(4, 4, 1, 3, p.hair); R(11, 4, 1, 3, p.hair); } else { R(4, 2, 8, 2, p.hair); R(4, 4, 1, 2, p.hair); R(11, 4, 1, 2, p.hair); }
   if (!p.long && p.f) { R(6, 0, 4, 2, p.hair); } // drdol
+  if (p.small) { R(5, 4, 3, 1, p.hair); R(9, 8, 1, 1, '#e8a0a0'); R(6, 8, 1, 1, '#e8a0a0'); } // ofina a tvářičky
   R(6, 6, 1, 1, '#2b2b2b'); R(9, 6, 1, 1, '#2b2b2b');
   if (p.glasses) { [4, 8].forEach(x => { const G = '#3a3a3a'; R(x, 5, 4, 1, G); R(x, 8, 4, 1, G); R(x, 5, 1, 4, G); R(x + 3, 5, 1, 4, G); R(x + 1, 6, 2, 2, '#d8eef8'); }); R(6, 6, 1, 1, '#2b2b2b'); R(9, 6, 1, 1, '#2b2b2b'); } // obroučky brýlí
   if (p.beard) { R(5, 9, 6, 2, p.hair); R(6, 8, 4, 1, p.hair); }
@@ -1612,6 +1686,7 @@ const CHEERS = [
   p => `Tohle bych líp ${g2(p, 'nezvládla', 'nezvládl')} ani já!`,
   p => 'Jen tak dál, Adame! Fandím ti.',
   p => 'Paráda! Až se uvidíme, dáme si plácnutí!',
+  p => 'Jsi nejlepší horník v celém Přerově!',
 ];
 const ENCOURAGE = [
   p => 'Nevadí, Adame. Zkus to znovu, fandím ti!',
@@ -1622,10 +1697,29 @@ const ENCOURAGE = [
 function pickPerson() { const opts = FAMILY.filter(p => p.id !== save.lastCheer); const p = pick(Math.random, opts); save.lastCheer = p.id; return p; }
 // kdo dnes fandí: každý den někdo jiný, podle data
 function todaysFan() { const n = dayNum(dayStr()); return FAMILY[((n % FAMILY.length) + FAMILY.length) % FAMILY.length]; }
+// české svátky a rodinná výročí; dárek smaragdů jednou za rok
+function easterMonday(y) {
+  const a = y % 19, b = Math.floor(y / 100), c = y % 100, d = Math.floor(b / 4), e = b % 4, f = Math.floor((b + 8) / 25), g = Math.floor((b - f + 1) / 3);
+  const h = (19 * a + b - d - g + 15) % 30, i = Math.floor(c / 4), k = c % 4, l = (32 + 2 * e + 2 * i - h - k) % 7, m = Math.floor((a + 11 * h + 22 * l) / 451);
+  const month = Math.floor((h + l - 7 * m + 114) / 31), day = ((h + l - 7 * m + 114) % 31) + 1;
+  return dayStr(new Date(y, month - 1, day + 1));
+}
+function holiday() {
+  const now = new Date(), md = dayStr().slice(5), y = now.getFullYear();
+  if (md === '06-17') return { id: 'narozeniny', all: true, gift: 20, text: 'Všechno nejlepší k narozeninám, Adame!' }; // Adam *17. 6. 2020
+  if (md === '12-24') return { id: 'vanoce', all: true, gift: 20, text: 'Veselé Vánoce, Adame! A dnes máš i svátek, protože Adam a Eva slaví na Štědrý den.' };
+  if (md === '12-05') return { id: 'mikulas', all: true, gift: 5, text: 'Dnes večer chodí Mikuláš, čert a anděl! Byl jsi hodný, tak dostáváš smaragdy.' };
+  if (md === '06-01') return { id: 'den-deti', all: true, gift: 10, text: 'Šťastný Den dětí, Adame!' };
+  if (md === '01-01') return { id: 'novy-rok', all: true, gift: 5, text: 'Šťastný nový rok, Adame!' };
+  if (md === '06-04') return { id: 'david-narozeniny', who: 'david', text: 'Dnes má narozeniny brácha Davídek! Popřej mu všechno nejlepší.' }; // David *4. 6. 2023
+  if (md === '12-30') return { id: 'david-svatek', who: 'david', text: 'Dnes má svátek brácha Davídek! Popřej mu.' };
+  if (dayStr() === easterMonday(y)) return { id: 'velikonoce', all: true, gift: 5, text: 'Veselé Velikonoce! Hody, hody, doprovody, dejte vejce malovaný.' };
+  return null;
+}
 const isBirthday = () => dayStr().slice(5) === '06-17'; // Adam má narozeniny 17. 6.
 function showCheer(people, text) {
   const el = $('#cheer'); el.innerHTML = '';
-  const faces = document.createElement('div'); faces.className = 'faces'; people.forEach(p => faces.appendChild(famCanvas(p))); el.appendChild(faces);
+  const faces = document.createElement('div'); faces.className = 'faces' + (people.length > 2 ? ' many' : ''); people.forEach(p => faces.appendChild(famCanvas(p))); el.appendChild(faces);
   const b = document.createElement('div'); b.className = 'bubble';
   b.innerHTML = `<b>${people.length > 1 ? 'celá rodina' : people[0].name}</b>`; b.append(text); el.appendChild(b);
 }
@@ -1636,19 +1730,20 @@ function cheerFor(ok, milestone) {
     if (note) { const p = fam(note.who); note.done = true; persist(); showCheer([p], note.text); return `Vzkaz od ${p.name.replace(/^(máma|táta|babička|děda) /, (m, w) => ({ máma: 'mámy', táta: 'táty', babička: 'babičky', děda: 'dědy' })[w] + ' ')}: ${note.text}`; }
     if (milestone) { showCheer(FAMILY, milestone); return `Celá rodina ti gratuluje! ${milestone}`; }
   }
-  const p = pickPerson(); const line = pick(Math.random, ok ? CHEERS : ENCOURAGE)(p);
+  const p = pickPerson(); const own = ok ? p.cheers : p.enc; const line = own && Math.random() < .7 ? pick(Math.random, own) : pick(Math.random, ok ? CHEERS : ENCOURAGE)(p);
   showCheer([p], line); persist();
   return `${p.name[0].toUpperCase() + p.name.slice(1)} říká: ${line}`;
 }
 function renderFan(wrap) {
-  const bday = isBirthday(), year = new Date().getFullYear();
-  if (bday && save.bday !== year) { save.bday = year; save.emeralds += 20; persist(); updateGems(); }
+  const h = holiday(), year = new Date().getFullYear();
+  let gift = 0;
+  if (h && h.gift && save.gifts[h.id] !== year) { save.gifts[h.id] = year; save.emeralds += h.gift; gift = h.gift; persist(); updateGems(); }
   const b = document.createElement('button'); b.className = 'fan';
   const faces = document.createElement('div'); faces.className = 'cheer'; faces.style.margin = 0;
-  const people = bday ? FAMILY : [todaysFan()];
-  const fc = document.createElement('div'); fc.className = 'faces'; people.forEach(p => fc.appendChild(famCanvas(p))); faces.appendChild(fc);
-  const text = bday ? 'Všechno nejlepší k narozeninám, Adame! Od nás dostáváš 20 smaragdů.' : `Dneska ti fandí ${people[0].name}. Ahoj Adame, zahraj si!`;
-  const bb = document.createElement('div'); bb.className = 'bubble'; bb.innerHTML = `<b>${bday ? 'celá rodina' : people[0].name}</b>`; bb.append(text); faces.appendChild(bb);
+  const people = h ? (h.all ? FAMILY : [fam(h.who)]) : [todaysFan()];
+  const fc = document.createElement('div'); fc.className = 'faces' + (people.length > 2 ? ' many' : ''); people.forEach(p => fc.appendChild(famCanvas(p))); faces.appendChild(fc);
+  const text = h ? h.text + (gift ? ` Dárek od nás: ${gift} ${gemWord(gift)}.` : '') : `Dneska ti fandí ${people[0].name}. Ahoj Adame, zahraj si!`;
+  const bb = document.createElement('div'); bb.className = 'bubble'; bb.innerHTML = `<b>${people.length > 1 ? 'celá rodina' : people[0].name}</b>`; bb.append(text); faces.appendChild(bb);
   b.appendChild(faces); b.setAttribute('aria-label', text);
   b.addEventListener('click', () => { audio(); speak(text); });
   wrap.appendChild(b);
@@ -1965,7 +2060,7 @@ function endRound() {
   sfx.fanfare(); if (newTier || perfect) sfx.sparkle();
   if (st === FARM_START + 1) bark();
   const dn = dogName();
-  const story = st === FARM_START ? ' Dům je hotový! Příště začneš stavět farmu.' : st === FARM_START + 1 ? ` Přiběhl k tobě pejsek${dn ? ' ' + dn : ''}! Je tvůj a bude s tebou kopat.` : st === FARM_START + FARM_STAGES.length ? ' Farma je hotová!' : '';
+  const story = st === FARM_START ? ' Dům je hotový! Příště začneš stavět farmu.' : st === FARM_START + 1 ? ` Přiběhl k tobě pejsek${dn ? ' ' + dn : ''}! Je tvůj a bude s tebou kopat. Na úvodní obrazovce na něj klepni a vyber mu jméno a barvu.` : st === FARM_START + FARM_STAGES.length ? ' Farma je hotová!' : '';
   const milestone = st === FARM_START ? 'Dostavěl jsi dům, gratulujeme!' : st === FARM_START + FARM_STAGES.length ? 'Farma je hotová, jsme na tebe moc pyšní!' : (day && day.count === 7) ? 'Sedm dní v řadě, to je výkon!' : (day && day.count > 0 && day.count % 30 === 0) ? `${day.count} dní v řadě! Jsme na tebe pyšní.` : '';
   const cheer = cheerFor(true, milestone);
   const dayTalk = day ? (day.usedTotem ? ` Totem zachránil tvou řadu!` : '') + (day.count > 1 ? ` Hraješ ${day.count} ${dayWord(day.count)} v řadě, bonus ${day.bonus} ${gemWord(day.bonus)}.` : ` Dnešní den se počítá do řady, bonus ${day.bonus} ${gemWord(day.bonus)}.`) : '';
@@ -2032,11 +2127,15 @@ $('#btnStreakClose').addEventListener('click', () => { $('#streakOverlay').hidde
 $('#btnFarmShop').addEventListener('click', openShop);
 $('#btnFarmShop').appendChild(sprIcon('emerald'));
 $('#heroPlayer').addEventListener('click', openWardrobe);
+$('#heroDog').addEventListener('click', openDog);
+$('#shopDog').addEventListener('click', openDog);
+$('#btnDogClose').addEventListener('click', () => { $('#dogOverlay').hidden = true; renderHome(); });
 $('#btnListen').addEventListener('click', () => { audio(); if (R && R.say && !R.busy) speak(R.say); });
 $('#btnAgain').addEventListener('click', () => { const lv = $('#endOverlay').dataset.level; $('#endOverlay').hidden = true; startRound(lv); });
 $('#btnEndHouse').addEventListener('click', () => { $('#endOverlay').hidden = true; openHouse(); });
 $('#btnEndHome').addEventListener('click', goHome);
 
+if (season() === 'winter' || season() === 'xmas') document.body.classList.add('winter');
 paintTextures();
 renderHome();
 })();
