@@ -595,6 +595,7 @@ canvas.ench { animation: ench 1.8s ease-in-out infinite; }
     <div class="newpick" id="newVillage" hidden></div>
     <div class="newpick" id="newNether" hidden></div>
     <div class="newpick" id="newCards" hidden></div>
+    <div class="newpick" id="newBaby" hidden></div>
     <canvas class="end-house px" id="endHouse"></canvas>
     <div class="end-bottom">
     <div class="rate" id="rateBox"><p>Jak tě to bavilo?</p><div class="rate-row" id="rateRow"></div></div>
@@ -710,7 +711,7 @@ let R = null; // běžící kolo
 
 /* ---------- uložený postup ---------- */
 const KEY = 'adamuv-dul-v1';
-function defaults() { return { caseMode: 'both', slow: false, strict: 'normal', total: 0, rounds: { letters: 0, syllables: 0, words: 0, numbers: 0, math: 0, writing: 0, reading: 0 }, stats: {}, log: [], ench: [], emeralds: 0, notes: [], dogName: '', gifts: {}, bday: 0, lastCheer: '', village: null, obsidian: null, netherMine: false, cards: null, seenVersion: 0, gameName: 'Adamův důl', dog: { collar: 'cerveny', owned: ['cerveny'], coat: 'bily' }, decor: [], streak: { count: 0, best: 0, last: '', totem: 0, days: [] }, outfit: { shirt: 'oranzove', pants: 'modre', shoes: 'sede', hat: 'nic', enchant: 'ne' } }; }
+function defaults() { return { caseMode: 'both', slow: false, strict: 'normal', total: 0, rounds: { letters: 0, syllables: 0, words: 0, numbers: 0, math: 0, writing: 0, reading: 0 }, stats: {}, log: [], ench: [], emeralds: 0, notes: [], dogName: '', gifts: {}, bday: 0, lastCheer: '', village: null, obsidian: null, netherMine: false, cards: null, weeks: null, babies: null, seenVersion: 0, gameName: 'Adamův důl', dog: { collar: 'cerveny', owned: ['cerveny'], coat: 'bily' }, decor: [], streak: { count: 0, best: 0, last: '', totem: 0, days: [] }, outfit: { shirt: 'oranzove', pants: 'modre', shoes: 'sede', hat: 'nic', enchant: 'ne' } }; }
 function load() {
   try { const s = JSON.parse(localStorage.getItem(KEY)); if (s) { const d = defaults(); return Object.assign(d, s, { rounds: Object.assign(d.rounds, s.rounds || {}), outfit: Object.assign(d.outfit, s.outfit || {}), dog: Object.assign(d.dog, s.dog || {}), gifts: Object.assign(d.gifts, s.gifts || {}), streak: Object.assign(d.streak, s.streak || {}) }); } } catch (e) {}
   return defaults();
@@ -1040,8 +1041,9 @@ function loadVoices() {
   if (!synth) return;
   const vs = synth.getVoices();
   if (vs.length) voicesKnown = true;
-  const cs = vs.filter(v => /^cs/i.test(v.lang));
-  csVoice = cs.find(v => /zuzana|google/i.test(v.name)) || cs[0] || null;
+  const cs = vs.filter(v => /^cs([-_]|$)/i.test(v.lang));
+  // přednost má hlas uložený v tabletu (funguje i bez internetu), pak Google nebo Zuzana
+  csVoice = cs.find(v => v.localService && /google|zuzana/i.test(v.name)) || cs.find(v => /zuzana|google/i.test(v.name)) || cs.find(v => v.localService) || cs[0] || null;
   updateVoiceInfo(); updateHint();
 }
 if (synth) { loadVoices(); synth.addEventListener ? synth.addEventListener('voiceschanged', loadVoices) : (synth.onvoiceschanged = loadVoices); }
@@ -1055,7 +1057,9 @@ function speak(text, onend) {
   setTimeout(() => {
     if (id !== speechId) return;
     const u = new SpeechSynthesisUtterance(text);
-    u.lang = 'cs-CZ'; if (csVoice) u.voice = csVoice;
+    // hlasy se v tabletu načítají se zpožděním; bez českého hlasu by tablet četl anglicky ("me" jako "mí")
+    if (!csVoice) loadVoices();
+    u.lang = 'cs-CZ'; if (csVoice) { u.voice = csVoice; u.lang = csVoice.lang.replace('_', '-'); }
     u.rate = save.slow ? 0.62 : 0.85; u.pitch = 1.05;
     u.onend = fin; u.onerror = fin;
     $('#btnListen').classList.add('talking');
@@ -1315,7 +1319,7 @@ function genWords() {
   const avoid = R.recent.slice(-4);
   const w = weightedPick(WORDS.filter(x => x.length <= maxLen && !avoid.includes(x)), x => weight('words', x));
   const others = WORDS.filter(x => x !== w).map(x => [x, lev(w, x) + Math.random() * 1.5]).sort((a, b) => a[1] - b[1]).slice(0, choiceCount('words') - 1).map(x => x[0]);
-  return { answer: w, choices: shuffle([w, ...others]), say: w.toLocaleLowerCase('cs'), stat: 'words:' + w, key: w };
+  return { answer: w, choices: shuffle([w, ...others]), say: inCzech('Slovo', w), stat: 'words:' + w, key: w };
 }
 
 /* ---------- čtení: slovo a obrázek ---------- */
@@ -1364,7 +1368,9 @@ const LEVELS = {
   math: { name: 'Počty', tex: 'lapisOre', gen: genMath, sample: ['2+3'], small: true, intro: 'Spočítej příklad a kopej do správného výsledku.' },
   writing: { name: 'Psaní', tex: 'redstoneOre', trace: genWriting, len: 5, sample: ['1 A'], intro: 'Jeď prstem po dráze a nevyjeď z ní. Začni u zelené tečky a jeď po šipce.' },
 };
-function sayText(level, it) { return level === 'letters' ? SAY_LETTER[it] : it.toLocaleLowerCase('cs'); }
+// slabiky a slova v krátké české větě: samotné "me", "so", "sum" čte český hlas jako anglická slova (mí, sou, sam)
+const inCzech = (kind, t) => `${kind} ${t.toLocaleLowerCase('cs')}.`;
+function sayText(level, it) { return level === 'letters' ? SAY_LETTER[it] : inCzech('Slabika', it); }
 // dvě kostky, které znějí stejně (I a Y, Ú a Ů), nesmí být v jednom úkolu
 function conflict(level, a, b) {
   if (level === 'letters') return (SAME_SOUND[a] || a) === (SAME_SOUND[b] || b);
@@ -1668,6 +1674,7 @@ function drawFarm(cv) {
   if (save.decor.includes('prase')) at('pig', 23, 10);
   if (save.decor.includes('kocka')) at('cat', 3, fs >= 4 ? 7 : 10);
   if (fs >= 1) g.drawImage(dogCanvas(), 1 * C, 11 * C - 12);
+  (save.babies || []).forEach(id => { const b = BABIES.find(x => x.id === id); if (b) g.drawImage(babyCanvas(b), Math.round(b.x * C), 11 * C - 10); });
   snowFx(g, cv.width, cv.height);
 }
 function fitCanvas(cv) {
@@ -1762,8 +1769,12 @@ function registerDay() {
   st.last = today; st.best = Math.max(st.best, st.count);
   st.days = [...st.days.filter(d => dayNum(today) - dayNum(d) < 60), today];
   const bonus = Math.min(st.count, STREAK_BONUS_MAX);
-  save.emeralds += bonus; save.obsidian = (save.obsidian || 0) + 1; persist();
-  return { count: st.count, bonus, usedTotem, prevBest, obsidian: save.obsidian };
+  save.emeralds += bonus; save.obsidian = (save.obsidian || 0) + 1;
+  const wk = weekKey(today); save.weeks[wk] = (save.weeks[wk] || 0) + 1;
+  let baby = null;
+  if (save.weeks[wk] === BABY_DAYS && save.babies.length < BABIES.length) { baby = BABIES[save.babies.length]; save.babies.push(baby.id); }
+  persist();
+  return { count: st.count, bonus, usedTotem, prevBest, obsidian: save.obsidian, baby, weekDays: save.weeks[wk] };
 }
 function renderStreakBtn() {
   const b = $('#btnStreak'); const n = streakNow();
@@ -1790,6 +1801,8 @@ function openStreak() {
   line(sprIcon('emerald'), `Za první povedené kolo dne dostaneš tolik smaragdů, kolik dní máš v řadě (nejvíc ${STREAK_BONUS_MAX}).`);
   const crown = OUTFIT.hat.find(h => h.id === 'koruna');
   line(outfitIcon('hat', crown), st.best >= crown.streak ? 'Královskou korunu už máš v šatníku.' : `Za ${crown.streak} dní v řadě dostaneš královskou korunu.`);
+  const wd = (save.weeks || {})[weekKey(dayStr())] || 0, nextBaby = BABIES[(save.babies || []).length];
+  if (nextBaby) { const bc = babyCanvas(nextBaby); line(bc, wd >= BABY_DAYS ? 'Tento týden už mládě máš. Další týden můžeš mít další.' : `Tento týden máš ${wd} z ${BABY_DAYS} dní. Pak se na farmě narodí ${nextBaby.name}.`); }
   line(sprIcon('totem'), st.totem > 0 ? (n.saved ? 'Včera jsi nehrál, ale totem tvou řadu zachrání, když dnes zahraješ.' : 'Máš totem. Když jeden den vynecháš, řada nespadne.') : `Totem z obchodu (${TOTEM_PRICE} smaragdů) zachrání řadu, když jeden den vynecháš.`);
   if (st.best) line(null, `Nejdelší řada: ${st.best} ${dayWord(st.best)}.`);
   $('#streakOverlay').hidden = false;
@@ -2160,15 +2173,37 @@ function openAlbum() {
   const grid = $('#albumGrid'); grid.innerHTML = '';
   all.forEach(w => {
     const open = save.cards.includes(w), el = cardEl(w, open);
-    el.addEventListener('click', () => { audio(); if (open) { speak(w.toLocaleLowerCase('cs')); retrigger(el, 'hit'); } else speak('Tuhle kartičku ještě nemáš. Zvládni další slova v patře Slova nebo Čtení.'); });
+    el.addEventListener('click', () => { audio(); if (open) { speak(inCzech('Slovo', w)); retrigger(el, 'hit'); } else speak('Tuhle kartičku ještě nemáš. Zvládni další slova v patře Slova nebo Čtení.'); });
     grid.appendChild(el);
   });
   speak(`Tvoje sbírka. Máš ${have.length} kartiček z ${all.length}.`);
 }
 
+/* ---------- mláďata na farmě: za každý týden, kdy Adam hraje aspoň 4 dny ---------- */
+const BABY_DAYS = 4; // kolik dní v jednom týdnu (pondělí až neděle) je potřeba na mládě
+const BABIES = [
+  { id: 'kure', name: 'kuřátko', x: 15.3, draw: R => { R(3, 2, 6, 6, '#f2d024'); R(9, 4, 2, 1, '#e8862a'); R(7, 3, 1, 1, '#222222'); R(4, 8, 1, 2, '#e8862a'); R(7, 8, 1, 2, '#e8862a'); } },
+  { id: 'jehne', name: 'jehňátko', x: 19.9, draw: R => { R(1, 2, 8, 5, '#f4f4f4'); R(8, 1, 3, 4, '#e8d8c0'); R(9, 2, 1, 1, '#222222'); [2, 4, 6].forEach(x => R(x, 7, 1, 3, '#e8d8c0')); } },
+  { id: 'tele', name: 'telátko', x: 22.6, draw: R => { R(1, 2, 8, 5, '#6a4a32'); R(3, 3, 2, 2, '#f0f0f0'); R(8, 1, 3, 4, '#6a4a32'); R(10, 3, 2, 2, '#e0b8a0'); R(9, 2, 1, 1, '#111111'); [2, 4, 7].forEach(x => R(x, 7, 1, 3, '#6a4a32')); } },
+  { id: 'sele', name: 'selátko', x: 13.2, draw: R => { R(1, 3, 8, 5, '#f4b8c0'); R(8, 2, 3, 4, '#f4b8c0'); R(10, 4, 2, 2, '#e08890'); R(9, 3, 1, 1, '#222222'); R(2, 8, 1, 2, '#e08890'); R(6, 8, 1, 2, '#e08890'); } },
+  { id: 'stene', name: 'štěňátko', x: 0.2, draw: R => { const k = DOG_COATS.find(c => c.id === save.dog.coat) || DOG_COATS[0]; R(1, 3, 7, 4, k.w); R(7, 1, 4, 4, k.w); R(7, 0, 1, 2, k.s); R(9, 2, 1, 1, '#222222'); R(10, 3, 1, 1, '#222222'); R(0, 2, 1, 2, k.w); R(2, 7, 1, 3, k.w); R(6, 7, 1, 3, k.w); } },
+  { id: 'kote', name: 'koťátko', x: 4.7, draw: R => { R(2, 4, 6, 4, '#e8963c'); R(7, 2, 4, 4, '#e8963c'); R(7, 1, 1, 1, '#e8963c'); R(10, 1, 1, 1, '#e8963c'); R(8, 3, 1, 1, '#3c9b3a'); R(10, 3, 1, 1, '#3c9b3a'); R(0, 2, 1, 3, '#e8963c'); R(3, 8, 1, 2, '#c8762c'); R(6, 8, 1, 2, '#c8762c'); } },
+  { id: 'kralik', name: 'králíček', x: 9.6, draw: R => { R(2, 4, 6, 4, '#d8d8d8'); R(7, 3, 3, 3, '#d8d8d8'); R(8, 0, 1, 3, '#d8d8d8'); R(9, 0, 1, 3, '#e8b0b8'); R(9, 4, 1, 1, '#222222'); R(1, 5, 1, 1, '#ffffff'); R(3, 8, 2, 2, '#c8c8c8'); R(6, 8, 2, 2, '#c8c8c8'); } },
+  { id: 'kachne', name: 'kachňátko', x: 11.4, draw: R => { R(3, 3, 6, 5, '#f8e060'); R(7, 1, 3, 3, '#f8e060'); R(10, 2, 2, 1, '#e8862a'); R(8, 2, 1, 1, '#222222'); R(4, 8, 1, 2, '#e8862a'); R(7, 8, 1, 2, '#e8862a'); } },
+];
+function weekKey(ds) { const [y, m, d] = ds.split('-').map(Number); const dt = new Date(y, m - 1, d); dt.setDate(d - ((dt.getDay() + 6) % 7)); return dayStr(dt); } // pondělí daného týdne
+function babyCanvas(b) { const c = document.createElement('canvas'); c.width = 12; c.height = 10; c.className = 'px'; const g = c.getContext('2d'); b.draw((x, y, w, h, k) => { g.fillStyle = k; g.fillRect(x, y, w, h); }); return c; }
+// mláďata za týdny odehrané před touto novinkou (ze záznamu dní, nejvýš 60 dní zpět)
+function initBabies() {
+  save.weeks = {}; save.babies = [];
+  save.streak.days.forEach(d => { const k = weekKey(d); save.weeks[k] = (save.weeks[k] || 0) + 1; });
+  Object.keys(save.weeks).sort().forEach(k => { if (save.weeks[k] >= BABY_DAYS && save.babies.length < BABIES.length) save.babies.push(BABIES[save.babies.length].id); });
+  persist();
+}
+
 /* ---------- verze hry a aktualizace ---------- */
 // Při každé úpravě hry zvýšit APP_VERSION a do version.json přidat záznam se stejným číslem (co je nového, pro Adama).
-const APP_VERSION = 10;
+const APP_VERSION = 13;
 /* ---------- název hry, který si vybral Adam ---------- */
 // jen názvy bez háčků: pixelové písmo háčky neumí (č, ě, ř, š, ž vypadají jako s tečkou)
 const GAME_NAMES = ['Adamův důl', 'Adamcraft', 'Adamovo království', 'Adamova farma', 'Adamův hrad'];
@@ -2531,7 +2566,7 @@ function endRound() {
     // nepovedené kolo se nepočítá: nic neroste, nic se neodemyká, obtížnost se nezvedá (smaragdy za kostky bez chyby zůstanou)
     title.textContent = 'Skoro!'; title.classList.add('fail');
     $('#endLine').textContent = `Bez chyby: ${R.clean} z ${R.len}. ${building ? 'Dům vyroste' : 'Farma vyroste'}, když jich bude aspoň ${need}.`;
-    np.hidden = true; no.hidden = true; $('#newNether').hidden = true;
+    np.hidden = true; no.hidden = true; $('#newNether').hidden = true; $('#newBaby').hidden = true;
     setBtn($('#btnAgain'), 'retry', 'Zkusit znovu');
     (building ? drawHouse : drawFarm)($('#endHouse'));
     const got = R.clean, R_len = R.len;
@@ -2551,6 +2586,9 @@ function endRound() {
   save.total++; save.rounds[level]++; persist();
   const day = registerDay();
   if (day) showGems(day.bonus);
+  const nb = $('#newBaby'); let babyTalk = '';
+  if (day && day.baby) { nb.hidden = false; nb.innerHTML = ''; const bc = babyCanvas(day.baby); bc.style.width = '48px'; bc.style.height = '40px'; nb.appendChild(bc); nb.insertAdjacentHTML('beforeend', `<span>Tento týden jsi hrál ${BABY_DAYS} dny. Na farmě se narodilo ${day.baby.name}!</span>`); babyTalk = ` Tento týden jsi hrál už ${BABY_DAYS} dny, a tak se na farmě narodilo ${day.baby.name}!`; }
+  else nb.hidden = true;
   const nn = $('#newNether'); let netherTalk = '';
   if (day) {
     nn.hidden = false; nn.innerHTML = ''; nn.appendChild(sprIcon('portalIcon'));
@@ -2580,7 +2618,7 @@ function endRound() {
   const milestone = st === FARM_START ? 'Dostavěl jsi dům, gratulujeme!' : st === FARM_START + FARM_STAGES.length ? 'Farma je hotová, jsme na tebe moc pyšní!' : (day && day.count === 7) ? 'Sedm dní v řadě, to je výkon!' : (day && day.count > 0 && day.count % 30 === 0) ? `${day.count} dní v řadě! Jsme na tebe pyšní.` : '';
   const cheer = cheerFor(true, milestone);
   const dayTalk = day ? (day.usedTotem ? ` Totem zachránil tvou řadu!` : '') + (day.count > 1 ? ` Hraješ ${day.count} ${dayWord(day.count)} v řadě, bonus ${day.bonus} ${gemWord(day.bonus)}.` : ` Dnešní den se počítá do řady, bonus ${day.bonus} ${gemWord(day.bonus)}.`) : '';
-  speak((perfect ? 'Bez jediné chyby! ' : '') + cheer + (newTier ? ` Máš nový ${after.name} krumpáč!` : '') + story + dayTalk + netherTalk + enchTalk + vilTalk + cardTalk + (fresh.length ? ` V šatníku máš ${fresh.map(([, it]) => it.name).join(' a ')}.` : ''));
+  speak((perfect ? 'Bez jediné chyby! ' : '') + cheer + (newTier ? ` Máš nový ${after.name} krumpáč!` : '') + story + dayTalk + netherTalk + babyTalk + enchTalk + vilTalk + cardTalk + (fresh.length ? ` V šatníku máš ${fresh.map(([, it]) => it.name).join(' a ')}.` : ''));
   $('#btnAgain').focus({ preventScroll: true });
 }
 function goHome() {
@@ -2662,6 +2700,7 @@ if (season() === 'winter' || season() === 'xmas') document.body.classList.add('w
 iconizeButtons();
 applyName();
 if (save.obsidian === null || save.obsidian === undefined) save.obsidian = save.streak.days.length; // obsidián i za dny odehrané před portálem
+if (!save.babies) initBabies();
 if (!save.cards) { save.cards = []; checkCards(true); } // kartičky za už zvládnutá slova
 if (!save.village) { save.village = {}; checkVillage(true); } // vesnice začíná podle toho, co už Adam umí
 checkEnchants(); // očarování za už zvládnuté úkoly

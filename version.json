@@ -1,6 +1,28 @@
 {
-  "version": 10,
+  "version": 13,
   "changes": [
+    {
+      "version": 13,
+      "date": "2026-10-19",
+      "notes": [
+        "Hlas teď říká slabiku a slovo v krátké větě, třeba slabika me, aby je četl česky."
+      ]
+    },
+    {
+      "version": 12,
+      "date": "2026-10-19",
+      "notes": [
+        "Hlas si hned po spuštění najde češtinu, aby slabiky četl česky."
+      ]
+    },
+    {
+      "version": 11,
+      "date": "2026-10-19",
+      "notes": [
+        "Mláďata na farmě! Když v jednom týdnu zahraješ aspoň 4 dny, narodí se nové mládě.",
+        "Kolik dní ti tento týden chybí, uvidíš po klepnutí na táborák."
+      ]
+    },
     {
       "version": 10,
       "date": "2026-10-19",

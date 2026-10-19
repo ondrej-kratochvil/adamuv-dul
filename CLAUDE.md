@@ -19,6 +19,8 @@ přidej i odměny, aby Adam nedošel na strop dřív, než dojde obsah.
   Nová slova ve `WORDS` přidají kartičky sama; slova s obrázkem v `PIC` mají kartičku s obrázkem.
 - **Portál do Netheru** odměňuje pravidelnost, ne zvládnutí: 1 obsidián za každý den s povedeným kolem (`registerDay`),
   10 = portál, každý další den kus Netheru (`NETHER_STAGES`). Až dojdou fáze, přidat další (nebo End).
+- **Mláďata na farmě** (`BABIES`) odměňují pravidelnost: týden (po až ne) s aspoň 4 odehranými dny = jedno mládě.
+  Až dojdou, přidat další.
 - **Zvládnutý úkol** = `mastery() === 'good'` (aspoň 3× správně a poslední dobou bez chyby).
 - Odměny podle počtu kol (krumpáče, oblečení `at:`, dům 12 dílů, farma 10 dílů) končí kolem 22. kola;
   další dlouhodobé cíle mají být vázané na zvládnutí, ne na počet kol (jinak se vyplácí hrát lehké patro dokola).
@@ -36,5 +38,6 @@ aktualizaci a po ní novinky ukáže.
 - Texty pro Adama musí jít přečíst nahlas (hlas prohlížeče, čeština). Každé tlačítko pro Adama má ikonu (`data-icon` / `setBtn`, sada `ICONS`), aby mu rozuměl i bez čtení.
   Když text pro Adama (hlas, novinky) odkazuje na tlačítko, popiš ho obrázkem a barvou a přidej i nápis
   („zelené tlačítko s fajfkou, je na něm napsáno Rozumím“), ať si Adam nápis postupně spojí s tlačítkem.
+- Slabiky a slova hlas říká v krátké české větě (`inCzech`: „Slabika me.“), jinak je český hlas čte anglicky (me = mí, so = sou).
 - Podoby rodiny jen podle toho, co řekl Ondřej (`FAMILY`); nic nedomýšlet.
 - Před nahráním vyzkoušet v Playwrightu (Chromium v `/opt/pw-browsers/chromium`) aspoň jedno kolo dotčeného patra.
