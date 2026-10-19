@@ -5,6 +5,8 @@ import { speak } from '../audio/speech.js';
 import { sfx } from '../audio/sfx.js';
 import { MASTERY_SETS, MATH_MAX, masteryPoints as masteryPointsL } from '../logic/mastery.ts';
 import { ENCHANTS, ENCH_ORDER, PIECES, ROMAN } from '../content/enchants.ts';
+import { TOOLS } from '../content/tools.ts';
+import { toolCanvas, toolStageOf } from '../gfx/tools.js';
 import { enchantNeed, newEnchants, nextEnchant, pieceEnchants } from '../logic/rewards.ts';
 import { protectionLevels, stuckMs } from '../game/round.js';
 
@@ -32,7 +34,8 @@ function renderEnchBook(box) {
   box.insertAdjacentHTML('beforeend', `<div class="book-head"><b>Kniha očarování</b><span>Zvládnuto ${pts} z ${max} úkolů. ${nx ? `Další očarování (${pieceName(nx.e.pc)}: ${nx.e.name} ${ROMAN[nx.e.lvl]}) za ${nx.left} ${nx.left === 1 ? 'zvládnutý úkol' : nx.left >= 2 && nx.left <= 4 ? 'zvládnuté úkoly' : 'zvládnutých úkolů'}.` : 'Máš všechno na maximum!'}</span><span>Krumpáč se po chybě zasekne na ${(stuckMs() / 1000).toFixed(2).replace(/0$/, '').replace('.', ',')} s (Ochrana ${protectionLevels()} z 16).</span><span class="book-bar"><i style="width:${Math.round(save.ench.length / ENCH_ORDER.length * 100)}%"></i></span></div>`);
   PIECES.forEach(([pc, label]) => {
     const row = document.createElement('div'); row.className = 'book-row';
-    const ic = pc === 'pick' ? pickCanvas(tierOf(save.total)) : outfitIcon(pc, outfitItem(pc)); ic.classList.add('book-icon'); row.appendChild(ic);
+    const tool = TOOLS.find(t => t.id === pc);
+    const ic = pc === 'pick' ? pickCanvas(tierOf(save.total)) : tool ? toolCanvas(tool, toolStageOf(pc)) : outfitIcon(pc, outfitItem(pc)); ic.classList.add('book-icon'); row.appendChild(ic);
     const list = document.createElement('div'); list.className = 'book-list';
     list.insertAdjacentHTML('beforeend', `<b>${label[0].toUpperCase() + label.slice(1)}</b>`);
     [...ENCHANTS[pc], ['Opravování', 1]].forEach(([name, mx]) => {

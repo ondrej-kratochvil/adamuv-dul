@@ -1,6 +1,14 @@
 {
-  "version": 36,
+  "version": 37,
   "changes": [
+    {
+      "version": 37,
+      "date": "2026-10-20",
+      "notes": [
+        "Nové nástroje v šatníku: meč, sekera, lopata a motyka. Ze dřeva, kamene, železa, zlata, diamantu i netheritu.",
+        "Lepší materiál dostaneš za zvládnuté úkoly. Zamčené uvidíš se zámkem. Nástroje mají i svoje očarování."
+      ]
+    },
     {
       "version": 36,
       "date": "2026-10-20",

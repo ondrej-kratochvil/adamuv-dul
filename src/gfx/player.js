@@ -1,5 +1,6 @@
 // Postava a krumpáče
 import { save } from '../save/save.ts';
+import { heldCanvas } from './tools.js';
 import { px } from './textures.js';
 import { pieceEnch } from '../rewards/enchant.js';
 
@@ -151,7 +152,7 @@ function pickCanvas(tier, cls) {
 function mountPlayer(el) {
   el.innerHTML = '';
   const body = playerCanvas(); el.appendChild(body); if (body.glint) el.appendChild(body.glint);
-  el.appendChild(pickCanvas(tierOf(save.total), 'tool'));
+  el.appendChild(heldCanvas('tool'));
 }
 
 export { OUTFIT, OUTFIT_CATS, PICK_MAP, PIECE_OF, TIERS, enchanted, isMetal, mountPlayer, outfitIcon, outfitItem, pickCanvas, playerCanvas, tierOf, unlocked };

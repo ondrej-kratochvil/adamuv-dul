@@ -31,6 +31,7 @@ export interface SaveState {
   sync: SyncState;              // odesílání do tabulky Google (logic/sync.ts)
   famWear: Record<string, Record<string, string>>; // co má kdo z rodiny na sobě (logic/family-wear.ts)
   famOwned: string[];           // koupené kousky na převlékání
+  gear: { held: string; stages: Record<string, number> } | null; // nástroje: co drží v ruce, nejvyšší materiál (content/tools.ts)
   [k: string]: unknown;
 }
 
@@ -53,6 +54,7 @@ export function defaults(): SaveState {
     sync: syncDefaults(),
     famWear: {},
     famOwned: [],
+    gear: null,
   };
 }
 

@@ -1,6 +1,7 @@
 import './styles.css';
 // Tlačítka
 import { G } from './core/state.js';
+import { updateTools } from './logic/tools.ts';
 import { $ } from './core/dom.js';
 import { persist, save } from './save/save.ts';
 import { season } from './world/house.js';
@@ -76,6 +77,8 @@ if (save.obsidian === null || save.obsidian === undefined) save.obsidian = save.
 if (!save.babies) initBabies();
 if (!save.cards) { save.cards = []; checkCards(true); } // kartičky za už zvládnutá slova
 if (!save.village) { save.village = {}; checkVillage(true); } // vesnice začíná podle toho, co už Adam umí
+if (!save.gear) save.gear = { held: 'pick', stages: {} };
+if (updateTools(save.stats, save.gear.stages).length) persist(); // materiály nástrojů podle už zvládnutých úkolů (bez hlášení)
 checkEnchants(); // očarování za už zvládnuté úkoly
 checkVersion(); // nová verze na serveru? (při startu a při návratu do hry)
 flushSync(); // co čeká na odeslání do tabulky Google (třeba z doby bez internetu)

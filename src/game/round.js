@@ -2,6 +2,9 @@
 import { G } from '../core/state.js';
 import { QUICK_WRONG_MS, recordResult } from '../logic/mastery.ts';
 import { BUILD_UNLOCK, addBlocks } from '../logic/build.ts';
+import { updateTools } from '../logic/tools.ts';
+import { toolName } from '../content/tools.ts';
+import { toolCanvas } from '../gfx/tools.js';
 import { fitBuild } from '../world/build.js';
 import { NEED_CLEAN, STUCK_MS, needClean, stuckMsFor } from '../logic/rewards.ts';
 import { $, REDUCED } from '../core/dom.js';
@@ -284,8 +287,13 @@ function endRound() {
   const fs = farmStage();
   const grew = st <= FARM_START ? `Přibylo na domě: ${STAGES[st - 1]}.` : st <= FARM_START + FARM_STAGES.length ? `Na farmě přibylo: ${FARM_STAGES[fs - 1]}.` : 'Dům i farma stojí. Ve vesnici staví každé patro svou budovu.';
   $('#endLine').textContent = (perfect ? 'Bez jediné chyby! ' : `Bez chyby: ${G.R.clean} z ${G.R.len}. `) + grew;
-  if (newTier) { np.hidden = false; np.innerHTML = ''; np.appendChild(pickCanvas(after)); np.insertAdjacentHTML('beforeend', `<span>Nový krumpáč: ${after.name}!</span>`); }
-  else np.hidden = true;
+  const newTools = updateTools(save.stats, save.gear.stages); if (newTools.length) persist();
+  if (newTier || newTools.length) {
+    np.hidden = false; np.innerHTML = '';
+    if (newTier) np.appendChild(pickCanvas(after)); newTools.forEach(n => np.appendChild(toolCanvas(n.tool, n.stage)));
+    np.insertAdjacentHTML('beforeend', `<span>${[newTier ? `Nový krumpáč: ${after.name}` : '', ...newTools.map(n => `Nové v šatníku: ${toolName(n.tool, n.stage)}`)].filter(Boolean).join('. ')}!</span>`);
+  } else np.hidden = true;
+  const toolTalk = newTools.length ? ` V šatníku máš ${newTools.map(n => toolName(n.tool, n.stage)).join(' a ')}.` : '';
   const fresh = OUTFIT_CATS.flatMap(([cat]) => OUTFIT[cat].filter(it => it.at === st || (day && it.streak && day.prevBest < it.streak && day.count >= it.streak)).map(it => [cat, it]));
   if (fresh.length) { no.hidden = false; no.innerHTML = ''; fresh.forEach(([cat, it]) => no.appendChild(outfitIcon(cat, it))); no.insertAdjacentHTML('beforeend', `<span>Nové oblečení v šatníku: ${fresh.map(([, it]) => it.name).join(', ')}!</span>`); }
   else no.hidden = true;
@@ -301,7 +309,7 @@ function endRound() {
   const dayTalk = day ? (day.usedTotem ? ` Totem zachránil tvou řadu!` : '') + (day.count > 1 ? ` Hraješ ${day.count} ${dayWord(day.count)} v řadě, bonus ${day.bonus} ${gemWord(day.bonus)}.` : ` Dnešní den se počítá do řady, bonus ${day.bonus} ${gemWord(day.bonus)}.`) : '';
   // pokrok na domě nebo farmě říct nahlas (Ondřej 19. 10. 2026), po hotové farmě už ne
   const grewTalk = st <= FARM_START + FARM_STAGES.length ? ' ' + grew : '';
-  speak((perfect ? 'Bez jediné chyby! ' : '') + cheer + grewTalk + (newTier ? ` Máš nový ${after.name} krumpáč!` : '') + story + dayTalk + netherTalk + babyTalk + prerovTalk + enchTalk + vilTalk + cardTalk + (fresh.length ? ` V šatníku máš ${fresh.map(([, it]) => it.name).join(' a ')}.` : ''));
+  speak((perfect ? 'Bez jediné chyby! ' : '') + cheer + grewTalk + (newTier ? ` Máš nový ${after.name} krumpáč!` : '') + story + dayTalk + netherTalk + babyTalk + prerovTalk + toolTalk + enchTalk + vilTalk + cardTalk + (fresh.length ? ` V šatníku máš ${fresh.map(([, it]) => it.name).join(' a ')}.` : ''));
   $('#btnAgain').focus({ preventScroll: true });
 }
 // Pauza (Ondřej 20. 10. 2026): zadání se schová, čas stojí; v deníku a tabulce se pauza odliší od odchodu z kola

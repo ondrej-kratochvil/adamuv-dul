@@ -1,12 +1,16 @@
 // Očarování výbavy (podle Minecraftu). Odemykají se za zvládnuté úkoly, viz logic/rewards.ts.
-export type Piece = 'pick' | 'hat' | 'shirt' | 'pants' | 'shoes';
-export const PIECES: [Piece, string][] = [['pick', 'krumpáč'], ['hat', 'helma'], ['shirt', 'brnění'], ['pants', 'chrániče'], ['shoes', 'boty']];
+export type Piece = 'pick' | 'hat' | 'shirt' | 'pants' | 'shoes' | 'sword' | 'axe' | 'shovel' | 'hoe';
+export const PIECES: [Piece, string][] = [['pick', 'krumpáč'], ['hat', 'helma'], ['shirt', 'brnění'], ['pants', 'chrániče'], ['shoes', 'boty'], ['sword', 'meč'], ['axe', 'sekera'], ['shovel', 'lopata'], ['hoe', 'motyka']];
 export const ENCHANTS: Record<Piece, [string, number][]> = {
   pick: [['Efektivita', 5], ['Štěstí', 3], ['Nezlomnost', 3]],
   hat: [['Ochrana', 4], ['Nezlomnost', 3], ['Dýchání', 3], ['Afinita k vodě', 1]],
   shirt: [['Ochrana', 4], ['Nezlomnost', 3], ['Trny', 3]],
   pants: [['Ochrana', 4], ['Nezlomnost', 3], ['Rychlé plížení', 3]],
   shoes: [['Ochrana', 4], ['Nezlomnost', 3], ['Tichý pád', 4], ['Rychlost v hlubinách', 3]],
+  sword: [['Ostrost', 5], ['Odhození', 2], ['Ohnivá čepel', 2]],
+  axe: [['Efektivita', 5], ['Nezlomnost', 3]],
+  shovel: [['Efektivita', 5], ['Nezlomnost', 3]],
+  hoe: [['Efektivita', 5], ['Nezlomnost', 3]],
 };
 export const ROMAN = ['', 'I', 'II', 'III', 'IV', 'V'];
 

@@ -3,7 +3,10 @@ import { G } from '../core/state.js';
 import { $ } from '../core/dom.js';
 import { persist, save } from '../save/save.ts';
 import { tex } from '../gfx/textures.js';
-import { OUTFIT, OUTFIT_CATS, isMetal, mountPlayer, outfitIcon, outfitItem, unlocked } from '../gfx/player.js';
+import { OUTFIT, OUTFIT_CATS, isMetal, mountPlayer, outfitIcon, outfitItem, pickCanvas, tierOf, unlocked } from '../gfx/player.js';
+import { pickMaterials, toolCanvas, toolStageOf } from '../gfx/tools.js';
+import { MATERIALS, TOOLS, toolName } from '../content/tools.ts';
+import { toolNeed } from '../logic/tools.ts';
 import { drawHouse } from '../world/house.js';
 import { speak, synth } from '../audio/speech.js';
 import { audio, sfx, tone } from '../audio/sfx.js';
@@ -147,7 +150,15 @@ function renderWardrobe() {
     b.addEventListener('click', () => { wardCat = cat; renderWardrobe(); speak(label); });
     tabs.appendChild(b);
   });
+  { // záložka Nástroje: krumpáč, meč, sekera, lopata, motyka ve všech materiálech, zamčené se zámkem
+    const b = document.createElement('button'); b.className = 'gbtn'; b.setAttribute('aria-label', 'Nástroje');
+    b.setAttribute('aria-pressed', String(wardCat === 'tools'));
+    b.appendChild(toolCanvas(TOOLS[0], toolStageOf('sword')));
+    b.addEventListener('click', () => { wardCat = 'tools'; renderWardrobe(); speak('Nástroje a zbraně. Vyber si, co budeš držet v ruce.'); });
+    tabs.appendChild(b);
+  }
   const items = $('#wardItems'); items.innerHTML = '';
+  if (wardCat === 'tools') { renderTools(items); return; }
   OUTFIT[wardCat].forEach(it => {
     const b = document.createElement('button'); b.className = 'swatch'; b.setAttribute('aria-label', it.name);
     const open = unlocked(it);
@@ -164,6 +175,27 @@ function renderWardrobe() {
     items.appendChild(b);
   });
   if (wardCat === 'enchant') { const book = document.createElement('div'); book.className = 'ward-book'; renderEnchBook(book); items.appendChild(book); }
+}
+function renderTools(box) {
+  const held = (save.gear && save.gear.held) || 'pick';
+  const row = (label, cells) => { const r = document.createElement('div'); r.className = 'tool-row'; r.insertAdjacentHTML('beforeend', `<b>${label}</b>`); cells.forEach(c => r.appendChild(c)); box.appendChild(r); };
+  const cell = (canvas, name, open, selected, onPick, lockedSay) => {
+    const b = document.createElement('button'); b.className = 'swatch tool-cell' + (open ? '' : ' locked'); b.setAttribute('aria-label', name);
+    b.setAttribute('aria-pressed', String(!!selected)); b.appendChild(canvas);
+    if (!open) b.insertAdjacentHTML('beforeend', LOCK_SVG);
+    b.addEventListener('click', () => { audio(); if (!open) { sfx.nope(); speak(lockedSay); return; } onPick(); tone(880, 0, .08, 'square', .05); renderWardrobe(); speak(name); });
+    return b;
+  };
+  const pickNow = tierOf(save.total);
+  row('Krumpáč', pickMaterials().map(m => cell(pickCanvas(m.tier), m.name, save.total >= m.at, held === 'pick' && pickNow === m.tier,
+    () => { save.gear.held = 'pick'; persist(); }, `${m.name} dostaneš po ${m.at} povedených kolech.`)));
+  TOOLS.forEach(t => {
+    const have = toolStageOf(t.id), need = toolNeed(save.stats, t, have);
+    row(t.name[0].toUpperCase() + t.name.slice(1), MATERIALS.map((m, i) => cell(toolCanvas(t, i), toolName(t, i), i <= have, held === t.id && i === have,
+      () => { save.gear.held = t.id; persist(); },
+      `${toolName(t, i)} se odemkne, až zvládneš víc úkolů v patrech ${t.levelNames}.${i === have + 1 && need ? ` Chybí ${need}.` : ''}`)));
+  });
+  box.insertAdjacentHTML('beforeend', '<p class="tool-note">V ruce máš vždy nejlepší odemčený materiál. Krumpáč se zlepšuje za povedená kola, ostatní za zvládnuté úkoly v jejich patrech.</p>');
 }
 function openHouse() {
   G.speechId++; if (synth) synth.cancel();
