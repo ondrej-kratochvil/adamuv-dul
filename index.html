@@ -1832,7 +1832,7 @@ function nextEnchInfo() {
 }
 function renderEnchBook(box) {
   const { pts, max } = masteryPoints(), nx = nextEnchInfo();
-  box.insertAdjacentHTML('beforeend', `<div class="book-head"><b>Kniha očarování</b><span>Zvládnuto ${pts} z ${max} úkolů. ${nx ? `Další očarování (${pieceName(nx.e.pc)}: ${nx.e.name} ${ROMAN[nx.e.lvl]}) za ${nx.left} ${nx.left === 1 ? 'zvládnutý úkol' : nx.left >= 2 && nx.left <= 4 ? 'zvládnuté úkoly' : 'zvládnutých úkolů'}.` : 'Máš všechno na maximum!'}</span><span class="book-bar"><i style="width:${Math.round(save.ench.length / ENCH_ORDER.length * 100)}%"></i></span></div>`);
+  box.insertAdjacentHTML('beforeend', `<div class="book-head"><b>Kniha očarování</b><span>Zvládnuto ${pts} z ${max} úkolů. ${nx ? `Další očarování (${pieceName(nx.e.pc)}: ${nx.e.name} ${ROMAN[nx.e.lvl]}) za ${nx.left} ${nx.left === 1 ? 'zvládnutý úkol' : nx.left >= 2 && nx.left <= 4 ? 'zvládnuté úkoly' : 'zvládnutých úkolů'}.` : 'Máš všechno na maximum!'}</span><span>Krumpáč se po chybě zasekne na ${(stuckMs() / 1000).toFixed(2).replace(/0$/, '').replace('.', ',')} s (Ochrana ${protectionLevels()} z 16).</span><span class="book-bar"><i style="width:${Math.round(save.ench.length / ENCH_ORDER.length * 100)}%"></i></span></div>`);
   PIECES.forEach(([pc, label]) => {
     const row = document.createElement('div'); row.className = 'book-row';
     const ic = pc === 'pick' ? pickCanvas(tierOf(save.total)) : outfitIcon(pc, outfitItem(pc)); ic.classList.add('book-icon'); row.appendChild(ic);
@@ -1841,7 +1841,8 @@ function renderEnchBook(box) {
     [...ENCHANTS[pc], ['Opravování', 1]].forEach(([name, mx]) => {
       const l = enchLevel(pc, name);
       const chip = document.createElement('button'); chip.className = 'ench-chip' + (l ? ' on' : ''); chip.textContent = `${name} ${l ? ROMAN[l] : ''}${l < mx ? ` / ${ROMAN[mx]}` : ''}`.replace(/\s+/g, ' ').trim();
-      chip.addEventListener('click', () => speak(l ? `${label}: ${name} ${l}${l < mx ? `, nejvíc ${mx}` : ', to je maximum'}.` : `${name} zatím nemáš. Zvládni další úkoly.`));
+      const what = name === 'Ochrana' ? ' Ochrana zkracuje, jak dlouho se krumpáč po chybě zasekne.' : name === 'Štěstí' ? ' Štěstí ti občas dá smaragd navíc.' : '';
+      chip.addEventListener('click', () => speak((l ? `${label}: ${name} ${l}${l < mx ? `, nejvíc ${mx}` : ', to je maximum'}.` : `${name} zatím nemáš. Zvládni další úkoly.`) + what));
       list.appendChild(chip);
     });
     row.appendChild(list); box.appendChild(row);
@@ -1945,6 +1946,9 @@ const ROUND_LEN = 8;
 // kolik kostek z 8 musí být bez chyby, aby dům rostl
 const NEED_CLEAN = { mild: 4, normal: 5, strict: 6 };
 const STUCK_MS = 2000;
+// Ochrana na helmě, brnění, chráničích a botách: každá úroveň zkrátí zaseknutí o 50 ms (max. 16 úrovní, nejkratší 1,2 s)
+const protectionLevels = () => ['hat', 'shirt', 'pants', 'shoes'].reduce((a, pc) => a + enchLevel(pc, 'Ochrana'), 0);
+const stuckMs = () => STUCK_MS - 50 * protectionLevels();
 function startRound(level) {
   const L = LEVELS[level];
   R = { level, i: 0, busy: true, recent: [], loot: [], clean: 0, len: L.len || ROUND_LEN, start: Date.now() };
@@ -2027,7 +2031,7 @@ function tapBlock(it, el) {
     if (R.wrongs >= 2) R.els[R.choices.indexOf(R.target)].classList.add('glow');
     const t = R.target;
     setTimeout(() => { if (R && R.target === t && !R.busy) speak(LEVELS[R.level].picture ? 'Chyba, krumpáč se zasekl. Přečti slovo ještě jednou, písmenko po písmenku.' : (LEVELS[R.level].gen === genMath ? 'Chyba, krumpáč se zasekl. Zkus to znovu: ' : 'Chyba, krumpáč se zasekl. Poslouchej: ') + R.say); }, 300);
-    setTimeout(() => { if (R && R.target === t) { R.stuck = false; $('#blocks').classList.remove('stuck'); $('#hudPick').classList.remove('stuck'); } }, STUCK_MS);
+    setTimeout(() => { if (R && R.target === t) { R.stuck = false; $('#blocks').classList.remove('stuck'); $('#hudPick').classList.remove('stuck'); } }, stuckMs());
     return;
   }
   const taps = tierOf(save.total).taps;

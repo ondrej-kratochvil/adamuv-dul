@@ -20,7 +20,7 @@ přidej i odměny, aby Adam nedošel na strop dřív, než dojde obsah.
 
 ## Další zásady
 
-- Za chybu se nic nebere, jen se nic nepřidá (zaseknutý krumpáč, kolo se nepočítá).
+- Za chybu se nic nebere, jen se nic nepřidá (zaseknutý krumpáč, kolo se nepočítá). Zaseknutí trvá 2 s; Ochrana na výbavě ho zkracuje o 50 ms za úroveň, nejvíc na 1,2 s (`stuckMs()`). Kratší ne, aby se tipování nevyplatilo.
 - Texty pro Adama musí jít přečíst nahlas (hlas prohlížeče, čeština); tlačítka bez čtení musí dávat smysl obrázkem.
 - Podoby rodiny jen podle toho, co řekl Ondřej (`FAMILY`); nic nedomýšlet.
 - Před nahráním vyzkoušet v Playwrightu (Chromium v `/opt/pw-browsers/chromium`) aspoň jedno kolo dotčeného patra.
