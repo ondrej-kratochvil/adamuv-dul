@@ -72,10 +72,10 @@ z `MASTERY_SETS()` + max. 30 příkladů + max. 20 čísel 21 až 99 mimo desít
 
 ## Hlas
 
-`speechSynthesis` prohlížeče, čeština (`loadVoices` volí lokální český hlas). Slabiky a slova ve větě (`inCzech`:
-„Slabika me.“), jinak je český hlas čte anglicky. Samotná dlouhá písmena posílat bez slova „dlouhé“ (hlas ho říká sám).
-Prohlížeč pustí hlas až po prvním doteku (novinky čekají na první klepnutí). **Neověřeno na tabletu:** zda „Slabika me.“
-opravilo anglickou výslovnost me/so (hlášeno Ondřejem 19. 10. 2026).
+`speechSynthesis` prohlížeče, čeština (`loadVoices` volí lokální český hlas). Slabiky a slova přes `pronounce()`:
+rizikové slabiky (so, me, my…) výchozí „s písmeny“ („so, es, o“), rodič v nastavení zvolí variantu podle tabletu. Samotná dlouhá písmena posílat bez slova „dlouhé“ (hlas ho říká sám).
+Prohlížeč pustí hlas až po prvním doteku (novinky čekají na první klepnutí). „Slabika so.“ anglickou výslovnost
+nespravilo (Ondřej 19. 10. 2026), varianta „rozděleně“ (neviditelné dělítko) je pokus, ověří se jen na tabletu.
 
 ## Vývoj a testování
 

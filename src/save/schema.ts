@@ -20,6 +20,7 @@ export interface SaveState {
   decor: string[]; streak: Streak;
   outfit: Record<string, string>;
   build: { blocks: Record<string, number>; placed: Record<string, string> };
+  pron: Record<string, string>; // výslovnost vybraná rodičem (logic/pronounce.ts)
   [k: string]: unknown;
 }
 
@@ -35,11 +36,12 @@ export function defaults(): SaveState {
     streak: { count: 0, best: 0, last: '', totem: 0, days: [] },
     outfit: { shirt: 'oranzove', pants: 'modre', shoes: 'sede', hat: 'nic', enchant: 'ne' },
     build: { blocks: {}, placed: {} },
+    pron: {},
   };
 }
 
 const isObj = (x: unknown): x is Record<string, unknown> => !!x && typeof x === 'object' && !Array.isArray(x);
-const NESTED = ['rounds', 'outfit', 'dog', 'gifts', 'streak', 'build'] as const;
+const NESTED = ['rounds', 'outfit', 'dog', 'gifts', 'streak', 'build', 'pron'] as const;
 
 // převede jakákoli starší data na aktuální tvar; nic, co Adam získal, nezahodí
 export function migrate(raw: unknown): SaveState {

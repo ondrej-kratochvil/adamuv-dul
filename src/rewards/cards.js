@@ -41,7 +41,7 @@ function openAlbum() {
   const grid = $('#albumGrid'); grid.innerHTML = '';
   all.forEach(w => {
     const open = save.cards.includes(w), el = cardEl(w, open);
-    el.addEventListener('click', () => { audio(); if (open) { speak(inCzech('Slovo', w)); retrigger(el, 'hit'); } else speak('Tuhle kartičku ještě nemáš. Zvládni další slova v patře Slova nebo Čtení.'); });
+    el.addEventListener('click', () => { audio(); if (open) { speak(inCzech('', w)); retrigger(el, 'hit'); } else speak('Tuhle kartičku ještě nemáš. Zvládni další slova v patře Slova nebo Čtení.'); });
     grid.appendChild(el);
   });
   speak(`Tvoje sbírka. Máš ${have.length} kartiček z ${all.length}.`);

@@ -32,8 +32,8 @@ const LEVELS = {
   math: { name: 'Počty', tex: 'lapisOre', gen: genMath, sample: ['2+3'], small: true, intro: 'Spočítej příklad a kopej do správného výsledku.' },
   writing: { name: 'Psaní', tex: 'redstoneOre', trace: genWriting, len: 5, sample: ['1 A'], intro: 'Jeď prstem po dráze a nevyjeď z ní. Začni u zelené tečky a jeď po šipce.' },
 };
-const inCzech = T.inCzech;
-const sayText = T.sayText;
+const inCzech = (_kind, w) => T.pronounce(w, save.pron || {}); // dřív „Slovo w.“, teď jen výslovnost
+function sayText(level, it) { return T.sayText(level, it, save.pron || {}); }
 const conflict = T.conflict, partnerOf = T.partnerOf, similar = T.similar;
 function weight(level, it) { return weightL(save.stats, level, it); }
 function pickTarget(level, avoid) { return T.pickTarget(level, { ...ctx(), recent: avoid }); }

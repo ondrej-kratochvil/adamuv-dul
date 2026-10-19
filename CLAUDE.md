@@ -49,7 +49,10 @@ aktualizaci a po ní novinky ukáže.
 - Texty pro Adama musí jít přečíst nahlas (hlas prohlížeče, čeština). Každé tlačítko pro Adama má ikonu (`data-icon` / `setBtn`, sada `ICONS`), aby mu rozuměl i bez čtení.
   Když text pro Adama (hlas, novinky) odkazuje na tlačítko, popiš ho obrázkem a barvou a přidej i nápis
   („zelené tlačítko s fajfkou, je na něm napsáno Rozumím“), ať si Adam nápis postupně spojí s tlačítkem.
-- Slabiky a slova hlas říká v krátké české větě (`inCzech`: „Slabika me.“), jinak je český hlas čte anglicky (me = mí, so = sou).
+- Slabiky a slova hlas říká přes `pronounce()` (`logic/pronounce.ts`). Hlas tabletu čte krátké slabiky anglicky (so = sou);
+  věta „Slabika so.“ to nespravila (Ondřej 19. 10. 2026), proto pryč. Rizikové slabiky (`RISKY_SYLLABLES`) mají výchozí
+  „s písmeny“ („so, es, o“), rodič v nastavení vybere variantu, která na tabletu zní česky (`save.pron`).
+  Novou slabiku bez čárky, která je anglickým slovem, přidat do `RISKY_SYLLABLES`.
 - Podoby rodiny jen podle toho, co řekl Ondřej (`FAMILY`); nic nedomýšlet.
 ## Kód a testy
 

@@ -5,12 +5,13 @@ import { PIC, PIC_WORDS } from '../content/pictures';
 import { SHAPE_NAMES } from '../content/glyphs';
 import { choiceCount, weight, type Stats } from './mastery';
 import { range, rnd, shuffle, weightedPick, type Rng } from './random';
+import { pronounce } from './pronounce';
 
-export interface Ctx { rounds: Record<string, number>; stats: Stats; recent: string[]; rng?: Rng }
+export interface Ctx { rounds: Record<string, number>; stats: Stats; recent: string[]; rng?: Rng; pron?: Record<string, string> }
 export interface Task { answer: string; choices: string[]; say: string; stat: string; key: string; task?: string; picture?: boolean; after?: string }
 
-// slabiky a slova v krátké české větě: samotné "me", "so", "sum" čte český hlas jako anglická slova
-export const inCzech = (kind: string, t: string): string => `${kind} ${t.toLocaleLowerCase('cs')}.`;
+// slabiky a slova pro hlas: viz logic/pronounce.ts (věta „Slabika so.“ výslovnost nespravila, proto pryč)
+export { pronounce };
 
 // editační vzdálenost dvou slov (kolik písmen je potřeba změnit)
 export function lev(a: string, b: string): number {
@@ -22,7 +23,7 @@ export function lev(a: string, b: string): number {
 
 /* ---------- písmena a slabiky ---------- */
 export const ITEMS: Record<string, string[]> = { letters: LETTERS, syllables: SYLL };
-export const sayText = (level: string, it: string): string => level === 'letters' ? SAY_LETTER[it] : inCzech('Slabika', it);
+export const sayText = (level: string, it: string, pron: Record<string, string> = {}): string => level === 'letters' ? SAY_LETTER[it] : pronounce(it, pron);
 
 // dvě kostky, které znějí stejně (I a Y, Ú a Ů), nesmí být v jednom úkolu
 export function conflict(level: string, a: string, b: string): boolean {
@@ -54,7 +55,7 @@ export function makeChoices(level: string, target: string, ctx: Ctx): string[] {
 }
 export function genLetters(level: string, ctx: Ctx): Task {
   const t = pickTarget(level, ctx);
-  return { answer: t, choices: makeChoices(level, t, ctx), say: sayText(level, t), stat: level + ':' + t, key: t };
+  return { answer: t, choices: makeChoices(level, t, ctx), say: sayText(level, t, ctx.pron), stat: level + ':' + t, key: t };
 }
 
 /* ---------- čísla a počty ---------- */
@@ -102,7 +103,7 @@ export function genWords(ctx: Ctx): Task {
   const rng = ctx.rng || Math.random, r = ctx.rounds.words || 0, maxLen = r < 3 ? 3 : r < 6 ? 4 : 9;
   const avoid = ctx.recent.slice(-4);
   const w = weightedPick(WORDS.filter(x => x.length <= maxLen && !avoid.includes(x)), x => weight(ctx.stats, 'words', x), rng);
-  return { answer: w, choices: shuffle([w, ...similarWords(w, WORDS, choiceCount(r) - 1, rng)], rng), say: inCzech('Slovo', w), stat: 'words:' + w, key: w };
+  return { answer: w, choices: shuffle([w, ...similarWords(w, WORDS, choiceCount(r) - 1, rng)], rng), say: pronounce(w, ctx.pron), stat: 'words:' + w, key: w };
 }
 // slovo jen napsané na ceduli, výběr obrázku; po 3 kolech i množné číslo
 export function genReading(ctx: Ctx): Task {

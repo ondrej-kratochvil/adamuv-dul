@@ -1,6 +1,13 @@
 {
-  "version": 17,
+  "version": 18,
   "changes": [
+    {
+      "version": 18,
+      "date": "2026-10-19",
+      "notes": [
+        "Slabiky hra říká bez slova slabika. U některých slabik řekne potom i písmena, třeba so, es, o."
+      ]
+    },
     {
       "version": 17,
       "date": "2026-10-19",

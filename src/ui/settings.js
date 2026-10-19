@@ -2,6 +2,8 @@
 import { $ } from '../core/dom.js';
 import { BACKUP_KEY, defaults, persist, save, replaceSave } from '../save/save.ts';
 import { exportText, importText } from '../save/schema.ts';
+import { PRON_MODES, RISKY_SYLLABLES, RISKY_WORDS, defaultMode, pronounceAs } from '../logic/pronounce.ts';
+import { iconSvg } from './icons.js';
 import { tierOf } from '../gfx/player.js';
 import { csVoice, loadVoices, speak, synth, voicesKnown } from '../audio/speech.js';
 import { renderHome } from './screens.js';
@@ -29,7 +31,7 @@ function updateSettings() {
 // Nastavení je pro rodiče: ozubené kolo se musí podržet 2 sekundy. Krátké klepnutí jen řekne, že je pro rodiče.
 const HOLD_MS = 2000;
 let holdTimer = null;
-function openSettings() { updateSettings(); renderNotes(); updateRestore(); $('#resetConfirm').hidden = true; $('#setOverlay').hidden = false; }
+function openSettings() { updateSettings(); renderNotes(); updateRestore(); renderPron(); $('#resetConfirm').hidden = true; $('#setOverlay').hidden = false; }
 const gear = $('#btnSettings');
 function gearHint() {
   const h = $('#gearHint'); h.hidden = false; clearTimeout(gearHint.t); gearHint.t = setTimeout(() => { h.hidden = true; }, 3000);
@@ -50,10 +52,29 @@ document.querySelectorAll('#segCase [data-case]').forEach(b => b.addEventListene
 document.querySelectorAll('#segStrict [data-strict]').forEach(b => b.addEventListener('click', () => { save.strict = b.dataset.strict; persist(); updateSettings(); }));
 $('#rateNormal').addEventListener('click', () => { save.slow = false; persist(); updateSettings(); });
 $('#rateSlow').addEventListener('click', () => { save.slow = true; persist(); updateSettings(); });
-$('#btnTestVoice').addEventListener('click', () => { loadVoices(); speak('Ahoj Adame! ma, mé, li, lý, so, su.'); setTimeout(loadVoices, 800); });
+$('#btnTestVoice').addEventListener('click', () => { loadVoices(); speak('Ahoj Adame! Tady je hra. ' + ['MA', 'MÉ', 'SO', 'LY'].map(s => pronounceAs(s, save.pron?.[s] || defaultMode(s))).join('. ') + '.'); setTimeout(loadVoices, 800); });
 $('#btnReset').addEventListener('click', () => { $('#resetConfirm').hidden = false; });
 $('#btnResetNo').addEventListener('click', () => { $('#resetConfirm').hidden = true; });
 $('#btnResetYes').addEventListener('click', () => { try { localStorage.setItem(BACKUP_KEY, JSON.stringify(save)); } catch (e) {} const keep = { caseMode: save.caseMode, slow: save.slow, strict: save.strict, outfit: save.outfit, notes: save.notes, dogName: save.dogName }; replaceSave(Object.assign(defaults(), keep)); persist(); updateRestore(); $('#resetConfirm').hidden = true; updateSettings(); });
+
+/* výslovnost slabik: rodič poslechne varianty a vybere tu, která na jeho tabletu zní česky */
+const PRON_LABEL = { plain: 'obyčejně', split: 'rozděleně', letters: 's písmeny' };
+function renderPron() {
+  const list = $('#pronList'); list.innerHTML = '';
+  if (!save.pron) save.pron = {};
+  [...RISKY_SYLLABLES, ...RISKY_WORDS].forEach(item => {
+    const row = document.createElement('div'); row.className = 'pron-row';
+    row.insertAdjacentHTML('beforeend', `<b>${item.toLocaleLowerCase('cs')}</b>`);
+    const cur = save.pron[item] || defaultMode(item);
+    PRON_MODES.forEach(m => {
+      const b = document.createElement('button'); b.className = 'gbtn'; b.dataset.item = item; b.dataset.mode = m;
+      b.innerHTML = `${iconSvg('speaker')}<span class="lbl">${PRON_LABEL[m]}</span>`; b.setAttribute('aria-pressed', String(cur === m));
+      b.addEventListener('click', () => { save.pron[item] = m; persist(); renderPron(); speak(pronounceAs(item, m)); });
+      row.appendChild(b);
+    });
+    list.appendChild(row);
+  });
+}
 
 /* záloha: vrácení vymění zálohu a současný stav (jde to vrátit i zpátky) */
 function readBackup() { try { const raw = localStorage.getItem(BACKUP_KEY); return raw ? importText(raw) : null; } catch (e) { return null; } }
