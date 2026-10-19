@@ -29,6 +29,9 @@ const DECOR = [
   { id: 'dyne', name: 'dýně', price: 6, sprite: 'pumpkin' },
   { id: 'prase', name: 'prasátko', price: 12, sprite: 'pig' },
   { id: 'kocka', name: 'kočka', price: 15, sprite: 'cat' },
+  // z Adamova světa (vojáci a tanky, deti.md)
+  { id: 'vojacek', name: 'vojáček', price: 12, sprite: 'soldier', him: true },
+  { id: 'tank', name: 'tank', price: 25, sprite: 'tank', him: true },
 ];
 const gemWord = n => n === 1 ? 'smaragd' : n >= 2 && n <= 4 ? 'smaragdy' : 'smaragdů';
 // pixelové obrázky [šířka, výška, kreslení]; R(x, y, w, h, barva)
@@ -41,6 +44,8 @@ const SPRITES = {
   chicken: [16, 16, R => { const W = '#f4f4f4'; R(3, 7, 9, 6, W); R(10, 3, 4, 5, W); R(14, 5, 2, 1, '#e8a33c'); R(13, 7, 1, 2, '#d33b2f'); R(12, 4, 1, 1, '#222222'); R(4, 9, 4, 3, '#dcdcdc'); R(6, 13, 1, 3, '#e8a33c'); R(9, 13, 1, 3, '#e8a33c'); }],
   sheep: [32, 16, R => { const W = '#efefef', F = '#d9c4a8'; R(2, 3, 23, 10, W); R(6, 5, 2, 2, '#dcdcdc'); R(14, 8, 3, 2, '#dcdcdc'); R(20, 4, 2, 2, '#dcdcdc'); R(23, 1, 9, 10, W); R(25, 3, 6, 6, F); R(29, 5, 1, 1, '#222222'); R(30, 7, 1, 1, '#b08a6a'); [4, 9, 17, 21].forEach(x => R(x, 13, 3, 3, F)); }],
   cow: [32, 16, R => { const B = '#4a3524'; R(2, 3, 23, 10, B); R(6, 4, 6, 4, '#f0f0f0'); R(16, 8, 5, 4, '#f0f0f0'); R(24, 1, 8, 8, B); R(29, 5, 3, 3, '#d9b49a'); R(24, 0, 1, 2, '#e0d8c8'); R(28, 0, 1, 2, '#e0d8c8'); R(27, 3, 1, 1, '#111111'); R(12, 13, 4, 2, '#e8a0b0'); [4, 8, 18, 22].forEach(x => R(x, 13, 3, 3, B)); }],
+  soldier: [16, 24, R => { const G = '#4f6b2c', D = '#3c5221'; R(5, 0, 6, 3, D); R(4, 2, 8, 1, D); R(5, 3, 6, 5, '#d9a066'); R(6, 5, 1, 1, '#222222'); R(9, 5, 1, 1, '#222222'); R(4, 8, 8, 8, G); R(4, 12, 8, 1, '#2b2b2b'); R(2, 8, 2, 7, G); R(12, 8, 2, 7, G); R(13, 3, 1, 12, '#3a2a1a'); R(5, 16, 2, 6, D); R(9, 16, 2, 6, D); R(4, 22, 3, 2, '#2b2b2b'); R(9, 22, 3, 2, '#2b2b2b'); }],
+  tank: [32, 16, R => { const G = '#5a6e34', D = '#3f4f22'; R(2, 10, 28, 6, '#2b2b2b'); [4, 9, 14, 19, 24].forEach(x => R(x, 12, 3, 3, '#6c6c6c')); R(3, 6, 26, 5, G); R(3, 10, 26, 1, D); R(10, 2, 11, 5, G); R(10, 6, 11, 1, D); R(21, 3, 10, 2, D); R(13, 3, 3, 2, '#c62f2f'); }],
   pig: [16, 16, R => { const P = '#f0a8b0', D = '#e08890'; R(1, 6, 12, 7, P); R(11, 4, 5, 6, P); R(14, 6, 2, 2, D); R(15, 6, 1, 1, '#a85060'); R(12, 5, 1, 1, '#222222'); R(2, 13, 2, 3, D); R(9, 13, 2, 3, D); }],
   cat: [16, 16, R => { const O = '#e8963c', D = '#c8762c'; R(4, 8, 7, 8, O); R(5, 3, 6, 5, O); R(5, 2, 1, 1, O); R(10, 2, 1, 1, O); R(6, 5, 1, 1, '#3c9b3a'); R(9, 5, 1, 1, '#3c9b3a'); R(7, 6, 2, 1, '#d06070'); R(4, 10, 7, 1, D); R(4, 13, 7, 1, D); R(11, 13, 3, 2, O); R(13, 10, 1, 3, O); }],
   beehive: [16, 16, R => { R(1, 2, 14, 13, '#d8a23a'); R(1, 5, 14, 1, '#a8781e'); R(1, 10, 14, 1, '#a8781e'); R(6, 7, 4, 2, '#3a2a10'); R(10, 11, 2, 3, '#f2c94c'); R(10, 14, 1, 1, '#f2c94c'); }],
@@ -137,7 +142,7 @@ function updateGems(popId) {
   if (popId) retrigger($('#' + popId), 'pop');
 }
 function drawFarm(cv) {
-  const C = 16, W = 24, H = 14; cv.width = W * C; cv.height = H * C;
+  const C = 16, W = 28, H = 14; cv.width = W * C; cv.height = H * C; // vpravo za ohradou místo pro tank a vojáčka
   const g = cv.getContext('2d'); g.imageSmoothingEnabled = false;
   const grd = g.createLinearGradient(0, 0, 0, 11 * C); grd.addColorStop(0, '#6fb2ea'); grd.addColorStop(1, '#c6e6f8');
   g.fillStyle = grd; g.fillRect(0, 0, cv.width, cv.height);
@@ -163,6 +168,8 @@ function drawFarm(cv) {
   if (save.decor.includes('prase')) at('pig', 23, 10);
   if (save.dragon) at('egg', 12, 10 - 0); // dračí vejce za poraženého draka
   if (save.decor.includes('kocka')) at('cat', 3, fs >= 4 ? 7 : 10);
+  if (save.decor.includes('tank')) at('tank', 24, 10);
+  if (save.decor.includes('vojacek')) at('soldier', 26, 10);
   if (fs >= 1) g.drawImage(dogCanvas(), 1 * C, 11 * C - 12);
   (save.babies || []).forEach(id => { const b = BABIES.find(x => x.id === id); if (b) g.drawImage(babyCanvas(b), Math.round(b.x * C), 11 * C - 10); });
   snowFx(g, cv.width, cv.height);
@@ -174,7 +181,7 @@ function openFarm() {
   G.speechId++; if (synth) synth.cancel();
   show('farm'); drawFarm($('#farmBig'));
   const fs = farmStage();
-  $('#farmCap').textContent = fs === 0 ? 'Farma začne, až dostavíš dům.' : fs < FARM_STAGES.length ? `Farma: ${fs} z ${FARM_STAGES.length} dílů` : 'Farma je hotová! Brzy přijde vesnice.';
+  $('#farmCap').textContent = fs === 0 ? 'Farma začne, až dostavíš dům.' : fs < FARM_STAGES.length ? `Farma: ${fs} z ${FARM_STAGES.length} dílů` : 'Farma je hotová! Za smaragdy si do ní můžeš koupit zvířata a věci v obchodě.';
   fitCanvas($('#farmBig'));
 }
 let shopArmed = null;
@@ -227,7 +234,7 @@ function shopTap(o, locked) {
   if (o.key.startsWith('collar:')) { const id = o.key.slice(7); save.dog.owned.push(id); save.dog.collar = id; }
   else save.decor.push(o.key.slice(6));
   persist(); renderShop(); sfx.fanfare(); dogHappy($('#shopDog'));
-  speak(`Koupeno: ${o.name}!` + (o.key.startsWith('decor:') ? ' Najdeš ji na farmě.' : ''));
+  speak(`Koupeno: ${o.name}!` + (o.key.startsWith('decor:') ? (DECOR.find(d => 'decor:' + d.id === o.key)?.him ? ' Najdeš ho na farmě.' : ' Najdeš ji na farmě.') : ''));
 }
 
 export { COLLARS, DECOR, DOG_COATS, DOG_NAMES, FARM_STAGES, FARM_START, HEART_SVG, PERFECT_BONUS, SPRITES, TREAT_PRICE, bark, collarIcon, dogCanvas, dogHappy, drawFarm, farmStage, fitCanvas, gemWord, hasDog, mountDog, openDog, openFarm, openShop, renderDog, renderShop, shopArmed, shopItem, shopTap, spr, sprCache, sprIcon, updateGems };

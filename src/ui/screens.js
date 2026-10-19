@@ -18,9 +18,10 @@ import { cardWords, openAlbum } from '../rewards/cards.js';
 import { drawPrerov, openPrerov, prerovStage } from '../world/prerov.js';
 import { drawEnder, endOpen, openEnder } from '../world/finale.js';
 import { renderUpdate } from '../app/name.js';
+import { buildOpen, drawBuild, openBuild } from '../world/build.js';
 import { startRound } from '../game/round.js';
 
-function show(id) { ['home', 'game', 'house', 'wardrobe', 'farm', 'shop', 'stats', 'village', 'nether', 'album', 'prerov', 'ender'].forEach(s => { $('#' + s).hidden = s !== id; }); }
+function show(id) { ['home', 'game', 'house', 'wardrobe', 'farm', 'shop', 'stats', 'village', 'nether', 'album', 'prerov', 'ender', 'build'].forEach(s => { $('#' + s).hidden = s !== id; }); }
 function paintTextures(root = document) {
   root.querySelectorAll('[data-tex]').forEach(el => { el.style.backgroundImage = `url(${tex(el.dataset.tex, el.dataset.dark === '1')})`; });
 }
@@ -92,6 +93,7 @@ function renderHome() {
   };
   card('Můj dům', drawHouse, openHouse, false);
   card('Farma', drawFarm, openFarm, farmStage() === 0);
+  card('Stavění', drawBuild, openBuild, !buildOpen());
   card('Vesnice', drawVillage, openVillage, false);
   card('Nether', drawNether, openNether, !portalLit());
   card('Přerov', drawPrerov, openPrerov, prerovStage() === 0);

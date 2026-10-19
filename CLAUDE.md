@@ -1,6 +1,7 @@
 # Adamův důl: pravidla pro úpravy
 
-Hra je jeden soubor `index.html` (GitHub Pages, větev `main`). Hraje ji Adam (1. třída) na tabletu s Family Link.
+Hra je projekt ve Vite: kostra v `index.html`, kód v `src/` (struktura v `README.md`), nasazení na GitHub Pages
+automaticky z větve `main` přes GitHub Actions, jen když projdou testy. Hraje ji Adam (1. třída) na tabletu s Family Link.
 Obsah (písmena, slova, čísla) se řídí tím, co Adam umí ve škole; souhrn a rozhodnutí jsou v osobní znalostní bázi
 (`osobni/deti.md`, sekce „Čtecí hra Adamův důl“).
 
@@ -9,11 +10,13 @@ Obsah (písmena, slova, čísla) se řídí tím, co Adam umí ve škole; souhrn
 Maximální vybavení má Adam mít až ve chvíli, kdy zvládne všechno, co hra obsahuje. Když přidáváš úkoly,
 přidej i odměny, aby Adam nedošel na strop dřív, než dojde obsah.
 
-- **Očarování** (`ENCHANTS`, `ENCH_ORDER`) se odemykají podle podílu zvládnutých úkolů (`masteryPoints()`):
+- **Očarování** (`content/enchants.ts`) se odemykají podle podílu zvládnutých úkolů (`masteryPoints()` v `logic/mastery.ts`):
   odměna č. i potřebuje `ceil((i + 1) / počet_odměn × počet_úkolů)` zvládnutých. Když přidáš nové patro nebo
   položky, přidej je do `MASTERY_SETS()`; prahy se posunou samy. Když přidáš velký blok obsahu, přidej i nová
   očarování nebo jiné odměny, aby krok mezi odměnami nebyl příliš dlouhý (teď zhruba 3 zvládnuté úkoly na odměnu).
 - **Vesnice** (`BUILDINGS`): každé patro staví svou budovu podle podílu svých zvládnutých úkolů (8 fází, hotovo až při 100 %).
+  Kreslí se vždy nejvyšší dosažená fáze (`save.village`), budova nikdy nespadne (review 19. 10. 2026).
+- **Stavění** (`logic/build.ts`): každá vykopaná kostka jde do zásoby, kostky se nikdy neztratí (test).
   Nové patro = nová budova v `BUILDINGS` (a položky v `MASTERY_SETS()`).
 - **Sbírka kartiček** (`cardWords()`): kartička za každé zvládnuté slovo (Slova nebo Čtení), celá sbírka = 30 smaragdů.
   Nová slova ve `WORDS` přidají kartičky sama; slova s obrázkem v `PIC` mají kartičku s obrázkem.
@@ -45,4 +48,14 @@ aktualizaci a po ní novinky ukáže.
   („zelené tlačítko s fajfkou, je na něm napsáno Rozumím“), ať si Adam nápis postupně spojí s tlačítkem.
 - Slabiky a slova hlas říká v krátké české větě (`inCzech`: „Slabika me.“), jinak je český hlas čte anglicky (me = mí, so = sou).
 - Podoby rodiny jen podle toho, co řekl Ondřej (`FAMILY`); nic nedomýšlet.
-- Před nahráním vyzkoušet v Playwrightu (Chromium v `/opt/pw-browsers/chromium`) aspoň jedno kolo dotčeného patra.
+## Kód a testy
+
+- **Obsah patří do `src/content/`, pravidla do `src/logic/`** (TypeScript, bez DOM a bez `localStorage`, náhoda jako parametr).
+  Moduly v `src/levels`, `src/world` atd. jen volají logiku a kreslí.
+- **Každá nová funkce nebo oprava má test**: pravidlo v `tests/unit/`, chování ve hře v `tests/e2e/`. Oprava chyby = nejdřív test,
+  který chybu ukáže.
+- **Změna tvaru uloženého stavu** = nové číslo `SCHEMA` v `src/save/schema.ts`, krok v `migrate()` a test se vzorkem
+  starého stavu v `tests/fixtures/`. Získané věci se nikdy nesmí ztratit.
+- Obaly volané z jiných modulů psát jako `function`, ne `const x = () =>`: moduly se navzájem importují v kruhu
+  a konstanta by při startu ještě neexistovala.
+- Před commitem `npm test` (typy, unit testy, prohlížeč). Push na `main` nasazuje: jen se zelenými testy.

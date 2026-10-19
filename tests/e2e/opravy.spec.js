@@ -15,6 +15,7 @@ test('po hotové farmě se už nic neslibuje a tlačítko pod obrázkem otevře 
   await expect(page.locator('#btnEndHouse')).toHaveText('Farma');
   await page.locator('#btnEndHouse').click();
   await expect(page.locator('#farm')).toBeVisible();
+  await expect(page.locator('#farmCap')).not.toContainText(/brzy přijde/i);
 });
 
 test('na konci kola v době stavby domu vede tlačítko do domu', async ({ page }) => {

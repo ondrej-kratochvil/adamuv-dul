@@ -1,6 +1,8 @@
 // Herní kolo
 import { G } from '../core/state.js';
 import { recordResult } from '../logic/mastery.ts';
+import { addBlocks } from '../logic/build.ts';
+import { fitBuild } from '../world/build.js';
 import { NEED_CLEAN, STUCK_MS, needClean, stuckMsFor } from '../logic/rewards.ts';
 import { $, REDUCED } from '../core/dom.js';
 import { persist, save } from '../save/save.ts';
@@ -102,7 +104,7 @@ function layoutBlocks() {
   box.style.gridTemplateColumns = `repeat(${bestC}, var(--bs))`;
   box.style.gap = gap + 'px';
 }
-addEventListener('resize', () => { layoutBlocks(); if (G.TR && !$('#trace').hidden) layoutTrace(); if (!$('#house').hidden) fitCanvas($('#houseBig')); if (!$('#farm').hidden) fitCanvas($('#farmBig')); if (!$('#nether').hidden) fitCanvas($('#netherBig')); if (!$('#prerov').hidden) fitCanvas($('#prerovBig')); if (!$('#ender').hidden) fitCanvas($('#enderBig')); });
+addEventListener('resize', () => { if (!$('#build').hidden) fitBuild(); layoutBlocks(); if (G.TR && !$('#trace').hidden) layoutTrace(); if (!$('#house').hidden) fitCanvas($('#houseBig')); if (!$('#farm').hidden) fitCanvas($('#farmBig')); if (!$('#nether').hidden) fitCanvas($('#netherBig')); if (!$('#prerov').hidden) fitCanvas($('#prerovBig')); if (!$('#ender').hidden) fitCanvas($('#enderBig')); });
 function retrigger(el, cls) { el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls); }
 function tapBlock(it, el) {
   if (!G.R || G.R.busy || G.R.stuck) return;
@@ -182,6 +184,7 @@ function showEndPlace(place) {
   setBtn($('#btnEndHouse'), 'house', place === 'house' ? 'Můj dům' : 'Farma');
 }
 function endRound() {
+  addBlocks(save.build, G.R.loot.map(l => l.t)); persist(); // vykopané kostky do zásoby na stavění
   if (G.R.level === 'boss') return bossVictory();
   const level = G.R.level;
   const need = needClean(save.strict, G.R.len);

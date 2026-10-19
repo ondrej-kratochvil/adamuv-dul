@@ -1,7 +1,7 @@
 # Koncepce: robustnější stavba hry a testy
 
 > **Co:** návrh, jak hru převést z jednoho souboru na strukturovaný projekt s automatickými testy, aby šla dál bezpečně rozvíjet
-> **Stav:** draft, čeká na rozhodnutí Ondřeje (body v oddílu Rozhodnutí)
+> **Stav:** hotovo (19. 10. 2026, Ondřej schválil celý převod: TypeScript postupně, nasazení přes Actions, export a import)
 > **Stav k:** 19. 10. 2026 (hra verze 15, `index.html` 2 938 řádků, 216 kB)
 > **Souhrn:**
 > - Dnes: jeden soubor bez testů, ověřování ručně a jednorázově, testovací skripty se nikde neukládají.
@@ -97,7 +97,8 @@ Hrubý odhad: kroky 1 až 2 jedna session, 3 až 4 dvě až tři session, zbytek
 
 ## Rozhodnutí
 
-Čeká na Ondřeje:
+Ondřej 19. 10. 2026: „Zpracuj vše“ (celý převod, TypeScript postupně, nasazení jen při zelených testech, export a import).
+Původní otázky:
 
 1. **Rozsah:** celý převod (kroky 1 až 7), nebo zatím jen záchranná síť (krok 1) a o zbytku rozhodnout podle zkušenosti?
 2. **TypeScript:** ano postupně (doporučeno), nebo zůstat u JavaScriptu?

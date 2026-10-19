@@ -1,6 +1,15 @@
 {
-  "version": 15,
+  "version": 16,
   "changes": [
+    {
+      "version": 16,
+      "date": "2026-10-19",
+      "notes": [
+        "Nové Stavění! Z kostek, které vykopeš, si postavíš, co chceš. Otevře se, až dostavíš dům.",
+        "V obchodě je tank a vojáček na farmu. A vzkaz ti teď může poslat i Tom a Méďa.",
+        "Hotová budova ve vesnici už nikdy nespadne."
+      ]
+    },
     {
       "version": 15,
       "date": "2026-10-19",
