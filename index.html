@@ -213,6 +213,31 @@ button:focus-visible { outline: 4px solid var(--gold); outline-offset: 3px; }
 .shop-item .lock { top: 4px; right: 4px; width: 24px; height: 24px; }
 .end-gems { color: #1f5e2e; text-shadow: none; font-size: 20px; margin: 0 0 12px; font-family: var(--f-read); }
 .end-gems canvas { width: 24px; height: 24px; }
+/* hodnocení kola 1 až 10 */
+.rate { margin: 0 0 14px; }
+.rate p { font-family: var(--f-read); font-weight: 700; font-size: 18px; margin: 0 0 6px; }
+.rate-row { display: grid; grid-template-columns: repeat(10, 1fr); gap: 4px; }
+.rate-row button { aspect-ratio: 1; min-width: 0; padding: 0; font-family: var(--f-read); font-weight: 700; font-size: clamp(14px, 3.6vw, 20px); color: #161616; border: 3px solid #161616; box-shadow: inset 2px 2px 0 rgba(255,255,255,.5), inset -2px -2px 0 rgba(0,0,0,.25); }
+.rate-row button[aria-pressed="true"] { outline: 4px solid #161616; outline-offset: 2px; transform: scale(1.12); }
+/* statistiky pro rodiče */
+.stats-panel { flex: 1; min-height: 0; overflow: auto; margin-bottom: 16px; font-family: var(--f-read); }
+.stats-panel h2 { font-family: var(--f-pixel); margin: 0 0 10px; font-size: 24px; }
+.stats-panel h3 { margin: 18px 0 6px; font-size: 19px; display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; align-items: baseline; }
+.stats-panel h3 small { font-weight: 400; font-size: 15px; }
+.stats-panel p { margin: 0 0 6px; font-size: 16px; line-height: 1.4; }
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px; margin-bottom: 8px; }
+.kpi { background: #e6e6e6; border: 3px solid #161616; padding: 8px 10px; }
+.kpi b { display: block; font-size: 24px; font-variant-numeric: tabular-nums; }
+.kpi span { font-size: 14px; color: #3d3d3d; }
+.chips { display: flex; flex-wrap: wrap; gap: 4px; margin: 4px 0 6px; }
+.chip-i { min-width: 30px; padding: 2px 6px; text-align: center; border: 2px solid #161616; font-weight: 700; font-size: 15px; background: #bdbdbd; color: #161616; }
+.chip-i.good { background: #8fd16f; } .chip-i.mid { background: #f2d36b; } .chip-i.bad { background: #ef8a76; }
+.legend { display: flex; gap: 10px; flex-wrap: wrap; font-size: 14px; margin-bottom: 4px; }
+.legend .chip-i { min-width: 0; font-size: 13px; }
+.log-table { width: 100%; border-collapse: collapse; font-size: 15px; font-variant-numeric: tabular-nums; }
+.log-table th, .log-table td { text-align: left; padding: 4px 6px; border-bottom: 1px solid #9a9a9a; }
+.table-wrap { overflow-x: auto; }
+.copy-out { width: 100%; min-height: 160px; font-family: ui-monospace, monospace; font-size: 13px; margin-top: 8px; }
 .hud-pick { width: 56px; height: 56px; display: grid; place-items: center; background: rgba(0,0,0,.18); border: 3px solid rgba(0,0,0,.45); }
 .hud-pick canvas { width: 40px; height: 40px; }
 .stage-row { display: grid; grid-template-columns: 1fr auto 1fr; align-items: end; position: relative; z-index: 1; }
@@ -258,7 +283,7 @@ canvas.ench { animation: ench 1.8s ease-in-out infinite; }
 .end-line { font-family: var(--f-read); font-size: 19px; margin: 0 0 14px; }
 .loot { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
 .loot span { width: 30px; height: 30px; background-size: 100% 100%; image-rendering: pixelated; border: 2px solid #161616; }
-.end-house { width: min(100%, calc(32vh * 320 / 224)); height: auto; border: 3px solid #161616; display: block; margin: 0 auto 14px; } /* dům nesmí vytlačit tlačítka z obrazovky */
+.end-house { width: min(100%, calc(26vh * 320 / 224)); height: auto; border: 3px solid #161616; display: block; margin: 0 auto 14px; } /* dům nesmí vytlačit tlačítka z obrazovky */
 .newpick { display: flex; align-items: center; gap: 12px; background: #fff7d1; border: 3px solid #161616; padding: 8px 12px; margin-bottom: 14px; font-family: var(--f-read); font-size: 18px; font-weight: 700; }
 .newpick canvas { width: 48px; height: 48px; }
 .actions { display: flex; flex-wrap: wrap; gap: 10px; }
@@ -385,6 +410,20 @@ canvas.ench { animation: ench 1.8s ease-in-out infinite; }
     </div>
   </section>
 
+  <!-- STATISTIKY (pro rodiče) -->
+  <section class="screen" id="stats" hidden>
+    <div class="sky" style="flex:1; display:flex; flex-direction:column; min-height:0;">
+      <div class="inner hud">
+        <button class="gbtn icon" id="btnStatsBack" aria-label="Zpět domů"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h3v3h-3v3h-3v4h3v3h3v3h-3v-3h-3v-3H8v-4h3V7h3V4z"/></svg></button>
+        <div class="ward-title">Statistiky</div>
+        <div style="width:56px"></div>
+      </div>
+      <div class="inner" style="flex:1; min-height:0; display:flex; padding-top:12px;">
+        <div class="panel stats-panel" id="statsBody" style="flex:1"></div>
+      </div>
+    </div>
+  </section>
+
   <!-- OBCHOD -->
   <section class="screen" id="shop" hidden>
     <div class="sky" style="flex:1; display:flex; flex-direction:column; min-height:0;">
@@ -430,6 +469,7 @@ canvas.ench { animation: ench 1.8s ease-in-out infinite; }
     <div class="newpick" id="newPick" hidden></div>
     <div class="newpick" id="newOutfit" hidden></div>
     <canvas class="end-house px" id="endHouse"></canvas>
+    <div class="rate" id="rateBox"><p>Jak tě to bavilo?</p><div class="rate-row" id="rateRow"></div></div>
     <div class="actions">
       <button class="gbtn go" id="btnAgain">Další kolo</button>
       <button class="gbtn" id="btnEndHouse">Můj dům</button>
@@ -486,7 +526,7 @@ canvas.ench { animation: ench 1.8s ease-in-out infinite; }
 
     <h3>Postup</h3>
     <p id="progressInfo"></p>
-    <button class="gbtn" id="btnReset">Začít od začátku</button>
+    <div class="seg"><button class="gbtn go" id="btnStats">Statistiky</button><button class="gbtn" id="btnReset">Začít od začátku</button></div>
     <div class="confirm" id="resetConfirm" hidden>
       <p style="margin:0">Smazat dům, krumpáče i statistiku?</p>
       <button class="gbtn" id="btnResetYes" style="background:#a8341c">Ano, smazat</button>
@@ -508,7 +548,7 @@ let R = null; // běžící kolo
 
 /* ---------- uložený postup ---------- */
 const KEY = 'adamuv-dul-v1';
-function defaults() { return { caseMode: 'both', slow: false, strict: 'normal', total: 0, rounds: { letters: 0, syllables: 0, words: 0, numbers: 0, math: 0, writing: 0 }, stats: {}, emeralds: 0, dog: { collar: 'cerveny', owned: ['cerveny'] }, decor: [], streak: { count: 0, best: 0, last: '', totem: 0, days: [] }, outfit: { shirt: 'oranzove', pants: 'modre', shoes: 'sede', hat: 'nic', enchant: 'ne' } }; }
+function defaults() { return { caseMode: 'both', slow: false, strict: 'normal', total: 0, rounds: { letters: 0, syllables: 0, words: 0, numbers: 0, math: 0, writing: 0 }, stats: {}, log: [], emeralds: 0, dog: { collar: 'cerveny', owned: ['cerveny'] }, decor: [], streak: { count: 0, best: 0, last: '', totem: 0, days: [] }, outfit: { shirt: 'oranzove', pants: 'modre', shoes: 'sede', hat: 'nic', enchant: 'ne' } }; }
 function load() {
   try { const s = JSON.parse(localStorage.getItem(KEY)); if (s) { const d = defaults(); return Object.assign(d, s, { rounds: Object.assign(d.rounds, s.rounds || {}), outfit: Object.assign(d.outfit, s.outfit || {}), dog: Object.assign(d.dog, s.dog || {}), streak: Object.assign(d.streak, s.streak || {}) }); } } catch (e) {}
   return defaults();
@@ -1025,7 +1065,8 @@ function traceSlip() {
 function finishTrace() {
   R.busy = true;
   const s = save.stats[R.statKey] || { ok: 0, miss: 0 };
-  if (R.firstTry) { s.ok++; s.miss = Math.max(0, s.miss - 1); } else s.miss++;
+  if (R.firstTry) { s.ok++; s.miss = Math.max(0, s.miss - 1); } else { s.miss++; s.bad = (s.bad || 0) + 1; }
+  s.n = (s.n || 0) + 1;
   save.stats[R.statKey] = s;
   const clean = R.firstTry, texName = LEVELS[R.level].tex;
   if (clean) { R.clean++; save.emeralds++; updateGems('hudGems'); dogHappy($('#gameDog')); }
@@ -1115,7 +1156,7 @@ function display(it) {
 }
 
 /* ---------- obrazovky ---------- */
-function show(id) { ['home', 'game', 'house', 'wardrobe', 'farm', 'shop'].forEach(s => { $('#' + s).hidden = s !== id; }); }
+function show(id) { ['home', 'game', 'house', 'wardrobe', 'farm', 'shop', 'stats'].forEach(s => { $('#' + s).hidden = s !== id; }); }
 function paintTextures(root = document) {
   root.querySelectorAll('[data-tex]').forEach(el => { el.style.backgroundImage = `url(${tex(el.dataset.tex, el.dataset.dark === '1')})`; });
 }
@@ -1461,6 +1502,97 @@ function openStreak() {
   speak(n.count ? `Hraješ ${n.count} ${dayWord(n.count)} v řadě.` + (n.today ? ' Přijď zase zítra!' : ' Dnes si ještě zahraj, ať řada nespadne.') : 'Zahraj si každý den a postav si řadu.');
 }
 
+/* ---------- deník kol, hodnocení a statistiky ---------- */
+const LOG_MAX = 1500;
+function logRound(ok, quit = false) {
+  save.log.push({ t: Date.now(), d: dayStr(), level: R.level, clean: R.clean, done: R.i, len: R.len, ok, quit, secs: Math.round((Date.now() - R.start) / 1000) });
+  if (save.log.length > LOG_MAX) save.log.splice(0, save.log.length - LOG_MAX);
+  persist();
+  if (!quit) renderRate();
+}
+const RATE_COLORS = ['#e05a45', '#e8704a', '#ee8a4e', '#f2a650', '#f4c153', '#e6cf55', '#c8d258', '#a6d25c', '#86cc5f', '#5fc062'];
+function renderRate() {
+  const row = $('#rateRow'); row.innerHTML = '';
+  const entry = save.log[save.log.length - 1];
+  for (let n = 1; n <= 10; n++) {
+    const b = document.createElement('button'); b.textContent = n; b.style.background = RATE_COLORS[n - 1];
+    b.setAttribute('aria-label', `${n} z 10`); b.setAttribute('aria-pressed', String(entry.rate === n));
+    b.addEventListener('click', () => { audio(); entry.rate = n; persist(); renderRate(); tone(400 + n * 60, 0, .1, 'square', .05); speak(`${n} z 10. ${n >= 8 ? 'Super, to mě těší!' : n >= 5 ? 'Díky!' : 'Díky, zkusím to vylepšit.'}`); });
+    row.appendChild(b);
+  }
+}
+// zvládnuté = aspoň 3× správně a teď bez chyb; potíže = poslední dobou aspoň 2 chyby
+function mastery(s) { if (!s || !(s.n || s.ok || s.miss)) return ''; if (s.miss >= 2) return 'bad'; if (s.ok >= 3 && s.miss === 0) return 'good'; return 'mid'; }
+const fmtRate = x => x.toFixed(1).replace('.', ',') + ' z 10';
+const kol = n => `${n} ${n === 1 ? 'kolo' : n >= 2 && n <= 4 ? 'kola' : 'kol'}`;
+const fmtMin = secs => secs < 60 ? `${secs} s` : `${Math.round(secs / 60)} min`;
+const fmtDate = t => { const d = new Date(t); return `${d.getDate()}. ${d.getMonth() + 1}. ${pad2(d.getHours())}:${pad2(d.getMinutes())}`; };
+function levelItems(key) {
+  if (key === 'letters') return LETTERS;
+  if (key === 'syllables') return SYLL;
+  if (key === 'words') return WORDS;
+  if (key === 'writing') return Object.keys(GLYPHS);
+  if (key === 'numbers') return range(0, 20).map(String);
+  return Object.keys(save.stats).filter(k => k.startsWith(key + ':')).map(k => k.slice(key.length + 1));
+}
+const itemLabel = (key, it) => key === 'writing' && SHAPE_NAMES[it] ? SHAPE_NAMES[it].replace(/u$/, 'a') : key === 'math' ? it.replace('-', '−') : it;
+function levelSummary(key) {
+  const rows = save.log.filter(e => e.level === key);
+  const played = rows.filter(e => !e.quit), rated = rows.filter(e => e.rate);
+  const tasks = played.reduce((a, e) => a + e.len, 0), clean = played.reduce((a, e) => a + e.clean, 0);
+  return {
+    rounds: played.length, ok: played.filter(e => e.ok).length, quit: rows.filter(e => e.quit).length,
+    acc: tasks ? Math.round(clean / tasks * 100) : null,
+    rate: rated.length ? (rated.reduce((a, e) => a + e.rate, 0) / rated.length) : null,
+    secs: rows.reduce((a, e) => a + e.secs, 0), last: rows.length ? rows[rows.length - 1].t : null,
+  };
+}
+function openStats() {
+  $('#setOverlay').hidden = true; show('stats'); renderStats();
+}
+function renderStats() {
+  const body = $('#statsBody'); body.innerHTML = '';
+  const all = save.log.filter(e => !e.quit), rated = save.log.filter(e => e.rate);
+  const secs = save.log.reduce((a, e) => a + e.secs, 0);
+  const days = new Set(save.log.map(e => e.d)).size;
+  const kp = (v, l) => `<div class="kpi"><b>${v}</b><span>${l}</span></div>`;
+  body.insertAdjacentHTML('beforeend', `<h2>Přehled</h2><div class="kpis">${kp(all.length, 'odehraná kola')}${kp(all.length ? Math.round(all.filter(e => e.ok).length / all.length * 100) + ' %' : '–', 'povedených kol')}${kp(fmtMin(secs), 'celkem hraní')}${kp(days, days === 1 ? 'den hraní' : 'dní hraní')}${kp(rated.length ? fmtRate(rated.reduce((a, e) => a + e.rate, 0) / rated.length) : '–', 'průměrné hodnocení')}${kp(save.streak.best, 'nejdelší řada dní')}</div>`);
+  // co procvičit: položky s nejvíc nedávnými chybami napříč patry
+  const trouble = Object.entries(save.stats).filter(([, s]) => mastery(s) === 'bad').sort((a, b) => b[1].miss - a[1].miss).slice(0, 12);
+  body.insertAdjacentHTML('beforeend', `<h3>Co procvičit</h3><p>${trouble.length ? trouble.map(([k]) => { const [lv, it] = k.split(':'); return `<b>${itemLabel(lv, it)}</b> (${LEVELS[lv] ? LEVELS[lv].name.toLowerCase() : lv})`; }).join(', ') : 'Zatím nic, nebo ještě málo dat.'}</p>`);
+  body.insertAdjacentHTML('beforeend', '<div class="legend"><span class="chip-i good">zvládnuté</span><span class="chip-i mid">učí se</span><span class="chip-i bad">potíže</span><span class="chip-i">zatím nezkoušené</span></div>');
+  Object.entries(LEVELS).forEach(([key, L]) => {
+    const sm = levelSummary(key);
+    const head = `<h3>${L.name} <small>${kol(sm.rounds)} (povedená ${sm.ok})${sm.acc !== null ? `, bez chyby ${sm.acc} %` : ''}${sm.rate !== null ? `, baví ho ${fmtRate(sm.rate)}` : ''}${sm.quit ? `, ${sm.quit}× odešel z rozehraného kola` : ''}${sm.secs ? `, ${fmtMin(sm.secs)}` : ''}</small></h3>`;
+    const items = levelItems(key);
+    const chips = items.map(it => { const s = save.stats[key + ':' + it]; return `<span class="chip-i ${mastery(s)}" title="${s ? `správně ${s.ok}×, chyb celkem ${s.bad || 0}` : 'nezkoušeno'}">${itemLabel(key, it)}</span>`; }).join('');
+    body.insertAdjacentHTML('beforeend', head + (items.length ? `<div class="chips">${chips}</div>` : '<p>Zatím nic.</p>'));
+  });
+  const recent = save.log.slice(-15).reverse();
+  body.insertAdjacentHTML('beforeend', `<h3>Poslední kola</h3><div class="table-wrap"><table class="log-table"><thead><tr><th>Kdy</th><th>Patro</th><th>Bez chyby</th><th>Hodnocení</th><th>Doba</th></tr></thead><tbody>${recent.map(e => `<tr><td>${fmtDate(e.t)}</td><td>${LEVELS[e.level] ? LEVELS[e.level].name : e.level}</td><td>${e.quit ? `odešel po ${e.done} z ${e.len}` : `${e.clean} z ${e.len}${e.ok ? '' : ' (nepovedené)'}`}</td><td>${e.rate ? e.rate + ' z 10' : '–'}</td><td>${fmtMin(e.secs)}</td></tr>`).join('') || '<tr><td colspan="5">Zatím žádné kolo.</td></tr>'}</tbody></table></div>`);
+  body.insertAdjacentHTML('beforeend', '<p style="margin-top:14px">Data jsou uložená jen v tomhle zařízení. Přehled jde zkopírovat a poslat.</p><div class="actions"><button class="gbtn go" id="btnCopyStats">Zkopírovat přehled</button></div><textarea class="copy-out" id="copyOut" hidden readonly></textarea>');
+  $('#btnCopyStats').addEventListener('click', copyStats);
+}
+function statsText() {
+  const lines = [`Adamův důl, přehled k ${fmtDate(Date.now())}`];
+  const all = save.log.filter(e => !e.quit), rated = save.log.filter(e => e.rate);
+  lines.push(`Kola: ${all.length} (povedená ${all.filter(e => e.ok).length}), hraní celkem ${fmtMin(save.log.reduce((a, e) => a + e.secs, 0))}, průměrné hodnocení ${rated.length ? fmtRate(rated.reduce((a, e) => a + e.rate, 0) / rated.length) : 'zatím žádné'}, řada dní ${streakNow().count} (nejdelší ${save.streak.best}).`);
+  Object.entries(LEVELS).forEach(([key, L]) => {
+    const sm = levelSummary(key); if (!sm.rounds && !sm.quit) return;
+    const items = levelItems(key), by = m => items.filter(it => mastery(save.stats[key + ':' + it]) === m).map(it => itemLabel(key, it));
+    lines.push(`\n${L.name}: ${kol(sm.rounds)}, povedená ${sm.ok}${sm.acc !== null ? `, bez chyby ${sm.acc} %` : ''}${sm.rate !== null ? `, hodnocení ${fmtRate(sm.rate)}` : ''}${sm.quit ? `, ${sm.quit}× odešel` : ''}, ${fmtMin(sm.secs)}.`);
+    const g = by('good'), b = by('bad');
+    if (g.length) lines.push(`  Zvládnuté: ${g.join(' ')}`);
+    if (b.length) lines.push(`  Potíže: ${b.join(' ')}`);
+  });
+  return lines.join('\n');
+}
+function copyStats() {
+  const text = statsText(), out = $('#copyOut');
+  const fallback = () => { out.hidden = false; out.value = text; out.focus(); out.select(); };
+  try { navigator.clipboard.writeText(text).then(() => { $('#btnCopyStats').textContent = 'Zkopírováno'; }, fallback); } catch (e) { fallback(); }
+}
+
 /* ---------- herní kolo ---------- */
 const ROUND_LEN = 8;
 // kolik kostek z 8 musí být bez chyby, aby dům rostl
@@ -1468,7 +1600,7 @@ const NEED_CLEAN = { mild: 4, normal: 5, strict: 6 };
 const STUCK_MS = 2000;
 function startRound(level) {
   const L = LEVELS[level];
-  R = { level, i: 0, busy: true, recent: [], loot: [], clean: 0, len: L.len || ROUND_LEN };
+  R = { level, i: 0, busy: true, recent: [], loot: [], clean: 0, len: L.len || ROUND_LEN, start: Date.now() };
   TR = null; $('#trace').hidden = true; $('#blocks').hidden = false; $('#task').hidden = true;
   show('game');
   $('#gameGround').style.backgroundImage = `url(${tex(L.tex, true)})`;
@@ -1564,7 +1696,8 @@ function breakBlock(el) {
   R.busy = true;
   const key = R.statKey;
   const s = save.stats[key] || { ok: 0, miss: 0 };
-  if (R.firstTry) { s.ok++; s.miss = Math.max(0, s.miss - 1); } else s.miss++;
+  if (R.firstTry) { s.ok++; s.miss = Math.max(0, s.miss - 1); } else { s.miss++; s.bad = (s.bad || 0) + 1; }
+  s.n = (s.n || 0) + 1;
   save.stats[key] = s; persist();
   el.querySelector('.crack').style.backgroundImage = `url(${cracks[3]})`;
   sfx.breakIt();
@@ -1636,6 +1769,7 @@ function endRound() {
     $('#btnAgain').textContent = 'Zkusit znovu';
     (building ? drawHouse : drawFarm)($('#endHouse'));
     const got = R.clean, R_len = R.len;
+    logRound(false);
     R = null;
     $('#endOverlay').hidden = false;
     sfx.nope();
@@ -1643,6 +1777,7 @@ function endRound() {
     $('#btnAgain').focus({ preventScroll: true });
     return;
   }
+  logRound(true);
   title.textContent = 'Výborně, Adame!'; title.classList.remove('fail');
   $('#btnAgain').textContent = 'Další kolo';
   const before = tierOf(save.total);
@@ -1672,6 +1807,7 @@ function endRound() {
 }
 function goHome() {
   speechId++; if (synth) synth.cancel();
+  if (R && R.i > 0 && R.i < R.len) logRound(false, true); // rozehrané a opuštěné kolo: signál, že nebaví
   R = null; $('#endOverlay').hidden = true;
   renderHome(); show('home');
 }
@@ -1718,6 +1854,8 @@ $('#btnWardBack').addEventListener('click', goHome);
 $('#btnFarmBack').addEventListener('click', goHome);
 $('#btnShopBack').addEventListener('click', goHome);
 $('#btnStreak').addEventListener('click', openStreak);
+$('#btnStats').addEventListener('click', openStats);
+$('#btnStatsBack').addEventListener('click', goHome);
 $('#traceCanvas').addEventListener('pointerdown', traceDown);
 $('#traceCanvas').addEventListener('pointermove', traceMove);
 ['pointerup', 'pointercancel'].forEach(t => $('#traceCanvas').addEventListener(t, traceUp));
