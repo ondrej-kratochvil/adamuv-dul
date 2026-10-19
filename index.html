@@ -147,6 +147,7 @@ button:focus-visible { outline: 4px solid var(--gold); outline-offset: 3px; }
 }
 .glyph { font-family: var(--f-read); font-weight: 700; color: var(--ink); line-height: 1; font-size: calc(var(--bs, 120px) * .44); padding-top: .08em; white-space: nowrap; }
 .syl .glyph { font-size: calc(var(--bs, 120px) * .32); }
+.plate canvas.pic { width: 86%; height: 86%; }
 .lvl .glyph { font-size: clamp(26px, 5.5vw, 38px); }
 .lvl .syl .glyph { font-size: clamp(18px, 3.6vw, 26px); }
 /* malé l s ocáskem, aby nevypadalo jako velké I */
@@ -548,7 +549,7 @@ let R = null; // běžící kolo
 
 /* ---------- uložený postup ---------- */
 const KEY = 'adamuv-dul-v1';
-function defaults() { return { caseMode: 'both', slow: false, strict: 'normal', total: 0, rounds: { letters: 0, syllables: 0, words: 0, numbers: 0, math: 0, writing: 0 }, stats: {}, log: [], emeralds: 0, dog: { collar: 'cerveny', owned: ['cerveny'] }, decor: [], streak: { count: 0, best: 0, last: '', totem: 0, days: [] }, outfit: { shirt: 'oranzove', pants: 'modre', shoes: 'sede', hat: 'nic', enchant: 'ne' } }; }
+function defaults() { return { caseMode: 'both', slow: false, strict: 'normal', total: 0, rounds: { letters: 0, syllables: 0, words: 0, numbers: 0, math: 0, writing: 0, reading: 0 }, stats: {}, log: [], emeralds: 0, dog: { collar: 'cerveny', owned: ['cerveny'] }, decor: [], streak: { count: 0, best: 0, last: '', totem: 0, days: [] }, outfit: { shirt: 'oranzove', pants: 'modre', shoes: 'sede', hat: 'nic', enchant: 'ne' } }; }
 function load() {
   try { const s = JSON.parse(localStorage.getItem(KEY)); if (s) { const d = defaults(); return Object.assign(d, s, { rounds: Object.assign(d.rounds, s.rounds || {}), outfit: Object.assign(d.outfit, s.outfit || {}), dog: Object.assign(d.dog, s.dog || {}), streak: Object.assign(d.streak, s.streak || {}) }); } } catch (e) {}
   return defaults();
@@ -1106,10 +1107,48 @@ function genWords() {
   return { answer: w, choices: shuffle([w, ...others]), say: w.toLocaleLowerCase('cs'), stat: 'words:' + w, key: w };
 }
 
+/* ---------- čtení: slovo a obrázek ---------- */
+// obrázky 16 × 16; množné číslo (OSY, ÚLY…) kreslí obrázek třikrát, ať Adam čte až do konce slova
+const PIC = {
+  OSA: R => { R(5, 3, 3, 4, '#d6eef8'); R(8, 2, 3, 5, '#eaf7fc'); R(4, 7, 9, 5, '#f2c94c'); R(6, 7, 1, 5, '#1d1712'); R(9, 7, 1, 5, '#1d1712'); R(12, 7, 3, 4, '#1d1712'); R(13, 8, 1, 1, '#ffffff'); R(2, 9, 2, 1, '#1d1712'); R(14, 5, 1, 2, '#1d1712'); },
+  OSEL: R => { R(3, 6, 9, 5, '#8d8d8d'); R(3, 11, 2, 4, '#6c6c6c'); R(10, 11, 2, 4, '#6c6c6c'); R(11, 3, 3, 5, '#8d8d8d'); R(13, 5, 3, 3, '#cfc8bc'); R(11, 0, 1, 3, '#6c6c6c'); R(13, 0, 1, 3, '#6c6c6c'); R(2, 6, 1, 4, '#5a5a5a'); R(12, 4, 1, 1, '#111111'); R(4, 10, 7, 1, '#bdbdbd'); },
+  LES: R => { [[1, '#3f8a2a'], [6, '#2f7a23'], [11, '#4c9c33']].forEach(([x, c], i) => { R(x, 3 + i % 2, 4, 7, c); R(x + 1, 1 + i % 2, 2, 2, c); R(x + 1, 10, 2, 5, '#6b4a31'); }); },
+  LOS: R => { R(2, 7, 10, 5, '#6b4424'); R(3, 12, 2, 4, '#4a2e17'); R(9, 12, 2, 4, '#4a2e17'); R(11, 6, 4, 4, '#6b4424'); R(13, 8, 3, 3, '#5a3820'); R(8, 2, 7, 1, '#e0d2b4'); R(8, 1, 1, 1, '#e0d2b4'); R(11, 1, 1, 1, '#e0d2b4'); R(14, 1, 1, 1, '#e0d2b4'); R(11, 3, 1, 3, '#e0d2b4'); R(12, 7, 1, 1, '#111111'); },
+  ÚL: R => { R(2, 3, 12, 12, '#d8a23a'); R(2, 6, 12, 1, '#a8781e'); R(2, 11, 12, 1, '#a8781e'); R(6, 8, 4, 2, '#3a2a10'); R(10, 12, 2, 3, '#f2c94c'); R(12, 0, 3, 2, '#f2c94c'); R(13, 0, 1, 2, '#1d1712'); },
+  MASO: R => { R(2, 4, 11, 9, '#c0392b'); R(2, 4, 11, 1, '#f2e4d0'); R(2, 12, 11, 1, '#f2e4d0'); R(5, 7, 2, 1, '#e8a0a0'); R(8, 9, 3, 1, '#e8a0a0'); R(12, 6, 3, 4, '#f0ebe0'); R(14, 5, 2, 2, '#f0ebe0'); R(14, 9, 2, 2, '#f0ebe0'); },
+  MÍSA: R => { R(1, 7, 14, 1, '#c9a87a'); R(1, 8, 14, 2, '#8a5a2e'); R(2, 10, 12, 2, '#8a5a2e'); R(4, 12, 8, 2, '#6b4424'); R(3, 6, 10, 1, '#e8862a'); R(5, 5, 2, 1, '#e8862a'); R(9, 5, 3, 1, '#3f8a2a'); },
+  SŮL: R => { R(5, 4, 6, 10, '#f4f4f4'); R(4, 4, 1, 10, '#c9c9c9'); R(11, 4, 1, 10, '#c9c9c9'); R(4, 14, 8, 1, '#c9c9c9'); R(5, 1, 6, 3, '#9a9a9a'); R(6, 2, 1, 1, '#333333'); R(9, 2, 1, 1, '#333333'); R(7, 1, 2, 1, '#333333'); R(6, 8, 4, 3, '#dfe8ef'); },
+  SUM: R => { R(3, 6, 9, 5, '#7a6a52'); R(3, 10, 9, 1, '#b8a888'); R(0, 4, 3, 2, '#5e5040'); R(0, 10, 3, 2, '#5e5040'); R(1, 6, 2, 4, '#5e5040'); R(11, 6, 4, 5, '#7a6a52'); R(13, 7, 1, 1, '#111111'); R(14, 10, 2, 1, '#3a2a10'); R(14, 12, 2, 1, '#3a2a10'); R(13, 11, 1, 1, '#3a2a10'); R(6, 4, 3, 2, '#5e5040'); },
+  LAMA: R => { const W = '#efe4c8'; R(2, 8, 9, 4, W); R(2, 12, 2, 4, W); R(9, 12, 2, 4, W); R(9, 2, 3, 7, W); R(10, 1, 4, 3, W); R(10, 0, 1, 1, W); R(12, 0, 1, 1, W); R(12, 2, 1, 1, '#111111'); R(4, 8, 4, 2, '#c62f2f'); R(4, 10, 4, 1, '#2f7fd1'); R(1, 8, 1, 2, W); },
+  SLÁMA: R => { R(1, 3, 14, 12, '#d8b84a'); [3, 6, 9, 12].forEach(x => R(x, 3, 1, 12, '#b8962a')); R(1, 6, 14, 1, '#8a2a17'); R(1, 11, 14, 1, '#8a2a17'); R(1, 3, 14, 1, '#ead27a'); },
+  MÁMA: R => { const S = '#d9a066'; R(5, 0, 6, 2, '#6b3a1a'); R(6, 1, 4, 4, S); R(5, 2, 1, 5, '#6b3a1a'); R(10, 2, 1, 5, '#6b3a1a'); R(7, 2, 1, 1, '#2f5ea8'); R(9, 2, 1, 1, '#2f5ea8'); R(7, 4, 2, 1, '#c0392b'); R(4, 5, 8, 7, '#c84a8a'); R(3, 6, 1, 5, S); R(12, 6, 1, 5, S); R(3, 11, 10, 1, '#a83a72'); R(6, 12, 1, 3, S); R(9, 12, 1, 3, S); R(5, 15, 2, 1, '#333333'); R(9, 15, 2, 1, '#333333'); },
+};
+const PLURAL = { OSY: 'OSA', ÚLY: 'ÚL', LAMY: 'LAMA', MÍSY: 'MÍSA' };
+const PIC_WORDS = [...Object.keys(PIC), ...Object.keys(PLURAL)];
+function picCanvas(word) {
+  const one = document.createElement('canvas'); one.width = one.height = 16;
+  const g1 = one.getContext('2d'); PIC[PLURAL[word] || word]((x, y, w, h, c) => { g1.fillStyle = c; g1.fillRect(x, y, w, h); });
+  const c = document.createElement('canvas'); c.width = c.height = 32; c.className = 'pic px';
+  const g = c.getContext('2d'); g.imageSmoothingEnabled = false;
+  if (PLURAL[word]) { g.drawImage(one, 0, 15); g.drawImage(one, 16, 15); g.drawImage(one, 8, 1); }
+  else g.drawImage(one, 0, 0, 32, 32);
+  return c;
+}
+// nejdřív jen jednotné číslo, po 3 povedených kolech i OSY, ÚLY, LAMY, MÍSY
+function genReading() {
+  const r = save.rounds.reading;
+  const pool = r < 3 ? Object.keys(PIC) : PIC_WORDS;
+  const avoid = R.recent.slice(-3);
+  const w = weightedPick(pool.filter(x => !avoid.includes(x)), x => weight('reading', x));
+  const others = pool.filter(x => x !== w).map(x => [x, lev(w, x) + Math.random() * 1.5]).sort((a, b) => a[1] - b[1]).slice(0, choiceCount('reading') - 1).map(x => x[0]);
+  return { answer: w, choices: shuffle([w, ...others]), say: 'Přečti slovo.', task: display(w), stat: 'reading:' + w, key: w, picture: true, after: `Je to ${w.toLocaleLowerCase('cs')}.` };
+}
+
 const LEVELS = {
   letters: { name: 'Písmena', tex: 'dirt', items: LETTERS, sample: ['A', 'm'], intro: 'Poslouchej a kopej do správného písmenka.' },
   syllables: { name: 'Slabiky', tex: 'stone', items: SYLL, sample: ['MA', 'lo'], small: true, intro: 'Poslouchej a kopej do správné slabiky.' },
   words: { name: 'Slova', tex: 'ironOre', gen: genWords, sample: ['MÁMA'], small: true, intro: 'Poslouchej slovo a kopej do správné kostky.' },
+  reading: { name: 'Čtení', tex: 'diamondOre', gen: genReading, picture: true, sample: ['OSA'], small: true, intro: 'Přečti slovo na ceduli a kopni do správného obrázku.' },
   numbers: { name: 'Čísla', tex: 'goldOre', gen: genNumbers, sample: ['3', '7'], intro: 'Poslouchej číslo a kopej do správné kostky.' },
   math: { name: 'Počty', tex: 'lapisOre', gen: genMath, sample: ['2+3'], small: true, intro: 'Spočítej příklad a kopej do správného výsledku.' },
   writing: { name: 'Psaní', tex: 'redstoneOre', trace: genWriting, len: 5, sample: ['1 A'], intro: 'Jeď prstem po dráze a nevyjeď z ní. Začni u zelené tečky a jeď po šipce.' },
@@ -1188,7 +1227,7 @@ function renderHome() {
     btn.addEventListener('click', () => { audio(); startRound(key); });
     wrap.appendChild(btn);
   });
-  [['Čtení', 'diamondOre', 'OSA']].forEach(([name, t, s]) => {
+  [].forEach(([name, t, s]) => { // zamčená patra „brzy“ (teď žádná)
     const btn = document.createElement('button'); btn.className = 'lvl'; btn.disabled = true;
     const b = blockEl(t, s, true); b.tabIndex = -1; b.setAttribute('aria-hidden', 'true');
     btn.appendChild(b);
@@ -1531,6 +1570,7 @@ function levelItems(key) {
   if (key === 'letters') return LETTERS;
   if (key === 'syllables') return SYLL;
   if (key === 'words') return WORDS;
+  if (key === 'reading') return PIC_WORDS;
   if (key === 'writing') return Object.keys(GLYPHS);
   if (key === 'numbers') return range(0, 20).map(String);
   return Object.keys(save.stats).filter(k => k.startsWith(key + ':')).map(k => k.slice(key.length + 1));
@@ -1628,12 +1668,12 @@ function nextTask() {
   $('#trace').hidden = true; $('#blocks').hidden = false;
   if (L.gen) {
     const t = L.gen();
-    target = t.answer; R.choices = t.choices; R.say = t.say; R.statKey = t.stat; R.recent.push(t.key);
+    target = t.answer; R.choices = t.choices; R.say = t.say; R.statKey = t.stat; R.recent.push(t.key); R.after = t.after || '';
     $('#task').hidden = !t.task; if (t.task) $('#task').innerHTML = `<span>${t.task}</span>`;
   } else {
     target = pickTarget(level, R.recent.slice(-2));
     R.recent.push(target);
-    R.choices = makeChoices(level, target, choiceCount(level)); R.say = sayText(level, target); R.statKey = level + ':' + target;
+    R.choices = makeChoices(level, target, choiceCount(level)); R.say = sayText(level, target); R.statKey = level + ':' + target; R.after = '';
     $('#task').hidden = true;
   }
   R.target = target;
@@ -1641,8 +1681,9 @@ function nextTask() {
   $('#blocks').classList.remove('stuck'); $('#hudPick').classList.remove('stuck');
   const box = $('#blocks'); box.innerHTML = '';
   R.els = R.choices.map(it => {
-    const b = blockEl(L.tex, display(it), it.length > 1);
-    if (it.length >= 3) b.querySelector('.glyph').style.fontSize = `calc(var(--bs, 120px) * ${Math.min(.32, 1 / it.length).toFixed(3)})`; // delší slova menším písmem, ať se vejdou
+    const b = blockEl(L.tex, L.picture ? '' : display(it), it.length > 1);
+    if (L.picture) { const pl = b.querySelector('.plate'); pl.innerHTML = ''; pl.appendChild(picCanvas(it)); }
+    else if (it.length >= 3) b.querySelector('.glyph').style.fontSize = `calc(var(--bs, 120px) * ${Math.min(.32, 1 / it.length).toFixed(3)})`; // delší slova menším písmem, ať se vejdou
     b.setAttribute('aria-label', 'kostka');
     b.addEventListener('click', () => tapBlock(it, b));
     box.appendChild(b); return b;
@@ -1678,7 +1719,7 @@ function tapBlock(it, el) {
     $('#blocks').classList.add('stuck'); retrigger($('#hudPick'), 'stuck');
     if (R.wrongs >= 2) R.els[R.choices.indexOf(R.target)].classList.add('glow');
     const t = R.target;
-    setTimeout(() => { if (R && R.target === t && !R.busy) speak((LEVELS[R.level].gen === genMath ? 'Chyba, krumpáč se zasekl. Zkus to znovu: ' : 'Chyba, krumpáč se zasekl. Poslouchej: ') + R.say); }, 300);
+    setTimeout(() => { if (R && R.target === t && !R.busy) speak(LEVELS[R.level].picture ? 'Chyba, krumpáč se zasekl. Přečti slovo ještě jednou, písmenko po písmenku.' : (LEVELS[R.level].gen === genMath ? 'Chyba, krumpáč se zasekl. Zkus to znovu: ' : 'Chyba, krumpáč se zasekl. Poslouchej: ') + R.say); }, 300);
     setTimeout(() => { if (R && R.target === t) { R.stuck = false; $('#blocks').classList.remove('stuck'); $('#hudPick').classList.remove('stuck'); } }, STUCK_MS);
     return;
   }
@@ -1715,7 +1756,7 @@ function breakBlock(el) {
   const target = R.target;
   setTimeout(() => {
     if (!R || R.target !== target) return;
-    speak(pick(Math.random, PRAISE), () => setTimeout(nextTask, 200));
+    speak(pick(Math.random, PRAISE) + (R.after ? ' ' + R.after : ''), () => setTimeout(nextTask, 200));
   }, 250);
 }
 function burst(rect, texName) {
@@ -1833,7 +1874,7 @@ function updateSettings() {
   $('#rateNormal').setAttribute('aria-pressed', String(!save.slow));
   $('#rateSlow').setAttribute('aria-pressed', String(save.slow));
   const st = Math.min(12, save.total);
-  $('#progressInfo').textContent = `Odehraná kola: písmena ${save.rounds.letters}, slabiky ${save.rounds.syllables}, slova ${save.rounds.words}, čísla ${save.rounds.numbers}, počty ${save.rounds.math}, psaní ${save.rounds.writing}. Dům: ${st} z 12 dílů. Farma: ${farmStage()} z ${FARM_STAGES.length}. Smaragdy: ${save.emeralds}. Řada: ${streakNow().count} (nejdelší ${save.streak.best}). Krumpáč: ${tierOf(save.total).name}.`;
+  $('#progressInfo').textContent = `Odehraná kola: písmena ${save.rounds.letters}, slabiky ${save.rounds.syllables}, slova ${save.rounds.words}, čtení ${save.rounds.reading}, čísla ${save.rounds.numbers}, počty ${save.rounds.math}, psaní ${save.rounds.writing}. Dům: ${st} z 12 dílů. Farma: ${farmStage()} z ${FARM_STAGES.length}. Smaragdy: ${save.emeralds}. Řada: ${streakNow().count} (nejdelší ${save.streak.best}). Krumpáč: ${tierOf(save.total).name}.`;
   updateVoiceInfo();
 }
 $('#btnSettings').addEventListener('click', () => { updateSettings(); $('#resetConfirm').hidden = true; $('#setOverlay').hidden = false; });
