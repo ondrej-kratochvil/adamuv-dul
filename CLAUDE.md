@@ -29,6 +29,6 @@ aktualizaci a po ní novinky ukáže.
 ## Další zásady
 
 - Za chybu se nic nebere, jen se nic nepřidá (zaseknutý krumpáč, kolo se nepočítá). Zaseknutí trvá 2 s; Ochrana na výbavě ho zkracuje o 50 ms za úroveň, nejvíc na 1,2 s (`stuckMs()`). Kratší ne, aby se tipování nevyplatilo.
-- Texty pro Adama musí jít přečíst nahlas (hlas prohlížeče, čeština); tlačítka bez čtení musí dávat smysl obrázkem.
+- Texty pro Adama musí jít přečíst nahlas (hlas prohlížeče, čeština). Každé tlačítko pro Adama má ikonu (`data-icon` / `setBtn`, sada `ICONS`), aby mu rozuměl i bez čtení.
 - Podoby rodiny jen podle toho, co řekl Ondřej (`FAMILY`); nic nedomýšlet.
 - Před nahráním vyzkoušet v Playwrightu (Chromium v `/opt/pw-browsers/chromium`) aspoň jedno kolo dotčeného patra.

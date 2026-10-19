@@ -1,6 +1,14 @@
 {
-  "version": 4,
+  "version": 5,
   "changes": [
+    {
+      "version": 5,
+      "date": "2026-10-19",
+      "notes": [
+        "Novinky ti hra přečte sama. Když je nechceš poslouchat, klepni na Rozumím.",
+        "Tlačítka mají obrázky, abys poznal, co dělají, i když to ještě nepřečteš."
+      ]
+    },
     {
       "version": 4,
       "date": "2026-10-19",

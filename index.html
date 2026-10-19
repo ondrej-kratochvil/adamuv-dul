@@ -68,7 +68,7 @@ button:focus-visible { outline: 4px solid var(--gold); outline-offset: 3px; }
   border: 3px solid #161616;
   box-shadow: inset 3px 3px 0 rgba(255,255,255,.45), inset -3px -3px 0 rgba(0,0,0,.35);
   text-shadow: 2px 2px 0 var(--shadow-text);
-  padding: 10px 18px; font-size: 20px; font-weight: 700;
+  padding: 10px 18px; font-size: 20px; font-weight: 700; font-family: var(--f-read); /* čitelné písmo: pixelové neumí háčky */
   display: inline-flex; align-items: center; justify-content: center; gap: 10px;
 }
 .gbtn:active { box-shadow: inset -3px -3px 0 rgba(255,255,255,.35), inset 3px 3px 0 rgba(0,0,0,.35); }
@@ -319,7 +319,7 @@ canvas.ench { animation: ench 1.8s ease-in-out infinite; }
 .bubble { position: relative; background: #ffffff; border: 3px solid #161616; padding: 6px 10px; font-family: var(--f-read); font-size: 17px; line-height: 1.3; }
 .bubble b { display: block; font-size: 14px; color: #5a4a3a; }
 .name-list { display: grid; gap: 10px; }
-.name-list .gbtn { font-size: clamp(22px, 5vw, 32px); justify-content: flex-start; padding: 12px 16px; }
+.name-list .gbtn { font-family: var(--f-pixel); font-size: clamp(22px, 5vw, 32px); justify-content: flex-start; padding: 12px 16px; }
 .name-list .gbtn[aria-pressed="true"] { background: var(--go); }
 .village-cap { font-family: var(--f-read); font-size: 18px; color: #1f3a52; text-align: center; margin: 0 0 10px; }
 .village-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; max-width: 980px; margin: 0 auto; }
@@ -332,7 +332,6 @@ canvas.ench { animation: ench 1.8s ease-in-out infinite; }
 .update { grid-column: 1 / -1; justify-self: center; width: min(640px, 100%); background: #fff7d1; border: 3px solid #161616; padding: 10px 14px; font-family: var(--f-read); display: grid; gap: 8px; }
 .update b { font-size: 19px; }
 .update ul { margin: 0; padding-left: 20px; font-size: 16px; line-height: 1.4; }
-.update .actions .gbtn { font-family: var(--f-pixel); }
 .fan { grid-column: 1 / -1; display: flex; align-items: center; gap: 10px; background: none; border: 0; padding: 0; text-align: left; justify-self: center; max-width: 640px; }
 .fan .bubble { font-size: 18px; }
 .faces.many { flex-wrap: wrap; width: 120px; row-gap: 4px; } /* celá rodina: obličeje ve dvou řadách */
@@ -552,9 +551,9 @@ canvas.ench { animation: ench 1.8s ease-in-out infinite; }
     <div class="end-bottom">
     <div class="rate" id="rateBox"><p>Jak tě to bavilo?</p><div class="rate-row" id="rateRow"></div></div>
     <div class="actions">
-      <button class="gbtn go" id="btnAgain">Další kolo</button>
-      <button class="gbtn" id="btnEndHouse">Můj dům</button>
-      <button class="gbtn" id="btnEndHome">Domů</button>
+      <button class="gbtn go" id="btnAgain" data-icon="next">Další kolo</button>
+      <button class="gbtn" id="btnEndHouse" data-icon="house">Můj dům</button>
+      <button class="gbtn" id="btnEndHome" data-icon="back">Domů</button>
     </div>
     </div>
   </div>
@@ -565,7 +564,7 @@ canvas.ench { animation: ench 1.8s ease-in-out infinite; }
   <div class="panel" role="dialog" aria-labelledby="nameTitle">
     <h2 class="end-title" id="nameTitle">Jak se má hra jmenovat?</h2>
     <div class="name-list" id="nameList"></div>
-    <div class="actions" style="margin-top:16px"><button class="gbtn go" id="btnNameClose">Hotovo</button></div>
+    <div class="actions" style="margin-top:16px"><button class="gbtn go" id="btnNameClose" data-icon="check">Hotovo</button></div>
   </div>
 </div>
 
@@ -577,7 +576,7 @@ canvas.ench { animation: ench 1.8s ease-in-out infinite; }
     <div class="seg" id="dogNames"></div>
     <h3>Barva</h3>
     <div class="ward-items" id="dogCoats"></div>
-    <div class="actions" style="margin-top:16px"><button class="gbtn go" id="btnDogClose">Hotovo</button></div>
+    <div class="actions" style="margin-top:16px"><button class="gbtn go" id="btnDogClose" data-icon="check">Hotovo</button></div>
   </div>
 </div>
 
@@ -587,7 +586,7 @@ canvas.ench { animation: ench 1.8s ease-in-out infinite; }
     <div class="streak-big" id="streakBig"></div>
     <div class="week" id="streakWeek"></div>
     <div class="streak-info" id="streakInfo"></div>
-    <div class="actions" style="margin-top:14px"><button class="gbtn go" id="btnStreakClose">Hotovo</button></div>
+    <div class="actions" style="margin-top:14px"><button class="gbtn go" id="btnStreakClose" data-icon="check">Hotovo</button></div>
   </div>
 </div>
 
@@ -649,7 +648,7 @@ canvas.ench { animation: ench 1.8s ease-in-out infinite; }
     </div>
 
     <div class="actions" style="margin-top:20px">
-      <button class="gbtn go" id="btnSetClose">Hotovo</button>
+      <button class="gbtn go" id="btnSetClose" data-icon="check">Hotovo</button>
     </div>
   </div>
 </div>
@@ -1995,7 +1994,7 @@ function checkVillage(silent) {
 
 /* ---------- verze hry a aktualizace ---------- */
 // Při každé úpravě hry zvýšit APP_VERSION a do version.json přidat záznam se stejným číslem (co je nového, pro Adama).
-const APP_VERSION = 4;
+const APP_VERSION = 5;
 /* ---------- název hry, který si vybral Adam ---------- */
 // jen názvy bez háčků: pixelové písmo háčky neumí (č, ě, ř, š, ž vypadají jako s tečkou)
 const GAME_NAMES = ['Adamův důl', 'Adamcraft', 'Adamovo království', 'Adamova farma', 'Adamův hrad'];
@@ -2027,26 +2026,50 @@ async function checkVersion() {
   } catch (e) {}
 }
 const notesSince = (from, to) => (serverVersion ? serverVersion.changes : []).filter(c => c.version > from && c.version <= to).flatMap(c => c.notes);
+let updateSpoken = 0; // novinky se přečtou jednou za spuštění
 function renderUpdate(wrap) {
   const box = document.createElement('div'); box.className = 'update';
   let title, notes, btn;
   if (serverVersion && serverVersion.version > APP_VERSION) {
     // na serveru je novější verze, než právě běží
-    title = 'Je tu nová verze hry!'; notes = notesSince(APP_VERSION, serverVersion.version); btn = ['Aktualizovat', () => location.reload()];
+    title = 'Je tu nová verze hry!'; notes = notesSince(APP_VERSION, serverVersion.version); btn = ['refresh', 'Aktualizovat', () => { speechId++; if (synth) synth.cancel(); location.reload(); }];
   } else if (save.seenVersion < APP_VERSION && (save.seenVersion > 0 || save.total > 0)) {
     // hra se právě aktualizovala: jednou ukázat novinky
-    title = 'Co je ve hře nového'; notes = notesSince(save.seenVersion || APP_VERSION - 1, APP_VERSION); btn = ['Rozumím', () => { save.seenVersion = APP_VERSION; persist(); renderHome(); }];
+    title = 'Co je ve hře nového'; notes = notesSince(save.seenVersion || APP_VERSION - 1, APP_VERSION);
+    btn = ['check', 'Rozumím', () => { speechId++; if (synth) synth.cancel(); save.seenVersion = APP_VERSION; persist(); renderHome(); }];
   } else {
     if (save.seenVersion !== APP_VERSION) { save.seenVersion = APP_VERSION; persist(); } // první spuštění: bez novinek
     return;
   }
-  const say = `${title} ${notes.join(' ')}`;
-  box.innerHTML = `<b>${title}</b>${notes.length ? `<ul>${notes.map(n => `<li>${n}</li>`).join('')}</ul>` : ''}<div class="actions"><button class="gbtn go">${btn[0]}</button><button class="gbtn">Přečíst nahlas</button></div>`;
+  const say = `${title}. ${notes.join(' ')}`;
+  box.innerHTML = `<b>${title}</b>${notes.length ? `<ul>${notes.map(n => `<li>${n}</li>`).join('')}</ul>` : ''}<div class="actions"><button class="gbtn go"></button><button class="gbtn"></button></div>`;
   const [b1, b2] = box.querySelectorAll('button');
-  b1.addEventListener('click', btn[1]);
+  setBtn(b1, btn[0], btn[1]); setBtn(b2, 'speaker', 'Přečíst znovu');
+  b1.addEventListener('click', btn[2]);
   b2.addEventListener('click', () => { audio(); speak(say); });
   wrap.appendChild(box);
+  // přečíst hned; prohlížeč pustí hlas až po prvním doteku, proto případně počkat na první klepnutí kamkoli
+  const key = title + serverVersion?.version;
+  if (updateSpoken === key) return;
+  updateSpoken = key;
+  const go = () => { if (!$('#home').hidden && document.body.contains(box)) speak(say); };
+  if (navigator.userActivation?.hasBeenActive) go();
+  else document.addEventListener('pointerdown', function first(e) { document.removeEventListener('pointerdown', first, true); if (!b1.contains(e.target)) { audio(); go(); } }, true);
 }
+
+/* ---------- ikony na tlačítkách (Adam ještě neumí přečíst všechno) ---------- */
+const ICONS = {
+  next: '<path d="M6 4h3v2h2v2h2v2h2v4h-2v2h-2v2H9v2H6V4z"/><path d="M16 4h3v16h-3z"/>',
+  retry: '<path d="M8 3h8v2h2v2h2v4h-3V8h-2V6H9v2H7v8h2v2h6v-2h2v-2h-2v-2h5v7h-2v2h-2v2H8v-2H6v-2H4V7h2V5h2V3z"/>',
+  house: '<path d="M11 2h2v2h2v2h2v2h2v2h2v2h-2v10h-6v-6h-2v6H5V12H3v-2h2V8h2V6h2V4h2V2z"/>',
+  back: '<path d="M14 4h3v3h-3v3h-3v4h3v3h3v3h-3v-3h-3v-3H8v-4h3V7h3V4z"/>',
+  check: '<path d="M18 5h3v3h-2v2h-2v2h-2v2h-2v2h-2v2H9v-2H7v-2H5v-2H3V9h3v2h2v2h2v-2h2V9h2V7h2V5h2z"/>',
+  speaker: '<path d="M3 9h4l5-5h2v16h-2l-5-5H3V9zm14-1h2v2h1v4h-1v2h-2v-2h1v-4h-1V8z"/>',
+  refresh: '<path d="M11 2h2v2h2v2h-2v2h-2V6H8v2H6v8h2v2h8v-2h2v-6h3v7h-2v2h-2v2H7v-2H5v-2H3V7h2V5h2V3h4V2z"/>',
+};
+const iconSvg = k => `<svg viewBox="0 0 24 24" aria-hidden="true">${ICONS[k]}</svg>`;
+function setBtn(b, icon, text) { b.innerHTML = `${iconSvg(icon)}<span class="lbl">${text}</span>`; }
+function iconizeButtons(root = document) { root.querySelectorAll('[data-icon]').forEach(b => { if (!b.querySelector('svg')) setBtn(b, b.dataset.icon, b.textContent.trim()); }); }
 
 /* ---------- deník kol, hodnocení a statistiky ---------- */
 const LOG_MAX = 1500;
@@ -2326,7 +2349,7 @@ function endRound() {
     title.textContent = 'Skoro!'; title.classList.add('fail');
     $('#endLine').textContent = `Bez chyby: ${R.clean} z ${R.len}. ${building ? 'Dům vyroste' : 'Farma vyroste'}, když jich bude aspoň ${need}.`;
     np.hidden = true; no.hidden = true;
-    $('#btnAgain').textContent = 'Zkusit znovu';
+    setBtn($('#btnAgain'), 'retry', 'Zkusit znovu');
     (building ? drawHouse : drawFarm)($('#endHouse'));
     const got = R.clean, R_len = R.len;
     logRound(false);
@@ -2340,7 +2363,7 @@ function endRound() {
   }
   logRound(true);
   title.textContent = 'Výborně, Adame!'; title.classList.remove('fail');
-  $('#btnAgain').textContent = 'Další kolo';
+  setBtn($('#btnAgain'), 'next', 'Další kolo');
   const before = tierOf(save.total);
   save.total++; save.rounds[level]++; persist();
   const day = registerDay();
@@ -2442,6 +2465,7 @@ $('#btnEndHouse').addEventListener('click', () => { $('#endOverlay').hidden = tr
 $('#btnEndHome').addEventListener('click', goHome);
 
 if (season() === 'winter' || season() === 'xmas') document.body.classList.add('winter');
+iconizeButtons();
 applyName();
 if (!save.village) { save.village = {}; checkVillage(true); } // vesnice začíná podle toho, co už Adam umí
 checkEnchants(); // očarování za už zvládnuté úkoly
