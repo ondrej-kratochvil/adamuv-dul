@@ -2931,6 +2931,8 @@ paintTextures();
 renderHome();
 // ikona na ploše a hraní bez internetu
 if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => {});
+// pro automatické testy: přístup k běžícímu kolu a uloženému stavu
+window.__adam = { get R() { return R; }, get TR() { return TR; }, get save() { return save; } };
 })();
 </script>
 

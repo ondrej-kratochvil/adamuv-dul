@@ -1,0 +1,7 @@
+{
+  "caseMode": "both",
+  "slow": false,
+  "total": 4,
+  "rounds": { "letters": 3, "syllables": 1 },
+  "stats": { "letters:A": { "ok": 3, "miss": 0 }, "letters:Á": { "ok": 1, "miss": 2 }, "syllables:MA": { "ok": 2, "miss": 0 } }
+}
