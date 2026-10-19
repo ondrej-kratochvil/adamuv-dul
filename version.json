@@ -1,13 +1,28 @@
 {
-  "version": 2,
+  "version": 3,
   "changes": [
-    { "version": 2, "date": "2026-10-19", "notes": [
-      "Hra sama pozná, že je na internetu nová verze, a nabídne aktualizaci.",
-      "Po aktualizaci ti řekne, co je nového."
-    ] },
-    { "version": 1, "date": "2026-10-19", "notes": [
-      "Ochrana na brnění zkracuje, jak dlouho se krumpáč po chybě zasekne.",
-      "Děda Marek má na obrázku skoro holou hlavu."
-    ] }
+    {
+      "version": 3,
+      "date": "2026-10-19",
+      "notes": [
+        "Hru si můžeš pojmenovat sám: klepni na její název nahoře."
+      ]
+    },
+    {
+      "version": 2,
+      "date": "2026-10-19",
+      "notes": [
+        "Hra sama pozná, že je na internetu nová verze, a nabídne aktualizaci.",
+        "Po aktualizaci ti řekne, co je nového."
+      ]
+    },
+    {
+      "version": 1,
+      "date": "2026-10-19",
+      "notes": [
+        "Ochrana na brnění zkracuje, jak dlouho se krumpáč po chybě zasekne.",
+        "Děda Marek má na obrázku skoro holou hlavu."
+      ]
+    }
   ]
 }
