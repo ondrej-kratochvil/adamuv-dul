@@ -1647,15 +1647,15 @@ function openStreak() {
 }
 
 /* ---------- rodina ---------- */
-// podoby jsou obecné (vlasy, oblečení); dají se upravit, až Adam řekne, jak kdo vypadá
 const FAMILY = [
-  { id: 'paja', name: 'máma Pája', f: true, hair: '#6b3a1a', long: true, top: '#c84a8a' },
-  { id: 'ondra', name: 'táta Ondra', f: false, hair: '#4f321d', top: '#2f6fb0' },
-  { id: 'jindra', name: 'babička Jindra', f: true, hair: '#c9c9c9', long: false, top: '#7d4bc2', glasses: true },
-  { id: 'bob', name: 'děda Bob', f: false, hair: '#d6d6d6', top: '#7a5230', beard: true },
-  { id: 'iva', name: 'babička Iva', f: true, hair: '#b8b2aa', long: false, top: '#3f9b3a' },
-  { id: 'marek', name: 'děda Marek', f: false, hair: '#9a9a9a', top: '#c0392b', glasses: true, bald: true },
-  { id: 'david', name: 'brácha Davídek', f: false, hair: '#8a5a2e', top: '#e0b324', small: true,
+  // barvy vlasů podle Ondřeje (19. 10. 2026); brýle ani vousy nikdo neuvedl, proto nejsou; drdol u babiček jen odlišuje babičky od dědů
+  { id: 'paja', name: 'máma Pája', f: true, hair: '#e2c06c', long: true, top: '#c84a8a' },
+  { id: 'ondra', name: 'táta Ondra', f: false, hair: '#a07a52', grey: '#c4bcb2', top: '#2f6fb0' },
+  { id: 'jindra', name: 'babička Jindra', f: true, hair: '#4a2a14', long: false, top: '#7d4bc2' },
+  { id: 'bob', name: 'děda Bob', f: false, hair: '#cfcfcf', top: '#7a5230' },
+  { id: 'iva', name: 'babička Iva', f: true, hair: '#e2c06c', long: false, top: '#3f9b3a' },
+  { id: 'marek', name: 'děda Marek', f: false, hair: '#dcc274', top: '#c0392b' },
+  { id: 'david', name: 'brácha Davídek', f: false, hair: '#ecd27e', top: '#e0b324', small: true,
     cheers: ['Bráško, ty jsi nejlepší!', 'Hurá! Adame, to je paráda!', 'Já taky chci kopat jako ty!', 'Bráško, naučíš to i mě?'],
     enc: ['Bráško, to nevadí. Zkus to znovu!', 'Adame, já ti fandím!'] },
 ];
@@ -1670,6 +1670,7 @@ function famCanvas(p) {
   R(4, 3, 8, 8, S);
   if (p.bald) { R(4, 4, 1, 3, p.hair); R(11, 4, 1, 3, p.hair); } else { R(4, 2, 8, 2, p.hair); R(4, 4, 1, 2, p.hair); R(11, 4, 1, 2, p.hair); }
   if (!p.long && p.f) { R(6, 0, 4, 2, p.hair); } // drdol
+  if (p.grey) { R(5, 2, 1, 1, p.grey); R(9, 2, 1, 1, p.grey); R(4, 4, 1, 1, p.grey); R(11, 5, 1, 1, p.grey); } // trochu prošedivělé
   if (p.small) { R(5, 4, 3, 1, p.hair); R(9, 8, 1, 1, '#e8a0a0'); R(6, 8, 1, 1, '#e8a0a0'); } // ofina a tvářičky
   R(6, 6, 1, 1, '#2b2b2b'); R(9, 6, 1, 1, '#2b2b2b');
   if (p.glasses) { [4, 8].forEach(x => { const G = '#3a3a3a'; R(x, 5, 4, 1, G); R(x, 8, 4, 1, G); R(x, 5, 1, 4, G); R(x + 3, 5, 1, 4, G); R(x + 1, 6, 2, 2, '#d8eef8'); }); R(6, 6, 1, 1, '#2b2b2b'); R(9, 6, 1, 1, '#2b2b2b'); } // obroučky brýlí
