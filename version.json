@@ -1,6 +1,13 @@
 {
-  "version": 6,
+  "version": 7,
   "changes": [
+    {
+      "version": 7,
+      "date": "2026-10-19",
+      "notes": [
+        "Když ti hra radí, kam klepnout, řekne ti, jaký obrázek je na tlačítku."
+      ]
+    },
     {
       "version": 6,
       "date": "2026-10-19",
@@ -13,7 +20,7 @@
       "version": 5,
       "date": "2026-10-19",
       "notes": [
-        "Novinky ti hra přečte sama. Když je nechceš poslouchat, klepni na Rozumím.",
+        "Novinky ti hra přečte sama. Když je nechceš poslouchat, klepni na zelené tlačítko s fajfkou.",
         "Tlačítka mají obrázky, abys poznal, co dělají, i když to ještě nepřečteš."
       ]
     },
@@ -29,7 +36,7 @@
       "version": 3,
       "date": "2026-10-19",
       "notes": [
-        "Hru si můžeš pojmenovat sám: klepni na její název nahoře."
+        "Hru si můžeš pojmenovat sám: klepni na velký nápis nahoře."
       ]
     },
     {

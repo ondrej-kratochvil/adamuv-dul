@@ -2094,7 +2094,7 @@ const mineTex = t => (save.netherMine && portalLit() && NETHER_TEX[t]) || t;
 
 /* ---------- verze hry a aktualizace ---------- */
 // Při každé úpravě hry zvýšit APP_VERSION a do version.json přidat záznam se stejným číslem (co je nového, pro Adama).
-const APP_VERSION = 6;
+const APP_VERSION = 7;
 /* ---------- název hry, který si vybral Adam ---------- */
 // jen názvy bez háčků: pixelové písmo háčky neumí (č, ě, ř, š, ž vypadají jako s tečkou)
 const GAME_NAMES = ['Adamův důl', 'Adamcraft', 'Adamovo království', 'Adamova farma', 'Adamův hrad'];
@@ -2141,7 +2141,9 @@ function renderUpdate(wrap) {
     if (save.seenVersion !== APP_VERSION) { save.seenVersion = APP_VERSION; persist(); } // první spuštění: bez novinek
     return;
   }
-  const say = `${title}. ${notes.join(' ')}`;
+  // tlačítka popisovat obrázkem, ne nápisem: Adam text tlačítka ještě nepřečte
+  const hint = btn[0] === 'check' ? ' Až budeš chtít hrát, klepni na zelené tlačítko s fajfkou.' : ' Novou verzi spustíš zeleným tlačítkem s kruhovou šipkou.';
+  const say = `${title}. ${notes.join(' ')}${hint}`;
   box.innerHTML = `<b>${title}</b>${notes.length ? `<ul>${notes.map(n => `<li>${n}</li>`).join('')}</ul>` : ''}<div class="actions"><button class="gbtn go"></button><button class="gbtn"></button></div>`;
   const [b1, b2] = box.querySelectorAll('button');
   setBtn(b1, btn[0], btn[1]); setBtn(b2, 'speaker', 'Přečíst znovu');
