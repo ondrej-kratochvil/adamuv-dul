@@ -1,6 +1,13 @@
 {
-  "version": 18,
+  "version": 19,
   "changes": [
+    {
+      "version": 19,
+      "date": "2026-10-19",
+      "notes": [
+        "Písmena po slabice hra říká už jen u so a me."
+      ]
+    },
     {
       "version": 18,
       "date": "2026-10-19",

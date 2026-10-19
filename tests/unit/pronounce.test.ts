@@ -5,10 +5,11 @@ import { SYLL } from '../../src/content/letters';
 import { seeded } from '../../src/logic/random';
 
 describe('výslovnost', () => {
-  it('rizikové slabiky jsou ve hře a v základu říkají i písmena', () => {
+  it('rizikové slabiky jsou ve hře, so a me v základu říkají i písmena', () => {
     for (const s of RISKY_SYLLABLES) expect(SYLL).toContain(s);
     expect(pronounce('SO')).toBe('so, es, o');
-    expect(pronounce('MY')).toBe('my, em, ypsilon');
+    expect(pronounce('ME')).toBe('me, em, e');
+    expect(pronounce('MY')).toBe('my'); // na tabletu zní česky
   });
   it('slabiky s čárkou a běžné slabiky jen obyčejně', () => {
     expect(pronounce('MÁ')).toBe('má');

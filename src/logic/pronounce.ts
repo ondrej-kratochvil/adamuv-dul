@@ -22,7 +22,9 @@ export function pronounceAs(item: string, mode: PronMode): string {
   return low;
 }
 
-export const defaultMode = (item: string): PronMode => RISKY_SYLLABLES.includes(item) ? 'letters' : 'plain';
+// Na Adamově tabletu vybral Ondřej (19. 10. 2026) „s písmeny“ jen u so a me, u ostatních „obyčejně“
+export const LETTERS_BY_DEFAULT = ['SO', 'ME'];
+export const defaultMode = (item: string): PronMode => LETTERS_BY_DEFAULT.includes(item) ? 'letters' : 'plain';
 
 // text pro hlas; volba rodiče (overrides) má přednost
 export function pronounce(item: string, overrides: Record<string, string> = {}): string {
