@@ -519,6 +519,20 @@ canvas.ench { animation: ench 1.8s ease-in-out infinite; }
     </div>
   </section>
 
+  <!-- PŘEROV -->
+  <section class="screen" id="prerov" hidden>
+    <div class="sky" style="flex:1; display:flex; flex-direction:column; min-height:0;">
+      <div class="cloud c1"></div>
+      <div class="inner hud">
+        <button class="gbtn icon" id="btnPrerovBack" aria-label="Zpět domů"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h3v3h-3v3h-3v4h3v3h3v3h-3v-3h-3v-3H8v-4h3V7h3V4z"/></svg></button>
+        <div class="ward-title">Přerov</div>
+        <div style="width:56px"></div>
+      </div>
+      <div class="house-view inner"><canvas id="prerovBig" class="px" aria-label="Přerov z kostek"></canvas></div>
+      <div class="house-cap inner" id="prerovCap" style="font-family: var(--f-read); font-size: 18px;"></div>
+    </div>
+  </section>
+
   <!-- SBÍRKA KARTIČEK -->
   <section class="screen" id="album" hidden>
     <div class="sky" style="flex:1; display:flex; flex-direction:column; min-height:0;">
@@ -596,6 +610,7 @@ canvas.ench { animation: ench 1.8s ease-in-out infinite; }
     <div class="newpick" id="newNether" hidden></div>
     <div class="newpick" id="newCards" hidden></div>
     <div class="newpick" id="newBaby" hidden></div>
+    <div class="newpick" id="newPrerov" hidden></div>
     <canvas class="end-house px" id="endHouse"></canvas>
     <div class="end-bottom">
     <div class="rate" id="rateBox"><p>Jak tě to bavilo?</p><div class="rate-row" id="rateRow"></div></div>
@@ -1412,7 +1427,7 @@ function display(it) {
 }
 
 /* ---------- obrazovky ---------- */
-function show(id) { ['home', 'game', 'house', 'wardrobe', 'farm', 'shop', 'stats', 'village', 'nether', 'album'].forEach(s => { $('#' + s).hidden = s !== id; }); }
+function show(id) { ['home', 'game', 'house', 'wardrobe', 'farm', 'shop', 'stats', 'village', 'nether', 'album', 'prerov'].forEach(s => { $('#' + s).hidden = s !== id; }); }
 function paintTextures(root = document) {
   root.querySelectorAll('[data-tex]').forEach(el => { el.style.backgroundImage = `url(${tex(el.dataset.tex, el.dataset.dark === '1')})`; });
 }
@@ -1486,6 +1501,7 @@ function renderHome() {
   card('Farma', drawFarm, openFarm, farmStage() === 0);
   card('Vesnice', drawVillage, openVillage, false);
   card('Nether', drawNether, openNether, !portalLit());
+  card('Přerov', drawPrerov, openPrerov, prerovStage() === 0);
   wrap.appendChild(places);
   mountDog($('#heroDog'));
   updateGems(); renderStreakBtn();
@@ -1567,6 +1583,13 @@ const SPRITES = {
   beehive: [16, 16, R => { R(1, 2, 14, 13, '#d8a23a'); R(1, 5, 14, 1, '#a8781e'); R(1, 10, 14, 1, '#a8781e'); R(6, 7, 4, 2, '#3a2a10'); R(10, 11, 2, 3, '#f2c94c'); R(10, 14, 1, 1, '#f2c94c'); }],
   scarecrow: [16, 32, R => { R(7, 9, 2, 23, '#7a5e3b'); R(0, 12, 16, 2, '#7a5e3b'); R(4, 11, 8, 8, '#3f6fb0'); R(3, 19, 10, 2, '#d8b84a'); R(3, 0, 10, 9, '#e8862a'); R(7, 0, 2, 1, '#4c7a2a'); R(5, 3, 2, 2, '#3a2410'); R(9, 3, 2, 2, '#3a2410'); R(5, 6, 6, 1, '#3a2410'); }],
   sunflower: [16, 32, R => { R(7, 10, 2, 22, '#3f8a2a'); R(3, 18, 4, 2, '#4c9c33'); R(9, 23, 4, 2, '#4c9c33'); R(4, 1, 8, 10, '#f2d024'); R(3, 2, 10, 8, '#f2d024'); R(5, 3, 6, 6, '#6b4424'); }],
+  rail: [16, 16, R => { R(0, 13, 16, 2, '#5a4030'); [1, 6, 11].forEach(x => R(x, 11, 3, 5, '#6b4a31')); R(0, 11, 16, 1, '#a0a0a0'); R(0, 14, 16, 1, '#a0a0a0'); }],
+  loco: [32, 16, R => { R(2, 4, 22, 8, '#c0392b'); R(16, 0, 9, 12, '#a82e22'); R(18, 2, 5, 4, '#a9dbea'); R(5, 0, 3, 4, '#333333'); R(0, 9, 3, 3, '#333333'); [4, 12, 20].forEach(x => { R(x, 12, 4, 4, '#222222'); R(x + 1, 13, 2, 2, '#888888'); }); R(2, 8, 22, 1, '#f2c94c'); }],
+  wagon: [32, 16, R => { R(1, 2, 30, 10, '#2f6fb0'); R(1, 2, 30, 1, '#4a86c8'); [4, 11, 18, 25].forEach(x => R(x, 4, 4, 4, '#a9dbea')); [5, 23].forEach(x => { R(x, 12, 4, 4, '#222222'); R(x + 1, 13, 2, 2, '#888888'); }); }],
+  clock: [16, 16, R => { R(4, 3, 8, 10, '#f4f4f4'); R(3, 4, 10, 8, '#f4f4f4'); R(7, 5, 2, 4, '#222222'); R(8, 8, 3, 1, '#222222'); }],
+  cross: [16, 16, R => { R(7, 2, 2, 13, '#e0c060'); R(4, 5, 8, 2, '#e0c060'); }],
+  flagCz: [16, 16, R => { R(1, 1, 1, 15, '#5a4030'); R(2, 2, 12, 4, '#ffffff'); R(2, 6, 12, 4, '#d7141a'); R(2, 2, 2, 8, '#11457e'); R(4, 4, 2, 4, '#11457e'); }],
+  fountain: [16, 16, R => { R(1, 10, 14, 6, '#9a9a9a'); R(1, 10, 14, 1, '#bdbdbd'); R(3, 9, 10, 2, '#5aa0e8'); R(7, 2, 2, 8, '#8ac4f8'); R(5, 4, 1, 3, '#8ac4f8'); R(10, 4, 1, 3, '#8ac4f8'); }],
   portalIcon: [16, 16, R => { R(2, 0, 12, 16, '#241638'); R(4, 2, 8, 12, '#9a4af0'); R(6, 4, 2, 3, '#c890ff'); R(8, 9, 2, 3, '#7a2ad0'); }],
   wart: [16, 16, R => { [[2, 8], [7, 6], [12, 9]].forEach(([x, y]) => { R(x, y, 3, 3, '#a0181e'); R(x + 1, y - 1, 1, 1, '#c8282e'); R(x + 1, y + 3, 1, 16 - y - 3, '#6a1014'); }); }],
   strider: [16, 16, R => { R(2, 3, 12, 7, '#b0303a'); R(2, 3, 12, 1, '#c84a50'); [3, 6, 9, 12].forEach(x => R(x, 1, 1, 2, '#e0d0b0')); R(4, 6, 2, 1, '#1a1a1a'); R(10, 6, 2, 1, '#1a1a1a'); R(4, 10, 2, 6, '#7a6a6a'); R(10, 10, 2, 6, '#7a6a6a'); }],
@@ -2020,6 +2043,7 @@ function signCanvas(icon) {
   if (icon === 'book') { R(4, 5, 8, 6, '#2f6fb0'); R(4, 5, 1, 6, '#203a70'); R(6, 7, 4, 1, '#e8d6b0'); }
   if (icon === 'film') { R(3, 6, 10, 4, '#2b2b2b'); [4, 6, 8, 10].forEach(x => { R(x, 6, 1, 1, '#e8d6b0'); R(x, 9, 1, 1, '#e8d6b0'); }); }
   if (icon === 'coin') { R(6, 5, 4, 6, '#f2c94c'); R(5, 6, 6, 4, '#f2c94c'); R(7, 6, 2, 4, '#c9a227'); }
+  if (icon === 'belt') { R(3, 7, 10, 2, '#1d1d1d'); R(7, 6, 2, 5, '#1d1d1d'); R(6, 10, 1, 2, '#1d1d1d'); R(9, 10, 1, 2, '#1d1d1d'); }
   if (icon === 'letter') { R(4, 6, 8, 5, '#ffffff'); R(5, 7, 1, 1, '#8a8a8a'); R(6, 8, 1, 1, '#8a8a8a'); R(7, 9, 2, 1, '#8a8a8a'); R(9, 8, 1, 1, '#8a8a8a'); R(10, 7, 1, 1, '#8a8a8a'); }
   return c;
 }
@@ -2201,9 +2225,80 @@ function initBabies() {
   persist();
 }
 
+/* ---------- Přerov z kostek: místa z Adamova města za nejdelší řadu dní ---------- */
+// Odměna za pravidelnost; nejdelší řada se nikdy nesníží, takže postavené místo nezmizí. Jen skutečná místa, nic smyšleného.
+const PREROV = [
+  { at: 3, name: 'řeka Bečva' },
+  { at: 5, name: 'lávka přes Bečvu' },
+  { at: 7, name: 'tvoje škola Za Mlýnem' },
+  { at: 10, name: 'nádraží s vlakem' },
+  { at: 14, name: 'zámek s věží' },
+  { at: 21, name: 'kostel' },
+  { at: 30, name: 'náměstí s kašnou' },
+  { at: 45, name: 'sokolovna, kde chodíš na karate' },
+  { at: 60, name: 'ohňostroj nad Přerovem' },
+];
+const prerovStage = () => PREROV.filter(x => save.streak.best >= x.at).length;
+function drawPrerov(cv) {
+  const C = 16, W = 36, H = 14; cv.width = W * C; cv.height = H * C;
+  const g = cv.getContext('2d'); g.imageSmoothingEnabled = false;
+  const st = prerovStage();
+  const cell = (t, x, y) => g.drawImage(texCanvas(seasonTex(t)), x * C, y * C);
+  const at = (name, x, row) => { const sp = spr(name); g.drawImage(sp, x * C, (row + 1) * C - sp.height); };
+  const grd = g.createLinearGradient(0, 0, 0, 11 * C); grd.addColorStop(0, st >= 9 ? '#1a2350' : '#6fb2ea'); grd.addColorStop(1, st >= 9 ? '#4a3a70' : '#c6e6f8');
+  g.fillStyle = grd; g.fillRect(0, 0, cv.width, cv.height);
+  if (st < 9) { g.fillStyle = '#fff3a6'; g.fillRect(33 * C, C, 24, 24); g.fillStyle = '#ffffff'; g.fillRect(4 * C, 1.5 * C, 40, 10); g.fillRect(20 * C, C, 34, 8); }
+  const river = x => st >= 1 && x >= 17 && x <= 20;
+  for (let x = 0; x < W; x++) { if (river(x)) { cell('water', x, 11); cell('water', x, 12); } else { cell('grass', x, 11); cell('dirt', x, 12); } cell('dirt', x, 13); }
+  if (st >= 2) { for (let x = 16; x <= 21; x++) { cell('planks', x, 10); at('fence', x, 9); } }
+  if (st >= 3) { // škola
+    for (let y = 6; y <= 10; y++) for (let x = 1; x <= 6; x++) cell('brick', x, y);
+    [[2, 7], [5, 7], [2, 9], [5, 9]].forEach(([x, y]) => cell('glass', x, y));
+    cell('doorB', 3, 10); cell('doorT', 3, 9); g.drawImage(signCanvas('A'), 4 * C, 9 * C);
+    for (let x = 0; x <= 7; x++) cell('roofRed', x, 5); for (let x = 1; x <= 6; x++) cell('roofRed', x, 4);
+  }
+  if (st >= 4) { // nádraží
+    for (let x = 22; x < W; x++) at('rail', x, 10);
+    for (let y = 7; y <= 9; y++) for (let x = 29; x <= 34; x++) cell('quartz', x, y);
+    for (let x = 28; x <= 35; x++) cell('roofBlue', x, 6); g.drawImage(spr('clock'), 31.5 * C, 7 * C);
+    cell('glass', 30, 8); cell('glass', 34, 8);
+  }
+  if (st >= 5) { // zámek
+    for (let y = 7; y <= 10; y++) for (let x = 10; x <= 15; x++) cell('stone', x, y);
+    [10, 12, 15].forEach(x => cell('stone', x, 6));
+    for (let y = 3; y <= 6; y++) cell('stone', 14, y); cell('roof', 14, 2); at('flagCz', 14, 1);
+    cell('glass', 11, 8); cell('glass', 14, 8); cell('doorB', 12, 10); cell('doorT', 12, 9);
+  }
+  if (st >= 6) { // kostel
+    for (let y = 7; y <= 10; y++) for (let x = 7; x <= 9; x++) cell('quartz', x, y);
+    for (let y = 3; y <= 6; y++) cell('quartz', 8, y); cell('roof', 8, 2); at('cross', 8, 1);
+    cell('glass', 8, 8); cell('doorB', 8, 10);
+  }
+  if (st >= 7) at('fountain', 0, 10);
+  if (st >= 8) { // sokolovna (stojí před kolejemi, kolej je jen u nádraží)
+    for (let y = 7; y <= 10; y++) for (let x = 23; x <= 27; x++) cell('planksY', x, y);
+    for (let x = 22; x <= 28; x++) cell('roofRed', x, 6);
+    cell('doorB', 25, 10); cell('doorT', 25, 9); g.drawImage(signCanvas('belt'), 25 * C, 7 * C); cell('glass', 23, 8); cell('glass', 27, 8);
+  }
+  if (st >= 4) { at('wagon', 29, 10); at('loco', 31, 10); } // vlak až nakonec, ať ho nic nezakryje
+  if (st >= 9) { // ohňostroj
+    const r = rng(17);
+    for (let k = 0; k < 6; k++) { const cx = 40 + r() * (cv.width - 80), cy = 20 + r() * 70, col = pick(r, ['#ff5a5a', '#f6cf45', '#5ad0ff', '#9b5de5', '#6bd96b']); g.fillStyle = col; for (let a = 0; a < 12; a++) { const an = a / 12 * Math.PI * 2; for (let d = 4; d <= 14; d += 5) g.fillRect(Math.round(cx + Math.cos(an) * d), Math.round(cy + Math.sin(an) * d), 2, 2); } }
+  }
+  snowFx(g, cv.width, cv.height);
+}
+function openPrerov() {
+  speechId++; if (synth) synth.cancel();
+  show('prerov'); drawPrerov($('#prerovBig')); fitCanvas($('#prerovBig'));
+  const st = prerovStage(), next = PREROV[st];
+  const cap = st === 0 ? `Přerov se začne stavět, až budeš hrát 3 dny v řadě. Tvoje nejdelší řada: ${save.streak.best}.` : next ? `Postaveno ${st} z ${PREROV.length}. Další: ${next.name}, až budeš hrát ${next.at} dní v řadě. Tvoje nejdelší řada: ${save.streak.best}.` : 'Celý Přerov je postavený, i s ohňostrojem!';
+  $('#prerovCap').textContent = cap;
+  speak(cap);
+}
+
 /* ---------- verze hry a aktualizace ---------- */
 // Při každé úpravě hry zvýšit APP_VERSION a do version.json přidat záznam se stejným číslem (co je nového, pro Adama).
-const APP_VERSION = 13;
+const APP_VERSION = 14;
 /* ---------- název hry, který si vybral Adam ---------- */
 // jen názvy bez háčků: pixelové písmo háčky neumí (č, ě, ř, š, ž vypadají jako s tečkou)
 const GAME_NAMES = ['Adamův důl', 'Adamcraft', 'Adamovo království', 'Adamova farma', 'Adamův hrad'];
@@ -2453,7 +2548,7 @@ function layoutBlocks() {
   box.style.gridTemplateColumns = `repeat(${bestC}, var(--bs))`;
   box.style.gap = gap + 'px';
 }
-addEventListener('resize', () => { layoutBlocks(); if (TR && !$('#trace').hidden) layoutTrace(); if (!$('#house').hidden) fitCanvas($('#houseBig')); if (!$('#farm').hidden) fitCanvas($('#farmBig')); if (!$('#nether').hidden) fitCanvas($('#netherBig')); });
+addEventListener('resize', () => { layoutBlocks(); if (TR && !$('#trace').hidden) layoutTrace(); if (!$('#house').hidden) fitCanvas($('#houseBig')); if (!$('#farm').hidden) fitCanvas($('#farmBig')); if (!$('#nether').hidden) fitCanvas($('#netherBig')); if (!$('#prerov').hidden) fitCanvas($('#prerovBig')); });
 function retrigger(el, cls) { el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls); }
 function tapBlock(it, el) {
   if (!R || R.busy || R.stuck) return;
@@ -2566,7 +2661,7 @@ function endRound() {
     // nepovedené kolo se nepočítá: nic neroste, nic se neodemyká, obtížnost se nezvedá (smaragdy za kostky bez chyby zůstanou)
     title.textContent = 'Skoro!'; title.classList.add('fail');
     $('#endLine').textContent = `Bez chyby: ${R.clean} z ${R.len}. ${building ? 'Dům vyroste' : 'Farma vyroste'}, když jich bude aspoň ${need}.`;
-    np.hidden = true; no.hidden = true; $('#newNether').hidden = true; $('#newBaby').hidden = true;
+    np.hidden = true; no.hidden = true; $('#newNether').hidden = true; $('#newBaby').hidden = true; $('#newPrerov').hidden = true;
     setBtn($('#btnAgain'), 'retry', 'Zkusit znovu');
     (building ? drawHouse : drawFarm)($('#endHouse'));
     const got = R.clean, R_len = R.len;
@@ -2586,6 +2681,10 @@ function endRound() {
   save.total++; save.rounds[level]++; persist();
   const day = registerDay();
   if (day) showGems(day.bonus);
+  const pn = $('#newPrerov'); let prerovTalk = '';
+  const newPlaces = day ? PREROV.filter(x => day.prevBest < x.at && day.count >= x.at) : [];
+  if (newPlaces.length) { pn.hidden = false; pn.innerHTML = ''; pn.appendChild(signCanvas('A')); pn.insertAdjacentHTML('beforeend', `<span>V Přerově přibylo: ${newPlaces.map(x => x.name).join(', ')}!</span>`); prerovTalk = ` Hraješ ${day.count} dní v řadě, a tak v Přerově přibylo: ${newPlaces.map(x => x.name).join(' a ')}!`; }
+  else pn.hidden = true;
   const nb = $('#newBaby'); let babyTalk = '';
   if (day && day.baby) { nb.hidden = false; nb.innerHTML = ''; const bc = babyCanvas(day.baby); bc.style.width = '48px'; bc.style.height = '40px'; nb.appendChild(bc); nb.insertAdjacentHTML('beforeend', `<span>Tento týden jsi hrál ${BABY_DAYS} dny. Na farmě se narodilo ${day.baby.name}!</span>`); babyTalk = ` Tento týden jsi hrál už ${BABY_DAYS} dny, a tak se na farmě narodilo ${day.baby.name}!`; }
   else nb.hidden = true;
@@ -2618,7 +2717,7 @@ function endRound() {
   const milestone = st === FARM_START ? 'Dostavěl jsi dům, gratulujeme!' : st === FARM_START + FARM_STAGES.length ? 'Farma je hotová, jsme na tebe moc pyšní!' : (day && day.count === 7) ? 'Sedm dní v řadě, to je výkon!' : (day && day.count > 0 && day.count % 30 === 0) ? `${day.count} dní v řadě! Jsme na tebe pyšní.` : '';
   const cheer = cheerFor(true, milestone);
   const dayTalk = day ? (day.usedTotem ? ` Totem zachránil tvou řadu!` : '') + (day.count > 1 ? ` Hraješ ${day.count} ${dayWord(day.count)} v řadě, bonus ${day.bonus} ${gemWord(day.bonus)}.` : ` Dnešní den se počítá do řady, bonus ${day.bonus} ${gemWord(day.bonus)}.`) : '';
-  speak((perfect ? 'Bez jediné chyby! ' : '') + cheer + (newTier ? ` Máš nový ${after.name} krumpáč!` : '') + story + dayTalk + netherTalk + babyTalk + enchTalk + vilTalk + cardTalk + (fresh.length ? ` V šatníku máš ${fresh.map(([, it]) => it.name).join(' a ')}.` : ''));
+  speak((perfect ? 'Bez jediné chyby! ' : '') + cheer + (newTier ? ` Máš nový ${after.name} krumpáč!` : '') + story + dayTalk + netherTalk + babyTalk + prerovTalk + enchTalk + vilTalk + cardTalk + (fresh.length ? ` V šatníku máš ${fresh.map(([, it]) => it.name).join(' a ')}.` : ''));
   $('#btnAgain').focus({ preventScroll: true });
 }
 function goHome() {
@@ -2671,6 +2770,7 @@ $('#btnFarmBack').addEventListener('click', goHome);
 $('#btnVillageBack').addEventListener('click', goHome);
 $('#btnNetherBack').addEventListener('click', goHome);
 $('#btnAlbumBack').addEventListener('click', goHome);
+$('#btnPrerovBack').addEventListener('click', goHome);
 $('#btnNetherMine').addEventListener('click', () => { audio(); save.netherMine = !save.netherMine; persist(); openNether(); speak(save.netherMine ? 'Teď kopeš v Netheru.' : 'Teď kopeš doma v dole.'); });
 $('#btnShopBack').addEventListener('click', goHome);
 $('#btnStreak').addEventListener('click', openStreak);

@@ -1,6 +1,14 @@
 {
-  "version": 13,
+  "version": 14,
   "changes": [
+    {
+      "version": 14,
+      "date": "2026-10-19",
+      "notes": [
+        "Přerov z kostek! Za dlouhou řadu dní se staví Bečva, lávka, tvoje škola, nádraží, zámek a další místa.",
+        "Najdeš ho na úvodní obrazovce dole."
+      ]
+    },
     {
       "version": 13,
       "date": "2026-10-19",
