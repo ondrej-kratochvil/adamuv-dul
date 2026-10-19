@@ -1,6 +1,13 @@
 {
-  "version": 23,
+  "version": 24,
   "changes": [
+    {
+      "version": 24,
+      "date": "2026-10-19",
+      "notes": [
+        "Na úvodní obrazovce jsou teď tři sloupce, víc se toho vejde na obrazovku."
+      ]
+    },
     {
       "version": 23,
       "date": "2026-10-19",

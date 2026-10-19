@@ -28,3 +28,22 @@ test('mobil: na konci kola je vidět celý dům a tři tlačítka vedle sebe', a
   expect(new Set(tops).size).toBe(1);
   await page.screenshot({ path: 'test-results/konec-kola.png' });
 });
+
+test('mobil na výšku: úvodní obrazovka má 3 sloupce dlaždic', async ({ page }) => {
+  await page.setViewportSize({ width: 412, height: 860 });
+  await openGame(page);
+  const lefts = await page.locator('#levels > .lvl').evaluateAll(els => [...new Set(els.map(e => Math.round(e.getBoundingClientRect().left)))]);
+  expect(lefts.length).toBe(3);
+  const over = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
+  expect(over).toBeLessThanOrEqual(0);
+  await page.screenshot({ path: 'test-results/domu-3sloupce.png' });
+});
+
+test('tablet: dlaždice se nepřekrývají', async ({ page }) => {
+  for (const [w, h] of [[800, 1110], [1280, 690]]) {
+    await page.setViewportSize({ width: w, height: h });
+    await openGame(page);
+    const boxes = await page.locator('#levels > .lvl .blk').evaluateAll(els => els.map(e => { const r = e.getBoundingClientRect(); return [r.left, r.right, r.top]; }));
+    for (const a of boxes) for (const b of boxes) if (a !== b && Math.abs(a[2] - b[2]) < 5 && a[0] < b[0]) expect(a[1]).toBeLessThanOrEqual(b[0]);
+  }
+});

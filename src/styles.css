@@ -88,10 +88,10 @@ button:focus-visible { outline: 4px solid var(--gold); outline-offset: 3px; }
 }
 .hero { cursor: pointer; --h: clamp(80px, 14vh, 150px); height: var(--h); flex: none; margin-left: 0; margin-right: calc(var(--h) * .32); } /* místo pro krumpáč, který přečnívá doprava */
 .home-ground { overflow: auto; }
-.levels { --tile: clamp(96px, 18vw, 136px); display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 14px; padding-block: 16px; max-width: 900px; margin: 0 auto; }
+.levels { --tile: clamp(84px, 24vw, 136px); display: grid; grid-template-columns: repeat(auto-fit, minmax(calc(var(--tile) + 8px), 1fr)); gap: 12px 8px; /* sloupec podle velikosti dlaždice: mobil na výšku 3, tablet 5 */ padding-block: 16px; max-width: 900px; margin: 0 auto; }
 .lvl { background: none; border: 0; padding: 0; display: grid; align-content: start; justify-items: center; gap: 10px; position: relative; }
 .lvl .blk { width: var(--tile); }
-.lvl-name { font-family: var(--f-read); font-size: 21px; font-weight: 700; color: var(--white); text-shadow: 2px 2px 0 #000; }
+.lvl-name { font-family: var(--f-read); font-size: clamp(16px, 4.4vw, 21px); font-weight: 700; color: var(--white); text-shadow: 2px 2px 0 #000; }
 .lvl-sub { font-family: var(--f-read); font-size: 15px; color: #e9dcc8; text-shadow: 1px 1px 0 #000; margin-top: -8px; }
 .lvl[disabled] { cursor: default; }
 .lvl[disabled] .blk { filter: saturate(.55) brightness(.75); }
@@ -140,8 +140,8 @@ button:focus-visible { outline: 4px solid var(--gold); outline-offset: 3px; }
 .glyph { font-family: var(--f-read); font-weight: 700; color: var(--ink); line-height: 1; font-size: calc(var(--bs, 120px) * .44); padding-top: .08em; white-space: nowrap; }
 .syl .glyph { font-size: calc(var(--bs, 120px) * .32); }
 .plate canvas.pic { width: 86%; height: 86%; }
-.lvl .glyph { font-size: clamp(26px, 5.5vw, 38px); }
-.lvl .syl .glyph { font-size: clamp(18px, 3.6vw, 26px); }
+.lvl .glyph { font-size: clamp(22px, 6vw, 38px); }
+.lvl .syl .glyph { font-size: clamp(15px, 4vw, 26px); }
 /* malé l s ocáskem, aby nevypadalo jako velké I */
 .ell { display: inline-block; width: .46em; height: .78em; margin-right: .01em; }
 .crack { position: absolute; inset: 0; opacity: .5; background-size: 100% 100%; image-rendering: pixelated; pointer-events: none; }
