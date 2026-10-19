@@ -1,6 +1,13 @@
 {
-  "version": 7,
+  "version": 8,
   "changes": [
+    {
+      "version": 8,
+      "date": "2026-10-19",
+      "notes": [
+        "Názvy hry mají čísla. Hra ti je přečte, zapamatuj si číslo a klepni na něj."
+      ]
+    },
     {
       "version": 7,
       "date": "2026-10-19",
