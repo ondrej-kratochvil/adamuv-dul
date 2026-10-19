@@ -15,6 +15,8 @@ přidej i odměny, aby Adam nedošel na strop dřív, než dojde obsah.
   očarování nebo jiné odměny, aby krok mezi odměnami nebyl příliš dlouhý (teď zhruba 3 zvládnuté úkoly na odměnu).
 - **Vesnice** (`BUILDINGS`): každé patro staví svou budovu podle podílu svých zvládnutých úkolů (8 fází, hotovo až při 100 %).
   Nové patro = nová budova v `BUILDINGS` (a položky v `MASTERY_SETS()`).
+- **Sbírka kartiček** (`cardWords()`): kartička za každé zvládnuté slovo (Slova nebo Čtení), celá sbírka = 30 smaragdů.
+  Nová slova ve `WORDS` přidají kartičky sama; slova s obrázkem v `PIC` mají kartičku s obrázkem.
 - **Portál do Netheru** odměňuje pravidelnost, ne zvládnutí: 1 obsidián za každý den s povedeným kolem (`registerDay`),
   10 = portál, každý další den kus Netheru (`NETHER_STAGES`). Až dojdou fáze, přidat další (nebo End).
 - **Zvládnutý úkol** = `mastery() === 'good'` (aspoň 3× správně a poslední dobou bez chyby).

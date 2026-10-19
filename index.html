@@ -326,6 +326,17 @@ canvas.ench { animation: ench 1.8s ease-in-out infinite; }
 #game.nethered .cloud { display: none; }
 #nether.lit .house-cap, #nether.lit .ward-title { color: #ffd9b0; }
 #btnNetherMine[aria-pressed="true"] { background: #a8341c; }
+.album-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 10px; max-width: 900px; margin: 0 auto; }
+.wcard { aspect-ratio: 3 / 4; border: 4px solid #161616; background: #f8f2e2; display: grid; grid-template-rows: 1fr auto; justify-items: center; align-items: center; padding: 6px 4px 4px; position: relative; box-shadow: 0 4px 0 rgba(0,0,0,.3); font-family: var(--f-read); }
+.wcard.r2 { border-color: #2f6fb0; background: #e8f1fb; } .wcard.r3 { border-color: #7d4bc2; background: #f2eafc; }
+.wcard canvas { width: 78%; height: auto; }
+.wcard .big { font-weight: 700; font-size: clamp(18px, 4.6vw, 28px); color: var(--ink); }
+.wcard .w { font-weight: 700; font-size: clamp(15px, 3.6vw, 20px); color: var(--ink); }
+.wcard .stars { position: absolute; top: 2px; right: 4px; color: #e0b324; font-size: 12px; letter-spacing: -1px; }
+.wcard.back { background: repeating-linear-gradient(45deg, #5a3d27 0 8px, #6b4a30 8px 16px); border-color: #3a2614; }
+.wcard.back .q { font-size: 40px; font-weight: 700; color: #f6cf45; text-shadow: 2px 2px 0 #000; grid-row: 1 / -1; }
+.newpick .wcard { width: 54px; flex: none; padding: 2px; }
+.newpick .wcard .w { font-size: 11px; }
 .village-cap { font-family: var(--f-read); font-size: 18px; color: #1f3a52; text-align: center; margin: 0 0 10px; }
 .village-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; max-width: 980px; margin: 0 auto; }
 .bld { background: none; border: 0; padding: 0; display: grid; gap: 4px; justify-items: center; font-family: var(--f-read); color: #1f3a52; }
@@ -508,6 +519,22 @@ canvas.ench { animation: ench 1.8s ease-in-out infinite; }
     </div>
   </section>
 
+  <!-- SBÍRKA KARTIČEK -->
+  <section class="screen" id="album" hidden>
+    <div class="sky" style="flex:1; display:flex; flex-direction:column; min-height:0;">
+      <div class="cloud c1"></div>
+      <div class="inner hud">
+        <button class="gbtn icon" id="btnAlbumBack" aria-label="Zpět domů"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h3v3h-3v3h-3v4h3v3h3v3h-3v-3h-3v-3H8v-4h3V7h3V4z"/></svg></button>
+        <div class="ward-title">Sbírka</div>
+        <div style="width:56px"></div>
+      </div>
+      <div class="inner" style="flex:1; min-height:0; overflow:auto; padding-block: 8px 16px;">
+        <p class="village-cap" id="albumCap"></p>
+        <div class="album-grid" id="albumGrid"></div>
+      </div>
+    </div>
+  </section>
+
   <!-- NETHER -->
   <section class="screen" id="nether" hidden>
     <div class="sky" style="flex:1; display:flex; flex-direction:column; min-height:0;">
@@ -567,6 +594,7 @@ canvas.ench { animation: ench 1.8s ease-in-out infinite; }
     <div class="newpick" id="newEnch" hidden></div>
     <div class="newpick" id="newVillage" hidden></div>
     <div class="newpick" id="newNether" hidden></div>
+    <div class="newpick" id="newCards" hidden></div>
     <canvas class="end-house px" id="endHouse"></canvas>
     <div class="end-bottom">
     <div class="rate" id="rateBox"><p>Jak tě to bavilo?</p><div class="rate-row" id="rateRow"></div></div>
@@ -682,7 +710,7 @@ let R = null; // běžící kolo
 
 /* ---------- uložený postup ---------- */
 const KEY = 'adamuv-dul-v1';
-function defaults() { return { caseMode: 'both', slow: false, strict: 'normal', total: 0, rounds: { letters: 0, syllables: 0, words: 0, numbers: 0, math: 0, writing: 0, reading: 0 }, stats: {}, log: [], ench: [], emeralds: 0, notes: [], dogName: '', gifts: {}, bday: 0, lastCheer: '', village: null, obsidian: null, netherMine: false, seenVersion: 0, gameName: 'Adamův důl', dog: { collar: 'cerveny', owned: ['cerveny'], coat: 'bily' }, decor: [], streak: { count: 0, best: 0, last: '', totem: 0, days: [] }, outfit: { shirt: 'oranzove', pants: 'modre', shoes: 'sede', hat: 'nic', enchant: 'ne' } }; }
+function defaults() { return { caseMode: 'both', slow: false, strict: 'normal', total: 0, rounds: { letters: 0, syllables: 0, words: 0, numbers: 0, math: 0, writing: 0, reading: 0 }, stats: {}, log: [], ench: [], emeralds: 0, notes: [], dogName: '', gifts: {}, bday: 0, lastCheer: '', village: null, obsidian: null, netherMine: false, cards: null, seenVersion: 0, gameName: 'Adamův důl', dog: { collar: 'cerveny', owned: ['cerveny'], coat: 'bily' }, decor: [], streak: { count: 0, best: 0, last: '', totem: 0, days: [] }, outfit: { shirt: 'oranzove', pants: 'modre', shoes: 'sede', hat: 'nic', enchant: 'ne' } }; }
 function load() {
   try { const s = JSON.parse(localStorage.getItem(KEY)); if (s) { const d = defaults(); return Object.assign(d, s, { rounds: Object.assign(d.rounds, s.rounds || {}), outfit: Object.assign(d.outfit, s.outfit || {}), dog: Object.assign(d.dog, s.dog || {}), gifts: Object.assign(d.gifts, s.gifts || {}), streak: Object.assign(d.streak, s.streak || {}) }); } } catch (e) {}
   return defaults();
@@ -1378,7 +1406,7 @@ function display(it) {
 }
 
 /* ---------- obrazovky ---------- */
-function show(id) { ['home', 'game', 'house', 'wardrobe', 'farm', 'shop', 'stats', 'village', 'nether'].forEach(s => { $('#' + s).hidden = s !== id; }); }
+function show(id) { ['home', 'game', 'house', 'wardrobe', 'farm', 'shop', 'stats', 'village', 'nether', 'album'].forEach(s => { $('#' + s).hidden = s !== id; }); }
 function paintTextures(root = document) {
   root.querySelectorAll('[data-tex]').forEach(el => { el.style.backgroundImage = `url(${tex(el.dataset.tex, el.dataset.dark === '1')})`; });
 }
@@ -1433,6 +1461,13 @@ function renderHome() {
   sb.insertAdjacentHTML('beforeend', '<span class="lvl-name">Obchod</span>');
   sb.addEventListener('click', openShop);
   wrap.appendChild(sb);
+  const ab = document.createElement('button'); ab.className = 'lvl'; ab.setAttribute('aria-label', 'Sbírka');
+  const ablk = blockEl('planks', '', false); ablk.tabIndex = -1; ablk.setAttribute('aria-hidden', 'true');
+  const ap = ablk.querySelector('.plate'); ap.innerHTML = ''; ap.appendChild(picCanvas('LES'));
+  ab.appendChild(ablk);
+  ab.insertAdjacentHTML('beforeend', `<span class="lvl-name">Sbírka</span><span class="lvl-sub">${save.cards.length} z ${cardWords().length}</span>`);
+  ab.addEventListener('click', openAlbum);
+  wrap.appendChild(ab);
   const places = document.createElement('div'); places.className = 'places';
   const card = (label, draw, open, locked) => {
     const c = document.createElement('button'); c.className = 'house-card' + (locked ? ' locked' : ''); c.setAttribute('aria-label', label);
@@ -2093,9 +2128,47 @@ function openNether() {
 const NETHER_TEX = { dirt: 'netherrack', stone: 'blackstone', ironOre: 'quartzOre', goldOre: 'netherGoldOre', lapisOre: 'blackstone', redstoneOre: 'netherrack', diamondOre: 'ancientDebris' };
 const mineTex = t => (save.netherMine && portalLit() && NETHER_TEX[t]) || t;
 
+/* ---------- sbírka kartiček: kartička za každé zvládnuté slovo (v patře Slova nebo Čtení) ---------- */
+// Nová slova ve WORDS = nové kartičky automaticky. Vzácnost podle délky slova.
+const CARD_BONUS = 30; // smaragdy za celou sbírku
+const cardWords = () => WORDS;
+const cardEarned = w => mastery(save.stats['words:' + w]) === 'good' || mastery(save.stats['reading:' + w]) === 'good';
+const rarity = w => w.length <= 3 ? 1 : w.length === 4 ? 2 : 3;
+function cardEl(w, open) {
+  const el = document.createElement('button'); el.className = 'wcard' + (open ? ' r' + rarity(w) : ' back');
+  if (!open) { el.innerHTML = '<span class="q">?</span>'; el.setAttribute('aria-label', 'zatím neznámá kartička'); return el; }
+  el.setAttribute('aria-label', w);
+  const d = display(w); // jednou, ať je na kartičce slovo stejně velkým nebo malým písmem
+  if (PIC[w] || PLURAL[w]) { el.appendChild(picCanvas(w)); el.insertAdjacentHTML('beforeend', `<span class="w">${d}</span>`); }
+  else { el.style.gridTemplateRows = '1fr'; el.insertAdjacentHTML('beforeend', `<span class="big">${d}</span>`); }
+  el.insertAdjacentHTML('beforeend', `<span class="stars">${'★'.repeat(rarity(w))}</span>`);
+  return el;
+}
+function checkCards(silent) {
+  const got = cardWords().filter(w => cardEarned(w) && !save.cards.includes(w));
+  got.forEach(w => save.cards.push(w));
+  let bonus = 0;
+  if (!silent && got.length && save.cards.length >= cardWords().length) { save.emeralds += CARD_BONUS; bonus = CARD_BONUS; }
+  if (got.length) persist();
+  return silent ? [] : got.map(w => ({ w, bonus }));
+}
+function openAlbum() {
+  audio(); speechId++; if (synth) synth.cancel();
+  show('album');
+  const all = cardWords(), have = all.filter(w => save.cards.includes(w));
+  $('#albumCap').textContent = `Kartičky: ${have.length} z ${all.length}. Novou kartičku dostaneš za každé zvládnuté slovo. Klepni na kartičku a uslyšíš slovo.`;
+  const grid = $('#albumGrid'); grid.innerHTML = '';
+  all.forEach(w => {
+    const open = save.cards.includes(w), el = cardEl(w, open);
+    el.addEventListener('click', () => { audio(); if (open) { speak(w.toLocaleLowerCase('cs')); retrigger(el, 'hit'); } else speak('Tuhle kartičku ještě nemáš. Zvládni další slova v patře Slova nebo Čtení.'); });
+    grid.appendChild(el);
+  });
+  speak(`Tvoje sbírka. Máš ${have.length} kartiček z ${all.length}.`);
+}
+
 /* ---------- verze hry a aktualizace ---------- */
 // Při každé úpravě hry zvýšit APP_VERSION a do version.json přidat záznam se stejným číslem (co je nového, pro Adama).
-const APP_VERSION = 8;
+const APP_VERSION = 9;
 /* ---------- název hry, který si vybral Adam ---------- */
 // jen názvy bez háčků: pixelové písmo háčky neumí (č, ě, ř, š, ž vypadají jako s tečkou)
 const GAME_NAMES = ['Adamův důl', 'Adamcraft', 'Adamovo království', 'Adamova farma', 'Adamův hrad'];
@@ -2434,6 +2507,10 @@ function endRound() {
   const ne = $('#newEnch');
   if (newEnch.length) { ne.hidden = false; ne.innerHTML = ''; ne.appendChild(outfitIcon('enchant', { id: 'ano' })); ne.insertAdjacentHTML('beforeend', `<span>Nové očarování: ${newEnch.map(e => `${pieceName(e.pc)} ${e.name} ${ROMAN[e.lvl]}`).join(', ')}!</span>`); }
   else ne.hidden = true;
+  const nc = checkCards(false), ncEl = $('#newCards');
+  if (nc.length) { ncEl.hidden = false; ncEl.innerHTML = ''; nc.slice(0, 3).forEach(c => ncEl.appendChild(cardEl(c.w, true))); ncEl.insertAdjacentHTML('beforeend', `<span>${nc.length > 1 ? 'Nové kartičky' : 'Nová kartička'} do sbírky: ${nc.map(c => display(c.w)).join(', ')}!${nc[0].bonus ? ` Máš celou sbírku, +${nc[0].bonus} smaragdů!` : ''}</span>`); }
+  else ncEl.hidden = true;
+  const cardTalk = nc.length ? ` ${nc.length > 1 ? 'Máš nové kartičky' : 'Máš novou kartičku'} do sbírky: ${nc.map(c => c.w.toLocaleLowerCase('cs')).join(', ')}.${nc[0].bonus ? ' Máš celou sbírku!' : ''}` : '';
   const vil = checkVillage(false), nv = $('#newVillage');
   if (vil.length) { nv.hidden = false; nv.innerHTML = ''; nv.appendChild(signCanvas(vil[0].b.icon)); nv.insertAdjacentHTML('beforeend', `<span>Ve vesnici přibylo: ${vil.map(v => `${v.b.name} (${BLD_STAGES[v.st - 1]})`).join(', ')}${vil.some(v => v.st >= 8) ? `! Budova je hotová, +${VILLAGE_BONUS} smaragdů` : ''}!</span>`); }
   else nv.hidden = true;
@@ -2463,7 +2540,7 @@ function endRound() {
     $('#endOverlay').hidden = false;
     sfx.nope();
     const enc = cheerFor(false);
-    speak(`Tentokrát ${building ? 'dům nevyrostl' : 'farma nevyrostla'}. Bez chyby jsi měl ${got} z ${R_len}, potřebuješ aspoň ${need}. ${enc}${enchTalk}${vilTalk}`);
+    speak(`Tentokrát ${building ? 'dům nevyrostl' : 'farma nevyrostla'}. Bez chyby jsi měl ${got} z ${R_len}, potřebuješ aspoň ${need}. ${enc}${enchTalk}${vilTalk}${cardTalk}`);
     $('#btnAgain').focus({ preventScroll: true });
     return;
   }
@@ -2503,7 +2580,7 @@ function endRound() {
   const milestone = st === FARM_START ? 'Dostavěl jsi dům, gratulujeme!' : st === FARM_START + FARM_STAGES.length ? 'Farma je hotová, jsme na tebe moc pyšní!' : (day && day.count === 7) ? 'Sedm dní v řadě, to je výkon!' : (day && day.count > 0 && day.count % 30 === 0) ? `${day.count} dní v řadě! Jsme na tebe pyšní.` : '';
   const cheer = cheerFor(true, milestone);
   const dayTalk = day ? (day.usedTotem ? ` Totem zachránil tvou řadu!` : '') + (day.count > 1 ? ` Hraješ ${day.count} ${dayWord(day.count)} v řadě, bonus ${day.bonus} ${gemWord(day.bonus)}.` : ` Dnešní den se počítá do řady, bonus ${day.bonus} ${gemWord(day.bonus)}.`) : '';
-  speak((perfect ? 'Bez jediné chyby! ' : '') + cheer + (newTier ? ` Máš nový ${after.name} krumpáč!` : '') + story + dayTalk + netherTalk + enchTalk + vilTalk + (fresh.length ? ` V šatníku máš ${fresh.map(([, it]) => it.name).join(' a ')}.` : ''));
+  speak((perfect ? 'Bez jediné chyby! ' : '') + cheer + (newTier ? ` Máš nový ${after.name} krumpáč!` : '') + story + dayTalk + netherTalk + enchTalk + vilTalk + cardTalk + (fresh.length ? ` V šatníku máš ${fresh.map(([, it]) => it.name).join(' a ')}.` : ''));
   $('#btnAgain').focus({ preventScroll: true });
 }
 function goHome() {
@@ -2555,6 +2632,7 @@ $('#btnWardBack').addEventListener('click', goHome);
 $('#btnFarmBack').addEventListener('click', goHome);
 $('#btnVillageBack').addEventListener('click', goHome);
 $('#btnNetherBack').addEventListener('click', goHome);
+$('#btnAlbumBack').addEventListener('click', goHome);
 $('#btnNetherMine').addEventListener('click', () => { audio(); save.netherMine = !save.netherMine; persist(); openNether(); speak(save.netherMine ? 'Teď kopeš v Netheru.' : 'Teď kopeš doma v dole.'); });
 $('#btnShopBack').addEventListener('click', goHome);
 $('#btnStreak').addEventListener('click', openStreak);
@@ -2584,6 +2662,7 @@ if (season() === 'winter' || season() === 'xmas') document.body.classList.add('w
 iconizeButtons();
 applyName();
 if (save.obsidian === null || save.obsidian === undefined) save.obsidian = save.streak.days.length; // obsidián i za dny odehrané před portálem
+if (!save.cards) { save.cards = []; checkCards(true); } // kartičky za už zvládnutá slova
 if (!save.village) { save.village = {}; checkVillage(true); } // vesnice začíná podle toho, co už Adam umí
 checkEnchants(); // očarování za už zvládnuté úkoly
 checkVersion(); // nová verze na serveru? (při startu a při návratu do hry)
