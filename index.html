@@ -508,7 +508,7 @@ let R = null; // běžící kolo
 
 /* ---------- uložený postup ---------- */
 const KEY = 'adamuv-dul-v1';
-function defaults() { return { caseMode: 'both', slow: false, strict: 'normal', total: 0, rounds: { letters: 0, syllables: 0, numbers: 0, math: 0, writing: 0 }, stats: {}, emeralds: 0, dog: { collar: 'cerveny', owned: ['cerveny'] }, decor: [], streak: { count: 0, best: 0, last: '', totem: 0, days: [] }, outfit: { shirt: 'oranzove', pants: 'modre', shoes: 'sede', hat: 'nic', enchant: 'ne' } }; }
+function defaults() { return { caseMode: 'both', slow: false, strict: 'normal', total: 0, rounds: { letters: 0, syllables: 0, words: 0, numbers: 0, math: 0, writing: 0 }, stats: {}, emeralds: 0, dog: { collar: 'cerveny', owned: ['cerveny'] }, decor: [], streak: { count: 0, best: 0, last: '', totem: 0, days: [] }, outfit: { shirt: 'oranzove', pants: 'modre', shoes: 'sede', hat: 'nic', enchant: 'ne' } }; }
 function load() {
   try { const s = JSON.parse(localStorage.getItem(KEY)); if (s) { const d = defaults(); return Object.assign(d, s, { rounds: Object.assign(d.rounds, s.rounds || {}), outfit: Object.assign(d.outfit, s.outfit || {}), dog: Object.assign(d.dog, s.dog || {}), streak: Object.assign(d.streak, s.streak || {}) }); } } catch (e) {}
   return defaults();
@@ -1046,9 +1046,29 @@ function genWriting() {
 }
 function writingSay(ch) { return SHAPE_NAMES[ch] ? `Obtáhni ${SHAPE_NAMES[ch]}.` : /\d/.test(ch) ? `Napiš číslo ${ch}.` : `Napiš písmeno ${SAY_LETTER[ch]}.`; }
 
+/* ---------- slova ---------- */
+// jen z písmen, která Adam zná (samohlásky, M, L, S)
+const WORDS = ['MÁMA', 'EMA', 'ELA', 'EMIL', 'LEO', 'OSA', 'OSY', 'OSEL', 'LES', 'LOS', 'ÚL', 'ÚLY', 'MASO', 'MÍSA', 'MÍSY', 'SÍLA', 'SŮL', 'SUM', 'SUMA', 'LAMA', 'LAMY', 'MALÝ', 'MALÁ', 'MALÉ', 'SÁM', 'SAMA', 'SLÁMA', 'ALE', 'MÁ', 'MÉ', 'MÍLE', 'OSLÍ'];
+const NAMES = ['EMA', 'ELA', 'EMIL', 'LEO'];
+function lev(a, b) {
+  const d = Array.from({ length: a.length + 1 }, (_, i) => [i, ...Array(b.length).fill(0)]);
+  for (let j = 1; j <= b.length; j++) d[0][j] = j;
+  for (let i = 1; i <= a.length; i++) for (let j = 1; j <= b.length; j++) d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+  return d[a.length][b.length];
+}
+// slova do 3 písmen, po 3 povedených kolech do 4, po 6 všechna; na výběr nejpodobnější slova (LES a LOS, MALÝ a MALÁ)
+function genWords() {
+  const r = save.rounds.words, maxLen = r < 3 ? 3 : r < 6 ? 4 : 9;
+  const avoid = R.recent.slice(-4);
+  const w = weightedPick(WORDS.filter(x => x.length <= maxLen && !avoid.includes(x)), x => weight('words', x));
+  const others = WORDS.filter(x => x !== w).map(x => [x, lev(w, x) + Math.random() * 1.5]).sort((a, b) => a[1] - b[1]).slice(0, choiceCount('words') - 1).map(x => x[0]);
+  return { answer: w, choices: shuffle([w, ...others]), say: w.toLocaleLowerCase('cs'), stat: 'words:' + w, key: w };
+}
+
 const LEVELS = {
   letters: { name: 'Písmena', tex: 'dirt', items: LETTERS, sample: ['A', 'm'], intro: 'Poslouchej a kopej do správného písmenka.' },
   syllables: { name: 'Slabiky', tex: 'stone', items: SYLL, sample: ['MA', 'lo'], small: true, intro: 'Poslouchej a kopej do správné slabiky.' },
+  words: { name: 'Slova', tex: 'ironOre', gen: genWords, sample: ['MÁMA'], small: true, intro: 'Poslouchej slovo a kopej do správné kostky.' },
   numbers: { name: 'Čísla', tex: 'goldOre', gen: genNumbers, sample: ['3', '7'], intro: 'Poslouchej číslo a kopej do správné kostky.' },
   math: { name: 'Počty', tex: 'lapisOre', gen: genMath, sample: ['2+3'], small: true, intro: 'Spočítej příklad a kopej do správného výsledku.' },
   writing: { name: 'Psaní', tex: 'redstoneOre', trace: genWriting, len: 5, sample: ['1 A'], intro: 'Jeď prstem po dráze a nevyjeď z ní. Začni u zelené tečky a jeď po šipce.' },
@@ -1089,7 +1109,9 @@ function makeChoices(level, target, n) {
 function display(it) {
   const m = save.caseMode;
   const lower = m === 'lower' || (m === 'both' && Math.random() < .5);
-  return lower ? it.toLocaleLowerCase('cs') : it;
+  if (!lower) return it;
+  const low = it.toLocaleLowerCase('cs');
+  return NAMES.includes(it) ? it[0] + low.slice(1) : low; // jména s velkým písmenem
 }
 
 /* ---------- obrazovky ---------- */
@@ -1125,7 +1147,7 @@ function renderHome() {
     btn.addEventListener('click', () => { audio(); startRound(key); });
     wrap.appendChild(btn);
   });
-  [['Slova', 'ironOre', 'MÁMA'], ['Čtení', 'diamondOre', 'OSA']].forEach(([name, t, s]) => {
+  [['Čtení', 'diamondOre', 'OSA']].forEach(([name, t, s]) => {
     const btn = document.createElement('button'); btn.className = 'lvl'; btn.disabled = true;
     const b = blockEl(t, s, true); b.tabIndex = -1; b.setAttribute('aria-hidden', 'true');
     btn.appendChild(b);
@@ -1488,6 +1510,7 @@ function nextTask() {
   const box = $('#blocks'); box.innerHTML = '';
   R.els = R.choices.map(it => {
     const b = blockEl(L.tex, display(it), it.length > 1);
+    if (it.length >= 3) b.querySelector('.glyph').style.fontSize = `calc(var(--bs, 120px) * ${Math.min(.32, 1 / it.length).toFixed(3)})`; // delší slova menším písmem, ať se vejdou
     b.setAttribute('aria-label', 'kostka');
     b.addEventListener('click', () => tapBlock(it, b));
     box.appendChild(b); return b;
@@ -1674,7 +1697,7 @@ function updateSettings() {
   $('#rateNormal').setAttribute('aria-pressed', String(!save.slow));
   $('#rateSlow').setAttribute('aria-pressed', String(save.slow));
   const st = Math.min(12, save.total);
-  $('#progressInfo').textContent = `Odehraná kola: písmena ${save.rounds.letters}, slabiky ${save.rounds.syllables}, čísla ${save.rounds.numbers}, počty ${save.rounds.math}, psaní ${save.rounds.writing}. Dům: ${st} z 12 dílů. Farma: ${farmStage()} z ${FARM_STAGES.length}. Smaragdy: ${save.emeralds}. Řada: ${streakNow().count} (nejdelší ${save.streak.best}). Krumpáč: ${tierOf(save.total).name}.`;
+  $('#progressInfo').textContent = `Odehraná kola: písmena ${save.rounds.letters}, slabiky ${save.rounds.syllables}, slova ${save.rounds.words}, čísla ${save.rounds.numbers}, počty ${save.rounds.math}, psaní ${save.rounds.writing}. Dům: ${st} z 12 dílů. Farma: ${farmStage()} z ${FARM_STAGES.length}. Smaragdy: ${save.emeralds}. Řada: ${streakNow().count} (nejdelší ${save.streak.best}). Krumpáč: ${tierOf(save.total).name}.`;
   updateVoiceInfo();
 }
 $('#btnSettings').addEventListener('click', () => { updateSettings(); $('#resetConfirm').hidden = true; $('#setOverlay').hidden = false; });
