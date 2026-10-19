@@ -315,6 +315,10 @@ canvas.ench { animation: ench 1.8s ease-in-out infinite; }
 .cheer .faces canvas + canvas { margin-left: -14px; }
 .bubble { position: relative; background: #ffffff; border: 3px solid #161616; padding: 6px 10px; font-family: var(--f-read); font-size: 17px; line-height: 1.3; }
 .bubble b { display: block; font-size: 14px; color: #5a4a3a; }
+.update { grid-column: 1 / -1; justify-self: center; width: min(640px, 100%); background: #fff7d1; border: 3px solid #161616; padding: 10px 14px; font-family: var(--f-read); display: grid; gap: 8px; }
+.update b { font-size: 19px; }
+.update ul { margin: 0; padding-left: 20px; font-size: 16px; line-height: 1.4; }
+.update .actions .gbtn { font-family: var(--f-pixel); }
 .fan { grid-column: 1 / -1; display: flex; align-items: center; gap: 10px; background: none; border: 0; padding: 0; text-align: left; justify-self: center; max-width: 640px; }
 .fan .bubble { font-size: 18px; }
 .faces.many { flex-wrap: wrap; width: 120px; row-gap: 4px; } /* celá rodina: obličeje ve dvou řadách */
@@ -619,7 +623,7 @@ let R = null; // běžící kolo
 
 /* ---------- uložený postup ---------- */
 const KEY = 'adamuv-dul-v1';
-function defaults() { return { caseMode: 'both', slow: false, strict: 'normal', total: 0, rounds: { letters: 0, syllables: 0, words: 0, numbers: 0, math: 0, writing: 0, reading: 0 }, stats: {}, log: [], ench: [], emeralds: 0, notes: [], dogName: '', gifts: {}, bday: 0, lastCheer: '', dog: { collar: 'cerveny', owned: ['cerveny'], coat: 'bily' }, decor: [], streak: { count: 0, best: 0, last: '', totem: 0, days: [] }, outfit: { shirt: 'oranzove', pants: 'modre', shoes: 'sede', hat: 'nic', enchant: 'ne' } }; }
+function defaults() { return { caseMode: 'both', slow: false, strict: 'normal', total: 0, rounds: { letters: 0, syllables: 0, words: 0, numbers: 0, math: 0, writing: 0, reading: 0 }, stats: {}, log: [], ench: [], emeralds: 0, notes: [], dogName: '', gifts: {}, bday: 0, lastCheer: '', seenVersion: 0, dog: { collar: 'cerveny', owned: ['cerveny'], coat: 'bily' }, decor: [], streak: { count: 0, best: 0, last: '', totem: 0, days: [] }, outfit: { shirt: 'oranzove', pants: 'modre', shoes: 'sede', hat: 'nic', enchant: 'ne' } }; }
 function load() {
   try { const s = JSON.parse(localStorage.getItem(KEY)); if (s) { const d = defaults(); return Object.assign(d, s, { rounds: Object.assign(d.rounds, s.rounds || {}), outfit: Object.assign(d.outfit, s.outfit || {}), dog: Object.assign(d.dog, s.dog || {}), gifts: Object.assign(d.gifts, s.gifts || {}), streak: Object.assign(d.streak, s.streak || {}) }); } } catch (e) {}
   return defaults();
@@ -1314,6 +1318,7 @@ const LOCK_SVG = '<svg class="lock" viewBox="0 0 16 16" aria-hidden="true"><path
 function renderHome() {
   mountPlayer($('#heroPlayer'));
   const wrap = $('#levels'); wrap.innerHTML = '';
+  renderUpdate(wrap);
   renderFan(wrap);
   Object.entries(LEVELS).forEach(([key, L]) => {
     const btn = document.createElement('button'); btn.className = 'lvl'; btn.setAttribute('aria-label', L.name);
@@ -1849,6 +1854,40 @@ function renderEnchBook(box) {
   });
 }
 
+/* ---------- verze hry a aktualizace ---------- */
+// Při každé úpravě hry zvýšit APP_VERSION a do version.json přidat záznam se stejným číslem (co je nového, pro Adama).
+const APP_VERSION = 2;
+let serverVersion = null;
+async function checkVersion() {
+  try {
+    const r = await fetch('version.json?t=' + Date.now(), { cache: 'no-store' });
+    if (!r.ok) return;
+    serverVersion = await r.json();
+    if (!$('#home').hidden) renderHome();
+  } catch (e) {}
+}
+const notesSince = (from, to) => (serverVersion ? serverVersion.changes : []).filter(c => c.version > from && c.version <= to).flatMap(c => c.notes);
+function renderUpdate(wrap) {
+  const box = document.createElement('div'); box.className = 'update';
+  let title, notes, btn;
+  if (serverVersion && serverVersion.version > APP_VERSION) {
+    // na serveru je novější verze, než právě běží
+    title = 'Je tu nová verze hry!'; notes = notesSince(APP_VERSION, serverVersion.version); btn = ['Aktualizovat', () => location.reload()];
+  } else if (save.seenVersion < APP_VERSION && (save.seenVersion > 0 || save.total > 0)) {
+    // hra se právě aktualizovala: jednou ukázat novinky
+    title = 'Co je ve hře nového'; notes = notesSince(save.seenVersion || APP_VERSION - 1, APP_VERSION); btn = ['Rozumím', () => { save.seenVersion = APP_VERSION; persist(); renderHome(); }];
+  } else {
+    if (save.seenVersion !== APP_VERSION) { save.seenVersion = APP_VERSION; persist(); } // první spuštění: bez novinek
+    return;
+  }
+  const say = `${title} ${notes.join(' ')}`;
+  box.innerHTML = `<b>${title}</b>${notes.length ? `<ul>${notes.map(n => `<li>${n}</li>`).join('')}</ul>` : ''}<div class="actions"><button class="gbtn go">${btn[0]}</button><button class="gbtn">Přečíst nahlas</button></div>`;
+  const [b1, b2] = box.querySelectorAll('button');
+  b1.addEventListener('click', btn[1]);
+  b2.addEventListener('click', () => { audio(); speak(say); });
+  wrap.appendChild(box);
+}
+
 /* ---------- deník kol, hodnocení a statistiky ---------- */
 const LOG_MAX = 1500;
 function logRound(ok, quit = false) {
@@ -2236,6 +2275,8 @@ $('#btnEndHome').addEventListener('click', goHome);
 
 if (season() === 'winter' || season() === 'xmas') document.body.classList.add('winter');
 checkEnchants(); // očarování za už zvládnuté úkoly
+checkVersion(); // nová verze na serveru? (při startu a při návratu do hry)
+document.addEventListener('visibilitychange', () => { if (!document.hidden) checkVersion(); });
 paintTextures();
 renderHome();
 // ikona na ploše a hraní bez internetu

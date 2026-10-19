@@ -18,6 +18,12 @@ přidej i odměny, aby Adam nedošel na strop dřív, než dojde obsah.
   další dlouhodobé cíle mají být vázané na zvládnutí, ne na počet kol (jinak se vyplácí hrát lehké patro dokola).
 - Získané odměny se nikdy neberou zpět.
 
+## Verze a novinky
+
+Každá úprava, která jde na `main`, zvýší `APP_VERSION` v `index.html` a přidá do `version.json` záznam se stejným
+číslem: 1 až 3 krátké věty pro Adama (hra je umí přečíst nahlas), co je nového. Hra podle `version.json` nabídne
+aktualizaci a po ní novinky ukáže.
+
 ## Další zásady
 
 - Za chybu se nic nebere, jen se nic nepřidá (zaseknutý krumpáč, kolo se nepočítá). Zaseknutí trvá 2 s; Ochrana na výbavě ho zkracuje o 50 ms za úroveň, nejvíc na 1,2 s (`stuckMs()`). Kratší ne, aby se tipování nevyplatilo.
