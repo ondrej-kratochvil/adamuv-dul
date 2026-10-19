@@ -1,6 +1,14 @@
 {
-  "version": 16,
+  "version": 17,
   "changes": [
+    {
+      "version": 17,
+      "date": "2026-10-19",
+      "notes": [
+        "Ve Stavění teď stavíš od země: klepni na trávu a kostka padne dolů.",
+        "Kostky z kola, které nedohraješ, už neztratíš."
+      ]
+    },
     {
       "version": 16,
       "date": "2026-10-19",

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { PLOT_H, PLOT_W, addBlocks, tapCell, totalBlocks, type Build } from '../../src/logic/build';
+import { PLOT_H, PLOT_W, addBlocks, tapCell, tapGround, totalBlocks, type Build } from '../../src/logic/build';
 
 const fresh = (): Build => ({ blocks: {}, placed: {} });
 
@@ -38,5 +38,21 @@ describe('stavění', () => {
     for (let i = 0; i < 500; i++) tapCell(b, i % 5, (i * 7) % 4, types[i % 4], i % 9 === 0);
     expect(totalBlocks(b)).toBe(before);
     expect(Object.values(b.blocks).every(n => n >= 0)).toBe(true);
+  });
+  it('klepnutí na zem staví od země nahoru a krumpáč bere shora (review 2)', () => {
+    const b = fresh(); addBlocks(b, ['dirt', 'dirt', 'stone']);
+    expect(tapGround(b, 4, 'dirt', false)).toBe('placed');
+    expect(tapGround(b, 4, 'dirt', false)).toBe('placed');
+    expect(tapGround(b, 4, 'stone', false)).toBe('placed');
+    expect(b.placed).toEqual({ ['4,' + (PLOT_H - 1)]: 'dirt', ['4,' + (PLOT_H - 2)]: 'dirt', ['4,' + (PLOT_H - 3)]: 'stone' });
+    expect(tapGround(b, 4, null, true)).toBe('removed');
+    expect(b.placed['4,' + (PLOT_H - 3)]).toBeUndefined();
+    expect(b.blocks.stone).toBe(1);
+  });
+  it('plný sloupec nic nepoloží', () => {
+    const b = fresh(); addBlocks(b, Array(PLOT_H + 2).fill('dirt'));
+    for (let i = 0; i < PLOT_H; i++) tapGround(b, 0, 'dirt', false);
+    expect(tapGround(b, 0, 'dirt', false)).toBe('none');
+    expect(b.blocks.dirt).toBe(2);
   });
 });

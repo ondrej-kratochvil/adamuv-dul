@@ -32,6 +32,7 @@
           <button class="gbtn icon" id="btnSettings" aria-label="Nastavení pro rodiče (podržet)">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 2h4v3h2V3h2v2h2v2h-2v2h3v4h-3v2h2v2h-2v2h-2v-2h-2v3h-4v-3H8v2H6v-2H4v-2h2v-2H3V9h3V7H4V5h2V3h2v2h2V2zm0 7v6h4V9h-4z"/></svg>
           </button>
+          <span class="gear-hint" id="gearHint" hidden>Podržte 2 sekundy</span>
         </div>
         <div class="title-row">
           <div class="dog hero-dog" id="heroDog" hidden></div>
@@ -263,6 +264,7 @@
     <div class="newpick" id="newOutfit" hidden></div>
     <div class="newpick" id="newEnch" hidden></div>
     <div class="newpick" id="newVillage" hidden></div>
+    <p class="end-blocks" id="endBlocks" hidden></p>
     <div class="newpick" id="newNether" hidden></div>
     <div class="newpick" id="newCards" hidden></div>
     <div class="newpick" id="newBaby" hidden></div>
@@ -371,7 +373,12 @@
 
     <h3>Postup</h3>
     <p id="progressInfo"></p>
-    <div class="seg"><button class="gbtn go" id="btnStats">Statistiky</button><button class="gbtn" id="btnReset">Začít od začátku</button></div>
+    <div class="seg"><button class="gbtn go" id="btnStats">Statistiky</button><button class="gbtn" id="btnReset">Začít od začátku</button><button class="gbtn" id="btnRestore" hidden>Vrátit zálohu</button></div>
+    <div class="confirm" id="restoreConfirm" hidden>
+      <p style="margin:0" id="restoreInfo"></p>
+      <button class="gbtn" id="btnRestoreYes" style="background:#a8341c">Ano, vrátit</button>
+      <button class="gbtn" id="btnRestoreNo">Nechat</button>
+    </div>
     <h3>Přenos na jiný tablet</h3>
     <p>Postup jde zkopírovat jako text (třeba poslat zprávou) a na jiném tabletu vložit. Vložení nahradí postup v tomhle tabletu, předchozí stav se uloží jako záloha.</p>
     <div class="seg"><button class="gbtn" id="btnExport">Zkopírovat postup</button><button class="gbtn" id="btnImport">Vložit postup</button></div>

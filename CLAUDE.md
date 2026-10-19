@@ -16,7 +16,10 @@ přidej i odměny, aby Adam nedošel na strop dřív, než dojde obsah.
   očarování nebo jiné odměny, aby krok mezi odměnami nebyl příliš dlouhý (teď zhruba 3 zvládnuté úkoly na odměnu).
 - **Vesnice** (`BUILDINGS`): každé patro staví svou budovu podle podílu svých zvládnutých úkolů (8 fází, hotovo až při 100 %).
   Kreslí se vždy nejvyšší dosažená fáze (`save.village`), budova nikdy nespadne (review 19. 10. 2026).
-- **Stavění** (`logic/build.ts`): každá vykopaná kostka jde do zásoby, kostky se nikdy neztratí (test).
+- **Stavění** (`logic/build.ts`): každá vykopaná kostka jde do zásoby (i z nedohraného kola), kostky se nikdy neztratí (test).
+  Klepnutí na trávu staví od země (`tapGround`); klepnutí, které nic neudělá, vždy řekne proč.
+- **Záloha** (`adamuv-dul-zaloha`): vzniká před mazáním, vložením postupu a převodem starých dat; v nastavení jde vrátit
+  (vrácení stav a zálohu vymění, takže jde vrátit i zpátky).
   Nové patro = nová budova v `BUILDINGS` (a položky v `MASTERY_SETS()`).
 - **Sbírka kartiček** (`cardWords()`): kartička za každé zvládnuté slovo (Slova nebo Čtení), celá sbírka = 30 smaragdů.
   Nová slova ve `WORDS` přidají kartičky sama; slova s obrázkem v `PIC` mají kartičku s obrázkem.

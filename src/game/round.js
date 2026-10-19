@@ -1,7 +1,7 @@
 // Herní kolo
 import { G } from '../core/state.js';
 import { recordResult } from '../logic/mastery.ts';
-import { addBlocks } from '../logic/build.ts';
+import { BUILD_UNLOCK, addBlocks } from '../logic/build.ts';
 import { fitBuild } from '../world/build.js';
 import { NEED_CLEAN, STUCK_MS, needClean, stuckMsFor } from '../logic/rewards.ts';
 import { $, REDUCED } from '../core/dom.js';
@@ -185,6 +185,8 @@ function showEndPlace(place) {
 }
 function endRound() {
   addBlocks(save.build, G.R.loot.map(l => l.t)); persist(); // vykopané kostky do zásoby na stavění
+  { const n = G.R.loot.length, eb = $('#endBlocks'); eb.hidden = !n;
+    eb.textContent = n ? (save.total >= BUILD_UNLOCK || (G.R.level !== 'boss' && save.total + 1 >= BUILD_UNLOCK) ? `Vykopané kostky (${n}) čekají ve Stavění.` : `Vykopané kostky (${n}) si schovávám na Stavění. Otevře se, až dostavíš dům.`) : ''; }
   if (G.R.level === 'boss') return bossVictory();
   const level = G.R.level;
   const need = needClean(save.strict, G.R.len);
@@ -217,11 +219,14 @@ function endRound() {
   const np = $('#newPick'), no = $('#newOutfit');
   const title = $('#endTitle');
   const building = save.total < FARM_START;
+  const farmDone = save.total >= FARM_START + FARM_STAGES.length;
+  const grows = building ? 'Dům vyroste' : farmDone ? 'Kolo se započítá' : 'Farma vyroste';
+  const grewNot = building ? 'dům nevyrostl' : farmDone ? 'se kolo nezapočítalo' : 'farma nevyrostla';
   $('#endOverlay').dataset.level = level;
   if (!ok) {
     // nepovedené kolo se nepočítá: nic neroste, nic se neodemyká, obtížnost se nezvedá (smaragdy za kostky bez chyby zůstanou)
     title.textContent = 'Skoro!'; title.classList.add('fail');
-    $('#endLine').textContent = `Bez chyby: ${G.R.clean} z ${G.R.len}. ${building ? 'Dům vyroste' : 'Farma vyroste'}, když jich bude aspoň ${need}.`;
+    $('#endLine').textContent = `Bez chyby: ${G.R.clean} z ${G.R.len}. ${grows}, když jich bude aspoň ${need}.`;
     np.hidden = true; no.hidden = true; $('#newNether').hidden = true; $('#newBaby').hidden = true; $('#newPrerov').hidden = true;
     setBtn($('#btnAgain'), 'retry', 'Zkusit znovu');
     showEndPlace(building ? 'house' : 'farm');
@@ -231,7 +236,7 @@ function endRound() {
     $('#endOverlay').hidden = false;
     sfx.nope();
     const enc = cheerFor(false);
-    speak(`Tentokrát ${building ? 'dům nevyrostl' : 'farma nevyrostla'}. Bez chyby jsi měl ${got} z ${R_len}, potřebuješ aspoň ${need}. ${enc}${enchTalk}${vilTalk}${cardTalk}`);
+    speak(`Tentokrát ${grewNot}. Bez chyby jsi měl ${got} z ${R_len}, potřebuješ aspoň ${need}. ${enc}${enchTalk}${vilTalk}${cardTalk}`);
     $('#btnAgain').focus({ preventScroll: true });
     return;
   }
@@ -274,7 +279,7 @@ function endRound() {
   sfx.fanfare(); if (newTier || perfect) sfx.sparkle();
   if (st === FARM_START + 1) bark();
   const dn = dogName();
-  const story = st === FARM_START ? ' Dům je hotový! Příště začneš stavět farmu.' : st === FARM_START + 1 ? ` Přiběhl k tobě pejsek${dn ? ' ' + dn : ''}! Je tvůj a bude s tebou kopat. Na úvodní obrazovce na něj klepni a vyber mu jméno a barvu.` : st === FARM_START + FARM_STAGES.length ? ' Farma je hotová!' : '';
+  const story = st === FARM_START ? ' Dům je hotový! Příště začneš stavět farmu. Stavění je otevřené.' : st === FARM_START + 1 ? ` Přiběhl k tobě pejsek${dn ? ' ' + dn : ''}! Je tvůj a bude s tebou kopat. Na úvodní obrazovce na něj klepni a vyber mu jméno a barvu.` : st === FARM_START + FARM_STAGES.length ? ' Farma je hotová!' : '';
   const milestone = st === FARM_START ? 'Dostavěl jsi dům, gratulujeme!' : st === FARM_START + FARM_STAGES.length ? 'Farma je hotová, jsme na tebe moc pyšní!' : (day && day.count === 7) ? 'Sedm dní v řadě, to je výkon!' : (day && day.count > 0 && day.count % 30 === 0) ? `${day.count} dní v řadě! Jsme na tebe pyšní.` : '';
   const cheer = cheerFor(true, milestone);
   const dayTalk = day ? (day.usedTotem ? ` Totem zachránil tvou řadu!` : '') + (day.count > 1 ? ` Hraješ ${day.count} ${dayWord(day.count)} v řadě, bonus ${day.bonus} ${gemWord(day.bonus)}.` : ` Dnešní den se počítá do řady, bonus ${day.bonus} ${gemWord(day.bonus)}.`) : '';
@@ -284,6 +289,7 @@ function endRound() {
 function goHome() {
   G.speechId++; if (synth) synth.cancel();
   if (G.R && G.R.level !== 'boss' && G.R.i > 0 && G.R.i < G.R.len) logRound(false, true); // rozehrané a opuštěné kolo: signál, že nebaví
+  if (G.R && G.R.loot.length && $('#endOverlay').hidden) { addBlocks(save.build, G.R.loot.map(l => l.t)); persist(); } // už vykopané kostky se neztratí
   G.R = null; $('#endOverlay').hidden = true;
   renderHome(); show('home');
 }

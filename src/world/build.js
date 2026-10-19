@@ -7,7 +7,7 @@ import { audio, sfx, tone } from '../audio/sfx.js';
 import { show } from '../ui/screens.js';
 import { dogCanvas, hasDog } from './farm.js';
 import { seasonTex } from './house.js';
-import { BUILD_UNLOCK, PLOT_H, PLOT_W, tapCell } from '../logic/build.ts';
+import { BUILD_UNLOCK, PLOT_H, PLOT_W, tapCell, tapGround } from '../logic/build.ts';
 import { G } from '../core/state.js';
 
 const C = 16, ROWS = PLOT_H + 2; // plocha + tráva + hlína
@@ -38,7 +38,7 @@ function drawGrid(cv) {
 }
 function fitBuild() {
   const cv = $('#buildBig'); const box = cv.parentElement;
-  requestAnimationFrame(() => { const s = Math.max(1, Math.floor(Math.min(box.clientWidth / cv.width, (box.clientHeight - 8) / cv.height) * 4) / 4); cv.style.width = cv.width * s + 'px'; cv.style.height = cv.height * s + 'px'; });
+  requestAnimationFrame(() => { const s = Math.max(.5, Math.floor(Math.min(box.clientWidth / cv.width, (box.clientHeight - 8) / cv.height) * 4) / 4); cv.style.width = cv.width * s + 'px'; cv.style.height = cv.height * s + 'px'; });
 }
 function renderBuild() {
   const cv = $('#buildBig'); drawBuild(cv); drawGrid(cv);
@@ -62,13 +62,21 @@ function openBuild() {
   if (!buildOpen()) { speak('Stavět budeš moct, až dostavíš dům. Kostky, které vykopeš, si zatím schovávám.'); return; }
   if (!selected) selected = Object.keys(save.build.blocks).find(t => save.build.blocks[t] > 0) || null;
   show('build'); renderBuild(); fitBuild();
-  speak('Stavění. Vyber kostku dole a klepni, kam ji chceš dát. Krumpáčem ji vezmeš zpátky.');
+  speak('Stavění. Vyber kostku dole a klepni na trávu nebo tam, kam ji chceš dát. Krumpáčem ji vezmeš zpátky.');
 }
 function tapPlot(e) {
   const cv = $('#buildBig'), r = cv.getBoundingClientRect();
   const x = Math.floor((e.clientX - r.left) / r.width * PLOT_W), y = Math.floor((e.clientY - r.top) / r.height * ROWS);
-  const res = tapCell(save.build, x, y, selected, erase);
-  if (res === 'none') { if (!erase && selected && !(save.build.blocks[selected] > 0)) { sfx.nope(); speak('Tahle kostka ti došla. Vykopej další.'); } return; }
+  const res = y >= PLOT_H ? tapGround(save.build, x, selected, erase) : tapCell(save.build, x, y, selected, erase);
+  if (res === 'none') {
+    // nikdy potichu: vždy říct proč
+    sfx.nope();
+    if (erase) speak('Tady žádná kostka není.');
+    else if (!selected) speak('Nejdřív dole vyber kostku.');
+    else if (!(save.build.blocks[selected] > 0)) speak('Tahle kostka ti došla. Vykopej další.');
+    else speak('Tady už je plno, až do nebe.');
+    return;
+  }
   persist(); audio();
   if (res === 'removed') tone(520, 0, .06, 'square', .05); else { tone(330, 0, .05, 'square', .06); tone(220, .04, .06, 'square', .05); }
   renderBuild();

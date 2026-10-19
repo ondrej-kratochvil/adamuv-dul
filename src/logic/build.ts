@@ -28,3 +28,15 @@ export function tapCell(b: Build, x: number, y: number, selected: string | null,
 
 // kolik kostek má Adam celkem (v zásobě i postavených)
 export const totalBlocks = (b: Build): number => Object.values(b.blocks).reduce((a, n) => a + n, 0) + Object.keys(b.placed).length;
+
+// Klepnutí na trávu nebo hlínu: staví se od země jako v Minecraftu. Kostka padne na nejnižší volné místo ve sloupci,
+// krumpáč vezme nejvyšší kostku ve sloupci.
+export function tapGround(b: Build, x: number, selected: string | null, erase: boolean): TapResult {
+  if (!inPlot(x, 0)) return 'none';
+  if (erase) {
+    for (let y = 0; y < PLOT_H; y++) if (b.placed[key(x, y)]) return tapCell(b, x, y, null, true);
+    return 'none';
+  }
+  for (let y = PLOT_H - 1; y >= 0; y--) if (!b.placed[key(x, y)]) return tapCell(b, x, y, selected, false);
+  return 'none';
+}

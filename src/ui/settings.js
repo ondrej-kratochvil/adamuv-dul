@@ -29,12 +29,20 @@ function updateSettings() {
 // Nastavení je pro rodiče: ozubené kolo se musí podržet 2 sekundy. Krátké klepnutí jen řekne, že je pro rodiče.
 const HOLD_MS = 2000;
 let holdTimer = null;
-function openSettings() { updateSettings(); renderNotes(); $('#resetConfirm').hidden = true; $('#setOverlay').hidden = false; }
+function openSettings() { updateSettings(); renderNotes(); updateRestore(); $('#resetConfirm').hidden = true; $('#setOverlay').hidden = false; }
 const gear = $('#btnSettings');
-gear.addEventListener('pointerdown', () => { clearTimeout(holdTimer); gear.classList.add('holding'); holdTimer = setTimeout(() => { holdTimer = null; gear.classList.remove('holding'); openSettings(); }, HOLD_MS); });
-['pointerup', 'pointerleave', 'pointercancel'].forEach(t => gear.addEventListener(t, () => {
+function gearHint() {
+  const h = $('#gearHint'); h.hidden = false; clearTimeout(gearHint.t); gearHint.t = setTimeout(() => { h.hidden = true; }, 3000);
+  speak('Tohle je nastavení pro rodiče. Podrž ozubené kolo, dokud se nevyplní.');
+}
+gear.addEventListener('pointerdown', e => {
+  try { gear.setPointerCapture(e.pointerId); } catch (err) {} // prst smí z malého tlačítka sjet, odpočet běží dál
+  clearTimeout(holdTimer); gear.classList.add('holding');
+  holdTimer = setTimeout(() => { holdTimer = null; gear.classList.remove('holding'); $('#gearHint').hidden = true; openSettings(); }, HOLD_MS);
+});
+['pointerup', 'pointercancel'].forEach(t => gear.addEventListener(t, () => {
   gear.classList.remove('holding');
-  if (holdTimer) { clearTimeout(holdTimer); holdTimer = null; if (t === 'pointerup') speak('Tohle je nastavení pro rodiče.'); }
+  if (holdTimer) { clearTimeout(holdTimer); holdTimer = null; gearHint(); }
 }));
 gear.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openSettings(); } });
 $('#btnSetClose').addEventListener('click', () => { $('#setOverlay').hidden = true; renderHome(); });
@@ -45,7 +53,23 @@ $('#rateSlow').addEventListener('click', () => { save.slow = true; persist(); up
 $('#btnTestVoice').addEventListener('click', () => { loadVoices(); speak('Ahoj Adame! ma, mé, li, lý, so, su.'); setTimeout(loadVoices, 800); });
 $('#btnReset').addEventListener('click', () => { $('#resetConfirm').hidden = false; });
 $('#btnResetNo').addEventListener('click', () => { $('#resetConfirm').hidden = true; });
-$('#btnResetYes').addEventListener('click', () => { try { localStorage.setItem(BACKUP_KEY, JSON.stringify(save)); } catch (e) {} const keep = { caseMode: save.caseMode, slow: save.slow, strict: save.strict, outfit: save.outfit, notes: save.notes, dogName: save.dogName }; replaceSave(Object.assign(defaults(), keep)); persist(); $('#resetConfirm').hidden = true; updateSettings(); });
+$('#btnResetYes').addEventListener('click', () => { try { localStorage.setItem(BACKUP_KEY, JSON.stringify(save)); } catch (e) {} const keep = { caseMode: save.caseMode, slow: save.slow, strict: save.strict, outfit: save.outfit, notes: save.notes, dogName: save.dogName }; replaceSave(Object.assign(defaults(), keep)); persist(); updateRestore(); $('#resetConfirm').hidden = true; updateSettings(); });
+
+/* záloha: vrácení vymění zálohu a současný stav (jde to vrátit i zpátky) */
+function readBackup() { try { const raw = localStorage.getItem(BACKUP_KEY); return raw ? importText(raw) : null; } catch (e) { return null; } }
+function updateRestore() { $('#btnRestore').hidden = !readBackup(); $('#restoreConfirm').hidden = true; }
+$('#btnRestore').addEventListener('click', () => {
+  const b = readBackup(); if (!b) return updateRestore();
+  $('#restoreInfo').textContent = `Vrátit zálohu? V záloze je ${b.total} povedených kol, ${b.emeralds} smaragdů, řada ${b.streak.count} dní. Současný stav (${save.total} kol) se uloží místo ní, takže jde vrátit zpátky.`;
+  $('#restoreConfirm').hidden = false;
+});
+$('#btnRestoreNo').addEventListener('click', () => { $('#restoreConfirm').hidden = true; });
+$('#btnRestoreYes').addEventListener('click', () => {
+  const b = readBackup(); if (!b) return updateRestore();
+  try { localStorage.setItem(BACKUP_KEY, JSON.stringify(save)); } catch (e) {}
+  replaceSave(b); persist(); updateSettings(); updateRestore();
+  $('#transferMsg').textContent = 'Záloha je vrácená.';
+});
 
 /* přenos postupu na jiný tablet */
 const tt = $('#transferText'), msg = $('#transferMsg');
@@ -71,7 +95,7 @@ $('#btnImportNo').addEventListener('click', () => { $('#importConfirm').hidden =
 $('#btnImportYes').addEventListener('click', () => {
   if (!pending) return;
   try { localStorage.setItem(BACKUP_KEY, JSON.stringify(save)); } catch (e) {}
-  replaceSave(pending); persist(); pending = null;
+  replaceSave(pending); persist(); pending = null; updateRestore();
   $('#importConfirm').hidden = true; tt.hidden = true; msg.textContent = 'Postup je nahraný.';
   updateSettings();
 });
