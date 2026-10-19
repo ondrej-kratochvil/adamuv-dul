@@ -51,7 +51,7 @@ aktualizaci a po ní novinky ukáže.
   („zelené tlačítko s fajfkou, je na něm napsáno Rozumím“), ať si Adam nápis postupně spojí s tlačítkem.
 - Slabiky a slova hlas říká přes `pronounce()` (`logic/pronounce.ts`). Hlas tabletu čte krátké slabiky anglicky (so = sou);
   věta „Slabika so.“ to nespravila (Ondřej 19. 10. 2026), proto pryč. Rizikové slabiky (`RISKY_SYLLABLES`) jdou v nastavení
-  vyzkoušet; výchozí „s písmeny“ („so, es, o“) jen u so a me (`LETTERS_BY_DEFAULT`, ověřeno Ondřejem na tabletu 19. 10. 2026), rodič v nastavení vybere variantu, která na tabletu zní česky (`save.pron`).
+  vyzkoušet; výchozí „s písmeny“ („so, es, o“) jen u so a me (`LETTERS_BY_DEFAULT`, ověřeno Ondřejem na jeho mobilu s Androidem 19. 10. 2026, na Adamově tabletu předpoklad), rodič v nastavení vybere variantu, která na tabletu zní česky (`save.pron`).
   Novou slabiku bez čárky, která je anglickým slovem, přidat do `RISKY_SYLLABLES`.
 - Podoby rodiny jen podle toho, co řekl Ondřej (`FAMILY`); nic nedomýšlet.
 ## Kód a testy

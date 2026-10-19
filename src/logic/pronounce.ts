@@ -22,7 +22,7 @@ export function pronounceAs(item: string, mode: PronMode): string {
   return low;
 }
 
-// Na Adamově tabletu vybral Ondřej (19. 10. 2026) „s písmeny“ jen u so a me, u ostatních „obyčejně“
+// Ondřej vyzkoušel na svém mobilu s Androidem (19. 10. 2026): „s písmeny“ jen u so a me, ostatní „obyčejně“; Adamův tablet (Android) čeká stejné chování
 export const LETTERS_BY_DEFAULT = ['SO', 'ME'];
 export const defaultMode = (item: string): PronMode => LETTERS_BY_DEFAULT.includes(item) ? 'letters' : 'plain';
 
