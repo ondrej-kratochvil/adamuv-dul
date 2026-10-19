@@ -321,6 +321,14 @@ canvas.ench { animation: ench 1.8s ease-in-out infinite; }
 .name-list { display: grid; gap: 10px; }
 .name-list .gbtn { font-size: clamp(22px, 5vw, 32px); justify-content: flex-start; padding: 12px 16px; }
 .name-list .gbtn[aria-pressed="true"] { background: var(--go); }
+.village-cap { font-family: var(--f-read); font-size: 18px; color: #1f3a52; text-align: center; margin: 0 0 10px; }
+.village-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; max-width: 980px; margin: 0 auto; }
+.bld { background: none; border: 0; padding: 0; display: grid; gap: 4px; justify-items: center; font-family: var(--f-read); color: #1f3a52; }
+.bld canvas { width: 100%; max-width: 200px; border: 3px solid #161616; background: #c6e6f8; }
+.bld b { font-size: 18px; }
+.bld span { font-size: 14px; }
+.bld .bar { width: 100%; max-width: 200px; height: 10px; border: 2px solid #161616; background: #8b8b8b; }
+.bld .bar i { display: block; height: 100%; background: var(--go); }
 .update { grid-column: 1 / -1; justify-self: center; width: min(640px, 100%); background: #fff7d1; border: 3px solid #161616; padding: 10px 14px; font-family: var(--f-read); display: grid; gap: 8px; }
 .update b { font-size: 19px; }
 .update ul { margin: 0; padding-left: 20px; font-size: 16px; line-height: 1.4; }
@@ -496,6 +504,22 @@ canvas.ench { animation: ench 1.8s ease-in-out infinite; }
     </div>
   </section>
 
+  <!-- VESNICE -->
+  <section class="screen" id="village" hidden>
+    <div class="sky" style="flex:1; display:flex; flex-direction:column; min-height:0;">
+      <div class="cloud c1"></div>
+      <div class="inner hud">
+        <button class="gbtn icon" id="btnVillageBack" aria-label="Zpět domů"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h3v3h-3v3h-3v4h3v3h3v3h-3v-3h-3v-3H8v-4h3V7h3V4z"/></svg></button>
+        <div class="ward-title">Vesnice</div>
+        <div style="width:56px"></div>
+      </div>
+      <div class="inner" style="flex:1; min-height:0; overflow:auto; padding-block: 8px 16px;">
+        <p class="village-cap" id="villageCap"></p>
+        <div class="village-grid" id="villageGrid"></div>
+      </div>
+    </div>
+  </section>
+
   <!-- DŮM -->
   <section class="screen" id="house" hidden>
     <div class="sky" style="flex:1; display:flex; flex-direction:column;">
@@ -523,6 +547,7 @@ canvas.ench { animation: ench 1.8s ease-in-out infinite; }
     <div class="newpick" id="newPick" hidden></div>
     <div class="newpick" id="newOutfit" hidden></div>
     <div class="newpick" id="newEnch" hidden></div>
+    <div class="newpick" id="newVillage" hidden></div>
     <canvas class="end-house px" id="endHouse"></canvas>
     <div class="end-bottom">
     <div class="rate" id="rateBox"><p>Jak tě to bavilo?</p><div class="rate-row" id="rateRow"></div></div>
@@ -638,7 +663,7 @@ let R = null; // běžící kolo
 
 /* ---------- uložený postup ---------- */
 const KEY = 'adamuv-dul-v1';
-function defaults() { return { caseMode: 'both', slow: false, strict: 'normal', total: 0, rounds: { letters: 0, syllables: 0, words: 0, numbers: 0, math: 0, writing: 0, reading: 0 }, stats: {}, log: [], ench: [], emeralds: 0, notes: [], dogName: '', gifts: {}, bday: 0, lastCheer: '', seenVersion: 0, gameName: 'Adamův důl', dog: { collar: 'cerveny', owned: ['cerveny'], coat: 'bily' }, decor: [], streak: { count: 0, best: 0, last: '', totem: 0, days: [] }, outfit: { shirt: 'oranzove', pants: 'modre', shoes: 'sede', hat: 'nic', enchant: 'ne' } }; }
+function defaults() { return { caseMode: 'both', slow: false, strict: 'normal', total: 0, rounds: { letters: 0, syllables: 0, words: 0, numbers: 0, math: 0, writing: 0, reading: 0 }, stats: {}, log: [], ench: [], emeralds: 0, notes: [], dogName: '', gifts: {}, bday: 0, lastCheer: '', village: null, seenVersion: 0, gameName: 'Adamův důl', dog: { collar: 'cerveny', owned: ['cerveny'], coat: 'bily' }, decor: [], streak: { count: 0, best: 0, last: '', totem: 0, days: [] }, outfit: { shirt: 'oranzove', pants: 'modre', shoes: 'sede', hat: 'nic', enchant: 'ne' } }; }
 function load() {
   try { const s = JSON.parse(localStorage.getItem(KEY)); if (s) { const d = defaults(); return Object.assign(d, s, { rounds: Object.assign(d.rounds, s.rounds || {}), outfit: Object.assign(d.outfit, s.outfit || {}), dog: Object.assign(d.dog, s.dog || {}), gifts: Object.assign(d.gifts, s.gifts || {}), streak: Object.assign(d.streak, s.streak || {}) }); } } catch (e) {}
   return defaults();
@@ -696,6 +721,15 @@ const painters = {
     g.fillStyle = '#a9dbea'; g.fillRect(3, 3, 4, 5); g.fillRect(9, 3, 4, 5);
   },
   doorB(g, r) { planks(g, r, ['#8e6a3c', '#7d5c33', '#9b7646'], '#5a4024'); px(g, 12, 3, '#2a2a2a'); px(g, 12, 4, '#2a2a2a'); },
+  quartz(g, r) { noise(g, r, ['#ece6dc', '#e2dbcf', '#f4efe6']); for (let x = 0; x < 16; x++) { px(g, x, 0, '#d2cabb'); px(g, x, 15, '#cbc2b2'); } },
+  darkstone(g, r) { noise(g, r, ['#4a4a52', '#40404a', '#55555e', '#3a3a42']); },
+  planksY(g, r) { planks(g, r, ['#e2b84a', '#d4a83a', '#ecc65e'], '#a8822a'); },
+  roofRed(g, r) { planks(g, r, ['#b8392b', '#a8322a', '#c84a3a'], '#7a2018'); },
+  roofBlue(g, r) { planks(g, r, ['#3a5ea8', '#30529a', '#4a6eb8'], '#203a70'); },
+  bookshelf(g, r) {
+    planks(g, r, ['#b8945f', '#a7834f', '#c39f69'], '#7c5f37');
+    [1, 9].forEach(y0 => { for (let x = 1; x < 15; x += 2) { const k = pick(r, ['#c0392b', '#2f6fb0', '#3f9b3a', '#e0b324', '#7d4bc2']); g.fillStyle = k; g.fillRect(x, y0, 2, 5); } });
+  },
   brick(g, r) {
     g.fillStyle = '#b8b0a8'; g.fillRect(0, 0, 16, 16);
     for (let row = 0; row < 4; row++) { const off = row % 2 ? 4 : 0; for (let b = -1; b < 3; b++) { const x0 = b * 8 + off; for (let x = x0; x < x0 + 7; x++) for (let y = row * 4; y < row * 4 + 3; y++) if (x >= 0 && x < 16) px(g, x, y, pick(r, ['#9c4a37', '#8a3f2e', '#a85540'])); } }
@@ -1310,7 +1344,7 @@ function display(it) {
 }
 
 /* ---------- obrazovky ---------- */
-function show(id) { ['home', 'game', 'house', 'wardrobe', 'farm', 'shop', 'stats'].forEach(s => { $('#' + s).hidden = s !== id; }); }
+function show(id) { ['home', 'game', 'house', 'wardrobe', 'farm', 'shop', 'stats', 'village'].forEach(s => { $('#' + s).hidden = s !== id; }); }
 function paintTextures(root = document) {
   root.querySelectorAll('[data-tex]').forEach(el => { el.style.backgroundImage = `url(${tex(el.dataset.tex, el.dataset.dark === '1')})`; });
 }
@@ -1375,6 +1409,7 @@ function renderHome() {
   };
   card('Můj dům', drawHouse, openHouse, false);
   card('Farma', drawFarm, openFarm, farmStage() === 0);
+  card('Vesnice', drawVillage, openVillage, false);
   wrap.appendChild(places);
   mountDog($('#heroDog'));
   updateGems(); renderStreakBtn();
@@ -1869,9 +1904,98 @@ function renderEnchBook(box) {
   });
 }
 
+/* ---------- vesnice: každé patro staví svou budovu podle zvládnutých úkolů ---------- */
+const BUILDINGS = [
+  { lv: 'letters', name: 'škola', in: 've škole', who: 'paní učitelka', what: 'písmen', wall: 'brick', roof: 'roofRed', icon: 'A', robe: '#7d4bc2' },
+  { lv: 'syllables', name: 'pekárna', in: 'v pekárně', who: 'pan pekař', what: 'slabik', wall: 'planks', roof: 'roof', icon: 'bread', robe: '#f0f0f0', chimney: true },
+  { lv: 'words', name: 'knihovna', in: 'v knihovně', who: 'paní knihovnice', what: 'slov', wall: 'bookshelf', roof: 'roof', icon: 'book', robe: '#3f6fb0' },
+  { lv: 'reading', name: 'kino', in: 'v kině', who: 'pan promítač', what: 'obrázků ke čtení', wall: 'darkstone', roof: 'roofRed', icon: 'film', robe: '#c0392b' },
+  { lv: 'numbers', name: 'tržiště', in: 'na tržišti', who: 'pan trhovec', what: 'čísel', wall: 'planksY', roof: 'roofBlue', icon: 'coin', robe: '#7a5230' },
+  { lv: 'math', name: 'banka', in: 'v bance', who: 'pan bankéř', what: 'příkladů', wall: 'quartz', roof: 'roofBlue', icon: 'emerald', robe: '#2b2b2b' },
+  { lv: 'writing', name: 'pošta', in: 'na poště', who: 'paní pošťačka', what: 'tahů psaní', wall: 'planksY', roof: 'roofRed', icon: 'letter', robe: '#e0b324' },
+];
+const BLD_STAGES = ['základy', 'zeď', 'dveře', 'okna', 'střecha', 'vršek střechy', 'cedule', 'vesničan'];
+const VILLAGE_BONUS = 20; // smaragdy za dokončenou budovu
+function bldProgress(b) {
+  if (b.lv === 'math') { const m = Object.keys(save.stats).filter(k => k.startsWith('math:') && mastery(save.stats[k]) === 'good').length; return { got: Math.min(MATH_MAX, m), all: MATH_MAX }; }
+  const items = MASTERY_SETS()[b.lv];
+  return { got: items.filter(it => mastery(save.stats[b.lv + ':' + it]) === 'good').length, all: items.length };
+}
+const bldStage = b => { const { got, all } = bldProgress(b); return got >= all ? 8 : Math.min(7, Math.floor(got / all * 8)); };
+function signCanvas(icon) {
+  if (icon === 'emerald') return spr('emerald');
+  const c = document.createElement('canvas'); c.width = c.height = 16; const g = c.getContext('2d'); const R = (x, y, w, h, k) => { g.fillStyle = k; g.fillRect(x, y, w, h); };
+  R(1, 3, 14, 10, '#7a5a3a'); R(2, 4, 12, 8, '#e8d6b0');
+  if (icon === 'A') { R(7, 5, 2, 1, '#c0392b'); R(6, 6, 1, 5, '#c0392b'); R(9, 6, 1, 5, '#c0392b'); R(7, 8, 2, 1, '#c0392b'); }
+  if (icon === 'bread') { R(4, 7, 8, 3, '#c98a3a'); R(5, 6, 6, 1, '#d8a050'); R(6, 8, 1, 1, '#a86a2a'); R(9, 8, 1, 1, '#a86a2a'); }
+  if (icon === 'book') { R(4, 5, 8, 6, '#2f6fb0'); R(4, 5, 1, 6, '#203a70'); R(6, 7, 4, 1, '#e8d6b0'); }
+  if (icon === 'film') { R(3, 6, 10, 4, '#2b2b2b'); [4, 6, 8, 10].forEach(x => { R(x, 6, 1, 1, '#e8d6b0'); R(x, 9, 1, 1, '#e8d6b0'); }); }
+  if (icon === 'coin') { R(6, 5, 4, 6, '#f2c94c'); R(5, 6, 6, 4, '#f2c94c'); R(7, 6, 2, 4, '#c9a227'); }
+  if (icon === 'letter') { R(4, 6, 8, 5, '#ffffff'); R(5, 7, 1, 1, '#8a8a8a'); R(6, 8, 1, 1, '#8a8a8a'); R(7, 9, 2, 1, '#8a8a8a'); R(9, 8, 1, 1, '#8a8a8a'); R(10, 7, 1, 1, '#8a8a8a'); }
+  return c;
+}
+function villagerCanvas(robe) {
+  const c = document.createElement('canvas'); c.width = 16; c.height = 32; const g = c.getContext('2d'); const R = (x, y, w, h, k) => { g.fillStyle = k; g.fillRect(x, y, w, h); };
+  R(4, 0, 8, 9, '#c9946a'); R(5, 3, 6, 1, '#3a2a1a'); R(5, 4, 2, 1, '#ffffff'); R(9, 4, 2, 1, '#ffffff'); R(6, 4, 1, 1, '#2f7a3a'); R(9, 4, 1, 1, '#2f7a3a'); R(7, 5, 2, 4, '#a8744a');
+  R(3, 9, 10, 21, robe); R(3, 13, 10, 3, 'rgba(0,0,0,.25)'); R(5, 30, 6, 2, '#3a2a1a');
+  return c;
+}
+// jedna budova do mřížky 10 × 10 políček, ox = posun v políčkách
+function drawBuilding(g, ox, b, stage) {
+  const C = 16, cell = (t, x, y) => g.drawImage(texCanvas(seasonTex(t)), (ox + x) * C, y * C);
+  if (stage >= 1) for (let x = 1; x <= 8; x++) cell('cobble', x, 8);
+  [7, 6, 5].forEach((y, i) => { if (stage >= 2 + i) for (let x = 1; x <= 8; x++) cell(b.wall, x, y); });
+  if (stage >= 3) { cell('doorB', 4, 7); cell('doorT', 4, 6); }
+  if (stage >= 4) { cell('glass', 2, 6); cell('glass', 7, 6); }
+  if (stage >= 5) for (let x = 0; x <= 9; x++) cell(b.roof, x, 4);
+  if (stage >= 6) { for (let x = 1; x <= 8; x++) cell(b.roof, x, 3); for (let x = 3; x <= 6; x++) cell(b.roof, x, 2); if (b.chimney) { cell('brick', 7, 2); cell('brick', 7, 1); } }
+  if (stage >= 7) g.drawImage(signCanvas(b.icon), (ox + 4) * C, 5 * C);
+  if (stage >= 8) g.drawImage(villagerCanvas(b.robe), (ox + 6) * C, 9 * C - 32);
+}
+function skyAndGround(g, w, cols) {
+  const C = 16, grd = g.createLinearGradient(0, 0, 0, 9 * C); grd.addColorStop(0, '#6fb2ea'); grd.addColorStop(1, '#c6e6f8');
+  g.fillStyle = grd; g.fillRect(0, 0, w, 10 * C);
+  for (let x = 0; x < cols; x++) g.drawImage(texCanvas('grass'), x * C, 9 * C);
+}
+function drawBuildingCard(cv, b) {
+  cv.width = 160; cv.height = 160; const g = cv.getContext('2d'); g.imageSmoothingEnabled = false;
+  skyAndGround(g, 160, 10); drawBuilding(g, 0, b, bldStage(b)); snowFx(g, 160, 160);
+}
+function drawVillage(cv) {
+  cv.width = 160 * BUILDINGS.length; cv.height = 160; const g = cv.getContext('2d'); g.imageSmoothingEnabled = false;
+  skyAndGround(g, cv.width, 10 * BUILDINGS.length);
+  BUILDINGS.forEach((b, i) => drawBuilding(g, i * 10, b, bldStage(b)));
+  snowFx(g, cv.width, cv.height);
+}
+function openVillage() {
+  speechId++; if (synth) synth.cancel();
+  show('village');
+  const done = BUILDINGS.filter(b => bldStage(b) >= 8).length;
+  $('#villageCap').textContent = `Každé patro staví svou budovu. Za každý zvládnutý úkol kus stavby. Hotových budov: ${done} z ${BUILDINGS.length}.`;
+  const grid = $('#villageGrid'); grid.innerHTML = '';
+  BUILDINGS.forEach(b => {
+    const { got, all } = bldProgress(b), st = bldStage(b);
+    const el = document.createElement('button'); el.className = 'bld'; el.setAttribute('aria-label', b.name);
+    const cv = document.createElement('canvas'); cv.className = 'px'; drawBuildingCard(cv, b); el.appendChild(cv);
+    el.insertAdjacentHTML('beforeend', `<b>${b.name[0].toUpperCase() + b.name.slice(1)}</b><span>${LEVELS[b.lv].name}: ${got} z ${all}</span><span class="bar"><i style="width:${Math.round(got / all * 100)}%"></i></span>`);
+    el.addEventListener('click', () => { audio(); speak(st >= 8 ? `Ahoj Adame! Já jsem ${b.who} a teď bydlím ${b.in}. Díky, že jsi postavil ${b.name}!` : `${b.name[0].toUpperCase() + b.name.slice(1)}. Zvládnuto ${got} z ${all} ${b.what}. Až zvládneš všechno, nastěhuje se sem ${b.who}.`); });
+    grid.appendChild(el);
+  });
+}
+// porovná stav budov s posledním uloženým; vrací, co přibylo (a připíše odměnu za dokončení)
+function checkVillage(silent) {
+  const out = [];
+  BUILDINGS.forEach(b => {
+    const st = bldStage(b), was = save.village[b.lv] || 0;
+    if (st > was) { if (!silent) out.push({ b, st }); if (st >= 8 && !silent) save.emeralds += VILLAGE_BONUS; save.village[b.lv] = st; }
+  });
+  if (out.length || silent) persist();
+  return out;
+}
+
 /* ---------- verze hry a aktualizace ---------- */
 // Při každé úpravě hry zvýšit APP_VERSION a do version.json přidat záznam se stejným číslem (co je nového, pro Adama).
-const APP_VERSION = 3;
+const APP_VERSION = 4;
 /* ---------- název hry, který si vybral Adam ---------- */
 // jen názvy bez háčků: pixelové písmo háčky neumí (č, ě, ř, š, ž vypadají jako s tečkou)
 const GAME_NAMES = ['Adamův důl', 'Adamcraft', 'Adamovo království', 'Adamova farma', 'Adamův hrad'];
@@ -2181,6 +2305,10 @@ function endRound() {
   const ne = $('#newEnch');
   if (newEnch.length) { ne.hidden = false; ne.innerHTML = ''; ne.appendChild(outfitIcon('enchant', { id: 'ano' })); ne.insertAdjacentHTML('beforeend', `<span>Nové očarování: ${newEnch.map(e => `${pieceName(e.pc)} ${e.name} ${ROMAN[e.lvl]}`).join(', ')}!</span>`); }
   else ne.hidden = true;
+  const vil = checkVillage(false), nv = $('#newVillage');
+  if (vil.length) { nv.hidden = false; nv.innerHTML = ''; nv.appendChild(signCanvas(vil[0].b.icon)); nv.insertAdjacentHTML('beforeend', `<span>Ve vesnici přibylo: ${vil.map(v => `${v.b.name} (${BLD_STAGES[v.st - 1]})`).join(', ')}${vil.some(v => v.st >= 8) ? `! Budova je hotová, +${VILLAGE_BONUS} smaragdů` : ''}!</span>`); }
+  else nv.hidden = true;
+  const vilTalk = vil.length ? ' Ve vesnici přibylo: ' + vil.map(v => v.st >= 8 ? `${v.b.name} je hotová a nastěhoval se ${v.b.who}` : `${v.b.name}, ${BLD_STAGES[v.st - 1]}`).join(' a ') + '.' : '';
   const enchTalk = newEnch.length ? ` Máš nové očarování: ${newEnch.map(e => `${pieceName(e.pc)}, ${e.name} ${e.lvl}`).join(' a ')}.` : '';
   const eg = $('#endGems');
   const showGems = (bonus = 0) => {
@@ -2206,7 +2334,7 @@ function endRound() {
     $('#endOverlay').hidden = false;
     sfx.nope();
     const enc = cheerFor(false);
-    speak(`Tentokrát ${building ? 'dům nevyrostl' : 'farma nevyrostla'}. Bez chyby jsi měl ${got} z ${R_len}, potřebuješ aspoň ${need}. ${enc}${enchTalk}`);
+    speak(`Tentokrát ${building ? 'dům nevyrostl' : 'farma nevyrostla'}. Bez chyby jsi měl ${got} z ${R_len}, potřebuješ aspoň ${need}. ${enc}${enchTalk}${vilTalk}`);
     $('#btnAgain').focus({ preventScroll: true });
     return;
   }
@@ -2238,7 +2366,7 @@ function endRound() {
   const milestone = st === FARM_START ? 'Dostavěl jsi dům, gratulujeme!' : st === FARM_START + FARM_STAGES.length ? 'Farma je hotová, jsme na tebe moc pyšní!' : (day && day.count === 7) ? 'Sedm dní v řadě, to je výkon!' : (day && day.count > 0 && day.count % 30 === 0) ? `${day.count} dní v řadě! Jsme na tebe pyšní.` : '';
   const cheer = cheerFor(true, milestone);
   const dayTalk = day ? (day.usedTotem ? ` Totem zachránil tvou řadu!` : '') + (day.count > 1 ? ` Hraješ ${day.count} ${dayWord(day.count)} v řadě, bonus ${day.bonus} ${gemWord(day.bonus)}.` : ` Dnešní den se počítá do řady, bonus ${day.bonus} ${gemWord(day.bonus)}.`) : '';
-  speak((perfect ? 'Bez jediné chyby! ' : '') + cheer + (newTier ? ` Máš nový ${after.name} krumpáč!` : '') + story + dayTalk + enchTalk + (fresh.length ? ` V šatníku máš ${fresh.map(([, it]) => it.name).join(' a ')}.` : ''));
+  speak((perfect ? 'Bez jediné chyby! ' : '') + cheer + (newTier ? ` Máš nový ${after.name} krumpáč!` : '') + story + dayTalk + enchTalk + vilTalk + (fresh.length ? ` V šatníku máš ${fresh.map(([, it]) => it.name).join(' a ')}.` : ''));
   $('#btnAgain').focus({ preventScroll: true });
 }
 function goHome() {
@@ -2288,6 +2416,7 @@ $('#btnBack').addEventListener('click', goHome);
 $('#btnHouseBack').addEventListener('click', goHome);
 $('#btnWardBack').addEventListener('click', goHome);
 $('#btnFarmBack').addEventListener('click', goHome);
+$('#btnVillageBack').addEventListener('click', goHome);
 $('#btnShopBack').addEventListener('click', goHome);
 $('#btnStreak').addEventListener('click', openStreak);
 $('#btnStats').addEventListener('click', openStats);
@@ -2314,6 +2443,7 @@ $('#btnEndHome').addEventListener('click', goHome);
 
 if (season() === 'winter' || season() === 'xmas') document.body.classList.add('winter');
 applyName();
+if (!save.village) { save.village = {}; checkVillage(true); } // vesnice začíná podle toho, co už Adam umí
 checkEnchants(); // očarování za už zvládnuté úkoly
 checkVersion(); // nová verze na serveru? (při startu a při návratu do hry)
 document.addEventListener('visibilitychange', () => { if (!document.hidden) checkVersion(); });

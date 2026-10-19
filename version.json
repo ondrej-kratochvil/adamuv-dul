@@ -1,6 +1,14 @@
 {
-  "version": 3,
+  "version": 4,
   "changes": [
+    {
+      "version": 4,
+      "date": "2026-10-19",
+      "notes": [
+        "Nová vesnice! Každé patro staví svou budovu: školu, pekárnu, knihovnu, kino, tržiště, banku a poštu.",
+        "Za každý zvládnutý úkol přibude kus stavby. Do hotové budovy se nastěhuje vesničan a dostaneš 20 smaragdů."
+      ]
+    },
     {
       "version": 3,
       "date": "2026-10-19",
