@@ -6,7 +6,7 @@ import { speak } from '../audio/speech.js';
 import { audio } from '../audio/sfx.js';
 import { gemWord, updateGems } from './farm.js';
 import { dayNum, dayStr, easterMonday, holidayOn } from '../logic/calendar.ts';
-import { FAMILY_LINES } from '../content/family-lines.ts';
+import { FAMILY_LINES, MOM_OPEN } from '../content/family-lines.ts';
 import { momReminder, pickLine, remember } from '../logic/family.ts';
 
 const FAMILY = [
@@ -94,7 +94,7 @@ function cheerFor(ok, milestone) {
   const played = save.log.filter(e => e.d === today).reduce((a, e) => a + e.secs, 0);
   const mom = momReminder(new Date(), played, save.momSaid.ids);
   let p, line;
-  if (mom) { p = fam('paja'); line = mom.text; save.momSaid.ids.push(mom.id); save.lastCheer = 'paja'; }
+  if (mom) { p = fam('paja'); line = `${ok ? MOM_OPEN.ok : MOM_OPEN.fail} ${mom.text}`; save.momSaid.ids.push(mom.id); save.lastCheer = 'paja'; }
   else {
     p = pickPerson();
     const own = FAMILY_LINES[p.id] || { cheers: [], enc: [] };

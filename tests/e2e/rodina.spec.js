@@ -33,3 +33,12 @@ test('po kole zazní, co přibylo na domě', async ({ page }) => {
   await playRound(page, 'Písmena');
   await expect.poll(() => page.evaluate(() => window.__said.join(' '))).toContain('Přibylo na domě');
 });
+
+test('večer po nepovedeném kole máma povzbudí, nechválí (review 4)', async ({ page }) => {
+  await page.clock.setFixedTime(new Date('2026-10-20T18:10:00+02:00'));
+  await openGame(page, { total: 3 });
+  await playRound(page, 'Písmena', { wrong: 8 });
+  await expect(page.locator('#endTitle')).toHaveText('Skoro!');
+  await expect(page.locator('#cheer')).toContainText('Nevadí, broučku. Za chvíli je večeře');
+  await expect(page.locator('#cheer')).not.toContainText('Paráda');
+});

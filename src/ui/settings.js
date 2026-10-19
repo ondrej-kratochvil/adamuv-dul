@@ -55,7 +55,7 @@ $('#rateSlow').addEventListener('click', () => { save.slow = true; persist(); up
 $('#btnTestVoice').addEventListener('click', () => { loadVoices(); speak('Ahoj Adame! Tady je hra. ' + ['MA', 'MÉ', 'SO', 'LY'].map(s => pronounceAs(s, save.pron?.[s] || defaultMode(s))).join('. ') + '.'); setTimeout(loadVoices, 800); });
 $('#btnReset').addEventListener('click', () => { $('#resetConfirm').hidden = false; });
 $('#btnResetNo').addEventListener('click', () => { $('#resetConfirm').hidden = true; });
-$('#btnResetYes').addEventListener('click', () => { try { localStorage.setItem(BACKUP_KEY, JSON.stringify(save)); } catch (e) {} const keep = { caseMode: save.caseMode, slow: save.slow, strict: save.strict, outfit: save.outfit, notes: save.notes, dogName: save.dogName }; replaceSave(Object.assign(defaults(), keep)); persist(); updateRestore(); $('#resetConfirm').hidden = true; updateSettings(); });
+$('#btnResetYes').addEventListener('click', () => { try { localStorage.setItem(BACKUP_KEY, JSON.stringify(save)); } catch (e) {} const keep = { caseMode: save.caseMode, slow: save.slow, strict: save.strict, pron: save.pron, outfit: save.outfit, notes: save.notes, dogName: save.dogName }; /* nastavení rodiče včetně výslovnosti zůstává */ replaceSave(Object.assign(defaults(), keep)); persist(); updateRestore(); $('#resetConfirm').hidden = true; updateSettings(); });
 
 /* výslovnost slabik: rodič poslechne varianty a vybere tu, která na jeho tabletu zní česky */
 const PRON_LABEL = { plain: 'obyčejně', split: 'rozděleně', letters: 's písmeny' };

@@ -88,13 +88,15 @@ export const FAMILY_LINES: Record<string, Lines> = {
 };
 
 // Máma se stará: připomínky podle času v tabletu, každá jednou za den. Mají přednost před náhodnou pochvalou.
+// Text připomínky je bez pochvaly; před něj se dá pochvala, nebo po nepovedeném kole povzbuzení (MOM_OPEN).
 export interface MomSlot { id: string; from: string; to: string; text: string; weekday?: boolean; weekend?: boolean }
 export const MOM_SLOTS: MomSlot[] = [
-  { id: 'skola', from: '06:30', to: '08:00', weekday: true, text: 'Výborně, Adame! A teď hurá se nachystat do školy.' },
-  { id: 'snidane', from: '06:30', to: '09:00', weekend: true, text: 'Výborně, Adame! A teď hurá nasnídat se.' },
-  { id: 'obed', from: '11:30', to: '13:00', text: 'Šikula! Pojď na oběd, ať máš sílu na kopání.' },
-  { id: 'vecere', from: '17:30', to: '19:00', text: 'Paráda! Za chvíli je večeře, tak už dohraj.' },
-  { id: 'spat', from: '19:30', to: '23:59', text: 'Výborně! Teď ale čistit zuby, koupat a do postele.' },
+  { id: 'skola', from: '06:30', to: '08:00', weekday: true, text: 'A teď hurá se nachystat do školy.' },
+  { id: 'snidane', from: '06:30', to: '09:00', weekend: true, text: 'A teď hurá nasnídat se.' },
+  { id: 'obed', from: '11:30', to: '13:00', text: 'Pojď na oběd, ať máš sílu na kopání.' },
+  { id: 'vecere', from: '17:30', to: '19:00', text: 'Za chvíli je večeře, tak už dohraj.' },
+  { id: 'spat', from: '19:30', to: '23:59', text: 'Teď ale čistit zuby, koupat a do postele.' },
 ];
+export const MOM_OPEN = { ok: 'Výborně, Adame!', fail: 'Nevadí, broučku.' };
 export const MOM_PLAY_LIMIT_MIN = 30;
 export const MOM_PLAY_TEXT = 'Dneska už jsi hrál dlouho, Adame. Pojď si odpočinout, hra počká.';

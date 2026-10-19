@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { FAMILY_LINES } from '../../src/content/family-lines';
+import { FAMILY_LINES, MOM_SLOTS } from '../../src/content/family-lines';
 import { momReminder, pickLine, remember, NO_REPEAT } from '../../src/logic/family';
 import { seeded } from '../../src/logic/random';
 
@@ -42,6 +42,9 @@ describe('máma se stará', () => {
     expect(momReminder(at('2026-10-20T12:00:00'), 0, [])?.id).toBe('obed');
     expect(momReminder(at('2026-10-20T18:00:00'), 0, [])?.id).toBe('vecere');
     expect(momReminder(at('2026-10-20T20:15:00'), 0, [])?.id).toBe('spat');
+  });
+  it('text připomínky nezačíná pochvalou (dá se před něj pochvala i povzbuzení)', () => {
+    for (const s of MOM_SLOTS) expect(s.text, s.id).not.toMatch(/^(Výborně|Šikula|Paráda)/);
   });
   it('každá připomínka jednou za den', () => {
     expect(momReminder(at('2026-10-20T20:15:00'), 0, ['spat'])).toBeNull();

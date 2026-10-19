@@ -1,6 +1,13 @@
 {
-  "version": 24,
+  "version": 25,
   "changes": [
+    {
+      "version": 25,
+      "date": "2026-10-19",
+      "notes": [
+        "Máma po nepovedeném kole povzbudí, nechválí."
+      ]
+    },
     {
       "version": 24,
       "date": "2026-10-19",

@@ -78,3 +78,13 @@ test('nepovedené 12. kolo neříká, že kostky čekají ve Stavění (review 3
   await expect(page.locator('#endTitle')).toHaveText('Skoro!');
   await expect(page.locator('#endBlocks')).toContainText('schovávám na Stavění');
 });
+
+test('začít od začátku nechá výslovnost vybranou rodičem (review 4)', async ({ page }) => {
+  await openGame(page, { total: 20, pron: { SO: 'plain', LY: 'letters' } });
+  await openSettings(page);
+  await page.locator('#btnReset').click();
+  await page.locator('#btnResetYes').click();
+  const s = await saved(page);
+  expect(s.total).toBe(0);
+  expect(s.pron).toEqual({ SO: 'plain', LY: 'letters' });
+});
