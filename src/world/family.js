@@ -1,11 +1,11 @@
 // Rodina
 import { $ } from '../core/dom.js';
-import { persist, save } from '../save/save.js';
+import { persist, save } from '../save/save.ts';
 import { pick } from '../gfx/textures.js';
 import { speak } from '../audio/speech.js';
 import { audio } from '../audio/sfx.js';
 import { gemWord, updateGems } from './farm.js';
-import { dayNum, dayStr } from '../rewards/streak.js';
+import { dayNum, dayStr, easterMonday, holidayOn } from '../logic/calendar.ts';
 
 const FAMILY = [
   // barvy vlasů podle Ondřeje (19. 10. 2026); brýle ani vousy nikdo neuvedl, proto nejsou; děda Marek téměř holohlavý (Ondřej); drdol u babiček jen odlišuje babičky od dědů
@@ -58,25 +58,8 @@ const ENCOURAGE = [
 function pickPerson() { const opts = FAMILY.filter(p => p.id !== save.lastCheer); const p = pick(Math.random, opts); save.lastCheer = p.id; return p; }
 // kdo dnes fandí: každý den někdo jiný, podle data
 function todaysFan() { const n = dayNum(dayStr()); return FAMILY[((n % FAMILY.length) + FAMILY.length) % FAMILY.length]; }
-// české svátky a rodinná výročí; dárek smaragdů jednou za rok
-function easterMonday(y) {
-  const a = y % 19, b = Math.floor(y / 100), c = y % 100, d = Math.floor(b / 4), e = b % 4, f = Math.floor((b + 8) / 25), g = Math.floor((b - f + 1) / 3);
-  const h = (19 * a + b - d - g + 15) % 30, i = Math.floor(c / 4), k = c % 4, l = (32 + 2 * e + 2 * i - h - k) % 7, m = Math.floor((a + 11 * h + 22 * l) / 451);
-  const month = Math.floor((h + l - 7 * m + 114) / 31), day = ((h + l - 7 * m + 114) % 31) + 1;
-  return dayStr(new Date(y, month - 1, day + 1));
-}
-function holiday() {
-  const now = new Date(), md = dayStr().slice(5), y = now.getFullYear();
-  if (md === '06-17') return { id: 'narozeniny', all: true, gift: 20, text: 'Všechno nejlepší k narozeninám, Adame!' }; // Adam *17. 6. 2020
-  if (md === '12-24') return { id: 'vanoce', all: true, gift: 20, text: 'Veselé Vánoce, Adame! A dnes máš i svátek, protože Adam a Eva slaví na Štědrý den.' };
-  if (md === '12-05') return { id: 'mikulas', all: true, gift: 5, text: 'Dnes večer chodí Mikuláš, čert a anděl! Byl jsi hodný, tak dostáváš smaragdy.' };
-  if (md === '06-01') return { id: 'den-deti', all: true, gift: 10, text: 'Šťastný Den dětí, Adame!' };
-  if (md === '01-01') return { id: 'novy-rok', all: true, gift: 5, text: 'Šťastný nový rok, Adame!' };
-  if (md === '06-04') return { id: 'david-narozeniny', who: 'david', text: 'Dnes má narozeniny brácha Davídek! Popřej mu všechno nejlepší.' }; // David *4. 6. 2023
-  if (md === '12-30') return { id: 'david-svatek', who: 'david', text: 'Dnes má svátek brácha Davídek! Popřej mu.' };
-  if (dayStr() === easterMonday(y)) return { id: 'velikonoce', all: true, gift: 5, text: 'Veselé Velikonoce! Hody, hody, doprovody, dejte vejce malovaný.' };
-  return null;
-}
+// české svátky a rodinná výročí (logic/calendar.ts); dárek smaragdů jednou za rok
+function holiday() { return holidayOn(new Date()); }
 const isBirthday = () => dayStr().slice(5) === '06-17'; // Adam má narozeniny 17. 6.
 function showCheer(people, text) {
   const el = $('#cheer'); el.innerHTML = '';

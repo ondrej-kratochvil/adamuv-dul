@@ -1,6 +1,7 @@
 // Dům
-import { save } from '../save/save.js';
+import { save } from '../save/save.ts';
 import { rng, texCanvas } from '../gfx/textures.js';
+import { seasonOf } from '../logic/calendar.ts';
 
 const STAGES = ['základy', 'první řada zdi', 'druhá řada zdi', 'třetí řada zdi', 'dveře', 'okno', 'střecha', 'další kus střechy', 'komín', 'strom', 'květiny', 'lucerna a druhý strom'];
 const GARDEN = [[4, 'flowerY'], [14, 'flowerR'], [0, 'flowerR'], [17, 'flowerY'], [1, 'flowerY'], [3, 'flowerR'], [19, 'flowerR']];
@@ -34,7 +35,7 @@ function drawHouse(cv) {
 }
 
 // roční období: podzim barví listí, v prosinci svítí na stromech světýlka, v zimě sněží
-function season() { const n = new Date(), m = n.getMonth() + 1, d = n.getDate(); if (m === 12 || (m === 1 && d <= 6)) return 'xmas'; if (m <= 2) return 'winter'; if (m >= 9 && m <= 11) return 'autumn'; return ''; }
+function season() { return seasonOf(new Date()); }
 function seasonTex(t) { const se = season(); return t === 'leaves' ? (se === 'autumn' ? 'leavesAutumn' : se === 'xmas' ? 'leavesXmas' : t) : t; }
 function snowFx(g, w, h) {
   const se = season(); if (se !== 'winter' && se !== 'xmas') return;

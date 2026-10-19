@@ -1,7 +1,7 @@
 // Název hry, který si vybral Adam
 import { G } from '../core/state.js';
 import { $ } from '../core/dom.js';
-import { persist, save } from '../save/save.js';
+import { persist, save } from '../save/save.ts';
 import { speak, synth } from '../audio/speech.js';
 import { audio, tone } from '../audio/sfx.js';
 import { renderHome } from '../ui/screens.js';

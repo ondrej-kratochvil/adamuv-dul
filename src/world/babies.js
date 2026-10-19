@@ -1,7 +1,7 @@
 // Mláďata na farmě: za každý týden, kdy Adam hraje aspoň 4 dny
-import { persist, save } from '../save/save.js';
+import { persist, save } from '../save/save.ts';
 import { DOG_COATS } from './farm.js';
-import { dayStr } from '../rewards/streak.js';
+import { dayStr, weekKey } from '../logic/calendar.ts';
 
 const BABY_DAYS = 4; // kolik dní v jednom týdnu (pondělí až neděle) je potřeba na mládě
 const BABIES = [
@@ -14,7 +14,6 @@ const BABIES = [
   { id: 'kralik', name: 'králíček', x: 9.6, draw: R => { R(2, 4, 6, 4, '#d8d8d8'); R(7, 3, 3, 3, '#d8d8d8'); R(8, 0, 1, 3, '#d8d8d8'); R(9, 0, 1, 3, '#e8b0b8'); R(9, 4, 1, 1, '#222222'); R(1, 5, 1, 1, '#ffffff'); R(3, 8, 2, 2, '#c8c8c8'); R(6, 8, 2, 2, '#c8c8c8'); } },
   { id: 'kachne', name: 'kachňátko', x: 11.4, draw: R => { R(3, 3, 6, 5, '#f8e060'); R(7, 1, 3, 3, '#f8e060'); R(10, 2, 2, 1, '#e8862a'); R(8, 2, 1, 1, '#222222'); R(4, 8, 1, 2, '#e8862a'); R(7, 8, 1, 2, '#e8862a'); } },
 ];
-function weekKey(ds) { const [y, m, d] = ds.split('-').map(Number); const dt = new Date(y, m - 1, d); dt.setDate(d - ((dt.getDay() + 6) % 7)); return dayStr(dt); } // pondělí daného týdne
 function babyCanvas(b) { const c = document.createElement('canvas'); c.width = 12; c.height = 10; c.className = 'px'; const g = c.getContext('2d'); b.draw((x, y, w, h, k) => { g.fillStyle = k; g.fillRect(x, y, w, h); }); return c; }
 // mláďata za týdny odehrané před touto novinkou (ze záznamu dní, nejvýš 60 dní zpět)
 function initBabies() {

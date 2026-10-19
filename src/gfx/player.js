@@ -1,5 +1,5 @@
 // Postava a krumpáče
-import { save } from '../save/save.js';
+import { save } from '../save/save.ts';
 import { px } from './textures.js';
 import { pieceEnch } from '../rewards/enchant.js';
 

@@ -1,7 +1,7 @@
 // Farma, pes a smaragdy
 import { G } from '../core/state.js';
 import { $, REDUCED } from '../core/dom.js';
-import { persist, save } from '../save/save.js';
+import { persist, save } from '../save/save.ts';
 import { texCanvas } from '../gfx/textures.js';
 import { seasonTex, snowFx } from './house.js';
 import { speak, synth } from '../audio/speech.js';

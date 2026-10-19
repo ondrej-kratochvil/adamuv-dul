@@ -1,66 +1,31 @@
 // Očarování za zvládnuté úkoly
-import { persist, save } from '../save/save.js';
+import { persist, save } from '../save/save.ts';
 import { outfitIcon, outfitItem, pickCanvas, tierOf } from '../gfx/player.js';
 import { speak } from '../audio/speech.js';
 import { sfx } from '../audio/sfx.js';
-import { LETTERS, SYLL } from '../content/letters.js';
-import { range } from '../levels/math.js';
-import { GLYPHS } from '../levels/writing.js';
-import { WORDS } from '../content/words.js';
-import { PIC_WORDS } from '../levels/reading.js';
-import { mastery } from '../app/stats.js';
+import { MASTERY_SETS, MATH_MAX, masteryPoints as masteryPointsL } from '../logic/mastery.ts';
+import { ENCHANTS, ENCH_ORDER, PIECES, ROMAN } from '../content/enchants.ts';
+import { enchantNeed, newEnchants, nextEnchant, pieceEnchants } from '../logic/rewards.ts';
 import { protectionLevels, stuckMs } from '../game/round.js';
 
 // Pravidlo: plné vybavení (všechna očarování na maximum) má Adam až ve chvíli, kdy zvládne všechno, co hra obsahuje.
-// Prahy se počítají z celkového počtu úkolů, takže když přibude obsah, přibudou i odměny. Získané odměny se nikdy neberou.
-const MASTERY_SETS = () => ({
-  letters: LETTERS, syllables: SYLL, words: WORDS, reading: PIC_WORDS, writing: Object.keys(GLYPHS),
-  numbers: [...range(0, 20), ...range(30, 100, 10)].map(String),
-});
-const MATH_MAX = 30; // příkladů je nekonečně, počítá se nejvýš 30 různých zvládnutých
-function masteryPoints() {
-  let pts = 0, max = 0;
-  for (const [lv, items] of Object.entries(MASTERY_SETS())) { max += items.length; pts += items.filter(it => mastery(save.stats[lv + ':' + it]) === 'good').length; }
-  const m = Object.keys(save.stats).filter(k => k.startsWith('math:') && mastery(save.stats[k]) === 'good').length;
-  return { pts: pts + Math.min(MATH_MAX, m), max: max + MATH_MAX };
-}
-const PIECES = [['pick', 'krumpáč'], ['hat', 'helma'], ['shirt', 'brnění'], ['pants', 'chrániče'], ['shoes', 'boty']];
-const ENCHANTS = {
-  pick: [['Efektivita', 5], ['Štěstí', 3], ['Nezlomnost', 3]],
-  hat: [['Ochrana', 4], ['Nezlomnost', 3], ['Dýchání', 3], ['Afinita k vodě', 1]],
-  shirt: [['Ochrana', 4], ['Nezlomnost', 3], ['Trny', 3]],
-  pants: [['Ochrana', 4], ['Nezlomnost', 3], ['Rychlé plížení', 3]],
-  shoes: [['Ochrana', 4], ['Nezlomnost', 3], ['Tichý pád', 4], ['Rychlost v hlubinách', 3]],
-};
-const ROMAN = ['', 'I', 'II', 'III', 'IV', 'V'];
-// pořadí odměn: postupně všem kusům po jedné úrovni, Opravování (nejvzácnější) až na úplný konec
-const ENCH_ORDER = (() => {
-  const out = [];
-  for (let lvl = 1; lvl <= 5; lvl++) PIECES.forEach(([pc]) => ENCHANTS[pc].forEach(([name, max]) => { if (lvl <= max) out.push({ pc, name, lvl, key: `${pc}:${name}:${lvl}` }); }));
-  PIECES.forEach(([pc]) => out.push({ pc, name: 'Opravování', lvl: 1, key: `${pc}:Opravování:1` }));
-  return out;
-})();
-const enchNeed = i => Math.ceil((i + 1) / ENCH_ORDER.length * masteryPoints().max);
+// Výpočet je v logic/mastery.ts a logic/rewards.ts. Získané odměny se nikdy neberou.
+function masteryPoints() { return masteryPointsL(save.stats); }
+function enchNeed(i) { return enchantNeed(i, masteryPoints().max); }
 // vrátí nově získaná očarování
 function checkEnchants() {
-  const { pts, max } = masteryPoints(), got = [];
-  ENCH_ORDER.forEach((e, i) => { if (!save.ench.includes(e.key) && pts >= Math.ceil((i + 1) / ENCH_ORDER.length * max)) { save.ench.push(e.key); got.push(e); } });
-  if (got.length) persist();
+  const { pts, max } = masteryPoints(), got = newEnchants(pts, max, save.ench);
+  if (got.length) { got.forEach(e => save.ench.push(e.key)); persist(); }
   return got;
 }
-// nejvyšší získaná úroveň každého očarování daného kusu
-function pieceEnch(pc) {
-  const best = {};
-  save.ench.filter(k => k.startsWith(pc + ':')).forEach(k => { const [, name, l] = k.split(':'); best[name] = Math.max(best[name] || 0, +l); });
-  return Object.entries(best);
-}
-const enchLevel = (pc, name) => (pieceEnch(pc).find(([n]) => n === name) || [, 0])[1];
-const pieceName = pc => PIECES.find(p => p[0] === pc)[1];
+function pieceEnch(pc) { return Object.entries(pieceEnchants(save.ench, pc)); }
+function enchLevel(pc, name) { return pieceEnchants(save.ench, pc)[name] || 0; }
+function pieceName(pc) { return PIECES.find(p => p[0] === pc)[1]; }
 // Štěstí na krumpáči: šance 15 % za úroveň na smaragd navíc
 function luckBonus() { const l = enchLevel('pick', 'Štěstí'); if (l && Math.random() < l * .15) { sfx.sparkle(); return 1; } return 0; }
 function nextEnchInfo() {
-  const { pts } = masteryPoints(), i = ENCH_ORDER.findIndex(e => !save.ench.includes(e.key));
-  return i < 0 ? null : { e: ENCH_ORDER[i], left: Math.max(0, enchNeed(i) - pts) };
+  const { pts, max } = masteryPoints();
+  return nextEnchant(pts, max, save.ench);
 }
 function renderEnchBook(box) {
   const { pts, max } = masteryPoints(), nx = nextEnchInfo();

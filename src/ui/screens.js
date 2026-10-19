@@ -1,7 +1,7 @@
 // Obrazovky
 import { G } from '../core/state.js';
 import { $ } from '../core/dom.js';
-import { persist, save } from '../save/save.js';
+import { persist, save } from '../save/save.ts';
 import { tex } from '../gfx/textures.js';
 import { OUTFIT, OUTFIT_CATS, isMetal, mountPlayer, outfitIcon, outfitItem, unlocked } from '../gfx/player.js';
 import { drawHouse } from '../world/house.js';

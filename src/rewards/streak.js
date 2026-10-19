@@ -1,46 +1,29 @@
 // Řada dní
 import { $ } from '../core/dom.js';
-import { persist, save } from '../save/save.js';
+import { persist, save } from '../save/save.ts';
 import { OUTFIT, outfitIcon } from '../gfx/player.js';
 import { speak } from '../audio/speech.js';
 import { audio } from '../audio/sfx.js';
 import { sprIcon } from '../world/farm.js';
-import { BABIES, BABY_DAYS, babyCanvas, weekKey } from '../world/babies.js';
+import { BABIES, BABY_DAYS, babyCanvas } from '../world/babies.js';
+import { dayNum, dayStr, dayWord, pad2, weekKey } from '../logic/calendar.ts';
+import { STREAK_BONUS_MAX, applyDay, streakAt } from '../logic/streak.ts';
 
 // den se počítá, když má Adam aspoň jedno povedené kolo; totem (z obchodu) zachrání řadu při jednom vynechaném dni
-const TOTEM_PRICE = 20, STREAK_BONUS_MAX = 10;
-const pad2 = n => String(n).padStart(2, '0');
-const dayStr = (d = new Date()) => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
-const dayNum = str => { const [y, m, d] = str.split('-').map(Number); return Date.UTC(y, m - 1, d) / 864e5; };
-const dayWord = n => n === 1 ? 'den' : n >= 2 && n <= 4 ? 'dny' : 'dní';
-// jak řada stojí dnes (bez zápisu): hraje se dál, nebo už spadla
-function streakNow() {
-  const st = save.streak; if (!st.last) return { count: 0, today: false, saved: false };
-  const gap = dayNum(dayStr()) - dayNum(st.last);
-  if (gap === 0) return { count: st.count, today: true, saved: false };
-  if (gap === 1) return { count: st.count, today: false, saved: false };
-  if (gap === 2 && st.totem > 0) return { count: st.count, today: false, saved: true };
-  return { count: 0, today: false, saved: false };
-}
+const TOTEM_PRICE = 20;
+// jak řada stojí dnes (bez zápisu)
+function streakNow() { return streakAt(save.streak, dayStr()); }
 // zapíše dnešní den po povedeném kole; vrací, co se stalo
 function registerDay() {
-  const st = save.streak, today = dayStr();
-  if (st.last === today) return null;
-  const gap = st.last ? dayNum(today) - dayNum(st.last) : 99;
-  let usedTotem = false;
-  if (gap === 1) st.count++;
-  else if (gap === 2 && st.totem > 0) { st.totem--; st.count++; usedTotem = true; }
-  else st.count = 1;
-  const prevBest = st.best;
-  st.last = today; st.best = Math.max(st.best, st.count);
-  st.days = [...st.days.filter(d => dayNum(today) - dayNum(d) < 60), today];
-  const bonus = Math.min(st.count, STREAK_BONUS_MAX);
+  const today = dayStr(), day = applyDay(save.streak, today);
+  if (!day) return null;
+  const { count, bonus, usedTotem, prevBest } = day;
   save.emeralds += bonus; save.obsidian = (save.obsidian || 0) + 1;
   const wk = weekKey(today); save.weeks[wk] = (save.weeks[wk] || 0) + 1;
   let baby = null;
   if (save.weeks[wk] === BABY_DAYS && save.babies.length < BABIES.length) { baby = BABIES[save.babies.length]; save.babies.push(baby.id); }
   persist();
-  return { count: st.count, bonus, usedTotem, prevBest, obsidian: save.obsidian, baby, weekDays: save.weeks[wk] };
+  return { count, bonus, usedTotem, prevBest, obsidian: save.obsidian, baby, weekDays: save.weeks[wk] };
 }
 function renderStreakBtn() {
   const b = $('#btnStreak'); const n = streakNow();

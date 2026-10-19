@@ -1,10 +1,10 @@
 // Sbírka kartiček: kartička za každé zvládnuté slovo (v patře Slova nebo Čtení)
 import { G } from '../core/state.js';
 import { $ } from '../core/dom.js';
-import { persist, save } from '../save/save.js';
+import { persist, save } from '../save/save.ts';
 import { speak, synth } from '../audio/speech.js';
 import { audio } from '../audio/sfx.js';
-import { WORDS } from '../content/words.js';
+import { WORDS } from '../content/words.ts';
 import { PIC, PLURAL, display, inCzech, picCanvas } from '../levels/reading.js';
 import { show } from '../ui/screens.js';
 import { mastery } from '../app/stats.js';

@@ -1,7 +1,7 @@
 // Vesnice: každé patro staví svou budovu podle zvládnutých úkolů
 import { G } from '../core/state.js';
 import { $ } from '../core/dom.js';
-import { persist, save } from '../save/save.js';
+import { persist, save } from '../save/save.ts';
 import { texCanvas } from '../gfx/textures.js';
 import { seasonTex, snowFx } from './house.js';
 import { speak, synth } from '../audio/speech.js';
@@ -9,8 +9,8 @@ import { audio } from '../audio/sfx.js';
 import { LEVELS } from '../levels/reading.js';
 import { show } from '../ui/screens.js';
 import { spr } from './farm.js';
-import { MASTERY_SETS, MATH_MAX } from '../rewards/enchant.js';
-import { mastery } from '../app/stats.js';
+import { levelProgress } from '../logic/mastery.ts';
+import { BUILDING_STAGES, buildingStage } from '../logic/rewards.ts';
 
 const BUILDINGS = [
   { lv: 'letters', name: 'škola', in: 've škole', who: 'paní učitelka', what: 'písmen', wall: 'brick', roof: 'roofRed', icon: 'A', robe: '#7d4bc2' },
@@ -23,12 +23,9 @@ const BUILDINGS = [
 ];
 const BLD_STAGES = ['základy', 'zeď', 'dveře', 'okna', 'střecha', 'vršek střechy', 'cedule', 'vesničan'];
 const VILLAGE_BONUS = 20; // smaragdy za dokončenou budovu
-function bldProgress(b) {
-  if (b.lv === 'math') { const m = Object.keys(save.stats).filter(k => k.startsWith('math:') && mastery(save.stats[k]) === 'good').length; return { got: Math.min(MATH_MAX, m), all: MATH_MAX }; }
-  const items = MASTERY_SETS()[b.lv];
-  return { got: items.filter(it => mastery(save.stats[b.lv + ':' + it]) === 'good').length, all: items.length };
-}
-const bldStage = b => { const { got, all } = bldProgress(b); return got >= all ? 8 : Math.min(7, Math.floor(got / all * 8)); };
+function bldProgress(b) { return levelProgress(save.stats, b.lv); }
+// fáze podle zvládnutí, ale nikdy méně, než už jednou stálo: odměna se nebere
+function bldStage(b) { const { got, all } = bldProgress(b); return Math.max((save.village && save.village[b.lv]) || 0, buildingStage(got, all)); }
 function signCanvas(icon) {
   if (icon === 'emerald') return spr('emerald');
   const c = document.createElement('canvas'); c.width = c.height = 16; const g = c.getContext('2d'); const R = (x, y, w, h, k) => { g.fillStyle = k; g.fillRect(x, y, w, h); };

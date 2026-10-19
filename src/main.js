@@ -2,7 +2,7 @@ import './styles.css';
 // Tlačítka
 import { G } from './core/state.js';
 import { $ } from './core/dom.js';
-import { persist, save } from './save/save.js';
+import { persist, save } from './save/save.ts';
 import { season } from './world/house.js';
 import { speak, synth } from './audio/speech.js';
 import { audio } from './audio/sfx.js';

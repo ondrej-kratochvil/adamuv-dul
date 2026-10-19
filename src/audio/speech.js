@@ -1,7 +1,7 @@
 // Řeč
 import { G } from '../core/state.js';
 import { $ } from '../core/dom.js';
-import { save } from '../save/save.js';
+import { save } from '../save/save.ts';
 import { updateHint } from '../ui/hint.js';
 import { updateVoiceInfo } from '../ui/settings.js';
 

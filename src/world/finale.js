@@ -1,7 +1,7 @@
 // Finále: End a Ender drak
 import { G } from '../core/state.js';
 import { $, REDUCED } from '../core/dom.js';
-import { persist, save } from '../save/save.js';
+import { persist, save } from '../save/save.ts';
 import { pick, rng, texCanvas } from '../gfx/textures.js';
 import { speak, synth } from '../audio/speech.js';
 import { audio, sfx } from '../audio/sfx.js';
@@ -10,13 +10,14 @@ import { show } from '../ui/screens.js';
 import { fitCanvas, spr } from './farm.js';
 import { FAMILY, famCanvas } from './family.js';
 import { masteryPoints } from '../rewards/enchant.js';
+import { eyesFor } from '../logic/rewards.ts';
 import { gameName } from '../app/name.js';
 import { retrigger, startRound } from '../game/round.js';
 
 // Oči Enderu přibývají se zvládnutými úkoly (12 očí = vše zvládnuto). Portál do Endu se otevře, až má Adam zvládnuté všechno;
 // to je strop hry podle pravidla „maximum až po zvládnutí všeho“. Bitvu jde pak opakovat, odměny jsou jednou.
 const EYES = 12, BOSS_HITS = 20, BOSS_BONUS = 100;
-const eyesHave = () => { const { pts, max } = masteryPoints(); return Math.max(save.eyes || 0, Math.min(EYES, Math.floor(pts / max * EYES))); };
+const eyesHave = () => { const { pts, max } = masteryPoints(); return Math.max(save.eyes || 0, eyesFor(pts, max)); };
 const endOpen = () => eyesHave() >= EYES;
 const RING = [[1, 0], [2, 0], [3, 0], [4, 1], [4, 2], [4, 3], [3, 4], [2, 4], [1, 4], [0, 3], [0, 2], [0, 1]]; // rám 5 × 5 bez rohů
 function drawEnder(cv) {

@@ -1,6 +1,6 @@
 // Nastavení
 import { $ } from '../core/dom.js';
-import { defaults, persist, save, replaceSave } from '../save/save.js';
+import { defaults, persist, save, replaceSave } from '../save/save.ts';
 import { tierOf } from '../gfx/player.js';
 import { csVoice, loadVoices, speak, synth, voicesKnown } from '../audio/speech.js';
 import { renderHome } from './screens.js';

@@ -1,7 +1,9 @@
 // Herní kolo
 import { G } from '../core/state.js';
+import { recordResult } from '../logic/mastery.ts';
+import { STUCK_MS, stuckMsFor } from '../logic/rewards.ts';
 import { $, REDUCED } from '../core/dom.js';
-import { persist, save } from '../save/save.js';
+import { persist, save } from '../save/save.ts';
 import { cracks, pick, tex, texCanvas } from '../gfx/textures.js';
 import { OUTFIT, OUTFIT_CATS, mountPlayer, outfitIcon, pickCanvas, tierOf } from '../gfx/player.js';
 import { STAGES, drawHouse } from '../world/house.js';
@@ -27,10 +29,9 @@ import { updateHint } from '../ui/hint.js';
 const ROUND_LEN = 8;
 // kolik kostek z 8 musí být bez chyby, aby dům rostl
 const NEED_CLEAN = { mild: 4, normal: 5, strict: 6 };
-const STUCK_MS = 2000;
-// Ochrana na helmě, brnění, chráničích a botách: každá úroveň zkrátí zaseknutí o 50 ms (max. 16 úrovní, nejkratší 1,2 s)
+// Ochrana na helmě, brnění, chráničích a botách zkracuje zaseknutí po chybě (logic/rewards.ts)
 const protectionLevels = () => ['hat', 'shirt', 'pants', 'shoes'].reduce((a, pc) => a + enchLevel(pc, 'Ochrana'), 0);
-const stuckMs = () => STUCK_MS - 50 * protectionLevels();
+const stuckMs = () => stuckMsFor(protectionLevels());
 function startRound(level) {
   const L = LEVELS[level] || BOSS;
   G.R = { level, i: 0, busy: true, recent: [], loot: [], clean: 0, len: L.len || ROUND_LEN, start: Date.now() };
@@ -131,11 +132,7 @@ function tapBlock(it, el) {
 const PRAISE = ['Výborně!', 'Super!', 'Ano!', 'Paráda!', 'Skvěle!', 'To je ono!', 'Přesně tak!'];
 function breakBlock(el) {
   G.R.busy = true;
-  const key = G.R.statKey;
-  const s = save.stats[key] || { ok: 0, miss: 0 };
-  if (G.R.firstTry) { s.ok++; s.miss = Math.max(0, s.miss - 1); } else { s.miss++; s.bad = (s.bad || 0) + 1; }
-  s.n = (s.n || 0) + 1;
-  save.stats[key] = s; persist();
+  recordResult(save.stats, G.R.statKey, G.R.firstTry); persist();
   el.querySelector('.crack').style.backgroundImage = `url(${cracks[3]})`;
   sfx.breakIt();
   const rect = el.getBoundingClientRect();

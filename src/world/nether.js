@@ -1,7 +1,7 @@
 // Portál do Netheru: obsidián za každý odehraný den
 import { G } from '../core/state.js';
 import { $ } from '../core/dom.js';
-import { save } from '../save/save.js';
+import { save } from '../save/save.ts';
 import { texCanvas } from '../gfx/textures.js';
 import { snowFx } from './house.js';
 import { speak, synth } from '../audio/speech.js';

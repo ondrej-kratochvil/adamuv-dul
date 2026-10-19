@@ -1,16 +1,18 @@
 // Deník kol, hodnocení a statistiky
 import { G } from '../core/state.js';
 import { $ } from '../core/dom.js';
-import { persist, save } from '../save/save.js';
+import { persist, save } from '../save/save.ts';
 import { speak } from '../audio/speech.js';
 import { audio, tone } from '../audio/sfx.js';
-import { LETTERS, SYLL } from '../content/letters.js';
+import { LETTERS, SYLL } from '../content/letters.ts';
 import { range } from '../levels/math.js';
 import { GLYPHS, SHAPE_NAMES } from '../levels/writing.js';
-import { WORDS } from '../content/words.js';
+import { WORDS } from '../content/words.ts';
 import { LEVELS, PIC_WORDS } from '../levels/reading.js';
 import { show } from '../ui/screens.js';
-import { dayStr, pad2, streakNow } from '../rewards/streak.js';
+import { streakNow } from '../rewards/streak.js';
+import { dayStr, pad2 } from '../logic/calendar.ts';
+import { mastery } from '../logic/mastery.ts';
 import { gameName } from './name.js';
 
 const LOG_MAX = 1500;
@@ -31,8 +33,6 @@ function renderRate() {
     row.appendChild(b);
   }
 }
-// zvládnuté = aspoň 3× správně a teď bez chyb; potíže = poslední dobou aspoň 2 chyby
-function mastery(s) { if (!s || !(s.n || s.ok || s.miss)) return ''; if (s.miss >= 2) return 'bad'; if (s.ok >= 3 && s.miss === 0) return 'good'; return 'mid'; }
 const fmtRate = x => x.toFixed(1).replace('.', ',') + ' z 10';
 const kol = n => `${n} ${n === 1 ? 'kolo' : n >= 2 && n <= 4 ? 'kola' : 'kol'}`;
 const fmtMin = secs => secs < 60 ? `${secs} s` : `${Math.round(secs / 60)} min`;

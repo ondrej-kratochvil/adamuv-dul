@@ -1,7 +1,7 @@
 // Přerov z kostek: místa z Adamova města za nejdelší řadu dní
 import { G } from '../core/state.js';
 import { $ } from '../core/dom.js';
-import { save } from '../save/save.js';
+import { save } from '../save/save.ts';
 import { pick, rng, texCanvas } from '../gfx/textures.js';
 import { seasonTex, snowFx } from './house.js';
 import { speak, synth } from '../audio/speech.js';
