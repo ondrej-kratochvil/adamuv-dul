@@ -8,8 +8,8 @@ import { renderHome } from '../ui/screens.js';
 import { APP_VERSION } from './version.js';
 import { setBtn } from '../ui/icons.js';
 
-// jen názvy bez háčků: pixelové písmo háčky neumí (č, ě, ř, š, ž vypadají jako s tečkou)
-const GAME_NAMES = ['Adamův důl', 'Adamcraft', 'Adamovo království', 'Adamova farma', 'Adamův hrad'];
+// nadpis a nabídka jsou v čitelném písmu (Andika), takže háčky a kroužky nevadí
+const GAME_NAMES = ['Adamův důl', 'Adamcraft', 'Adamovo království', 'Adamova farma', 'Adamův hrad', 'Adamův svět'];
 const gameName = () => GAME_NAMES.includes(save.gameName) ? save.gameName : GAME_NAMES[0];
 function applyName() {
   const n = gameName(), t = $('#gameTitle');

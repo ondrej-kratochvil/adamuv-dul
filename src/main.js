@@ -8,7 +8,7 @@ import { speak, synth } from './audio/speech.js';
 import { audio } from './audio/sfx.js';
 import { traceDown, traceMove, traceUp } from './levels/writing.js';
 import { openHouse, openWardrobe, paintTextures, renderHome } from './ui/screens.js';
-import { openDog, openShop, sprIcon } from './world/farm.js';
+import { openDog, openFarm, openShop, sprIcon } from './world/farm.js';
 import { openStreak } from './rewards/streak.js';
 import { noteWho, renderNotes } from './world/family.js';
 import { checkEnchants } from './rewards/enchant.js';
@@ -55,7 +55,7 @@ $('#gameTitle').addEventListener('keydown', e => { if (e.key === 'Enter' || e.ke
 $('#btnNameClose').addEventListener('click', () => { $('#nameOverlay').hidden = true; speak(`Hra se jmenuje ${gameName()}.`); });
 $('#btnListen').addEventListener('click', () => { audio(); if (G.R && G.R.say && !G.R.busy) speak(G.R.say); });
 $('#btnAgain').addEventListener('click', () => { const lv = $('#endOverlay').dataset.level; $('#endOverlay').hidden = true; startRound(lv); });
-$('#btnEndHouse').addEventListener('click', () => { $('#endOverlay').hidden = true; openHouse(); });
+$('#btnEndHouse').addEventListener('click', () => { $('#endOverlay').hidden = true; ($('#endOverlay').dataset.place === 'farm' ? openFarm : openHouse)(); });
 $('#btnEndHome').addEventListener('click', goHome);
 
 if (season() === 'winter' || season() === 'xmas') document.body.classList.add('winter');

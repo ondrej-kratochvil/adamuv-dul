@@ -73,6 +73,7 @@ button:focus-visible { outline: 4px solid var(--gold); outline-offset: 3px; }
 .home-top { display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 2; }
 .title-row { display: flex; align-items: flex-end; gap: clamp(12px, 3vw, 32px); justify-content: center; position: relative; z-index: 1; margin-top: 4px; }
 .title {
+  font-family: var(--f-read);
   font-size: clamp(26px, 7vw, 76px); font-weight: 700; color: var(--white); line-height: 1; cursor: pointer;
   text-shadow: -3px 0 0 #2e5a7f, 3px 0 0 #2e5a7f, 0 -3px 0 #2e5a7f, 0 3px 0 #2e5a7f, 6px 6px 0 #2e5a7f; margin: 0 0 clamp(14px, 3vh, 30px);
   text-wrap: balance;
@@ -301,7 +302,7 @@ canvas.ench { animation: ench 1.8s ease-in-out infinite; }
 .bubble { position: relative; background: #ffffff; border: 3px solid #161616; padding: 6px 10px; font-family: var(--f-read); font-size: 17px; line-height: 1.3; }
 .bubble b { display: block; font-size: 14px; color: #5a4a3a; }
 .name-list { display: grid; gap: 10px; }
-.name-list .gbtn { font-family: var(--f-pixel); font-size: clamp(22px, 5vw, 32px); justify-content: flex-start; padding: 10px 14px; gap: 14px; }
+.name-list .gbtn { font-family: var(--f-read); font-size: clamp(22px, 5vw, 32px); justify-content: flex-start; padding: 10px 14px; gap: 14px; }
 .name-list .num { font-family: var(--f-read); flex: none; width: 1.6em; height: 1.6em; display: grid; place-items: center; background: var(--gold); color: #161616; border: 3px solid #161616; text-shadow: none; font-size: 1.1em; }
 .name-list .gbtn[aria-pressed="true"] { background: var(--go); }
 #nether.lit .sky, #game.nethered .sky { background: linear-gradient(#2a0a0e, #7a2418); }
@@ -337,6 +338,8 @@ canvas.ench { animation: ench 1.8s ease-in-out infinite; }
 .bld span { font-size: 14px; }
 .bld .bar { width: 100%; max-width: 200px; height: 10px; border: 2px solid #161616; background: #8b8b8b; }
 .bld .bar i { display: block; height: 100%; background: var(--go); }
+#btnSettings.holding { animation: hold 2s linear forwards; }
+@keyframes hold { from { box-shadow: inset 0 0 0 0 var(--gold); } to { box-shadow: inset 0 0 0 28px var(--gold); } }
 .update { grid-column: 1 / -1; justify-self: center; width: min(640px, 100%); background: #fff7d1; border: 3px solid #161616; padding: 10px 14px; font-family: var(--f-read); display: grid; gap: 8px; }
 .update b { font-size: 19px; }
 .update ul { margin: 0; padding-left: 20px; font-size: 16px; line-height: 1.4; }

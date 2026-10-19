@@ -23,6 +23,17 @@ export function nextEnchant(pts: number, max: number, owned: readonly string[]):
   return i < 0 ? null : { e: ENCH_ORDER[i], left: Math.max(0, enchantNeed(i, max) - pts) };
 }
 
+// kolik úkolů v kole musí být bez chyby, aby se kolo počítalo
+export const NEED_CLEAN = { mild: 4, normal: 5, strict: 6 } as const; // z 8
+const SHORT_MISTAKES = { mild: 2, normal: 1, strict: 0 } as const;    // kolik chyb smí být v krátkém kole (psaní, 5 úkolů)
+export type Strictness = keyof typeof NEED_CLEAN;
+export function needClean(strict: Strictness, len: number): number {
+  const s: Strictness = strict in NEED_CLEAN ? strict : 'normal';
+  if (len === 8) return NEED_CLEAN[s];
+  if (len <= 5) return len - SHORT_MISTAKES[s];
+  return Math.ceil(NEED_CLEAN[s] * len / 8);
+}
+
 // Ochrana: zaseknutí krumpáče po chybě kratší o 50 ms za úroveň, nejkratší 1,2 s
 export const STUCK_MS = 2000;
 export const stuckMsFor = (protection: number): number => Math.max(1200, STUCK_MS - 50 * protection);

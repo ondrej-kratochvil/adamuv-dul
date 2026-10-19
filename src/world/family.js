@@ -9,19 +9,30 @@ import { dayNum, dayStr, easterMonday, holidayOn } from '../logic/calendar.ts';
 
 const FAMILY = [
   // barvy vlasů podle Ondřeje (19. 10. 2026); brýle ani vousy nikdo neuvedl, proto nejsou; děda Marek téměř holohlavý (Ondřej); drdol u babiček jen odlišuje babičky od dědů
-  { id: 'paja', name: 'máma Pája', f: true, hair: '#e2c06c', long: true, top: '#c84a8a' },
-  { id: 'ondra', name: 'táta Ondra', f: false, hair: '#a07a52', grey: '#c4bcb2', top: '#2f6fb0' },
-  { id: 'jindra', name: 'babička Jindra', f: true, hair: '#4a2a14', long: false, top: '#7d4bc2' },
-  { id: 'bob', name: 'děda Bob', f: false, hair: '#cfcfcf', top: '#7a5230' },
-  { id: 'iva', name: 'babička Iva', f: true, hair: '#e2c06c', long: false, top: '#3f9b3a' },
-  { id: 'marek', name: 'děda Marek', f: false, hair: '#dcc274', top: '#c0392b', bald: true }, // téměř holohlavý, zbytek vlasů blond
-  { id: 'david', name: 'brácha Davídek', f: false, hair: '#ecd27e', top: '#e0b324', small: true,
+  { id: 'paja', name: 'máma Pája', gen: 'mámy Páji', f: true, hair: '#e2c06c', long: true, top: '#c84a8a' },
+  { id: 'ondra', name: 'táta Ondra', gen: 'táty Ondry', f: false, hair: '#a07a52', grey: '#c4bcb2', top: '#2f6fb0' },
+  { id: 'jindra', name: 'babička Jindra', gen: 'babičky Jindry', f: true, hair: '#4a2a14', long: false, top: '#7d4bc2' },
+  { id: 'bob', name: 'děda Bob', gen: 'dědy Boba', f: false, hair: '#cfcfcf', top: '#7a5230' },
+  { id: 'iva', name: 'babička Iva', gen: 'babičky Ivy', f: true, hair: '#e2c06c', long: false, top: '#3f9b3a' },
+  { id: 'marek', name: 'děda Marek', gen: 'dědy Marka', f: false, hair: '#dcc274', top: '#c0392b', bald: true }, // téměř holohlavý, zbytek vlasů blond
+  { id: 'david', name: 'brácha Davídek', gen: 'bráchy Davídka', f: false, hair: '#ecd27e', top: '#e0b324', small: true,
     cheers: ['Bráško, ty jsi nejlepší!', 'Hurá! Adame, to je paráda!', 'Já taky chci kopat jako ty!', 'Bráško, naučíš to i mě?'],
     enc: ['Bráško, to nevadí. Zkus to znovu!', 'Adame, já ti fandím!'] },
 ];
-const fam = id => FAMILY.find(p => p.id === id);
+// kamarádi ze třídy: jen vzkazy, bez podoby ve hře (dokud ji neřekne Ondřej), místo obličeje obálka
+const FRIENDS = [
+  { id: 'tom', name: 'kamarád Tom', gen: 'kamaráda Toma', friend: true },
+  { id: 'meda', name: 'kamarád Méďa', gen: 'kamaráda Médi', friend: true },
+];
+const SENDERS = [...FAMILY, ...FRIENDS];
+const fam = id => SENDERS.find(p => p.id === id) || FAMILY[1];
 const g2 = (p, f, m) => p.f ? f : m;
 function famCanvas(p) {
+  if (p.friend) { // obálka s dopisem
+    const c = document.createElement('canvas'); c.width = c.height = 16; c.className = 'px'; const g = c.getContext('2d'); const R = (x, y, w, h, k) => { g.fillStyle = k; g.fillRect(x, y, w, h); };
+    R(1, 4, 14, 9, '#161616'); R(2, 5, 12, 7, '#ffffff'); [[2, 5], [3, 6], [4, 7], [5, 8], [6, 9], [7, 9], [8, 9], [9, 8], [10, 7], [11, 6], [12, 5], [13, 5]].forEach(([x, y]) => R(x, y, 1, 1, '#8a8a8a')); R(11, 9, 2, 2, '#c0392b');
+    return c;
+  }
   const c = document.createElement('canvas'); c.width = c.height = 16; c.className = 'px';
   const g = c.getContext('2d'); const R = (x, y, w, h, k) => { g.fillStyle = k; g.fillRect(x, y, w, h); };
   const S = '#d9a066';
@@ -71,7 +82,7 @@ function showCheer(people, text) {
 function cheerFor(ok, milestone) {
   if (ok) {
     const note = save.notes.find(n => !n.done);
-    if (note) { const p = fam(note.who); note.done = true; persist(); showCheer([p], note.text); return `Vzkaz od ${p.name.replace(/^(máma|táta|babička|děda) /, (m, w) => ({ máma: 'mámy', táta: 'táty', babička: 'babičky', děda: 'dědy' })[w] + ' ')}: ${note.text}`; }
+    if (note) { const p = fam(note.who); note.done = true; persist(); showCheer([p], note.text); return `Vzkaz od ${p.gen}: ${note.text}`; }
     if (milestone) { showCheer(FAMILY, milestone); return `Celá rodina ti gratuluje! ${milestone}`; }
   }
   const p = pickPerson(); const own = ok ? p.cheers : p.enc; const line = own && Math.random() < .7 ? pick(Math.random, own) : pick(Math.random, ok ? CHEERS : ENCOURAGE)(p);
@@ -95,11 +106,11 @@ function renderFan(wrap) {
 const dogName = () => (save.dogName || '').trim();
 function renderNotes() {
   const who = $('#noteWho'); who.innerHTML = '';
-  FAMILY.forEach(p => { const b = document.createElement('button'); b.className = 'gbtn'; b.textContent = p.name; b.dataset.who = p.id; b.setAttribute('aria-pressed', String(noteWho === p.id)); b.addEventListener('click', () => { noteWho = p.id; renderNotes(); }); who.appendChild(b); });
+  SENDERS.forEach(p => { const b = document.createElement('button'); b.className = 'gbtn'; b.textContent = p.name; b.dataset.who = p.id; b.setAttribute('aria-pressed', String(noteWho === p.id)); b.addEventListener('click', () => { noteWho = p.id; renderNotes(); }); who.appendChild(b); });
   const list = $('#noteList'); list.innerHTML = '';
   save.notes.filter(n => !n.done).forEach(n => { const li = document.createElement('li'); li.textContent = `${fam(n.who).name}: ${n.text} `; const x = document.createElement('button'); x.textContent = 'smazat'; x.addEventListener('click', () => { save.notes.splice(save.notes.indexOf(n), 1); persist(); renderNotes(); }); li.appendChild(x); list.appendChild(li); });
   $('#dogName').value = save.dogName || '';
 }
 let noteWho = 'ondra';
 
-export { CHEERS, ENCOURAGE, FAMILY, cheerFor, dogName, easterMonday, fam, famCanvas, g2, holiday, isBirthday, noteWho, pickPerson, renderFan, renderNotes, showCheer, todaysFan };
+export { FRIENDS, SENDERS, CHEERS, ENCOURAGE, FAMILY, cheerFor, dogName, easterMonday, fam, famCanvas, g2, holiday, isBirthday, noteWho, pickPerson, renderFan, renderNotes, showCheer, todaysFan };

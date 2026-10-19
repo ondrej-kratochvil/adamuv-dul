@@ -29,7 +29,7 @@
             <div class="gems" id="homeGems" aria-label="Smaragdy"></div>
             <button class="streak" id="btnStreak" aria-label="Řada dní"></button>
           </div>
-          <button class="gbtn icon" id="btnSettings" aria-label="Nastavení pro rodiče">
+          <button class="gbtn icon" id="btnSettings" aria-label="Nastavení pro rodiče (podržet)">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 2h4v3h2V3h2v2h2v2h-2v2h3v4h-3v2h2v2h-2v2h-2v-2h-2v3h-4v-3H8v2H6v-2H4v-2h2v-2H3V9h3V7H4V5h2V3h2v2h2V2zm0 7v6h4V9h-4z"/></svg>
           </button>
         </div>
@@ -321,11 +321,11 @@
     </div>
 
     <h3>Přísnost</h3>
-    <p>Za chybu se krumpáč na 2 sekundy zasekne. Dům roste, jen když má Adam v kole dost kostek bez chyby (z 8).</p>
+    <p>Za chybu se krumpáč na 2 sekundy zasekne. Kolo se počítá, jen když má Adam dost úkolů bez chyby: z 8 kostek, v psaní z 5 tahů.</p>
     <div class="seg" id="segStrict">
-      <button class="gbtn" data-strict="mild" id="strictMild">mírná (4)</button>
-      <button class="gbtn" data-strict="normal" id="strictNormal">střední (5)</button>
-      <button class="gbtn" data-strict="strict" id="strictHard">přísná (6)</button>
+      <button class="gbtn" data-strict="mild" id="strictMild">mírná (4 z 8, 3 z 5)</button>
+      <button class="gbtn" data-strict="normal" id="strictNormal">střední (5 z 8, 4 z 5)</button>
+      <button class="gbtn" data-strict="strict" id="strictHard">přísná (6 z 8, 5 z 5)</button>
     </div>
 
     <h3>Hlas</h3>
@@ -359,8 +359,18 @@
     <h3>Postup</h3>
     <p id="progressInfo"></p>
     <div class="seg"><button class="gbtn go" id="btnStats">Statistiky</button><button class="gbtn" id="btnReset">Začít od začátku</button></div>
+    <h3>Přenos na jiný tablet</h3>
+    <p>Postup jde zkopírovat jako text (třeba poslat zprávou) a na jiném tabletu vložit. Vložení nahradí postup v tomhle tabletu, předchozí stav se uloží jako záloha.</p>
+    <div class="seg"><button class="gbtn" id="btnExport">Zkopírovat postup</button><button class="gbtn" id="btnImport">Vložit postup</button></div>
+    <textarea class="copy-out" id="transferText" hidden></textarea>
+    <div class="confirm" id="importConfirm" hidden>
+      <p style="margin:0" id="importInfo"></p>
+      <button class="gbtn" id="btnImportYes" style="background:#a8341c">Ano, nahradit</button>
+      <button class="gbtn" id="btnImportNo">Zrušit</button>
+    </div>
+    <p id="transferMsg" role="status"></p>
     <div class="confirm" id="resetConfirm" hidden>
-      <p style="margin:0">Smazat dům, krumpáče i statistiku?</p>
+      <p style="margin:0">Smaže se všechno, co Adam získal: dům, farma, vesnice, smaragdy, pes, oblečení z odměn, očarování, Nether, Přerov, kartičky, řada dní i statistiky. Zůstane jen nastavení a vzkazy. Poslední stav se uloží jako záloha v tabletu.</p>
       <button class="gbtn" id="btnResetYes" style="background:#a8341c">Ano, smazat</button>
       <button class="gbtn" id="btnResetNo">Nechat</button>
     </div>

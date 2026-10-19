@@ -1,6 +1,7 @@
 // Nastavení
 import { $ } from '../core/dom.js';
-import { defaults, persist, save, replaceSave } from '../save/save.ts';
+import { BACKUP_KEY, defaults, persist, save, replaceSave } from '../save/save.ts';
+import { exportText, importText } from '../save/schema.ts';
 import { tierOf } from '../gfx/player.js';
 import { csVoice, loadVoices, speak, synth, voicesKnown } from '../audio/speech.js';
 import { renderHome } from './screens.js';
@@ -25,7 +26,17 @@ function updateSettings() {
   $('#progressInfo').textContent = `Odehraná kola: písmena ${save.rounds.letters}, slabiky ${save.rounds.syllables}, slova ${save.rounds.words}, čtení ${save.rounds.reading}, čísla ${save.rounds.numbers}, počty ${save.rounds.math}, psaní ${save.rounds.writing}. Dům: ${st} z 12 dílů. Farma: ${farmStage()} z ${FARM_STAGES.length}. Smaragdy: ${save.emeralds}. Řada: ${streakNow().count} (nejdelší ${save.streak.best}). Krumpáč: ${tierOf(save.total).name}. Očarování: ${save.ench.length} z ${ENCH_ORDER.length} (zvládnuto ${masteryPoints().pts} z ${masteryPoints().max} úkolů).`;
   updateVoiceInfo();
 }
-$('#btnSettings').addEventListener('click', () => { updateSettings(); renderNotes(); $('#resetConfirm').hidden = true; $('#setOverlay').hidden = false; });
+// Nastavení je pro rodiče: ozubené kolo se musí podržet 2 sekundy. Krátké klepnutí jen řekne, že je pro rodiče.
+const HOLD_MS = 2000;
+let holdTimer = null;
+function openSettings() { updateSettings(); renderNotes(); $('#resetConfirm').hidden = true; $('#setOverlay').hidden = false; }
+const gear = $('#btnSettings');
+gear.addEventListener('pointerdown', () => { clearTimeout(holdTimer); gear.classList.add('holding'); holdTimer = setTimeout(() => { holdTimer = null; gear.classList.remove('holding'); openSettings(); }, HOLD_MS); });
+['pointerup', 'pointerleave', 'pointercancel'].forEach(t => gear.addEventListener(t, () => {
+  gear.classList.remove('holding');
+  if (holdTimer) { clearTimeout(holdTimer); holdTimer = null; if (t === 'pointerup') speak('Tohle je nastavení pro rodiče.'); }
+}));
+gear.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openSettings(); } });
 $('#btnSetClose').addEventListener('click', () => { $('#setOverlay').hidden = true; renderHome(); });
 document.querySelectorAll('#segCase [data-case]').forEach(b => b.addEventListener('click', () => { save.caseMode = b.dataset.case; persist(); updateSettings(); }));
 document.querySelectorAll('#segStrict [data-strict]').forEach(b => b.addEventListener('click', () => { save.strict = b.dataset.strict; persist(); updateSettings(); }));
@@ -34,6 +45,35 @@ $('#rateSlow').addEventListener('click', () => { save.slow = true; persist(); up
 $('#btnTestVoice').addEventListener('click', () => { loadVoices(); speak('Ahoj Adame! ma, mé, li, lý, so, su.'); setTimeout(loadVoices, 800); });
 $('#btnReset').addEventListener('click', () => { $('#resetConfirm').hidden = false; });
 $('#btnResetNo').addEventListener('click', () => { $('#resetConfirm').hidden = true; });
-$('#btnResetYes').addEventListener('click', () => { const keep = { caseMode: save.caseMode, slow: save.slow, strict: save.strict, outfit: save.outfit, notes: save.notes, dogName: save.dogName }; replaceSave(Object.assign(defaults(), keep)); persist(); $('#resetConfirm').hidden = true; updateSettings(); });
+$('#btnResetYes').addEventListener('click', () => { try { localStorage.setItem(BACKUP_KEY, JSON.stringify(save)); } catch (e) {} const keep = { caseMode: save.caseMode, slow: save.slow, strict: save.strict, outfit: save.outfit, notes: save.notes, dogName: save.dogName }; replaceSave(Object.assign(defaults(), keep)); persist(); $('#resetConfirm').hidden = true; updateSettings(); });
+
+/* přenos postupu na jiný tablet */
+const tt = $('#transferText'), msg = $('#transferMsg');
+let pending = null;
+$('#btnExport').addEventListener('click', () => {
+  const text = exportText(save);
+  tt.hidden = false; tt.readOnly = true; tt.value = text; $('#importConfirm').hidden = true;
+  const sel = () => { tt.focus(); tt.select(); msg.textContent = 'Text je označený, zkopírujte ho a pošlete.'; };
+  try { navigator.clipboard.writeText(text).then(() => { msg.textContent = 'Postup je zkopírovaný do schránky. Na druhém tabletu ho vložte přes Vložit postup.'; }, sel); } catch (e) { sel(); }
+});
+$('#btnImport').addEventListener('click', () => {
+  tt.hidden = false; tt.readOnly = false; tt.value = ''; tt.placeholder = 'Sem vložte zkopírovaný postup'; tt.focus();
+  msg.textContent = ''; $('#importConfirm').hidden = true; pending = null;
+});
+tt.addEventListener('input', () => {
+  if (tt.readOnly) return;
+  pending = importText(tt.value);
+  if (!pending) { $('#importConfirm').hidden = true; msg.textContent = tt.value.trim() ? 'Tohle není postup z této hry.' : ''; return; }
+  $('#importInfo').textContent = `Nahradit postup v tomhle tabletu? Vložený postup: ${pending.total} povedených kol, ${pending.emeralds} smaragdů, řada ${pending.streak.count} dní.`;
+  $('#importConfirm').hidden = false; msg.textContent = '';
+});
+$('#btnImportNo').addEventListener('click', () => { $('#importConfirm').hidden = true; pending = null; });
+$('#btnImportYes').addEventListener('click', () => {
+  if (!pending) return;
+  try { localStorage.setItem(BACKUP_KEY, JSON.stringify(save)); } catch (e) {}
+  replaceSave(pending); persist(); pending = null;
+  $('#importConfirm').hidden = true; tt.hidden = true; msg.textContent = 'Postup je nahraný.';
+  updateSettings();
+});
 
 export { updateSettings, updateVoiceInfo };

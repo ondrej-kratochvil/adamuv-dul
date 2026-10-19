@@ -1,6 +1,6 @@
 // Charakterizační testy: popisují, jak se hra chová, aby převod a další úpravy nic nerozbily.
 import { test, expect } from '@playwright/test';
-import { openGame, playRound, saved, LEVELS } from './helpers.js';
+import { openGame, openSettings, playRound, saved, LEVELS } from './helpers.js';
 
 test('hra se načte bez chyb a ukáže všechna patra', async ({ page }) => {
   const errors = await openGame(page);
@@ -45,7 +45,7 @@ test('obrazovky šatník, obchod, dům, farma, vesnice a statistiky jdou otevř�
   await page.getByRole('button', { name: 'Můj dům', exact: true }).click(); await expect(page.locator('#house')).toBeVisible(); await back('btnHouseBack');
   await page.getByRole('button', { name: 'Farma', exact: true }).click(); await expect(page.locator('#farm')).toBeVisible(); await back('btnFarmBack');
   await page.getByRole('button', { name: 'Vesnice', exact: true }).click(); await expect(page.locator('#village')).toBeVisible(); await back('btnVillageBack');
-  await page.locator('#btnSettings').click(); await page.locator('#btnStats').click(); await expect(page.locator('#stats')).toBeVisible();
+  await openSettings(page); await page.locator('#btnStats').click(); await expect(page.locator('#stats')).toBeVisible();
   expect(errors).toEqual([]);
 });
 

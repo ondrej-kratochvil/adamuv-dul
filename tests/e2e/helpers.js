@@ -32,6 +32,15 @@ export async function openGame(page, state = null) {
   return errors;
 }
 
+// nastavení pro rodiče: ozubené kolo podržet 2 sekundy
+export async function openSettings(page) {
+  const gear = page.locator('#btnSettings');
+  await gear.dispatchEvent('pointerdown');
+  await page.waitForTimeout(2100);
+  await gear.dispatchEvent('pointerup');
+  await expect(page.locator('#setOverlay')).toBeVisible();
+}
+
 export const saved = page => page.evaluate(k => JSON.parse(localStorage.getItem(k)), KEY);
 
 // Projde obtahování aktuálního znaku myší po bodech tahů.

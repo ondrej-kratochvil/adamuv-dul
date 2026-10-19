@@ -55,7 +55,7 @@ function drawPrerov(cv) {
   if (st >= 6) { // kostel
     for (let y = 7; y <= 10; y++) for (let x = 7; x <= 9; x++) cell('quartz', x, y);
     for (let y = 3; y <= 6; y++) cell('quartz', 8, y); cell('roof', 8, 2); at('cross', 8, 1);
-    cell('glass', 8, 8); cell('doorB', 8, 10);
+    cell('glass', 8, 8); cell('doorB', 8, 10); cell('doorT', 8, 9);
   }
   if (st >= 7) at('fountain', 0, 10);
   if (st >= 8) { // sokolovna (stojí před kolejemi, kolej je jen u nádraží)

@@ -1,7 +1,7 @@
 // Herní kolo
 import { G } from '../core/state.js';
 import { recordResult } from '../logic/mastery.ts';
-import { STUCK_MS, stuckMsFor } from '../logic/rewards.ts';
+import { NEED_CLEAN, STUCK_MS, needClean, stuckMsFor } from '../logic/rewards.ts';
 import { $, REDUCED } from '../core/dom.js';
 import { persist, save } from '../save/save.ts';
 import { cracks, pick, tex, texCanvas } from '../gfx/textures.js';
@@ -28,7 +28,6 @@ import { updateHint } from '../ui/hint.js';
 
 const ROUND_LEN = 8;
 // kolik kostek z 8 musí být bez chyby, aby dům rostl
-const NEED_CLEAN = { mild: 4, normal: 5, strict: 6 };
 // Ochrana na helmě, brnění, chráničích a botách zkracuje zaseknutí po chybě (logic/rewards.ts)
 const protectionLevels = () => ['hat', 'shirt', 'pants', 'shoes'].reduce((a, pc) => a + enchLevel(pc, 'Ochrana'), 0);
 const stuckMs = () => stuckMsFor(protectionLevels());
@@ -176,10 +175,16 @@ function flyTo(rect, pip, texName, cb) {
   const an = f.animate([{ transform: 'translate(0,0) scale(1) rotate(0)' }, { transform: `translate(${dx * .4}px,${dy * .4 - 40}px) scale(.9) rotate(90deg)`, offset: .4 }, { transform: `translate(${dx}px,${dy}px) scale(${pr.width / s}) rotate(180deg)` }], { duration: 600, easing: 'ease-in' });
   an.onfinish = () => { f.remove(); cb(); };
 }
+// obrázek na konci kola a tlačítko pod ním ukazují totéž: dům, nebo farmu
+function showEndPlace(place) {
+  (place === 'house' ? drawHouse : drawFarm)($('#endHouse'));
+  $('#endOverlay').dataset.place = place;
+  setBtn($('#btnEndHouse'), 'house', place === 'house' ? 'Můj dům' : 'Farma');
+}
 function endRound() {
   if (G.R.level === 'boss') return bossVictory();
   const level = G.R.level;
-  const need = Math.ceil((NEED_CLEAN[save.strict] || 5) * G.R.len / ROUND_LEN);
+  const need = needClean(save.strict, G.R.len);
   const ok = G.R.clean >= need;
   const perfect = G.R.clean === G.R.len;
   const earned = G.R.clean + (perfect ? PERFECT_BONUS : 0);
@@ -216,7 +221,7 @@ function endRound() {
     $('#endLine').textContent = `Bez chyby: ${G.R.clean} z ${G.R.len}. ${building ? 'Dům vyroste' : 'Farma vyroste'}, když jich bude aspoň ${need}.`;
     np.hidden = true; no.hidden = true; $('#newNether').hidden = true; $('#newBaby').hidden = true; $('#newPrerov').hidden = true;
     setBtn($('#btnAgain'), 'retry', 'Zkusit znovu');
-    (building ? drawHouse : drawFarm)($('#endHouse'));
+    showEndPlace(building ? 'house' : 'farm');
     const got = G.R.clean, R_len = G.R.len;
     logRound(false);
     G.R = null;
@@ -253,14 +258,14 @@ function endRound() {
   const newTier = after !== before;
   const st = save.total;
   const fs = farmStage();
-  const grew = st <= FARM_START ? `Přibylo na domě: ${STAGES[st - 1]}.` : st <= FARM_START + FARM_STAGES.length ? `Na farmě přibylo: ${FARM_STAGES[fs - 1]}.` : 'Farma je hotová, brzy přijde vesnice.';
+  const grew = st <= FARM_START ? `Přibylo na domě: ${STAGES[st - 1]}.` : st <= FARM_START + FARM_STAGES.length ? `Na farmě přibylo: ${FARM_STAGES[fs - 1]}.` : 'Dům i farma stojí. Ve vesnici staví každé patro svou budovu.';
   $('#endLine').textContent = (perfect ? 'Bez jediné chyby! ' : `Bez chyby: ${G.R.clean} z ${G.R.len}. `) + grew;
   if (newTier) { np.hidden = false; np.innerHTML = ''; np.appendChild(pickCanvas(after)); np.insertAdjacentHTML('beforeend', `<span>Nový krumpáč: ${after.name}!</span>`); }
   else np.hidden = true;
   const fresh = OUTFIT_CATS.flatMap(([cat]) => OUTFIT[cat].filter(it => it.at === st || (day && it.streak && day.prevBest < it.streak && day.count >= it.streak)).map(it => [cat, it]));
   if (fresh.length) { no.hidden = false; no.innerHTML = ''; fresh.forEach(([cat, it]) => no.appendChild(outfitIcon(cat, it))); no.insertAdjacentHTML('beforeend', `<span>Nové oblečení v šatníku: ${fresh.map(([, it]) => it.name).join(', ')}!</span>`); }
   else no.hidden = true;
-  (st <= FARM_START ? drawHouse : drawFarm)($('#endHouse'));
+  showEndPlace(st <= FARM_START ? 'house' : 'farm');
   G.R = null;
   $('#endOverlay').hidden = false;
   sfx.fanfare(); if (newTier || perfect) sfx.sparkle();
