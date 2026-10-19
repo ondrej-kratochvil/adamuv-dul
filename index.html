@@ -85,20 +85,25 @@ button:focus-visible { outline: 4px solid var(--gold); outline-offset: 3px; }
 .home-top { display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 2; }
 .title-row { display: flex; align-items: flex-end; gap: clamp(12px, 3vw, 32px); justify-content: center; position: relative; z-index: 1; margin-top: 4px; }
 .title {
-  font-size: clamp(30px, 8vw, 76px); font-weight: 700; color: var(--white); line-height: 1;
-  text-shadow: -3px 0 0 #2e5a7f, 3px 0 0 #2e5a7f, 0 -3px 0 #2e5a7f, 0 3px 0 #2e5a7f, 6px 6px 0 #2e5a7f; margin: 0 0 clamp(18px, 4vh, 40px);
+  font-size: clamp(26px, 7vw, 76px); font-weight: 700; color: var(--white); line-height: 1; white-space: nowrap;
+  text-shadow: -3px 0 0 #2e5a7f, 3px 0 0 #2e5a7f, 0 -3px 0 #2e5a7f, 0 3px 0 #2e5a7f, 6px 6px 0 #2e5a7f; margin: 0 0 clamp(14px, 3vh, 30px);
   text-wrap: balance;
 }
-.hero { cursor: pointer; --h: clamp(96px, 20vh, 168px); height: var(--h); flex: none; margin-left: 0; margin-right: calc(var(--h) * .32); } /* místo pro krumpáč, který přečnívá doprava */
+@media (min-width: 600px) {
+  .home-sky { padding-block: 10px 0; }
+  .home-top { position: absolute; top: 12px; left: max(16px, env(safe-area-inset-left, 0px)); right: max(16px, env(safe-area-inset-right, 0px)); }
+  .title-row { margin-top: 0; }
+}
+.hero { cursor: pointer; --h: clamp(80px, 14vh, 150px); height: var(--h); flex: none; margin-left: 0; margin-right: calc(var(--h) * .32); } /* místo pro krumpáč, který přečnívá doprava */
 .home-ground { overflow: auto; }
-.levels { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 18px; padding-block: 22px; max-width: 900px; margin: 0 auto; }
-.lvl { background: none; border: 0; padding: 0; display: grid; justify-items: center; gap: 10px; position: relative; }
-.lvl .blk { width: clamp(110px, 24vw, 150px); }
-.lvl-name { font-size: 22px; font-weight: 700; color: var(--white); text-shadow: 2px 2px 0 #000; }
-.lvl-sub { font-size: 15px; color: #e9dcc8; text-shadow: 1px 1px 0 #000; margin-top: -8px; }
+.levels { --tile: clamp(96px, 18vw, 136px); display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 14px; padding-block: 16px; max-width: 900px; margin: 0 auto; }
+.lvl { background: none; border: 0; padding: 0; display: grid; align-content: start; justify-items: center; gap: 10px; position: relative; }
+.lvl .blk { width: var(--tile); }
+.lvl-name { font-family: var(--f-read); font-size: 21px; font-weight: 700; color: var(--white); text-shadow: 2px 2px 0 #000; }
+.lvl-sub { font-family: var(--f-read); font-size: 15px; color: #e9dcc8; text-shadow: 1px 1px 0 #000; margin-top: -8px; }
 .lvl[disabled] { cursor: default; }
 .lvl[disabled] .blk { filter: saturate(.55) brightness(.75); }
-.lock { position: absolute; top: 8px; right: calc(50% - clamp(55px, 12vw, 75px) + 6px); width: 34px; height: 34px; }
+.lock { position: absolute; top: 8px; right: calc(50% - var(--tile) / 2 + 6px); width: 34px; height: 34px; }
 .places { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 18px; justify-items: center; }
 .house-card { position: relative; justify-self: center; background: none; border: 0; padding: 0; display: grid; justify-items: center; gap: 8px; }
 /* šatník */
@@ -302,7 +307,7 @@ canvas.ench { animation: ench 1.8s ease-in-out infinite; }
         <div class="title-row">
           <div class="dog hero-dog" id="heroDog" hidden></div>
           <div class="player hero" id="heroPlayer"></div>
-          <h1 class="title">Adamův<br>důl</h1>
+          <h1 class="title">Adamův důl</h1>
         </div>
       </div>
       <div class="grass-strip px" data-tex="grass"></div>
