@@ -209,6 +209,17 @@ button:focus-visible { outline: 4px solid var(--gold); outline-offset: 3px; }
 .dog-big { height: 84px; }
 .dog-panel .swatch canvas { width: 100%; height: auto; }
 .hero-dog, .shop-dog { cursor: pointer; }
+.ward-book { grid-column: 1 / -1; display: grid; gap: 8px; margin-top: 6px; }
+.book-head { display: grid; gap: 4px; font-family: var(--f-read); font-size: 15px; }
+.book-head b { font-size: 18px; }
+.book-bar { height: 12px; border: 2px solid #161616; background: #8b8b8b; }
+.book-bar i { display: block; height: 100%; background: #9b5de5; }
+.book-row { display: flex; gap: 8px; align-items: flex-start; }
+.book-icon { width: 40px; height: 40px; flex: none; background: #e6e6e6; border: 2px solid #161616; }
+.book-list { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; font-family: var(--f-read); }
+.book-list b { width: 100%; font-size: 15px; }
+.ench-chip { font-family: var(--f-read); font-size: 14px; font-weight: 700; padding: 2px 6px; border: 2px solid #161616; background: #bdbdbd; color: #3a3a3a; }
+.ench-chip.on { background: #c9a6ff; color: #161616; }
 .shop-top { display: flex; align-items: flex-end; justify-content: center; gap: 24px; padding-block: 4px 12px; }
 .shop-top .gems { font-size: 30px; }
 .shop-top .gems canvas { width: 40px; height: 40px; }
@@ -501,6 +512,7 @@ canvas.ench { animation: ench 1.8s ease-in-out infinite; }
     <p class="gems end-gems" id="endGems"></p>
     <div class="newpick" id="newPick" hidden></div>
     <div class="newpick" id="newOutfit" hidden></div>
+    <div class="newpick" id="newEnch" hidden></div>
     <canvas class="end-house px" id="endHouse"></canvas>
     <div class="end-bottom">
     <div class="rate" id="rateBox"><p>Jak tě to bavilo?</p><div class="rate-row" id="rateRow"></div></div>
@@ -607,7 +619,7 @@ let R = null; // běžící kolo
 
 /* ---------- uložený postup ---------- */
 const KEY = 'adamuv-dul-v1';
-function defaults() { return { caseMode: 'both', slow: false, strict: 'normal', total: 0, rounds: { letters: 0, syllables: 0, words: 0, numbers: 0, math: 0, writing: 0, reading: 0 }, stats: {}, log: [], emeralds: 0, notes: [], dogName: '', gifts: {}, bday: 0, lastCheer: '', dog: { collar: 'cerveny', owned: ['cerveny'], coat: 'bily' }, decor: [], streak: { count: 0, best: 0, last: '', totem: 0, days: [] }, outfit: { shirt: 'oranzove', pants: 'modre', shoes: 'sede', hat: 'nic', enchant: 'ne' } }; }
+function defaults() { return { caseMode: 'both', slow: false, strict: 'normal', total: 0, rounds: { letters: 0, syllables: 0, words: 0, numbers: 0, math: 0, writing: 0, reading: 0 }, stats: {}, log: [], ench: [], emeralds: 0, notes: [], dogName: '', gifts: {}, bday: 0, lastCheer: '', dog: { collar: 'cerveny', owned: ['cerveny'], coat: 'bily' }, decor: [], streak: { count: 0, best: 0, last: '', totem: 0, days: [] }, outfit: { shirt: 'oranzove', pants: 'modre', shoes: 'sede', hat: 'nic', enchant: 'ne' } }; }
 function load() {
   try { const s = JSON.parse(localStorage.getItem(KEY)); if (s) { const d = defaults(); return Object.assign(d, s, { rounds: Object.assign(d.rounds, s.rounds || {}), outfit: Object.assign(d.outfit, s.outfit || {}), dog: Object.assign(d.dog, s.dog || {}), gifts: Object.assign(d.gifts, s.gifts || {}), streak: Object.assign(d.streak, s.streak || {}) }); } } catch (e) {}
   return defaults();
@@ -758,13 +770,15 @@ const OUTFIT = {
   // očarování (enchant): fialový třpyt na brnění, helmách, kovových botách a krumpáči
   enchant: [
     { id: 'ne', name: 'bez očarování' },
-    { id: 'ano', name: 'očarování', at: 15 },
+    { id: 'ano', name: 'očarování', ench: 1 },
   ],
 };
+Object.entries(OUTFIT).forEach(([cat, list]) => list.forEach(it => { it.cat = cat; }));
+const PIECE_OF = { hat: 'hat', shirt: 'shirt', pants: 'pants', shoes: 'shoes' };
 const OUTFIT_CATS = [['shirt', 'Tričko'], ['pants', 'Kalhoty'], ['shoes', 'Boty'], ['hat', 'Čepice'], ['enchant', 'Očarování']];
 const isMetal = it => !!(it.armor || it.metal || it.kind === 'helmet');
 const enchanted = () => outfitItem('enchant').id === 'ano';
-const unlocked = it => (!it.at || save.total >= it.at) && (!it.streak || save.streak.best >= it.streak);
+const unlocked = it => (!it.at || save.total >= it.at) && (!it.streak || save.streak.best >= it.streak) && (!it.ench || save.ench.length >= it.ench);
 function outfitItem(cat) { const it = OUTFIT[cat].find(x => x.id === save.outfit[cat]); return it && unlocked(it) ? it : OUTFIT[cat][0]; }
 function playerCanvas() {
   const c = document.createElement('canvas'); c.width = 16; c.height = 32; c.className = 'body px';
@@ -775,7 +789,7 @@ function playerCanvas() {
   const gg = gl.getContext('2d'); gg.fillStyle = '#c58cff';
   let glow = false;
   // R kreslí; když kus oblečení je kovový a očarovaný, zapíše stejný obdélník i do vrstvy třpytu
-  const R = (x, y, w, h, col, it) => { g.fillStyle = col; g.fillRect(x, y, w, h); if (it && ench && isMetal(it)) { gg.fillRect(x, y, w, h); glow = true; } };
+  const R = (x, y, w, h, col, it) => { g.fillStyle = col; g.fillRect(x, y, w, h); if (it && ench && isMetal(it) && pieceEnch(PIECE_OF[it.cat] || '').length) { gg.fillRect(x, y, w, h); glow = true; } };
   const skin = '#d9a066', hair = '#4f321d';
   R(4, 0, 8, 8, skin); R(4, 0, 8, 2, hair); R(4, 2, 1, 2, hair); R(11, 2, 1, 2, hair); R(5, 2, 1, 1, hair);
   R(5, 4, 1, 1, '#ffffff'); R(6, 4, 1, 1, '#3b5ba0'); R(9, 4, 1, 1, '#3b5ba0'); R(10, 4, 1, 1, '#ffffff');
@@ -843,7 +857,7 @@ const PICK_MAP = [
   '................',
 ];
 function pickCanvas(tier, cls) {
-  const c = document.createElement('canvas'); c.width = c.height = 16; c.className = ((cls || '') + ' px' + (enchanted() ? ' ench' : '')).trim();
+  const c = document.createElement('canvas'); c.width = c.height = 16; c.className = ((cls || '') + ' px' + (enchanted() && pieceEnch('pick').length ? ' ench' : '')).trim();
   const g = c.getContext('2d');
   const col = { H: tier.head, D: tier.dark, S: '#8a6440', K: '#4a3322' };
   PICK_MAP.forEach((row, y) => [...row].forEach((ch, x) => { if (col[ch]) px(g, x, y, col[ch]); }));
@@ -1152,7 +1166,7 @@ function finishTrace() {
   s.n = (s.n || 0) + 1;
   save.stats[R.statKey] = s;
   const clean = R.firstTry, texName = LEVELS[R.level].tex;
-  if (clean) { R.clean++; save.emeralds++; updateGems('hudGems'); dogHappy($('#gameDog')); }
+  if (clean) { R.clean++; save.emeralds += 1 + luckBonus(); updateGems('hudGems'); dogHappy($('#gameDog')); }
   persist();
   sfx.breakIt();
   const pip = $('#pips').children[R.i];
@@ -1369,7 +1383,7 @@ function renderWardrobe() {
     b.appendChild(outfitIcon(wardCat, it));
     if (!open) { b.classList.add('locked'); b.insertAdjacentHTML('beforeend', LOCK_SVG); }
     b.addEventListener('click', () => {
-      if (!open) { sfx.nope(); speak(it.streak ? `${it.name} se odemkne, až budeš hrát ${it.streak} dní v řadě.` : `${it.name} se odemkne, až vykopeš víc kol.`); return; }
+      if (!open) { sfx.nope(); speak(it.streak ? `${it.name} se odemkne, až budeš hrát ${it.streak} dní v řadě.` : it.ench ? 'Očarování získáš za zvládnuté úkoly. Podívej se do knihy očarování.' : `${it.name} se odemkne, až vykopeš víc kol.`); return; }
       save.outfit[wardCat] = it.id; persist();
       if (wardCat === 'enchant' && it.id === 'ano' && !['shirt', 'pants', 'shoes', 'hat'].some(k => isMetal(outfitItem(k)))) { renderWardrobe(); speak('Očarovat jde brnění, helmy a kovové boty. A krumpáč!'); return; }
       tone(880, 0, .08, 'square', .05); tone(1320, .07, .1, 'square', .05);
@@ -1377,6 +1391,7 @@ function renderWardrobe() {
     });
     items.appendChild(b);
   });
+  if (wardCat === 'enchant') { const book = document.createElement('div'); book.className = 'ward-book'; renderEnchBook(book); items.appendChild(book); }
 }
 function openHouse() {
   speechId++; if (synth) synth.cancel();
@@ -1763,6 +1778,76 @@ function renderNotes() {
 }
 let noteWho = 'ondra';
 
+/* ---------- očarování za zvládnuté úkoly ---------- */
+// Pravidlo: plné vybavení (všechna očarování na maximum) má Adam až ve chvíli, kdy zvládne všechno, co hra obsahuje.
+// Prahy se počítají z celkového počtu úkolů, takže když přibude obsah, přibudou i odměny. Získané odměny se nikdy neberou.
+const MASTERY_SETS = () => ({
+  letters: LETTERS, syllables: SYLL, words: WORDS, reading: PIC_WORDS, writing: Object.keys(GLYPHS),
+  numbers: [...range(0, 20), ...range(30, 100, 10)].map(String),
+});
+const MATH_MAX = 30; // příkladů je nekonečně, počítá se nejvýš 30 různých zvládnutých
+function masteryPoints() {
+  let pts = 0, max = 0;
+  for (const [lv, items] of Object.entries(MASTERY_SETS())) { max += items.length; pts += items.filter(it => mastery(save.stats[lv + ':' + it]) === 'good').length; }
+  const m = Object.keys(save.stats).filter(k => k.startsWith('math:') && mastery(save.stats[k]) === 'good').length;
+  return { pts: pts + Math.min(MATH_MAX, m), max: max + MATH_MAX };
+}
+const PIECES = [['pick', 'krumpáč'], ['hat', 'helma'], ['shirt', 'brnění'], ['pants', 'chrániče'], ['shoes', 'boty']];
+const ENCHANTS = {
+  pick: [['Efektivita', 5], ['Štěstí', 3], ['Nezlomnost', 3]],
+  hat: [['Ochrana', 4], ['Nezlomnost', 3], ['Dýchání', 3], ['Afinita k vodě', 1]],
+  shirt: [['Ochrana', 4], ['Nezlomnost', 3], ['Trny', 3]],
+  pants: [['Ochrana', 4], ['Nezlomnost', 3], ['Rychlé plížení', 3]],
+  shoes: [['Ochrana', 4], ['Nezlomnost', 3], ['Tichý pád', 4], ['Rychlost v hlubinách', 3]],
+};
+const ROMAN = ['', 'I', 'II', 'III', 'IV', 'V'];
+// pořadí odměn: postupně všem kusům po jedné úrovni, Opravování (nejvzácnější) až na úplný konec
+const ENCH_ORDER = (() => {
+  const out = [];
+  for (let lvl = 1; lvl <= 5; lvl++) PIECES.forEach(([pc]) => ENCHANTS[pc].forEach(([name, max]) => { if (lvl <= max) out.push({ pc, name, lvl, key: `${pc}:${name}:${lvl}` }); }));
+  PIECES.forEach(([pc]) => out.push({ pc, name: 'Opravování', lvl: 1, key: `${pc}:Opravování:1` }));
+  return out;
+})();
+const enchNeed = i => Math.ceil((i + 1) / ENCH_ORDER.length * masteryPoints().max);
+// vrátí nově získaná očarování
+function checkEnchants() {
+  const { pts, max } = masteryPoints(), got = [];
+  ENCH_ORDER.forEach((e, i) => { if (!save.ench.includes(e.key) && pts >= Math.ceil((i + 1) / ENCH_ORDER.length * max)) { save.ench.push(e.key); got.push(e); } });
+  if (got.length) persist();
+  return got;
+}
+// nejvyšší získaná úroveň každého očarování daného kusu
+function pieceEnch(pc) {
+  const best = {};
+  save.ench.filter(k => k.startsWith(pc + ':')).forEach(k => { const [, name, l] = k.split(':'); best[name] = Math.max(best[name] || 0, +l); });
+  return Object.entries(best);
+}
+const enchLevel = (pc, name) => (pieceEnch(pc).find(([n]) => n === name) || [, 0])[1];
+const pieceName = pc => PIECES.find(p => p[0] === pc)[1];
+// Štěstí na krumpáči: šance 15 % za úroveň na smaragd navíc
+function luckBonus() { const l = enchLevel('pick', 'Štěstí'); if (l && Math.random() < l * .15) { sfx.sparkle(); return 1; } return 0; }
+function nextEnchInfo() {
+  const { pts } = masteryPoints(), i = ENCH_ORDER.findIndex(e => !save.ench.includes(e.key));
+  return i < 0 ? null : { e: ENCH_ORDER[i], left: Math.max(0, enchNeed(i) - pts) };
+}
+function renderEnchBook(box) {
+  const { pts, max } = masteryPoints(), nx = nextEnchInfo();
+  box.insertAdjacentHTML('beforeend', `<div class="book-head"><b>Kniha očarování</b><span>Zvládnuto ${pts} z ${max} úkolů. ${nx ? `Další očarování (${pieceName(nx.e.pc)}: ${nx.e.name} ${ROMAN[nx.e.lvl]}) za ${nx.left} ${nx.left === 1 ? 'zvládnutý úkol' : nx.left >= 2 && nx.left <= 4 ? 'zvládnuté úkoly' : 'zvládnutých úkolů'}.` : 'Máš všechno na maximum!'}</span><span class="book-bar"><i style="width:${Math.round(save.ench.length / ENCH_ORDER.length * 100)}%"></i></span></div>`);
+  PIECES.forEach(([pc, label]) => {
+    const row = document.createElement('div'); row.className = 'book-row';
+    const ic = pc === 'pick' ? pickCanvas(tierOf(save.total)) : outfitIcon(pc, outfitItem(pc)); ic.classList.add('book-icon'); row.appendChild(ic);
+    const list = document.createElement('div'); list.className = 'book-list';
+    list.insertAdjacentHTML('beforeend', `<b>${label[0].toUpperCase() + label.slice(1)}</b>`);
+    [...ENCHANTS[pc], ['Opravování', 1]].forEach(([name, mx]) => {
+      const l = enchLevel(pc, name);
+      const chip = document.createElement('button'); chip.className = 'ench-chip' + (l ? ' on' : ''); chip.textContent = `${name} ${l ? ROMAN[l] : ''}${l < mx ? ` / ${ROMAN[mx]}` : ''}`.replace(/\s+/g, ' ').trim();
+      chip.addEventListener('click', () => speak(l ? `${label}: ${name} ${l}${l < mx ? `, nejvíc ${mx}` : ', to je maximum'}.` : `${name} zatím nemáš. Zvládni další úkoly.`));
+      list.appendChild(chip);
+    });
+    row.appendChild(list); box.appendChild(row);
+  });
+}
+
 /* ---------- deník kol, hodnocení a statistiky ---------- */
 const LOG_MAX = 1500;
 function logRound(ok, quit = false) {
@@ -1970,7 +2055,7 @@ function breakBlock(el) {
   el.classList.add('gone');
   const pip = $('#pips').children[R.i];
   const clean = R.firstTry;
-  if (clean) { R.clean++; save.emeralds++; persist(); updateGems('hudGems'); dogHappy($('#gameDog')); }
+  if (clean) { R.clean++; save.emeralds += 1 + luckBonus(); persist(); updateGems('hudGems'); dogHappy($('#gameDog')); }
   R.loot.push({ t: texName, clean });
   const done = () => { pip.classList.add('done', clean ? 'clean' : 'miss'); pip.style.backgroundImage = `url(${tex(texName)})`; };
   if (REDUCED) done(); else flyTo(rect, pip, texName, done);
@@ -2013,6 +2098,11 @@ function endRound() {
   if (perfect) { save.emeralds += PERFECT_BONUS; persist(); }
   const loot = $('#loot'); loot.innerHTML = '';
   R.loot.forEach(({ t, clean }) => { const sp = document.createElement('span'); sp.className = clean ? 'clean' : 'miss'; sp.style.backgroundImage = `url(${tex(t)})`; loot.appendChild(sp); });
+  const newEnch = checkEnchants();
+  const ne = $('#newEnch');
+  if (newEnch.length) { ne.hidden = false; ne.innerHTML = ''; ne.appendChild(outfitIcon('enchant', { id: 'ano' })); ne.insertAdjacentHTML('beforeend', `<span>Nové očarování: ${newEnch.map(e => `${pieceName(e.pc)} ${e.name} ${ROMAN[e.lvl]}`).join(', ')}!</span>`); }
+  else ne.hidden = true;
+  const enchTalk = newEnch.length ? ` Máš nové očarování: ${newEnch.map(e => `${pieceName(e.pc)}, ${e.name} ${e.lvl}`).join(' a ')}.` : '';
   const eg = $('#endGems');
   const showGems = (bonus = 0) => {
     const extra = [perfect ? `${PERFECT_BONUS} za kolo bez chyby` : '', bonus ? `${bonus} za řadu dní` : ''].filter(Boolean).join(', ');
@@ -2037,7 +2127,7 @@ function endRound() {
     $('#endOverlay').hidden = false;
     sfx.nope();
     const enc = cheerFor(false);
-    speak(`Tentokrát ${building ? 'dům nevyrostl' : 'farma nevyrostla'}. Bez chyby jsi měl ${got} z ${R_len}, potřebuješ aspoň ${need}. ${enc}`);
+    speak(`Tentokrát ${building ? 'dům nevyrostl' : 'farma nevyrostla'}. Bez chyby jsi měl ${got} z ${R_len}, potřebuješ aspoň ${need}. ${enc}${enchTalk}`);
     $('#btnAgain').focus({ preventScroll: true });
     return;
   }
@@ -2069,7 +2159,7 @@ function endRound() {
   const milestone = st === FARM_START ? 'Dostavěl jsi dům, gratulujeme!' : st === FARM_START + FARM_STAGES.length ? 'Farma je hotová, jsme na tebe moc pyšní!' : (day && day.count === 7) ? 'Sedm dní v řadě, to je výkon!' : (day && day.count > 0 && day.count % 30 === 0) ? `${day.count} dní v řadě! Jsme na tebe pyšní.` : '';
   const cheer = cheerFor(true, milestone);
   const dayTalk = day ? (day.usedTotem ? ` Totem zachránil tvou řadu!` : '') + (day.count > 1 ? ` Hraješ ${day.count} ${dayWord(day.count)} v řadě, bonus ${day.bonus} ${gemWord(day.bonus)}.` : ` Dnešní den se počítá do řady, bonus ${day.bonus} ${gemWord(day.bonus)}.`) : '';
-  speak((perfect ? 'Bez jediné chyby! ' : '') + cheer + (newTier ? ` Máš nový ${after.name} krumpáč!` : '') + story + dayTalk + (fresh.length ? ` V šatníku máš ${fresh.map(([, it]) => it.name).join(' a ')}.` : ''));
+  speak((perfect ? 'Bez jediné chyby! ' : '') + cheer + (newTier ? ` Máš nový ${after.name} krumpáč!` : '') + story + dayTalk + enchTalk + (fresh.length ? ` V šatníku máš ${fresh.map(([, it]) => it.name).join(' a ')}.` : ''));
   $('#btnAgain').focus({ preventScroll: true });
 }
 function goHome() {
@@ -2100,7 +2190,7 @@ function updateSettings() {
   $('#rateNormal').setAttribute('aria-pressed', String(!save.slow));
   $('#rateSlow').setAttribute('aria-pressed', String(save.slow));
   const st = Math.min(12, save.total);
-  $('#progressInfo').textContent = `Odehraná kola: písmena ${save.rounds.letters}, slabiky ${save.rounds.syllables}, slova ${save.rounds.words}, čtení ${save.rounds.reading}, čísla ${save.rounds.numbers}, počty ${save.rounds.math}, psaní ${save.rounds.writing}. Dům: ${st} z 12 dílů. Farma: ${farmStage()} z ${FARM_STAGES.length}. Smaragdy: ${save.emeralds}. Řada: ${streakNow().count} (nejdelší ${save.streak.best}). Krumpáč: ${tierOf(save.total).name}.`;
+  $('#progressInfo').textContent = `Odehraná kola: písmena ${save.rounds.letters}, slabiky ${save.rounds.syllables}, slova ${save.rounds.words}, čtení ${save.rounds.reading}, čísla ${save.rounds.numbers}, počty ${save.rounds.math}, psaní ${save.rounds.writing}. Dům: ${st} z 12 dílů. Farma: ${farmStage()} z ${FARM_STAGES.length}. Smaragdy: ${save.emeralds}. Řada: ${streakNow().count} (nejdelší ${save.streak.best}). Krumpáč: ${tierOf(save.total).name}. Očarování: ${save.ench.length} z ${ENCH_ORDER.length} (zvládnuto ${masteryPoints().pts} z ${masteryPoints().max} úkolů).`;
   updateVoiceInfo();
 }
 $('#btnSettings').addEventListener('click', () => { updateSettings(); renderNotes(); $('#resetConfirm').hidden = true; $('#setOverlay').hidden = false; });
@@ -2141,6 +2231,7 @@ $('#btnEndHouse').addEventListener('click', () => { $('#endOverlay').hidden = tr
 $('#btnEndHome').addEventListener('click', goHome);
 
 if (season() === 'winter' || season() === 'xmas') document.body.classList.add('winter');
+checkEnchants(); // očarování za už zvládnuté úkoly
 paintTextures();
 renderHome();
 // ikona na ploše a hraní bez internetu
