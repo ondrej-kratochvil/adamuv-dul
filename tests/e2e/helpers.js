@@ -17,6 +17,8 @@ export async function mockSpeech(page) {
 // Otevře hru s daným uloženým stavem (null = čistá hra).
 export async function openGame(page, state = null) {
   await mockSpeech(page);
+  // testy nezávislé na internetu: písma z Google se nestahují (hra má náhradní písma)
+  await page.route(/fonts\.(googleapis|gstatic)\.com/, r => r.abort());
   const errors = [];
   page.on('pageerror', e => errors.push(e.message));
   await page.addInitScript(([key, st]) => {
