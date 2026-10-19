@@ -1,6 +1,13 @@
 {
-  "version": 20,
+  "version": 21,
   "changes": [
+    {
+      "version": 21,
+      "date": "2026-10-19",
+      "notes": [
+        "Opravená drobnost na konci kola: kostky čekají ve Stavění, až když je dům opravdu hotový."
+      ]
+    },
     {
       "version": 20,
       "date": "2026-10-19",

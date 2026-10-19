@@ -185,12 +185,13 @@ function showEndPlace(place) {
 }
 function endRound() {
   addBlocks(save.build, G.R.loot.map(l => l.t)); persist(); // vykopané kostky do zásoby na stavění
-  { const n = G.R.loot.length, eb = $('#endBlocks'); eb.hidden = !n;
-    eb.textContent = n ? (save.total >= BUILD_UNLOCK || (G.R.level !== 'boss' && save.total + 1 >= BUILD_UNLOCK) ? `Vykopané kostky (${n}) čekají ve Stavění.` : `Vykopané kostky (${n}) si schovávám na Stavění. Otevře se, až dostavíš dům.`) : ''; }
-  if (G.R.level === 'boss') return bossVictory();
+  if (G.R.level === 'boss') { const eb = $('#endBlocks'); eb.hidden = !G.R.loot.length || save.total < BUILD_UNLOCK; eb.textContent = `Vykopané kostky (${G.R.loot.length}) čekají ve Stavění.`; return bossVictory(); }
   const level = G.R.level;
   const need = needClean(save.strict, G.R.len);
   const ok = G.R.clean >= need;
+  // text až podle toho, jestli kolo vyšlo: nepovedené 12. kolo dům nedostaví (review 3)
+  { const n = G.R.loot.length, eb = $('#endBlocks'); eb.hidden = !n;
+    eb.textContent = n ? (save.total >= BUILD_UNLOCK || (G.R.level !== 'boss' && ok && save.total + 1 >= BUILD_UNLOCK) ? `Vykopané kostky (${n}) čekají ve Stavění.` : `Vykopané kostky (${n}) si schovávám na Stavění. Otevře se, až dostavíš dům.`) : ''; }
   const perfect = G.R.clean === G.R.len;
   const earned = G.R.clean + (perfect ? PERFECT_BONUS : 0);
   if (perfect) { save.emeralds += PERFECT_BONUS; persist(); }

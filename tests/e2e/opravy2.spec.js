@@ -71,3 +71,10 @@ test('ozubené kolo řekne, že nastavení je pro rodiče', async ({ page }) => 
   await expect.poll(() => said(page)).toContain('nastavení pro rodiče');
   await expect(page.locator('#setOverlay')).toBeHidden();
 });
+
+test('nepovedené 12. kolo neříká, že kostky čekají ve Stavění (review 3)', async ({ page }) => {
+  await openGame(page, { total: 11 });
+  await playRound(page, 'Písmena', { wrong: 8 });
+  await expect(page.locator('#endTitle')).toHaveText('Skoro!');
+  await expect(page.locator('#endBlocks')).toContainText('schovávám na Stavění');
+});
