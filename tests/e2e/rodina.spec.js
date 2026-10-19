@@ -16,3 +16,20 @@ test('pozdrav na úvodní obrazovce je vlastní věta', async ({ page }) => {
   await expect(page.locator('.fan .bubble')).toContainText(/Ahoj Adam/);
   await expect(page.locator('.fan .bubble')).not.toContainText('Dneska ti fandí');
 });
+
+test('klepnutí na hlášku ji přehraje znovu', async ({ page }) => {
+  await openGame(page, { total: 3 });
+  await playRound(page, 'Písmena');
+  const line = await page.locator('#cheer .bubble').innerText();
+  const before = await page.evaluate(() => window.__said.length);
+  await page.locator('#cheer .bubble').click();
+  await expect.poll(() => page.evaluate(() => window.__said.length)).toBeGreaterThan(before);
+  const last = await page.evaluate(() => window.__said.at(-1));
+  expect(last).toContain(line.split('\n').at(-1).trim());
+});
+
+test('po kole zazní, co přibylo na domě', async ({ page }) => {
+  await openGame(page, { total: 3 });
+  await playRound(page, 'Písmena');
+  await expect.poll(() => page.evaluate(() => window.__said.join(' '))).toContain('Přibylo na domě');
+});

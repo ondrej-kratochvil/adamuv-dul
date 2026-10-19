@@ -3,10 +3,10 @@ import { PIC_PART, PIC_WORDS, partLabel } from '../../src/content/pictures';
 import { readingAfter } from '../../src/logic/tasks';
 
 describe('obrázky, kde je slovo jen část názvu', () => {
-  it('tečky ukazují chybějící kus', () => {
-    expect(partLabel('OSA', 'osa')).toBe('…osa');
-    expect(partLabel('OSY', 'OSY')).toBe('…OSY');
-    expect(partLabel('SUM', 'sum')).toBe('sum…');
+  it('tečky ukazují chybějící kus, jedna za každé písmeno', () => {
+    expect(partLabel('OSA', 'osa')).toBe('.osa'); // vosa: chybí 1 písmeno
+    expect(partLabel('OSY', 'OSY')).toBe('.OSY');
+    expect(partLabel('SUM', 'sum')).toBe('sum..'); // sumec: chybí 2 písmena
     expect(partLabel('LES', 'les')).toBe('les');
   });
   it('po správné odpovědi zazní celé slovo', () => {

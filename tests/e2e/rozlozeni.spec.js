@@ -17,3 +17,14 @@ for (const [name, [w, h]] of Object.entries(SIZES)) {
     for (const id of ['btnAgain', 'btnEndHome']) await expect(page.locator('#' + id)).toBeInViewport();
   });
 }
+
+test('mobil: na konci kola je vidět celý dům a tři tlačítka vedle sebe', async ({ page }) => {
+  await page.setViewportSize({ width: 412, height: 860 });
+  await openGame(page, { total: 8 }); // 9. kolo = nový krumpáč, nejvíc obsahu na kartě
+  await playRound(page, 'Písmena');
+  await expect(page.locator('#newPick')).toBeVisible();
+  await expect(page.locator('#endHouse')).toBeInViewport({ ratio: 1 });
+  const tops = await page.locator('#endOverlay .actions .gbtn').evaluateAll(bs => bs.map(b => Math.round(b.getBoundingClientRect().top)));
+  expect(new Set(tops).size).toBe(1);
+  await page.screenshot({ path: 'test-results/konec-kola.png' });
+});

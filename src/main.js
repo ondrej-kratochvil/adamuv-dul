@@ -60,6 +60,7 @@ $('#btnListen').addEventListener('click', () => { audio(); if (G.R && G.R.say &&
 $('#btnAgain').addEventListener('click', () => { const lv = $('#endOverlay').dataset.level; $('#endOverlay').hidden = true; startRound(lv); });
 $('#btnEndHouse').addEventListener('click', () => { $('#endOverlay').hidden = true; ($('#endOverlay').dataset.place === 'farm' ? openFarm : openHouse)(); });
 $('#btnEndHome').addEventListener('click', goHome);
+$('#cheer').addEventListener('click', () => { audio(); if ($('#cheer').dataset.say) speak($('#cheer').dataset.say); });
 
 if (season() === 'winter' || season() === 'xmas') document.body.classList.add('winter');
 iconizeButtons();

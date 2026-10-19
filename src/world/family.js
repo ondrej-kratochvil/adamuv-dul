@@ -77,6 +77,9 @@ function showCheer(people, text) {
   const faces = document.createElement('div'); faces.className = 'faces' + (people.length > 2 ? ' many' : ''); people.forEach(p => faces.appendChild(famCanvas(p))); el.appendChild(faces);
   const b = document.createElement('div'); b.className = 'bubble';
   b.innerHTML = `<b>${people.length > 1 ? 'celá rodina' : people[0].name}</b>`; b.append(text); el.appendChild(b);
+  // klepnutí na portrét nebo bublinu hlášku přehraje znovu
+  el.dataset.say = `${people.length > 1 ? 'Celá rodina' : people[0].name[0].toUpperCase() + people[0].name.slice(1)}: ${text}`;
+  el.title = 'Přehrát znovu';
 }
 // vrací text k přečtení; vzkaz od rodiny má přednost před běžnou pochvalou
 function cheerFor(ok, milestone) {

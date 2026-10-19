@@ -5,7 +5,8 @@
       "version": 23,
       "date": "2026-10-19",
       "notes": [
-        "Při čtení ukážou tečky, když je na ceduli jen kousek slova: na obrázku je vosa, na ceduli …osa."
+        "Při čtení ukážou tečky, když je na ceduli jen kousek slova. Každá tečka je jedno chybějící písmeno: na obrázku je vosa, na ceduli .osa.",
+        "Po kole hra řekne, co přibylo na domě. Hlášku rodiny přehraješ znovu klepnutím."
       ]
     },
     {
