@@ -1,6 +1,14 @@
 {
-  "version": 21,
+  "version": 22,
   "changes": [
+    {
+      "version": 22,
+      "date": "2026-10-19",
+      "notes": [
+        "Celá rodina má nové hlášky: babička Iva z Újezdce, děda Marek z chaty, děda Bob a babička Jindra z bytu naproti, táta, máma i Davídek.",
+        "Máma ti připomene školu, jídlo a spaní."
+      ]
+    },
     {
       "version": 21,
       "date": "2026-10-19",

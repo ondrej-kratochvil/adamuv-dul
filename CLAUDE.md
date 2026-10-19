@@ -53,7 +53,9 @@ aktualizaci a po ní novinky ukáže.
   věta „Slabika so.“ to nespravila (Ondřej 19. 10. 2026), proto pryč. Rizikové slabiky (`RISKY_SYLLABLES`) jdou v nastavení
   vyzkoušet; výchozí „s písmeny“ („so, es, o“) jen u so a me (`LETTERS_BY_DEFAULT`, ověřeno Ondřejem na jeho mobilu s Androidem 19. 10. 2026, na Adamově tabletu předpoklad), rodič v nastavení vybere variantu, která na tabletu zní česky (`save.pron`).
   Novou slabiku bez čárky, která je anglickým slovem, přidat do `RISKY_SYLLABLES`.
-- Podoby rodiny jen podle toho, co řekl Ondřej (`FAMILY`); nic nedomýšlet.
+- Podoby rodiny jen podle toho, co řekl Ondřej (`FAMILY`); nic nedomýšlet. Hlášky rodiny jsou v `content/family-lines.ts`
+  (odsouhlasené Ondřejem 19. 10. 2026; místa jako Újezdec, Zavadilka, Biskupice smí být ve veřejném repu). Nové hlášky
+  nejdřív navrhnout Ondřejovi, nevymýšlet nové údaje o rodině.
 ## Kód a testy
 
 - **Obsah patří do `src/content/`, pravidla do `src/logic/`** (TypeScript, bez DOM a bez `localStorage`, náhoda jako parametr).

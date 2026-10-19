@@ -21,6 +21,8 @@ export interface SaveState {
   outfit: Record<string, string>;
   build: { blocks: Record<string, number>; placed: Record<string, string> };
   pron: Record<string, string>; // výslovnost vybraná rodičem (logic/pronounce.ts)
+  recentLines: string[];        // posledních pár hlášek rodiny (aby se neopakovaly)
+  momSaid: { d: string; ids: string[] }; // které připomínky mámy dnes zazněly
   [k: string]: unknown;
 }
 
@@ -37,11 +39,13 @@ export function defaults(): SaveState {
     outfit: { shirt: 'oranzove', pants: 'modre', shoes: 'sede', hat: 'nic', enchant: 'ne' },
     build: { blocks: {}, placed: {} },
     pron: {},
+    recentLines: [],
+    momSaid: { d: '', ids: [] },
   };
 }
 
 const isObj = (x: unknown): x is Record<string, unknown> => !!x && typeof x === 'object' && !Array.isArray(x);
-const NESTED = ['rounds', 'outfit', 'dog', 'gifts', 'streak', 'build', 'pron'] as const;
+const NESTED = ['rounds', 'outfit', 'dog', 'gifts', 'streak', 'build', 'pron', 'momSaid'] as const;
 
 // převede jakákoli starší data na aktuální tvar; nic, co Adam získal, nezahodí
 export function migrate(raw: unknown): SaveState {
@@ -53,7 +57,7 @@ export function migrate(raw: unknown): SaveState {
   const out = Object.assign(d, s) as SaveState;
   for (const k of NESTED) out[k] = Object.assign(defaults()[k] as object, isObj(s[k]) ? s[k] : {}) as never;
   if (!Array.isArray(out.streak.days)) out.streak.days = [];
-  for (const k of ['log', 'ench', 'notes', 'decor'] as const) if (!Array.isArray(out[k])) (out as Record<string, unknown>)[k] = [];
+  for (const k of ['log', 'ench', 'notes', 'decor', 'recentLines'] as const) if (!Array.isArray(out[k])) (out as Record<string, unknown>)[k] = [];
   if (!isObj(out.stats)) out.stats = {};
   if (from > SCHEMA) out.schema = from; // novější data ze starší hry nesnižovat
   else out.schema = SCHEMA;

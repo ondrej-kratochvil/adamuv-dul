@@ -1,7 +1,7 @@
 # Hlášky rodiny: návrh k odsouhlasení
 
 > **Co:** návrh nových hlášek rodiny ve hře (po povedeném kole, po nepovedeném kole, „dnes ti fandí“ na úvodní obrazovce)
-> **Stav:** draft, čeká na Ondřejovo odsouhlasení
+> **Stav:** hotovo (Ondřej odsouhlasil 19. 10. 2026; místa smí zůstat ve veřejném repu; ranní hláška mámy ve všední dny o škole). Platné znění je v `src/content/family-lines.ts`.
 > **Stav k:** 19. 10. 2026
 > **Souhrn:**
 > - Dnes: 9 společných pochval a 4 povzbuzení pro všechny, vlastní věty má jen Davídek.
@@ -119,7 +119,8 @@ Máma chválí jako ostatní, ale hlavně se stará. Její připomínky se říd
 
 | Kdy | Co řekne (místo pochvaly, jednou za den v daném čase) |
 |---|---|
-| 6.30 až 8.00 | Výborně, Adame! A teď hurá nasnídat se. |
+| 6.30 až 8.00 ve všední dny | Výborně, Adame! A teď hurá se nachystat do školy. |
+| 6.30 až 9.00 o víkendu | Výborně, Adame! A teď hurá nasnídat se. |
 | 11.30 až 13.00 | Šikula! Pojď na oběd, ať máš sílu na kopání. |
 | 17.30 až 19.00 | Paráda! Za chvíli je večeře, tak už dohraj. |
 | od 19.30 | Výborně! Teď ale čistit zuby, koupat a do postele. |

@@ -6,6 +6,8 @@ import { speak } from '../audio/speech.js';
 import { audio } from '../audio/sfx.js';
 import { gemWord, updateGems } from './farm.js';
 import { dayNum, dayStr, easterMonday, holidayOn } from '../logic/calendar.ts';
+import { FAMILY_LINES } from '../content/family-lines.ts';
+import { momReminder, pickLine, remember } from '../logic/family.ts';
 
 const FAMILY = [
   // barvy vlasů podle Ondřeje (19. 10. 2026); brýle ani vousy nikdo neuvedl, proto nejsou; děda Marek téměř holohlavý (Ondřej); drdol u babiček jen odlišuje babičky od dědů
@@ -15,9 +17,7 @@ const FAMILY = [
   { id: 'bob', name: 'děda Bob', gen: 'dědy Boba', f: false, hair: '#cfcfcf', top: '#7a5230' },
   { id: 'iva', name: 'babička Iva', gen: 'babičky Ivy', f: true, hair: '#e2c06c', long: false, top: '#3f9b3a' },
   { id: 'marek', name: 'děda Marek', gen: 'dědy Marka', f: false, hair: '#dcc274', top: '#c0392b', bald: true }, // téměř holohlavý, zbytek vlasů blond
-  { id: 'david', name: 'brácha Davídek', gen: 'bráchy Davídka', f: false, hair: '#ecd27e', top: '#e0b324', small: true,
-    cheers: ['Bráško, ty jsi nejlepší!', 'Hurá! Adame, to je paráda!', 'Já taky chci kopat jako ty!', 'Bráško, naučíš to i mě?'],
-    enc: ['Bráško, to nevadí. Zkus to znovu!', 'Adame, já ti fandím!'] },
+  { id: 'david', name: 'brácha Davídek', gen: 'bráchy Davídka', f: false, hair: '#ecd27e', top: '#e0b324', small: true },
 ];
 // kamarádi ze třídy: jen vzkazy, bez podoby ve hře (dokud ji neřekne Ondřej), místo obličeje obálka
 const FRIENDS = [
@@ -85,7 +85,19 @@ function cheerFor(ok, milestone) {
     if (note) { const p = fam(note.who); note.done = true; persist(); showCheer([p], note.text); return `Vzkaz od ${p.gen}: ${note.text}`; }
     if (milestone) { showCheer(FAMILY, milestone); return `Celá rodina ti gratuluje! ${milestone}`; }
   }
-  const p = pickPerson(); const own = ok ? p.cheers : p.enc; const line = own && Math.random() < .7 ? pick(Math.random, own) : pick(Math.random, ok ? CHEERS : ENCOURAGE)(p);
+  // máma se stará: jídlo, škola, spaní a dlouhé hraní mají přednost (každá připomínka jednou za den)
+  const today = dayStr();
+  if (!save.momSaid || save.momSaid.d !== today) save.momSaid = { d: today, ids: [] };
+  const played = save.log.filter(e => e.d === today).reduce((a, e) => a + e.secs, 0);
+  const mom = momReminder(new Date(), played, save.momSaid.ids);
+  let p, line;
+  if (mom) { p = fam('paja'); line = mom.text; save.momSaid.ids.push(mom.id); save.lastCheer = 'paja'; }
+  else {
+    p = pickPerson();
+    const own = FAMILY_LINES[p.id] || { cheers: [], enc: [] };
+    line = pickLine(ok ? own.cheers : own.enc, (ok ? CHEERS : ENCOURAGE).map(f => f(p)), save.recentLines || []);
+  }
+  save.recentLines = remember(save.recentLines || [], line);
   showCheer([p], line); persist();
   return `${p.name[0].toUpperCase() + p.name.slice(1)} říká: ${line}`;
 }
@@ -97,7 +109,7 @@ function renderFan(wrap) {
   const faces = document.createElement('div'); faces.className = 'cheer'; faces.style.margin = 0;
   const people = h ? (h.all ? FAMILY : [fam(h.who)]) : [todaysFan()];
   const fc = document.createElement('div'); fc.className = 'faces' + (people.length > 2 ? ' many' : ''); people.forEach(p => fc.appendChild(famCanvas(p))); faces.appendChild(fc);
-  const text = h ? h.text + (gift ? ` Dárek od nás: ${gift} ${gemWord(gift)}.` : '') : `Dneska ti fandí ${people[0].name}. Ahoj Adame, zahraj si!`;
+  const text = h ? h.text + (gift ? ` Dárek od nás: ${gift} ${gemWord(gift)}.` : '') : ((FAMILY_LINES[people[0].id] || {}).hello || `Dneska ti fandí ${people[0].name}. Ahoj Adame, zahraj si!`);
   const bb = document.createElement('div'); bb.className = 'bubble'; bb.innerHTML = `<b>${people.length > 1 ? 'celá rodina' : people[0].name}</b>`; bb.append(text); faces.appendChild(bb);
   b.appendChild(faces); b.setAttribute('aria-label', text);
   b.addEventListener('click', () => { audio(); speak(text); });
