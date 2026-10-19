@@ -2,7 +2,7 @@
 import { save } from '../save/save.ts';
 import { LETTERS, SYLL } from '../content/letters.ts';
 import { NAMES } from '../content/words.ts';
-import { PIC, PIC_WORDS, PLURAL } from '../content/pictures.ts';
+import { PIC, PIC_WORDS, PLURAL, partLabel } from '../content/pictures.ts';
 import { genMath, genNumbers } from './math.js';
 import { genWriting } from './writing.js';
 import { ctx } from '../game/ctx.js';
@@ -21,7 +21,7 @@ function picCanvas(word) {
 }
 function genWords() { return T.genWords(ctx()); }
 // slovo na ceduli se ukazuje velkým nebo malým písmem podle nastavení
-function genReading() { const t = T.genReading(ctx()); return { ...t, task: display(t.answer) }; }
+function genReading() { const t = T.genReading(ctx()); return { ...t, task: partLabel(t.answer, display(t.answer)) }; }
 
 const LEVELS = {
   letters: { name: 'Písmena', tex: 'dirt', items: LETTERS, sample: ['A', 'm'], intro: 'Poslouchej a kopej do správného písmenka.' },

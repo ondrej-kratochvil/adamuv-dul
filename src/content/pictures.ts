@@ -17,3 +17,15 @@ export const PIC: Record<string, (R: Painter) => void> = {
 };
 export const PLURAL: Record<string, string> = { OSY: 'OSA', ÚLY: 'ÚL', LAMY: 'LAMA', MÍSY: 'MÍSA' };
 export const PIC_WORDS: string[] = [...Object.keys(PIC), ...Object.keys(PLURAL)];
+
+// Slova, která jsou jen částí názvu na obrázku (Ondřej, 19. 10. 2026): na obrázku je vosa, ale čte se OSA;
+// na obrázku je sumec, ale čte se SUM. Tečky ukazují, kde kus slova chybí, a po správné odpovědi hlas řekne celé slovo.
+export const PIC_PART: Record<string, { before?: boolean; after?: boolean; full: string }> = {
+  OSA: { before: true, full: 'vosa' },
+  OSY: { before: true, full: 'vosy' },
+  SUM: { after: true, full: 'sumec' },
+};
+export function partLabel(word: string, shown: string): string {
+  const p = PIC_PART[word];
+  return p ? `${p.before ? '…' : ''}${shown}${p.after ? '…' : ''}` : shown;
+}

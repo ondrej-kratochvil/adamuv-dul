@@ -1,7 +1,7 @@
 // Generátory úkolů pro všechna patra. Čistá logika: dostanou stav (kola, statistiky, nedávné úkoly) a náhodu.
 import { LETTERS, PARTNER, SAME_SOUND, SAY_LETTER, SYLL, SYL_V, VOWELS, vFam } from '../content/letters';
 import { WORDS } from '../content/words';
-import { PIC, PIC_WORDS } from '../content/pictures';
+import { PIC, PIC_PART, PIC_WORDS } from '../content/pictures';
 import { SHAPE_NAMES } from '../content/glyphs';
 import { choiceCount, weight, type Stats } from './mastery';
 import { range, rnd, shuffle, weightedPick, type Rng } from './random';
@@ -111,7 +111,13 @@ export function genReading(ctx: Ctx): Task {
   const pool = r < 3 ? Object.keys(PIC) : PIC_WORDS;
   const avoid = ctx.recent.slice(-3);
   const w = weightedPick(pool.filter(x => !avoid.includes(x)), x => weight(ctx.stats, 'reading', x), rng);
-  return { answer: w, choices: shuffle([w, ...similarWords(w, pool, choiceCount(r) - 1, rng)], rng), say: 'Přečti slovo.', task: w, stat: 'reading:' + w, key: w, picture: true, after: `Je to ${w.toLocaleLowerCase('cs')}.` };
+  return { answer: w, choices: shuffle([w, ...similarWords(w, pool, choiceCount(r) - 1, rng)], rng), say: 'Přečti slovo.', task: w, stat: 'reading:' + w, key: w, picture: true, after: readingAfter(w) };
+}
+
+// po správné odpovědi celé slovo; u části slova i to, co bylo na ceduli
+export function readingAfter(w: string): string {
+  const low = w.toLocaleLowerCase('cs'), p = PIC_PART[w];
+  return p ? `Je to ${p.full}. Na ceduli byl jen kousek slova: ${low}.` : `Je to ${low}.`;
 }
 
 /* ---------- psaní ---------- */

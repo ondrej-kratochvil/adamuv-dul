@@ -1,5 +1,6 @@
 // Sbírka kartiček: kartička za každé zvládnuté slovo (v patře Slova nebo Čtení)
 import { G } from '../core/state.js';
+import { partLabel } from '../content/pictures.ts';
 import { $ } from '../core/dom.js';
 import { persist, save } from '../save/save.ts';
 import { speak, synth } from '../audio/speech.js';
@@ -19,7 +20,7 @@ function cardEl(w, open) {
   const el = document.createElement('button'); el.className = 'wcard' + (open ? ' r' + rarity(w) : ' back');
   if (!open) { el.innerHTML = '<span class="q">?</span>'; el.setAttribute('aria-label', 'zatím neznámá kartička'); return el; }
   el.setAttribute('aria-label', w);
-  const d = display(w); // jednou, ať je na kartičce slovo stejně velkým nebo malým písmem
+  const d = partLabel(w, display(w)); // jednou, ať je na kartičce slovo stejně velkým nebo malým písmem
   if (PIC[w] || PLURAL[w]) { el.appendChild(picCanvas(w)); el.insertAdjacentHTML('beforeend', `<span class="w">${d}</span>`); }
   else { el.style.gridTemplateRows = '1fr'; el.insertAdjacentHTML('beforeend', `<span class="big">${d}</span>`); }
   el.insertAdjacentHTML('beforeend', `<span class="stars">${'★'.repeat(rarity(w))}</span>`);

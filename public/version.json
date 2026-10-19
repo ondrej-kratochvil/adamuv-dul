@@ -1,6 +1,13 @@
 {
-  "version": 22,
+  "version": 23,
   "changes": [
+    {
+      "version": 23,
+      "date": "2026-10-19",
+      "notes": [
+        "Při čtení ukážou tečky, když je na ceduli jen kousek slova: na obrázku je vosa, na ceduli …osa."
+      ]
+    },
     {
       "version": 22,
       "date": "2026-10-19",
