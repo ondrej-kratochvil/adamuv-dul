@@ -7,7 +7,7 @@ const at = (iso: string) => new Date(iso);
 
 describe('hlášky rodiny', () => {
   it('každý má vlastní pochvaly, povzbuzení a pozdrav', () => {
-    for (const id of ['paja', 'ondra', 'jindra', 'bob', 'iva', 'marek', 'david', 'vita', 'vasek', 'terka', 'ruda', 'sarka', 'tomas']) {
+    for (const id of ['paja', 'ondra', 'jindra', 'bob', 'iva', 'marek', 'david', 'vita', 'vasek', 'terka', 'ruda', 'sarka', 'tomas', 'marcelka']) {
       const l = FAMILY_LINES[id];
       expect(l.cheers.length, id).toBeGreaterThanOrEqual(6);
       expect(l.enc.length, id).toBeGreaterThanOrEqual(2);

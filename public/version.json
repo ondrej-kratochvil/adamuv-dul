@@ -1,6 +1,13 @@
 {
-  "version": 30,
+  "version": 31,
   "changes": [
+    {
+      "version": 31,
+      "date": "2026-10-20",
+      "notes": [
+        "Prababička Marcelka ti teď taky fandí."
+      ]
+    },
     {
       "version": 30,
       "date": "2026-10-20",

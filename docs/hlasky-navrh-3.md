@@ -1,12 +1,11 @@
 # Hlášky prababičky Marcelky: návrh k odsouhlasení
 
 > **Co:** vlastní hlášky prababičky Marcelky (Markova máma)
-> **Stav:** draft (čeká na Ondřeje)
+> **Stav:** hotovo (Ondřej odsouhlasil 20. 10. 2026). Platné znění je v `src/content/family-lines.ts`.
 > **Stav k:** 20. 10. 2026
 > **Souhrn:**
-> - Marcelka je ve hře od verze 30 (portrét podle Ondřejovy fotky, převlékání, vzkazy), zatím nefandí (`quiet`).
+> - Marcelka je ve hře od verze 30, fandí od verze 31 jen vlastními větami (`own`).
 > - Nic dalšího o ní nevím, proto věty bez míst a podrobností.
-> - Po odsouhlasení: do `src/content/family-lines.ts`, `quiet` nahradit `own`.
 > **Souvisí:** `docs/hlasky-navrh-2.md`
 
 **Po povedeném kole**

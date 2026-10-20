@@ -158,6 +158,18 @@ export const FAMILY_LINES: Record<string, Lines> = {
     enc: ['V pohodě, to se stane i mně. Dej to znova!', 'Klid, Adame. Pořádně se podívej a dáš to.', 'Nevzdávej to, borče. Příště to bude!'],
     hello: 'Čau Adame, tady Tomáš. Zahraj si, fandím ti!',
   },
+  marcelka: { // prababička Marcelka, Markova máma (odsouhlasil Ondřej 20. 10. 2026, docs/hlasky-navrh-3.md)
+    cheers: [
+      'Výborně, Adame! Prababička má velkou radost.',
+      'Takového šikovného pravnuka aby pohledal!',
+      'To jsi dal krásně. Jsem na tebe pyšná.',
+      'Ty už čteš jako velký školák!',
+      'Šikula! Až se uvidíme, všechno mi ukážeš.',
+      'Paráda, Adame! Posílám ti pusu.',
+    ],
+    enc: ['Nevadí, Adame. Pomalu a pozorně, a půjde to.', 'I prababička se kdysi učila písmenka. Zkus to znovu!', 'Každý se někdy splete. Fandím ti!'],
+    hello: 'Ahoj Adame, tady prababička Marcelka. Zahraj si, fandím ti!',
+  },
 };
 
 // Máma se stará: připomínky podle času v tabletu, každá jednou za den. Mají přednost před náhodnou pochvalou.

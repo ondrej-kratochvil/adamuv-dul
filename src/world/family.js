@@ -31,8 +31,8 @@ const FAMILY = [
   // praděda Ruda (Ivin táta), Šárka (Markova žena) a její syn Tomáš (18): oslovení podle Ondřeje, podoba podle jeho fotek 20. 10. 2026.
   { id: 'ruda', name: 'praděda Ruda', gen: 'pradědy Rudy', f: false, hair: '#ececec', top: '#5a6e8a', own: true },
   { id: 'sarka', name: 'Šárka', gen: 'Šárky', f: true, hair: '#5a3418', long: true, top: '#f2f2f2', own: true },
-  // prababička Marcelka (Markova máma): krátké tmavě hnědé vlasy a brýle podle Ondřejovy fotky 20. 10. 2026; hlášky čekají na schválení
-  { id: 'marcelka', name: 'prababička Marcelka', gen: 'prababičky Marcelky', f: true, hair: '#3a2414', bob: 6, glasses: true, top: '#9ad8c8', quiet: true },
+  // prababička Marcelka (Markova máma): krátké tmavě hnědé vlasy a brýle podle Ondřejovy fotky 20. 10. 2026, hlášky odsouhlasené
+  { id: 'marcelka', name: 'prababička Marcelka', gen: 'prababičky Marcelky', f: true, hair: '#3a2414', bob: 6, glasses: true, top: '#9ad8c8', own: true },
   { id: 'tomas', name: 'Tomáš', gen: 'Tomáše', f: false, hair: '#a07a52', buzz: true, top: '#f2f2f2', own: true },
 ];
 // kamarádi ze třídy: jen vzkazy, bez podoby ve hře (dokud ji neřekne Ondřej), místo obličeje obálka
