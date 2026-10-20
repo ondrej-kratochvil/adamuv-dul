@@ -32,6 +32,8 @@ import { flushRate, logRound } from '../app/stats.js';
 import { updateHint } from '../ui/hint.js';
 import { levelName, queueRows } from '../app/sync.js';
 import { restingLevel, suggestLevel } from '../logic/rotation.ts';
+import { YOUTUBER_LINES, YT_SHARE } from '../content/youtuber-lines.ts';
+import { pickLine, remember } from '../logic/family.ts';
 
 const ROUND_LEN = 8;
 // kolik kostek z 8 musí být bez chyby, aby dům rostl
@@ -147,6 +149,13 @@ function tapBlock(it, el) {
 function logTask(ms, wrong, quick) {
   const [lv, ...rest] = G.R.statKey.split(':');
   queueRows([{ Druh: 'úloha', Patro: levelName(lv), Úloha: rest.join(':'), Napoprvé: G.R.firstTry ? 'ano' : 'ne', Sekundy: Math.round(ms / 100) / 10, Záměny: wrong.join(', '), Tipy: quick, Kolo: levelName(G.R.level) }]);
+}
+// občas po kole věta o youtuberech, které Adam sleduje (content/youtuber-lines.ts); neopakuje nedávné
+function ytLine(ok) {
+  if (Math.random() >= YT_SHARE) return '';
+  const line = pickLine(ok ? YOUTUBER_LINES.ok : YOUTUBER_LINES.fail, [], save.recentLines || []);
+  save.recentLines = remember(save.recentLines || [], line); persist();
+  return ' ' + line;
 }
 // chyba v kole: od třetí stojí smaragd (logic/rewards.ts errorCost); vrací větu, která se řekne před opakováním zadání
 function penalize() {
@@ -266,7 +275,7 @@ function endRound() {
     G.R = null;
     $('#endOverlay').hidden = false;
     sfx.nope();
-    const enc = cheerFor(false);
+    const enc = cheerFor(false) + ytLine(false);
     speak(`Tentokrát ${grewNot}. Bez chyby jsi měl ${got} z ${R_len}, potřebuješ aspoň ${need}. ${enc}${lostTalk}${enchTalk}${vilTalk}${cardTalk}${rotate(level)}`);
     $('#btnAgain').focus({ preventScroll: true });
     return;
@@ -317,7 +326,7 @@ function endRound() {
   const dn = dogName();
   const story = st === FARM_START ? ' Dům je hotový! Příště začneš stavět farmu. Stavění je otevřené.' : st === FARM_START + 1 ? ` Přiběhl k tobě pejsek${dn ? ' ' + dn : ''}! Je tvůj a bude s tebou kopat. Na úvodní obrazovce na něj klepni a vyber mu jméno a barvu.` : st === FARM_START + FARM_STAGES.length ? ' Farma je hotová!' : '';
   const milestone = st === FARM_START ? 'Dostavěl jsi dům, gratulujeme!' : st === FARM_START + FARM_STAGES.length ? 'Farma je hotová, jsme na tebe moc pyšní!' : (day && day.count === 7) ? 'Sedm dní v řadě, to je výkon!' : (day && day.count > 0 && day.count % 30 === 0) ? `${day.count} dní v řadě! Jsme na tebe pyšní.` : '';
-  const cheer = cheerFor(true, milestone);
+  const cheer = cheerFor(true, milestone) + ytLine(true);
   const dayTalk = day ? (day.usedTotem ? ` Totem zachránil tvou řadu!` : '') + (day.count > 1 ? ` Hraješ ${day.count} ${dayWord(day.count)} v řadě, bonus ${day.bonus} ${gemWord(day.bonus)}.` : ` Dnešní den se počítá do řady, bonus ${day.bonus} ${gemWord(day.bonus)}.`) : '';
   // pokrok na domě nebo farmě říct nahlas (Ondřej 19. 10. 2026), po hotové farmě už ne
   const grewTalk = st <= FARM_START + FARM_STAGES.length ? ' ' + grew : '';

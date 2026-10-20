@@ -1,6 +1,13 @@
 {
-  "version": 42,
+  "version": 43,
   "changes": [
+    {
+      "version": 43,
+      "date": "2026-10-20",
+      "notes": [
+        "Po kole se občas ozve něco o Siru Yakarim a Bouchalovi."
+      ]
+    },
     {
       "version": 42,
       "date": "2026-10-20",

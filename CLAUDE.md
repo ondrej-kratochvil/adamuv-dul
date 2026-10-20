@@ -84,6 +84,8 @@ aktualizaci a po ní novinky ukáže.
   Fotky rodiny do repa nikdy (je veřejné), jen znaky v komentáři. Člen bez odsouhlasených hlášek má `quiet` (nefandí); `own` = říká jen své věty, ne společné (noví příbuzní, Víťa a Tomáš nejsou rodiče). Hlášky rodiny jsou v `content/family-lines.ts`
   (odsouhlasené Ondřejem 19. 10. 2026; místa jako Újezdec, Zavadilka, Biskupice smí být ve veřejném repu). Nové hlášky
   nejdřív navrhnout Ondřejovi, nevymýšlet nové údaje o rodině.
+- Věty o youtuberech (`content/youtuber-lines.ts`, Sir Yakari a Bouchal, které Adam sleduje): jen ověřená veřejná fakta, žádné domyšlené
+  postavy; zazní po kole ve čtvrtině případů.
 ## Kód a testy
 
 - **Obsah patří do `src/content/`, pravidla do `src/logic/`** (TypeScript, bez DOM a bez `localStorage`, náhoda jako parametr).
