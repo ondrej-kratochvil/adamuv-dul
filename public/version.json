@@ -1,6 +1,14 @@
 {
-  "version": 28,
+  "version": 29,
   "changes": [
+    {
+      "version": 29,
+      "date": "2026-10-20",
+      "notes": [
+        "Do rodiny přibyli praděda Ruda, Šárka a Tomáš. Taky je můžeš převlékat!",
+        "Babičky mají nový účes a děda Marek vousy."
+      ]
+    },
     {
       "version": 28,
       "date": "2026-10-20",

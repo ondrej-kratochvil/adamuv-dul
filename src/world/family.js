@@ -12,21 +12,27 @@ import { wornItems } from '../logic/family-wear.ts';
 import { wearById } from '../content/family-wear.ts';
 
 const FAMILY = [
-  // barvy vlasů podle Ondřeje (19. 10. 2026); brýle ani vousy nikdo neuvedl, proto nejsou; děda Marek téměř holohlavý (Ondřej); drdol u babiček jen odlišuje babičky od dědů
+  // barvy vlasů podle Ondřeje (19. 10. 2026); děda Marek téměř holohlavý (Ondřej), krátké vousy podle fotek; babičky krátké vlasy
+  // podle fotek (Ondřej 20. 10. 2026: „ano, uprav je“), Iva po bradu, Jindra kratší; dřív drdol jen pro odlišení od dědů
   { id: 'paja', name: 'máma Pája', gen: 'mámy Páji', f: true, hair: '#e2c06c', long: true, top: '#c84a8a' },
   { id: 'ondra', name: 'táta Ondra', gen: 'táty Ondry', f: false, hair: '#a07a52', grey: '#c4bcb2', top: '#2f6fb0' },
-  { id: 'jindra', name: 'babička Jindra', gen: 'babičky Jindry', f: true, hair: '#4a2a14', long: false, top: '#7d4bc2' },
+  { id: 'jindra', name: 'babička Jindra', gen: 'babičky Jindry', f: true, hair: '#4a2a14', bob: 6, top: '#7d4bc2' },
   { id: 'bob', name: 'děda Bob', gen: 'dědy Boba', f: false, hair: '#cfcfcf', top: '#7a5230' },
-  { id: 'iva', name: 'babička Iva', gen: 'babičky Ivy', f: true, hair: '#e2c06c', long: false, top: '#3f9b3a' },
-  { id: 'marek', name: 'děda Marek', gen: 'dědy Marka', f: false, hair: '#dcc274', top: '#c0392b', bald: true }, // téměř holohlavý, zbytek vlasů blond
+  { id: 'iva', name: 'babička Iva', gen: 'babičky Ivy', f: true, hair: '#e2c06c', bob: 9, top: '#3f9b3a' },
+  { id: 'marek', name: 'děda Marek', gen: 'dědy Marka', f: false, hair: '#dcc274', top: '#c0392b', bald: true, beard: '#c9a26a' }, // téměř holohlavý, zbytek vlasů blond
   { id: 'david', name: 'brácha Davídek', gen: 'bráchy Davídka', f: false, hair: '#ecd27e', top: '#e0b324', small: true },
   // rodina Pájina bratra (Ondřej 20. 10. 2026): barvy vlasů z jeho odpovědí, brýle u Terky a vousy u Vaška podle jeho fotek;
-  // délku vlasů Terky Ondřej neuvedl, má stejný střih jako máma (drdol mají jen babičky)
+  // délku vlasů Terky Ondřej neuvedl, má stejný střih jako máma
   { id: 'vasek', name: 'strejda Vašek', gen: 'strejdy Vaška', f: false, hair: '#4a2a14', top: '#2a4f8a', beard: true, quiet: true },
   { id: 'terka', name: 'teta Terka', gen: 'tety Terky', f: true, hair: '#4a2a14', long: true, glasses: true, top: '#d86a9a', quiet: true },
   // bratranec Víťa: stejně starý jako Adam, taky 1. třída. Vašek, Terka i Víťa fandí až s vlastními hláškami
   // odsouhlasenými Ondřejem (návrh docs/hlasky-navrh-2.md); do té doby quiet: jen vzkazy a převlékání
   { id: 'vita', name: 'bratranec Víťa', gen: 'bratrance Víti', f: false, hair: '#a07a52', top: '#3f9b3a', kid: true, quiet: true },
+  // praděda Ruda (Ivin táta), Šárka (Markova žena) a její syn Tomáš (18): oslovení podle Ondřeje, podoba podle jeho fotek 20. 10. 2026.
+  // Prababička Marcelka (Markova máma) chybí, dokud Ondřej neřekne nebo neukáže, jak vypadá.
+  { id: 'ruda', name: 'praděda Ruda', gen: 'pradědy Rudy', f: false, hair: '#ececec', top: '#5a6e8a', quiet: true },
+  { id: 'sarka', name: 'Šárka', gen: 'Šárky', f: true, hair: '#5a3418', long: true, top: '#f2f2f2', quiet: true },
+  { id: 'tomas', name: 'Tomáš', gen: 'Tomáše', f: false, hair: '#a07a52', buzz: true, top: '#f2f2f2', quiet: true },
 ];
 // kamarádi ze třídy: jen vzkazy, bez podoby ve hře (dokud ji neřekne Ondřej), místo obličeje obálka
 const FRIENDS = [
@@ -48,14 +54,14 @@ function famCanvas(p) {
   R(2, 12, 12, 4, p.top); R(6, 11, 4, 2, S);
   if (p.long) { R(3, 2, 2, 10, p.hair); R(11, 2, 2, 10, p.hair); }
   R(4, 3, 8, 8, S);
-  if (p.bald) { R(4, 4, 1, 3, p.hair); R(11, 4, 1, 3, p.hair); } else { R(4, 2, 8, 2, p.hair); R(4, 4, 1, 2, p.hair); R(11, 4, 1, 2, p.hair); }
-  if (!p.long && p.f) { R(6, 0, 4, 2, p.hair); } // drdol
+  if (p.bald) { R(4, 4, 1, 3, p.hair); R(11, 4, 1, 3, p.hair); } else if (p.buzz) { R(4, 2, 8, 1, p.hair); R(4, 3, 8, 1, p.hair); } else { R(4, 2, 8, 2, p.hair); R(4, 4, 1, 2, p.hair); R(11, 4, 1, 2, p.hair); }
+  if (p.bob) { R(3, 3, 1, p.bob - 3, p.hair); R(12, 3, 1, p.bob - 3, p.hair); R(4, 4, 1, p.bob - 4, p.hair); R(11, 4, 1, p.bob - 4, p.hair); } // krátké vlasy po stranách (bob = kam až sahají)
   if (p.grey) { R(5, 2, 1, 1, p.grey); R(9, 2, 1, 1, p.grey); R(4, 4, 1, 1, p.grey); R(11, 5, 1, 1, p.grey); } // trochu prošedivělé
   if (p.small) { R(5, 4, 3, 1, p.hair); R(9, 8, 1, 1, '#e8a0a0'); R(6, 8, 1, 1, '#e8a0a0'); } // ofina a tvářičky
   if (p.kid) { R(5, 4, 4, 1, p.hair); } // ofina (stejně starý jako Adam)
   R(6, 6, 1, 1, '#2b2b2b'); R(9, 6, 1, 1, '#2b2b2b');
   if (p.glasses) { const G = '#4a4a4a'; R(5, 5, 6, 1, G); R(5, 7, 2, 1, G); R(9, 7, 2, 1, G); R(4, 6, 1, 1, G); R(11, 6, 1, 1, G); R(5, 6, 6, 1, '#cfe9f7'); R(6, 6, 1, 1, '#2b2b2b'); R(9, 6, 1, 1, '#2b2b2b'); } // obroučky a světlá skla kolem očí
-  if (p.beard) { R(5, 9, 6, 2, p.hair); R(6, 8, 4, 1, p.hair); }
+  if (p.beard) { const B = typeof p.beard === 'string' ? p.beard : p.hair; R(5, 9, 6, 2, B); R(6, 8, 4, 1, B); }
   R(7, 9, 2, 1, '#9b4a3c');
   // kousky, které Adam rodině nasadil (Rodina, world/dressup.js)
   if (!p.friend && save.famWear) wornItems(save.famWear, p.id).forEach(id => wearById(id).paint(R));

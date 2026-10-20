@@ -1,13 +1,15 @@
-# Hlášky strejdy Vaška, tety Terky a bratrance Víti: návrh k odsouhlasení
+# Hlášky nových příbuzných: návrh k odsouhlasení
 
 > **Co:** návrh vlastních hlášek pro nové příbuzné (po povedeném kole, po nepovedeném kole, „dnes ti fandí“)
 > **Stav:** draft (čeká na Ondřeje)
 > **Stav k:** 20. 10. 2026
 > **Souhrn:**
-> - Vašek, Terka a Víťa jsou ve hře od verze 28 (portréty, převlékání, vzkazy), ale zatím nefandí (`quiet` v `src/world/family.js`).
+> - Vašek, Terka a Víťa (od verze 28), praděda Ruda, Šárka a Tomáš (od verze 29) mají portrét, převlékání a vzkazy, ale zatím nefandí (`quiet` v `src/world/family.js`).
 > - Víťa je stejně starý jako Adam a taky chodí do 1. třídy: kamarádsky popichuje („to bych dal taky“), nikdy nezesměšňuje.
-> - O Vaškovi a Terce nevím nic dalšího (bydliště, záliby), proto věty bez míst a podrobností; doplním, co Ondřej řekne.
-> - Po odsouhlasení: hlášky do `src/content/family-lines.ts`, u všech tří pryč `quiet`.
+> - O nových příbuzných nevím nic dalšího (bydliště, záliby, co s Adamem dělají), proto věty bez míst a podrobností; doplním, co Ondřej řekne.
+> - Tomášovi je 18: mluví jako velký kluk, kterého Adam může obdivovat. Šárka a Tomáš jen jménem (Ondřej).
+> - Po odsouhlasení: hlášky do `src/content/family-lines.ts`, u schválených pryč `quiet`.
+> - Prababička Marcelka (Markova máma) čeká na podobu (fotka nebo popis).
 > **Souvisí:** `docs/hlasky-navrh.md` (první várka), `CLAUDE.md` (údaje o rodině jen podle Ondřeje)
 
 ## Bratranec Víťa (stejně starý, 1. třída)
@@ -61,3 +63,54 @@
 3. Klidně a pomalu, ty to zvládneš.
 
 **Dnes ti fandí:** Ahoj Adame, tady teta Terka. Fandím ti, zahraj si!
+
+## Praděda Ruda (Ivin táta)
+
+**Po povedeném kole**
+1. Výborně, Adame! Praděda má velkou radost.
+2. Takového šikovného pravnuka nemá nikdo jiný!
+3. To jsi dal krásně. Jsem na tebe pyšný.
+4. Paráda! Až se uvidíme, všechno mi povíš.
+5. Ty už čteš jako velký školák. To je radost!
+6. Šikula! Jen tak dál, Adame.
+
+**Po nepovedeném kole**
+1. Nevadí, Adame. Pomalu a pozorně, a půjde to.
+2. I praděda se kdysi učil písmenka. Zkus to znovu!
+3. Chybami se člověk učí. Fandím ti!
+
+**Dnes ti fandí:** Ahoj Adame, tady praděda Ruda. Zahraj si, fandím ti!
+
+## Šárka
+
+**Po povedeném kole**
+1. Výborně, Adame! To se ti povedlo.
+2. Ty jsi ale šikula! Mám z tebe radost.
+3. Paráda! To musím povědět dědovi Markovi.
+4. Super, Adame! Jen tak dál.
+5. Ty už čteš jako velký školák!
+6. To bylo krásné! Plácneme si?
+
+**Po nepovedeném kole**
+1. Nevadí, Adame. Zkus to znovu, fandím ti!
+2. Každý se někdy splete. Příště to dáš!
+3. Klidně a pomalu, ty to zvládneš.
+
+**Dnes ti fandí:** Ahoj Adame, tady Šárka. Fandím ti, zahraj si!
+
+## Tomáš (18)
+
+**Po povedeném kole**
+1. Hustý, Adame! To bys mi musel ukázat, jak jsi to dal.
+2. Dobrý! V první třídě bych to tak rychle nedal.
+3. Pecka! Ty jsi fakt borec.
+4. To bylo čistý, žádná chyba. Respekt!
+5. Super! Až se uvidíme, plácneme si.
+6. Takhle se kope! Diamantový krumpáč by sis zasloužil.
+
+**Po nepovedeném kole**
+1. V pohodě, to se stane i mně. Dej to znova!
+2. Klid, Adame. Pořádně se podívej a dáš to.
+3. Nevzdávej to, borče. Příště to bude!
+
+**Dnes ti fandí:** Čau Adame, tady Tomáš. Zahraj si, fandím ti!
