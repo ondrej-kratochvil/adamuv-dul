@@ -35,6 +35,11 @@ describe('uložený postup', () => {
     expect(importText(exportText(s))).toEqual(s);
     expect(importText('  ' + exportText(s) + '\n')).toEqual(s);
     expect(importText('ahoj')).toBeNull();
+  });
+  it('postup zkopírovaný z e-mailu se zalomenými řádky jde vložit (20. 10. 2026)', () => {
+    const s = defaults(); s.total = 36; s.gameName = 'Adamův důl'; s.ench = ['hat:Afinita k vodě:1'];
+    const wrapped = exportText(s).replace('Adamův důl', 'Adamův\r\ndůl').replace('Afinita k vodě', 'Afinita\nk \nvodě').replace(',"total"', ',\n"total"');
+    expect(importText(wrapped)).toEqual(s);
     expect(importText('{"a":1}')).toBeNull();
   });
 });

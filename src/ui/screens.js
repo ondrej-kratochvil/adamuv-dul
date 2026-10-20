@@ -12,7 +12,7 @@ import { drawFarm, farmStage, fitCanvas, mountDog, openFarm, openShop, sprIcon, 
 import { renderStreakBtn } from '../rewards/streak.js';
 import { renderFan } from '../world/family.js';
 import { renderEnchBook } from '../rewards/enchant.js';
-import { drawVillage, openVillage } from '../world/village.js';
+import { drawVillageThumb, openVillage } from '../world/village.js';
 import { drawNether, openNether, portalLit } from '../world/nether.js';
 import { cardWords, openAlbum } from '../rewards/cards.js';
 import { drawPrerov, openPrerov, prerovStage } from '../world/prerov.js';
@@ -84,19 +84,22 @@ function renderHome() {
   ab.addEventListener('click', openAlbum);
   wrap.appendChild(ab);
   const places = document.createElement('div'); places.className = 'places';
-  const card = (label, draw, open, locked) => {
-    const c = document.createElement('button'); c.className = 'house-card' + (locked ? ' locked' : ''); c.setAttribute('aria-label', label);
+  const card = (label, draw, open, locked, wide) => {
+    const c = document.createElement('button'); c.className = 'house-card' + (locked ? ' locked' : '') + (wide ? ' wide' : ''); c.setAttribute('aria-label', label);
     const cv = document.createElement('canvas'); cv.className = 'px'; draw(cv); c.appendChild(cv);
+    // všechny náhledy stejně vysoké; volné místo nad scénou má barvu její oblohy
+    try { const [r, g, b] = cv.getContext('2d').getImageData(1, 1, 1, 1).data; cv.style.backgroundColor = `rgb(${r},${g},${b})`; } catch (e) { /* nic */ }
     c.insertAdjacentHTML('beforeend', (locked ? LOCK_SVG : '') + `<span class="lvl-name">${label}</span>`);
     c.addEventListener('click', open);
     places.appendChild(c);
   };
+  // široké scény (farma, Přerov) přes celou šířku, ostatní po dvou stejně vysoké
   card('Můj dům', drawHouse, openHouse, false);
-  card('Farma', drawFarm, openFarm, farmStage() === 0);
   card('Stavění', drawBuild, openBuild, !buildOpen());
-  card('Vesnice', drawVillage, openVillage, false);
+  card('Farma', drawFarm, openFarm, farmStage() === 0, true);
+  card('Vesnice', drawVillageThumb, openVillage, false);
   card('Nether', drawNether, openNether, !portalLit());
-  card('Přerov', drawPrerov, openPrerov, prerovStage() === 0);
+  card('Přerov', drawPrerov, openPrerov, prerovStage() === 0, true);
   card('End', drawEnder, openEnder, !endOpen());
   wrap.appendChild(places);
   mountDog($('#heroDog'));

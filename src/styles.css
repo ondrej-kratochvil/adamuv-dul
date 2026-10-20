@@ -97,7 +97,11 @@ button:focus-visible { outline: 4px solid var(--gold); outline-offset: 3px; }
 .lvl[disabled] .blk { filter: saturate(.55) brightness(.75); }
 .lock { position: absolute; top: 8px; right: calc(50% - var(--tile) / 2 + 6px); width: 34px; height: 34px; }
 .places { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 18px; justify-items: center; }
-.house-card { position: relative; justify-self: center; background: none; border: 0; padding: 0; display: grid; justify-items: center; gap: 8px; }
+.house-card { position: relative; justify-self: center; align-self: start; background: none; border: 0; padding: 0; display: grid; align-content: start; justify-items: center; gap: 8px; }
+.places .house-card { width: 100%; }
+.places .house-card canvas { width: min(380px, 100%); aspect-ratio: 20 / 14; object-fit: contain; object-position: 50% 100%; } /* stejná výška náhledů, nápis hned pod obrázkem */
+.places .house-card.wide { grid-column: 1 / -1; }
+.places .house-card.wide canvas { width: min(780px, 100%); aspect-ratio: auto; }
 /* šatník */
 .ward { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr); gap: 16px; align-items: center; padding-block: 8px 16px; }
 .ward-preview { display: grid; place-items: center; min-height: 0; }

@@ -45,3 +45,8 @@ export const buildingStage = (got: number, all: number): number => got >= all ? 
 // oči Enderu podle celkového podílu; portál do Endu až se všemi
 export const EYES = 12;
 export const eyesFor = (pts: number, max: number): number => Math.min(EYES, Math.floor(pts / max * EYES));
+
+// vzácné věci v obchodě: kromě smaragdů potřebují podíl zvládnutých úkolů (Adam měl po 1. dni všechny obyčejné věci
+// a ještě 140 smaragdů; smaragdy se mají dál k něčemu hodit, ale vzácné věci jen za opravdové učení)
+export const rareNeed = (frac: number, max: number): number => Math.ceil(frac * max);
+export const rareLeft = (frac: number, pts: number, max: number): number => Math.max(0, rareNeed(frac, max) - pts);

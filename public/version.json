@@ -1,6 +1,15 @@
 {
-  "version": 25,
+  "version": 26,
   "changes": [
+    {
+      "version": 26,
+      "date": "2026-10-20",
+      "notes": [
+        "V obchodě jsou vzácné věci: lama, kůň, helikoptéra a zlatá věž. Odemknou se, když zvládneš víc úkolů.",
+        "Mísa ve Čtení má nový obrázek: modrá mísa s ovocem.",
+        "Smyčka v Psaní přijde až později, až ti půjde ostatní."
+      ]
+    },
     {
       "version": 25,
       "date": "2026-10-19",

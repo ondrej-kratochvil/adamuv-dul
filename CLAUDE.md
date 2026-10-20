@@ -32,6 +32,9 @@ přidej i odměny, aby Adam nedošel na strop dřív, než dojde obsah.
 - **Finále (End a Ender drak)**: 12 očí Enderu podle podílu zvládnutých úkolů, portál a boj až při 100 % (`endOpen()`).
   Boj = 20 smíšených úkolů ze všech pater (`genBoss`), odměna jednou (dračí hlava, dračí vejce, 100 smaragdů), opakovat jde.
   Když přibude obsah, oči se přepočítají samy (získané oči `save.eyes` zůstávají).
+- **Vzácné věci v obchodě** (`RARE` ve `world/farm.js`, `rareLeft` v `logic/rewards.ts`): kromě smaragdů potřebují podíl
+  zvládnutých úkolů (15, 30, 50, 75 %). Zavedeno 20. 10. 2026: Adam měl po prvním dni všechny obyčejné věci a 140 smaragdů.
+  Až Adam koupí všechno, přidat další vzácné věci, ať smaragdy mají k čemu být.
 - **Zvládnutý úkol** = `mastery() === 'good'` (aspoň 3× správně a poslední dobou bez chyby).
 - Odměny podle počtu kol (krumpáče, oblečení `at:`, dům 12 dílů, farma 10 dílů) končí kolem 22. kola;
   další dlouhodobé cíle mají být vázané na zvládnutí, ne na počet kol (jinak se vyplácí hrát lehké patro dokola).

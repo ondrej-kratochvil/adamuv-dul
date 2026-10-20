@@ -121,12 +121,18 @@ export function readingAfter(w: string): string {
 }
 
 /* ---------- psaní ---------- */
-// Nejdřív číslice 1 až 5, I, L, O a snadné cviky (vlnka, cikcak, kopečky). Smyčka a spirála až od 3. kola,
-// aby dlouhý cvik na začátku Adama neodradil.
+// Nejdřív číslice 1 až 5, I, L, O a snadné cviky (vlnka, cikcak, kopečky). Od 3. kola všechny číslice a písmena,
+// smyčka a spirála až od 8. povedeného kola (smyčka Adamovi 19. 10. 2026 nešla: 0 ze 2 a odešel z kola).
 export const WRITING_EASY = ['1', '2', '3', '4', '5', 'I', 'L', 'O', 'vlnka', 'cikcak', 'kopecky'];
+export const WRITING_HARD = ['smycka', 'spirala'];
+export const WRITING_HARD_FROM = 8;
 export const WRITING_ALL = [...'0123456789', ...'AEIOUYMLS', ...Object.keys(SHAPE_NAMES)];
+export function writingPool(rounds: number): string[] {
+  if (rounds < 3) return WRITING_EASY;
+  return rounds < WRITING_HARD_FROM ? WRITING_ALL.filter(c => !WRITING_HARD.includes(c)) : WRITING_ALL;
+}
 export function genWriting(ctx: Ctx): string {
-  const pool = ((ctx.rounds.writing || 0) < 3 ? WRITING_EASY : WRITING_ALL).filter(c => !ctx.recent.slice(-3).includes(c));
+  const pool = writingPool(ctx.rounds.writing || 0).filter(c => !ctx.recent.slice(-3).includes(c));
   // váha z chyb nejvýš 2: když se cvik nedaří, má se vracet, ale ne pořád dokola
   return weightedPick(pool, c => Math.min(2, weight(ctx.stats, 'writing', c)), ctx.rng);
 }

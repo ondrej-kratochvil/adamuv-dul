@@ -6,7 +6,7 @@ import { PIC, PIC_WORDS, PLURAL } from '../../src/content/pictures';
 import { GLYPHS } from '../../src/content/glyphs';
 import { ENCH_ORDER } from '../../src/content/enchants';
 import { WRITING_ALL } from '../../src/logic/tasks';
-import { BUILDING_STAGES, EYES, buildingStage, eyesFor, newEnchants, stuckMsFor } from '../../src/logic/rewards';
+import { BUILDING_STAGES, EYES, buildingStage, eyesFor, newEnchants, rareLeft, rareNeed, stuckMsFor } from '../../src/logic/rewards';
 import { masteryPoints } from '../../src/logic/mastery';
 
 const KNOWN = new Set(LETTERS);
@@ -58,5 +58,14 @@ describe('odměny: maximum až po zvládnutí všeho', () => {
     expect(stuckMsFor(0)).toBe(2000);
     expect(stuckMsFor(16)).toBe(1200);
     expect(stuckMsFor(99)).toBe(1200);
+  });
+});
+
+describe('vzácné věci v obchodě', () => {
+  it('odemknou se podílem zvládnutých úkolů, při 100 % všechny', () => {
+    expect(rareNeed(.15, 177)).toBe(27);
+    expect(rareLeft(.15, 20, 177)).toBe(7);
+    expect(rareLeft(.75, 177, 177)).toBe(0);
+    expect(rareLeft(.3, 500, 177)).toBe(0);
   });
 });

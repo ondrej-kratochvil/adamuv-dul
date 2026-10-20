@@ -1,6 +1,6 @@
 // Generátory úkolů: tisíce náhodných úkolů v každé fázi obtížnosti.
 import { describe, expect, it } from 'vitest';
-import { conflict, genLetters, genMath, genNumbers, genReading, genWords, genWriting, WRITING_EASY, type Ctx, type Task } from '../../src/logic/tasks';
+import { conflict, genLetters, genMath, genNumbers, genReading, genWords, genWriting, WRITING_EASY, WRITING_HARD, WRITING_HARD_FROM, writingPool, type Ctx, type Task } from '../../src/logic/tasks';
 import { choiceCount } from '../../src/logic/mastery';
 import { seeded } from '../../src/logic/random';
 import { GLYPHS } from '../../src/content/glyphs';
@@ -72,6 +72,11 @@ describe('psaní', () => {
     for (let s = 1; s <= 500; s++) seen.add(genWriting({ rounds: { writing: 0 }, stats: { 'writing:vlnka': { ok: 0, miss: 9 } }, recent: [], rng: seeded(s) }));
     expect([...seen].every(x => WRITING_EASY.includes(x))).toBe(true);
     expect(seen.has('spirala')).toBe(false);
+  });
+  it('smyčka a spirála až od 8. povedeného kola (smyčka Adamovi nešla, 20. 10. 2026)', () => {
+    for (let r = 0; r < WRITING_HARD_FROM; r++) for (const h of WRITING_HARD) expect(writingPool(r)).not.toContain(h);
+    for (const h of WRITING_HARD) expect(writingPool(WRITING_HARD_FROM)).toContain(h);
+    expect(writingPool(3)).toContain('A');
   });
   it('každý úkol psaní má tahy', () => {
     for (let s = 1; s <= 500; s++) expect(GLYPHS[genWriting(ctxFor('writing', 9, s))]?.length).toBeGreaterThan(0);

@@ -43,3 +43,34 @@ test('tank a vojáček jdou koupit a stojí na farmě', async ({ page }) => {
   await page.locator('#btnShopBack').click();
   await page.getByRole('button', { name: 'Farma', exact: true }).click();
 });
+
+// vzácné věci: Adam měl po prvním dni všechny obyčejné věci a 140 smaragdů (20. 10. 2026)
+const good = { ok: 3, miss: 0, n: 3 };
+function stats(nMath, nNumbers) {
+  const s = {};
+  for (let i = 0; i < nMath; i++) s[`math:${i}+1`] = good;
+  for (let i = 0; i <= nNumbers; i++) s[`numbers:${i}`] = good;
+  return s;
+}
+test('vzácná věc je zamčená, dokud Adam nezvládne dost úkolů', async ({ page }) => {
+  await openGame(page, { total: 25, emeralds: 200 });
+  await page.getByRole('button', { name: 'Obchod', exact: true }).click();
+  const lama = page.getByRole('button', { name: 'lama', exact: true });
+  await expect(lama).toHaveClass(/locked/);
+  await lama.click(); await lama.click();
+  await expect.poll(() => page.evaluate(() => window.__said.join(' '))).toContain('Odemkne se, až zvládneš ještě');
+  expect((await saved(page)).emeralds).toBe(200);
+});
+test('se zvládnutými úkoly jde lama koupit a stojí na farmě; helikoptéra ještě ne', async ({ page }) => {
+  await openGame(page, { total: 25, emeralds: 200, stats: stats(30, 20) });
+  await page.getByRole('button', { name: 'Obchod', exact: true }).click();
+  const lama = page.getByRole('button', { name: 'lama', exact: true });
+  await lama.click(); await lama.click();
+  const s = await saved(page);
+  expect(s.decor).toEqual(['lama']);
+  expect(s.emeralds).toBe(170);
+  await expect(page.getByRole('button', { name: 'helikoptéra', exact: true })).toHaveClass(/locked/);
+  await page.locator('#btnShopBack').click();
+  await page.getByRole('button', { name: 'Farma', exact: true }).click();
+  await page.screenshot({ path: 'test-results/farma-lama.png' });
+});

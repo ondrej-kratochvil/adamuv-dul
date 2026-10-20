@@ -35,7 +35,7 @@ Pravidla pro úpravy jsou v [`CLAUDE.md`](CLAUDE.md), rodinný kontext v `osobni
 | Čtení | `reading` | slovo na ceduli, vybere obrázek (`PIC`, 12 + množné č. OSY, ÚLY, LAMY, MÍSY) | množné číslo po 3 kolech |
 | Čísla | `numbers` | slyší číslo, najde ho | do 10, po 3 kolech do 20, po 7 do 100 |
 | Počty | `math` | sčítání a odčítání | do 10, do 20, pak i desítky do 100 |
-| Psaní | `writing` | jízda prstem ve vymezené dráze: číslice, tiskací písmena, cviky (vlnka, cikcak, kopečky, smyčka, spirála) | nejdřív 1–5, I, L, O, vlnka, cikcak, kopečky; smyčka a spirála od 3. kola |
+| Psaní | `writing` | jízda prstem ve vymezené dráze: číslice, tiskací písmena, cviky (vlnka, cikcak, kopečky, smyčka, spirála) | nejdřív 1–5, I, L, O, vlnka, cikcak, kopečky, od 3. kola vše ostatní; smyčka a spirála od 8. povedeného kola |
 
 Kolo = 8 úkolů (psaní 5). Kolo se počítá, když je dost úkolů bez chyby (přísnost 4/5/6 z 8, v psaní 3/4/5 z 5; `needClean()` v `logic/rewards.ts`).
 Za chybu se krumpáč zasekne (2 s, Ochrana zkracuje až na 1,2 s), v psaní vyjetí z dráhy = tah znovu.
@@ -46,7 +46,7 @@ Za chybu se krumpáč zasekne (2 s, Ochrana zkracuje až na 1,2 s), v psaní vyj
 |---|---|---|
 | Dům (12 dílů), farma (10 dílů, první je pes), krumpáče, oblečení `at:` | povedená kola (`save.total`) | `houseCells`, `drawFarm`, `TIERS`, `OUTFIT` |
 | Smaragdy | úkol bez chyby +1, kolo bez chyby +3, první kolo dne + délka řady (max 10), Štěstí | `breakBlock`, `endRound`, `registerDay` |
-| Obchod | obojky, pamlsek, ozdoby farmy (i tank a vojáček), totem (chrání řadu) | `renderShop`, `shopTap`, `DECOR` |
+| Obchod | obojky, pamlsek, ozdoby farmy (i tank a vojáček), totem (chrání řadu); vzácné věci (lama, kůň, helikoptéra, zlatá věž) navíc za 15–75 % zvládnutých úkolů | `renderShop`, `shopTap`, `DECOR`, `RARE` |
 | Řada dní, koruna (7 dní) | den s povedeným kolem | `registerDay`, `streakNow` |
 | Obsidián, portál do Netheru, 12 fází Netheru, kopání v Netheru | každý odehraný den | `drawNether`, `NETHER_STAGES`, `mineTex` |
 | Mláďata na farmě (8) | týden s aspoň 4 dny | `BABIES`, `weekKey` |

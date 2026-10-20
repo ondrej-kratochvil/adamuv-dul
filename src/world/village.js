@@ -72,6 +72,19 @@ function drawVillage(cv) {
   BUILDINGS.forEach((b, i) => drawBuilding(g, i * 10, b, bldStage(b)));
   snowFx(g, cv.width, cv.height);
 }
+// náhled na úvodní obrazovce: budovy ve dvou řadách (4 + 3), ať dlaždice není jen tenký proužek
+function drawVillageThumb(cv) {
+  const C = 16, W = 160 * 4, H = 448; cv.width = W; cv.height = H; const g = cv.getContext('2d'); g.imageSmoothingEnabled = false;
+  const grd = g.createLinearGradient(0, 0, 0, H); grd.addColorStop(0, '#6fb2ea'); grd.addColorStop(1, '#c6e6f8');
+  g.fillStyle = grd; g.fillRect(0, 0, W, H);
+  [128, 288].forEach((y, row) => {
+    g.save(); g.translate(row ? 80 : 0, y);
+    for (let x = -5; x < 45; x++) g.drawImage(texCanvas('grass'), x * C, 9 * C);
+    BUILDINGS.slice(row * 4, row * 4 + 4).forEach((b, i) => drawBuilding(g, i * 10, b, bldStage(b)));
+    g.restore();
+  });
+  snowFx(g, W, H);
+}
 function openVillage() {
   G.speechId++; if (synth) synth.cancel();
   show('village');
@@ -98,4 +111,4 @@ function checkVillage(silent) {
   return out;
 }
 
-export { BLD_STAGES, BUILDINGS, VILLAGE_BONUS, bldProgress, bldStage, checkVillage, drawBuilding, drawBuildingCard, drawVillage, openVillage, signCanvas, skyAndGround, villagerCanvas };
+export { BLD_STAGES, BUILDINGS, VILLAGE_BONUS, bldProgress, bldStage, checkVillage, drawBuilding, drawBuildingCard, drawVillage, drawVillageThumb, openVillage, signCanvas, skyAndGround, villagerCanvas };

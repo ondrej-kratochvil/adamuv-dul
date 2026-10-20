@@ -69,7 +69,8 @@ const PREFIX = 'ADAMUV-DUL-POSTUP:';
 export const exportText = (s: SaveState): string => PREFIX + JSON.stringify(s);
 // vrátí převedený stav, nebo null, když text není postup z této hry
 export function importText(text: string): SaveState | null {
-  const t = text.trim();
+  // e-mail dlouhý řádek zalomí (i uprostřed textu, třeba „Adamův důl“); konce řádků v JSON nejsou potřeba, nahradí je mezera
+  const t = text.replace(/\s*[\r\n]+\s*/g, ' ').trim();
   const json = t.startsWith(PREFIX) ? t.slice(PREFIX.length) : t;
   try {
     const raw = JSON.parse(json);
