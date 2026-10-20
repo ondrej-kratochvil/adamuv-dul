@@ -1,4 +1,5 @@
 // Název hry, který si vybral Adam
+import { notesBetween } from '../logic/version.ts';
 import { G } from '../core/state.js';
 import { $ } from '../core/dom.js';
 import { persist, save } from '../save/save.ts';
@@ -39,7 +40,7 @@ async function checkVersion() {
     if (!$('#home').hidden) renderHome();
   } catch (e) {}
 }
-const notesSince = (from, to) => (serverVersion ? serverVersion.changes : []).filter(c => c.version > from && c.version <= to).flatMap(c => c.notes);
+function notesSince(from, to) { return notesBetween(serverVersion ? serverVersion.changes : [], from, to); }
 let updateSpoken = 0; // novinky se přečtou jednou za spuštění
 function renderUpdate(wrap) {
   const box = document.createElement('div'); box.className = 'update';

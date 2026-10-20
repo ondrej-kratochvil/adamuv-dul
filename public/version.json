@@ -1,6 +1,13 @@
 {
-  "version": 32,
+  "version": 33,
   "changes": [
+    {
+      "version": 33,
+      "date": "2026-10-20",
+      "notes": [
+        "Když je novinek víc, hra je teď čte od nejstarší."
+      ]
+    },
     {
       "version": 32,
       "date": "2026-10-20",
