@@ -6,8 +6,8 @@ import { speak } from '../audio/speech.js';
 import { audio } from '../audio/sfx.js';
 import { gemWord, updateGems } from './farm.js';
 import { dayNum, dayStr, easterMonday, holidayOn } from '../logic/calendar.ts';
-import { FAMILY_LINES, MOM_OPEN } from '../content/family-lines.ts';
-import { momReminder, pickLine, remember } from '../logic/family.ts';
+import { EARLY_BIRD, FAMILY_LINES, MOM_OPEN } from '../content/family-lines.ts';
+import { earlyBird, helloFor, momReminder, pickLine, remember } from '../logic/family.ts';
 import { wornItems } from '../logic/family-wear.ts';
 import { wearById } from '../content/family-wear.ts';
 
@@ -115,6 +115,7 @@ function cheerFor(ok, milestone) {
   const mom = momReminder(new Date(), played, save.momSaid.ids);
   let p, line;
   if (mom) { p = fam('paja'); line = `${ok ? MOM_OPEN.ok : MOM_OPEN.fail} ${mom.text}`; save.momSaid.ids.push(mom.id); save.lastCheer = 'paja'; }
+  else if (earlyBird(new Date(), save.momSaid.ids)) { p = fam(EARLY_BIRD.who); line = ok ? EARLY_BIRD.ok : EARLY_BIRD.fail; save.momSaid.ids.push('ranni'); save.lastCheer = p.id; }
   else {
     p = pickPerson();
     const own = FAMILY_LINES[p.id] || { cheers: [], enc: [] };
@@ -132,7 +133,7 @@ function renderFan(wrap) {
   const faces = document.createElement('div'); faces.className = 'cheer'; faces.style.margin = 0;
   const people = h ? (h.all ? FAMILY : [fam(h.who)]) : [todaysFan()];
   const fc = document.createElement('div'); fc.className = 'faces' + (people.length > 2 ? ' many' : ''); people.forEach(p => fc.appendChild(famCanvas(p))); faces.appendChild(fc);
-  const text = h ? h.text + (gift ? ` Dárek od nás: ${gift} ${gemWord(gift)}.` : '') : ((FAMILY_LINES[people[0].id] || {}).hello || `Dneska ti fandí ${people[0].name}. Ahoj Adame, zahraj si!`);
+  const text = h ? h.text + (gift ? ` Dárek od nás: ${gift} ${gemWord(gift)}.` : '') : ((FAMILY_LINES[people[0].id] ? helloFor(FAMILY_LINES[people[0].id], new Date()) : '') || `Dneska ti fandí ${people[0].name}. Ahoj Adame, zahraj si!`);
   const bb = document.createElement('div'); bb.className = 'bubble'; bb.innerHTML = `<b>${people.length > 1 ? 'celá rodina' : people[0].name}</b>`; bb.append(text); faces.appendChild(bb);
   b.appendChild(faces); b.setAttribute('aria-label', text);
   b.addEventListener('click', () => { audio(); speak(text); });

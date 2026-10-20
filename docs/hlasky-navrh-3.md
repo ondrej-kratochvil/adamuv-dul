@@ -23,7 +23,7 @@
 
 **Dnes ti fandí:** Ahoj Adame, tady prababička Marcelka. Zahraj si, fandím ti!
 
-## Doplnění 20. 10. 2026 (draft, čeká na Ondřeje)
+## Doplnění 20. 10. 2026 (odsouhlaseno Ondřejem 20. 10. 2026, ve hře od verze 32)
 
 Nové údaje od Ondřeje (20. 10. 2026): Marcelka bydlí v Ostravě, potkávají se s ní na chatě, vstává brzo ráno.
 

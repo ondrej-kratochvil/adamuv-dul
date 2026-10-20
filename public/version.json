@@ -1,6 +1,14 @@
 {
-  "version": 31,
+  "version": 32,
   "changes": [
+    {
+      "version": 32,
+      "date": "2026-10-20",
+      "notes": [
+        "Prababička Marcelka má nové věty o Ostravě a chatě.",
+        "Když hraješ brzo ráno, pochválí tě jako ranní ptáče."
+      ]
+    },
     {
       "version": 31,
       "date": "2026-10-20",

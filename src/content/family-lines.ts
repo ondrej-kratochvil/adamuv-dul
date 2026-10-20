@@ -1,6 +1,7 @@
 // Hlášky rodiny (odsouhlasil Ondřej 19. 10. 2026, návrh v docs/hlasky-navrh.md; místa jsou skutečná a smí být veřejně).
 // cheers = po povedeném kole, enc = po nepovedeném kole, hello = „dnes ti fandí“ na úvodní obrazovce.
-export interface Lines { cheers: string[]; enc: string[]; hello: string }
+// helloMorning = pozdrav do 9:00 (když ho člověk má)
+export interface Lines { cheers: string[]; enc: string[]; hello: string; helloMorning?: string }
 
 export const FAMILY_LINES: Record<string, Lines> = {
   iva: {
@@ -166,9 +167,15 @@ export const FAMILY_LINES: Record<string, Lines> = {
       'Ty už čteš jako velký školák!',
       'Šikula! Až se uvidíme, všechno mi ukážeš.',
       'Paráda, Adame! Posílám ti pusu.',
+      // doplnění (Ostrava, chata), odsouhlaseno 20. 10. 2026
+      'Až se uvidíme na chatě, všechno mi ukážeš!',
+      'Tohle musím povědět až v Ostravě!',
+      'Pošlu ti z Ostravy velkou pusu!',
+      'Paráda! Na chatě si plácneme.',
     ],
-    enc: ['Nevadí, Adame. Pomalu a pozorně, a půjde to.', 'I prababička se kdysi učila písmenka. Zkus to znovu!', 'Každý se někdy splete. Fandím ti!'],
-    hello: 'Ahoj Adame, tady prababička Marcelka. Zahraj si, fandím ti!',
+    enc: ['Nevadí, Adame. Pomalu a pozorně, a půjde to.', 'I prababička se kdysi učila písmenka. Zkus to znovu!', 'Každý se někdy splete. Fandím ti!', 'Nevadí, Adame. Na chatě mi ukážeš, jak to dáš napodruhé.'],
+    hello: 'Ahoj Adame, tady prababička Marcelka z Ostravy. Zahraj si, fandím ti!',
+    helloMorning: 'Dobré ráno, Adame! Tady prababička Marcelka. Já už jsem dávno vzhůru. Zahraj si!',
   },
 };
 
@@ -182,6 +189,9 @@ export const MOM_SLOTS: MomSlot[] = [
   { id: 'vecere', from: '17:30', to: '19:00', text: 'Za chvíli je večeře, tak už dohraj.' },
   { id: 'spat', from: '19:30', to: '23:59', text: 'Teď ale čistit zuby, koupat a do postele.' },
 ];
+// Ranní ptáče: kolo dohrané před 7:30 okomentuje prababička Marcelka (vstává brzo, Ondřej 20. 10. 2026), jednou za den
+export const EARLY_BIRD = { who: 'marcelka', until: '07:30', ok: 'Ty jsi ranní ptáče jako já! Taky vstávám brzo. Výborně!', fail: 'Ráno je to ještě těžké, viď? Já vstávám brzo, a stejně se musím rozkoukat. Zkus to znovu!' };
+export const MORNING_UNTIL = '09:00'; // do kdy platí ranní pozdrav (helloMorning)
 export const MOM_OPEN = { ok: 'Výborně, Adame!', fail: 'Nevadí, broučku.' };
 export const MOM_PLAY_LIMIT_MIN = 30;
 export const MOM_PLAY_TEXT = 'Dneska už jsi hrál dlouho, Adame. Pojď si odpočinout, hra počká.';

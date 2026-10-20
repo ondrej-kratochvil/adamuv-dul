@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { FAMILY_LINES, MOM_SLOTS } from '../../src/content/family-lines';
-import { momReminder, pickLine, remember, NO_REPEAT } from '../../src/logic/family';
+import { earlyBird, helloFor, momReminder, pickLine, remember, NO_REPEAT } from '../../src/logic/family';
 import { seeded } from '../../src/logic/random';
 
 const at = (iso: string) => new Date(iso);
@@ -60,3 +60,18 @@ describe('máma se stará', () => {
     expect(momReminder(at('2026-10-20T15:00:00'), 99 * 60, ['dlouho'])).toBeNull();
   });
 });
+
+describe('prababička Marcelka vstává brzo (Ondřej 20. 10. 2026)', () => {
+  it('ranní ptáče jen před 7:30 a jednou za den', () => {
+    expect(earlyBird(at('2026-10-20T06:45:00'), [])).toBe(true);
+    expect(earlyBird(at('2026-10-20T07:29:00'), [])).toBe(true);
+    expect(earlyBird(at('2026-10-20T07:30:00'), [])).toBe(false);
+    expect(earlyBird(at('2026-10-20T06:45:00'), ['ranni'])).toBe(false);
+  });
+  it('ráno do 9:00 ranní pozdrav, jindy běžný; kdo ranní nemá, má běžný', () => {
+    expect(helloFor(FAMILY_LINES.marcelka, at('2026-10-20T08:59:00'))).toContain('Dobré ráno');
+    expect(helloFor(FAMILY_LINES.marcelka, at('2026-10-20T09:00:00'))).toContain('z Ostravy');
+    expect(helloFor(FAMILY_LINES.iva, at('2026-10-20T07:00:00'))).toBe(FAMILY_LINES.iva.hello);
+  });
+});
+

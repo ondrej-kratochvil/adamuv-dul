@@ -1,5 +1,5 @@
 // Výběr hlášek rodiny: vlastní věty častěji než společné, stejná věta nejdřív po pěti jiných, máma připomíná podle času.
-import { MOM_PLAY_LIMIT_MIN, MOM_PLAY_TEXT, MOM_SLOTS } from '../content/family-lines';
+import { EARLY_BIRD, MOM_PLAY_LIMIT_MIN, MOM_PLAY_TEXT, MOM_SLOTS, MORNING_UNTIL, type Lines } from '../content/family-lines';
 import { pad2 } from './calendar';
 import type { Rng } from './random';
 
@@ -32,3 +32,8 @@ export function momReminder(now: Date, playedTodaySecs: number, saidToday: reado
   if (playedTodaySecs >= MOM_PLAY_LIMIT_MIN * 60 && !saidToday.includes('dlouho')) return { id: 'dlouho', text: MOM_PLAY_TEXT };
   return null;
 }
+
+// ranní ptáče: před 7:30 a dnes ještě ne
+export const earlyBird = (now: Date, saidToday: readonly string[]): boolean => hhmm(now) < EARLY_BIRD.until && !saidToday.includes('ranni');
+// pozdrav na úvodní obrazovce: ráno ranní, když ho člověk má
+export const helloFor = (l: Lines, now: Date): string => (hhmm(now) < MORNING_UNTIL && l.helloMorning) || l.hello;
