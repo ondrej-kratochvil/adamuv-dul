@@ -1,6 +1,13 @@
 {
-  "version": 40,
+  "version": 41,
   "changes": [
+    {
+      "version": 41,
+      "date": "2026-10-20",
+      "notes": [
+        "Hodnocení kola si můžeš rozmyslet, platí to poslední číslo, na které klepneš."
+      ]
+    },
     {
       "version": 40,
       "date": "2026-10-20",

@@ -27,6 +27,13 @@ function logRound(ok, quit = false) {
   persist();
   if (!quit) renderRate();
 }
+// hodnocení se pošle do tabulky až konečné (Adam ťuká na víc čísel za sebou; 20. 10. 2026 přišly 4 řádky za 12 s)
+let pendingRate = null;
+function flushRate() {
+  if (!pendingRate || !pendingRate.rate) { pendingRate = null; return; }
+  const e = pendingRate; pendingRate = null;
+  queueRows([{ Druh: 'hodnocení', Patro: levelName(e.level), Hodnocení: e.rate }]);
+}
 const RATE_COLORS = ['#e05a45', '#e8704a', '#ee8a4e', '#f2a650', '#f4c153', '#e6cf55', '#c8d258', '#a6d25c', '#86cc5f', '#5fc062'];
 function renderRate() {
   const row = $('#rateRow'); row.innerHTML = '';
@@ -34,7 +41,7 @@ function renderRate() {
   for (let n = 1; n <= 10; n++) {
     const b = document.createElement('button'); b.textContent = n; b.style.background = RATE_COLORS[n - 1];
     b.setAttribute('aria-label', `${n} z 10`); b.setAttribute('aria-pressed', String(entry.rate === n));
-    b.addEventListener('click', () => { audio(); entry.rate = n; persist(); queueRows([{ Druh: 'hodnocení', Patro: levelName(entry.level), Hodnocení: n }]); renderRate(); tone(400 + n * 60, 0, .1, 'square', .05); speak(`${n} z 10. ${n >= 8 ? 'Super, to mě těší!' : n >= 5 ? 'Díky!' : 'Díky, zkusím to vylepšit.'}`); });
+    b.addEventListener('click', () => { audio(); entry.rate = n; persist(); pendingRate = entry; renderRate(); tone(400 + n * 60, 0, .1, 'square', .05); speak(`${n} z 10. ${n >= 8 ? 'Super, to mě těší!' : n >= 5 ? 'Díky!' : 'Díky, zkusím to vylepšit.'}`); });
     row.appendChild(b);
   }
 }
@@ -128,4 +135,4 @@ function copyStats() {
   try { navigator.clipboard.writeText(text).then(() => { $('#btnCopyStats').textContent = 'Zkopírováno'; }, fallback); } catch (e) { fallback(); }
 }
 
-export { fmtSecs, levelDetails, practiceList, LOG_MAX, RATE_COLORS, copyStats, fmtDate, fmtMin, fmtRate, itemLabel, kol, levelItems, levelSummary, logRound, mastery, openStats, renderRate, renderStats, statsText };
+export { flushRate, fmtSecs, levelDetails, practiceList, LOG_MAX, RATE_COLORS, copyStats, fmtDate, fmtMin, fmtRate, itemLabel, kol, levelItems, levelSummary, logRound, mastery, openStats, renderRate, renderStats, statsText };

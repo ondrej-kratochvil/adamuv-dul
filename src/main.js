@@ -21,7 +21,7 @@ import { initBabies } from './world/babies.js';
 import { startBoss } from './world/finale.js';
 import { applyName, checkVersion, gameName, openNames, renderVersion } from './app/name.js';
 import { iconizeButtons } from './ui/icons.js';
-import { openStats } from './app/stats.js';
+import { flushRate, openStats } from './app/stats.js';
 import { goHome, pauseRound, resumeRound, startRound } from './game/round.js';
 import { flushSync, initDevice } from './app/sync.js';
 import { clearFamily } from './world/dressup.js';
@@ -84,7 +84,7 @@ checkVersion(); // nová verze na serveru? (při startu a při návratu do hry)
 initDevice();
 flushSync(); // co čeká na odeslání do tabulky Google (třeba z doby bez internetu)
 addEventListener('online', () => flushSync());
-document.addEventListener('visibilitychange', () => { if (document.hidden) pauseRound(true); else { checkVersion(); flushSync(); } }); // odchod z aplikace = pauza
+document.addEventListener('visibilitychange', () => { if (document.hidden) { pauseRound(true); flushRate(); } else { checkVersion(); flushSync(); } }); // odchod z aplikace = pauza
 paintTextures();
 renderHome();
 // ikona na ploše a hraní bez internetu

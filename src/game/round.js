@@ -28,7 +28,7 @@ import { BABY_DAYS, babyCanvas } from '../world/babies.js';
 import { PREROV } from '../world/prerov.js';
 import { bossHit, bossVictory, curLevel, levelDef } from '../world/finale.js';
 import { setBtn } from '../ui/icons.js';
-import { logRound } from '../app/stats.js';
+import { flushRate, logRound } from '../app/stats.js';
 import { updateHint } from '../ui/hint.js';
 import { levelName, queueRows } from '../app/sync.js';
 import { restingLevel, suggestLevel } from '../logic/rotation.ts';
@@ -39,6 +39,7 @@ const ROUND_LEN = 8;
 const protectionLevels = () => ['hat', 'shirt', 'pants', 'shoes'].reduce((a, pc) => a + enchLevel(pc, 'Ochrana'), 0);
 const stuckMs = () => stuckMsFor(protectionLevels());
 function startRound(level) {
+  flushRate();
   const L = levelDef(level);
   G.R = { level, i: 0, busy: true, recent: [], loot: [], clean: 0, len: L.len || ROUND_LEN, start: Date.now(), pauses: 0, pauseMs: 0 };
   $('#game').classList.remove('paused'); $('#pauseOverlay').hidden = true;
@@ -343,6 +344,7 @@ function rotate(level) {
   return ` Patro ${LEVELS[level].name} si teď dá pauzu. Zkus ${name}: tlačítko se šipkou, je na něm napsáno Hrát ${name}.`;
 }
 function goHome() {
+  flushRate();
   $('#game').classList.remove('paused'); $('#pauseOverlay').hidden = true;
   G.speechId++; if (synth) synth.cancel();
   if (G.R && G.R.level !== 'boss' && G.R.i > 0 && G.R.i < G.R.len) logRound(false, true); // rozehrané a opuštěné kolo: signál, že nebaví

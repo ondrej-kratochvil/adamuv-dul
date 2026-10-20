@@ -103,3 +103,14 @@ test('vložený postup z jiného zařízení nepřebere název zařízení, adre
   expect(s.total).toBe(41);
   expect(s.sync).toMatchObject({ url: URL, device: 'počítač děda Bob', uid: 'pc01' });
 });
+
+test('hodnocení kola jde do tabulky jen jednou, s posledním číslem', async ({ page }) => {
+  await openGame(page, { total: 5, seenVersion: 999 });
+  await playRound(page, 'Písmena');
+  for (const n of ['7 z 10', '1 z 10', '8 z 10']) await page.getByRole('button', { name: n, exact: true }).click();
+  let q = (await saved(page)).sync.queue.filter(r => r.Druh === 'hodnocení');
+  expect(q.length).toBe(0);
+  await page.locator('#btnEndHome').click();
+  q = (await saved(page)).sync.queue.filter(r => r.Druh === 'hodnocení');
+  expect(q.map(r => r.Hodnocení)).toEqual([8]);
+});
