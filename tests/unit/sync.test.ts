@@ -1,6 +1,6 @@
 // Fronta pro tabulku Google (verze 27)
 import { describe, expect, it } from 'vitest';
-import { acknowledge, enqueue, ensureDevice, localStamp, QUEUE_MAX, syncDefaults, validSyncUrl } from '../../src/logic/sync';
+import { acknowledge, enqueue, ensureDevice, renameDevice, localStamp, QUEUE_MAX, syncDefaults, validSyncUrl } from '../../src/logic/sync';
 import { seeded } from '../../src/logic/random';
 
 describe('odesílání do tabulky Google', () => {
@@ -45,6 +45,16 @@ describe('více zařízení v jedné tabulce (21. 10. 2026)', () => {
   it('název, který už je nastavený, se nepřepíše', () => {
     const s = syncDefaults(); s.device = 'počítač děda Bob'; ensureDevice(s, true);
     expect(s.device).toBe('počítač děda Bob');
+  });
+});
+
+describe('přejmenování zařízení (20. 10. 2026)', () => {
+  it('čekající řádky dostanou nový název', () => {
+    const s = syncDefaults(); s.device = 'tablet'; s.uid = 'ab12';
+    enqueue(s, [{ Druh: 'kolo' }, { Druh: 'úloha' }], 1);
+    renameDevice(s, 'mobil táty');
+    expect(s.queue.map(r => r.Zařízení)).toEqual(['mobil táty', 'mobil táty']);
+    expect(s.device).toBe('mobil táty');
   });
 });
 

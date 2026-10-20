@@ -20,17 +20,20 @@ test('Procvičit je zamčené, dokud není co procvičovat', async ({ page }) =>
 
 test('kolo Procvičování dává jen slabé úlohy a počítá se jako kolo', async ({ page }) => {
   await openGame(page, { total: 5, stats: WEAK });
-  const seen = new Set();
+  const seen = new Set(), counts = {};
   page.on('console', () => {});
   await page.getByRole('button', { name: 'Procvičit', exact: true }).click();
   const end = page.locator('#endOverlay');
   for (let k = 0; k < 400 && !(await end.isVisible()); k++) {
     const key = await page.evaluate(() => { const r = window.__adam.R; if (!r || r.busy || r.stuck || !r.els) return null; const i = r.choices.indexOf(r.target); const key = r.statKey; r.els[i].click(); return key; });
-    if (key) seen.add(key);
+    if (key) { seen.add(key); counts[key] = (counts[key] || 0) + 1; }
     await page.waitForTimeout(40);
   }
   await expect(end).toBeVisible();
-  expect([...seen].every(k => ['reading:MÍSA', 'syllables:LÍ', 'numbers:68'].includes(k))).toBe(true);
+  // všechny slabé úlohy přijdou; každá nejvýš 2× za kolo, zbytek kola jsou běžné úlohy ze stejných pater
+  for (const k of ['reading:MÍSA', 'syllables:LÍ', 'numbers:68']) expect(seen.has(k), k).toBe(true);
+  expect([...seen].every(k => /^(reading|syllables|numbers):/.test(k))).toBe(true);
+  for (const k of ['reading:MÍSA', 'syllables:LÍ', 'numbers:68']) expect(counts[k], k).toBeLessThanOrEqual(2);
   const s = await saved(page);
   expect(s.practice).toBe(1);
   expect(s.total).toBe(6);

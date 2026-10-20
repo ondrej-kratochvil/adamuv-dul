@@ -60,9 +60,27 @@ export function weakItems(stats: Stats): WeakItem[] {
   return out.sort((a, b) => b.score - a.score);
 }
 
-// další úloha do procvičování: slabší častěji, ne dvakrát po sobě stejná
+// další úloha do procvičování: slabší častěji, ale pestře (Ondřej 20. 10. 2026: pořád mísa a písmeno E):
+// stejná úloha nejvýš 2× za kolo a nikdy dvakrát po sobě, čím častěji už byla, tím menší šance; null = nic dalšího
+export const PRACTICE_REPEAT_MAX = 2;
 export function pickPractice(weak: WeakItem[], recent: string[], rng: Rng = Math.random): WeakItem | null {
-  if (!weak.length) return null;
-  const pool = weak.filter(w => !recent.slice(-2).includes(w.level + ':' + w.item));
-  return weightedPick(pool.length ? pool : weak, w => w.score, rng);
+  const used = (w: WeakItem) => recent.filter(r => r === w.level + ':' + w.item).length;
+  const last = recent[recent.length - 1];
+  const pool = weak.filter(w => used(w) < PRACTICE_REPEAT_MAX && w.level + ':' + w.item !== last);
+  if (!pool.length) return null;
+  return weightedPick(pool, w => w.score / (1 + 2 * used(w)), rng);
+}
+// k slabým úlohám přidá ty, které se Adam teprve učí (aspoň jednou zkoušené, ještě nezvládnuté), ať je z čeho střídat
+export function practicePool(stats: Stats, min = 8): WeakItem[] {
+  const weak = weakItems(stats);
+  if (weak.length >= min) return weak;
+  const have = new Set(weak.map(w => w.level + ':' + w.item));
+  const extra: WeakItem[] = [];
+  for (const [k, s] of Object.entries(stats)) {
+    const [level, item] = split(k);
+    if (!PRACTICE_LEVELS.includes(level) || have.has(k) || mastery(s) !== 'mid') continue;
+    if (level === 'math') { const m = /^(\d+)([+-])(\d+)$/.exec(item); if (m && isCrossing(+m[1], m[2], +m[3]) && !crossingReady(stats)) continue; }
+    extra.push({ level, item, score: .6, why: ['učí se'] });
+  }
+  return [...weak, ...extra];
 }

@@ -1,7 +1,7 @@
 // Procvičování a doba řešení (verze 27, Ondřej 20. 10. 2026: „kolik času strávil u které úlohy, abychom ji mohli opakovat“)
 import { describe, expect, it } from 'vitest';
 import { avgSecs, recordResult, TASK_MS_MAX, type Stats } from '../../src/logic/mastery';
-import { confusions, pickPractice, quickWrongShare, slowItems, weakItems } from '../../src/logic/practice';
+import { confusions, pickPractice, practicePool, PRACTICE_REPEAT_MAX, quickWrongShare, slowItems, weakItems, type WeakItem } from '../../src/logic/practice';
 import { genPracticeTask, type Ctx } from '../../src/logic/tasks';
 import { seeded } from '../../src/logic/random';
 
@@ -56,6 +56,22 @@ describe('výběr úloh k procvičení', () => {
     const w = weakItems(st);
     for (let s = 1; s < 50; s++) expect(pickPractice(w, ['reading:MÍSA'], seeded(s))!.item).toBe('LÍ');
     expect(pickPractice([], [])).toBeNull();
+  });
+});
+
+describe('pestré procvičování (Ondřej 20. 10. 2026: pořád mísa a E)', () => {
+  const W: WeakItem[] = [{ level: 'reading', item: 'MÍSA', score: 8, why: [] }, { level: 'letters', item: 'E', score: 6, why: [] }, { level: 'syllables', item: 'LÍ', score: 1, why: [] }, { level: 'numbers', item: '19', score: 1, why: [] }];
+  it('stejná úloha nejvýš dvakrát za kolo a nikdy dvakrát po sobě', () => {
+    for (let s = 1; s <= 200; s++) {
+      const rng = seeded(s), picked: string[] = [];
+      for (let i = 0; i < 8; i++) { const w = pickPractice(W, picked, rng); if (!w) break; const k = w.level + ':' + w.item; expect(k).not.toBe(picked[picked.length - 1]); picked.push(k); }
+      for (const w of W) expect(picked.filter(k => k === w.level + ':' + w.item).length).toBeLessThanOrEqual(PRACTICE_REPEAT_MAX);
+      expect(new Set(picked).size).toBeGreaterThanOrEqual(4);
+    }
+  });
+  it('málo slabých úloh: doplní ty, které se teprve učí', () => {
+    const pool = practicePool({ 'reading:MÍSA': { ok: 2, miss: 3, n: 7 }, 'letters:E': { ok: 1, miss: 1, n: 2 }, 'letters:A': { ok: 1, miss: 0, n: 1 }, 'letters:O': { ok: 5, miss: 0, n: 5 }, 'syllables:MA': { ok: 2, miss: 0, n: 2 } });
+    expect(pool.map(w => w.item).sort()).toEqual(['A', 'E', 'MA', 'MÍSA']);
   });
 });
 

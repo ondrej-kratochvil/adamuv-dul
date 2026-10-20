@@ -1,6 +1,14 @@
 {
-  "version": 39,
+  "version": 40,
   "changes": [
+    {
+      "version": 40,
+      "date": "2026-10-20",
+      "notes": [
+        "Když hraješ jedno patro třikrát za sebou, dá si pauzu. Hra ti nabídne jiné patro, pak se můžeš vrátit.",
+        "Procvičování teď střídá víc úkolů, žádný nepřijde víc než dvakrát."
+      ]
+    },
     {
       "version": 39,
       "date": "2026-10-21",

@@ -32,6 +32,13 @@ export function ensureDevice(s: SyncState, touch: boolean, rng: () => number = M
   if (!s.uid) s.uid = newUid(rng);
 }
 
+// přejmenování zařízení: i řádky, které ještě čekají na odeslání, dostanou nový název (Ondřej 20. 10. 2026: při zadání
+// názvu i adresy najednou odešly řádky se starým výchozím názvem)
+export function renameDevice(s: SyncState, name: string): void {
+  s.device = name;
+  for (const r of s.queue) r.Zařízení = name;
+}
+
 export function acknowledge(s: SyncState, ids: string[], now: number): void {
   const set = new Set(ids);
   const before = s.queue.length;

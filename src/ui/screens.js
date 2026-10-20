@@ -27,6 +27,7 @@ import { levelProgress } from '../logic/mastery.ts';
 import { openFamily } from '../world/dressup.js';
 import { FAMILY, famCanvas } from '../world/family.js';
 import { practiceReady } from '../levels/practice.js';
+import { restingLevel, suggestLevel } from '../logic/rotation.ts';
 
 function show(id) { ['home', 'game', 'house', 'wardrobe', 'farm', 'shop', 'stats', 'village', 'nether', 'album', 'prerov', 'ender', 'build', 'family'].forEach(s => { $('#' + s).hidden = s !== id; }); }
 function paintTextures(root = document) {
@@ -57,6 +58,7 @@ function renderHome() {
   renderFan(wrap);
   // dlaždice pater a dalších obrazovek; na velké obrazovce sloupec vlevo, místa (dům, farma…) vpravo
   const tiles = document.createElement('div'); tiles.className = 'tiles'; wrap.appendChild(tiles);
+  const resting = restingLevel(save.log, Object.keys(LEVELS));
   Object.entries(LEVELS).forEach(([key, L]) => {
     const btn = document.createElement('button'); btn.className = 'lvl'; btn.setAttribute('aria-label', L.name);
     const b = blockEl(L.tex, '', !!L.small); b.tabIndex = -1; b.setAttribute('aria-hidden', 'true');
@@ -65,7 +67,9 @@ function renderHome() {
     // ukazatel zvládnutí patra (Ondřej 20. 10. 2026): kolik úloh z kolika umí
     const p = levelProgress(save.stats, key), pct = Math.round(p.got / p.all * 100);
     btn.insertAdjacentHTML('beforeend', `<span class="lvl-name">${L.name}</span><span class="lvl-bar" aria-hidden="true"><i style="width:${pct}%"></i></span><span class="lvl-sub">${p.got} z ${p.all}</span>`);
-    btn.addEventListener('click', () => { audio(); startRound(key); });
+    // patro, které si po 3 kolech za sebou dává pauzu: tlačítko řekne, co hrát místo něj (logic/rotation.ts)
+    if (key === resting) { btn.classList.add('resting'); btn.insertAdjacentHTML('beforeend', '<span class="lvl-rest">odpočívá</span>'); }
+    btn.addEventListener('click', () => { audio(); if (key === resting) { sfx.nope(); const sug = LEVELS[suggestLevel(save.log, Object.keys(LEVELS), key)].name; speak(`Patro ${L.name} si teď dává pauzu, hrál jsi ho třikrát za sebou. Zahraj si jiné patro, třeba ${sug}. Pak se sem můžeš vrátit.`); return; } startRound(key); });
     tiles.appendChild(btn);
   });
   // Procvičit: kolo z úloh, které Adamovi nejdou (levels/practice.js); dokud žádné nejsou, je zamčené

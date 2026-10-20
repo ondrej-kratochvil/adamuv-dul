@@ -37,13 +37,15 @@ přidej i odměny, aby Adam nedošel na strop dřív, než dojde obsah.
   Až Adam koupí všechno, přidat další vzácné věci, ať smaragdy mají k čemu být.
 - **Procvičování** (`logic/practice.ts`, `levels/practice.js`, dlaždice Procvičit): kolo z úloh s chybami, záměnami nebo dlouhým
   přemýšlením (`weakItems`), odměny jako za běžné kolo, počítá se do `save.practice`. Psaní ne (jiný druh úkolu).
-  Otevře se od 3 slabých úloh. Zavedeno 20. 10. 2026 (Ondřej: „kolik času strávil u které úlohy, abychom ji mohli opakovat“).
+  Otevře se od 3 slabých úloh. Pestré: úloha nejvýš 2× za kolo, ne dvakrát po sobě, doplní se úlohy „učí se“ (`practicePool`). Zavedeno 20. 10. 2026 (Ondřej: „kolik času strávil u které úlohy, abychom ji mohli opakovat“).
 - **Převlékání rodiny** (`content/family-wear.ts`, `logic/family-wear.ts`, `world/dressup.js`, dlaždice Rodina): kousky za smaragdy,
   koupený kousek má Adam napořád a dá ho komukoli (na každé místo jeden). Vzácné (`need`) jen za podíl zvládnutých úkolů.
   Převlečený portrét je vidět všude (`famCanvas`). Zavedeno 20. 10. 2026 jako zábava a další využití smaragdů.
 - **Nástroje** (`content/tools.ts`, `logic/tools.ts`): meč, sekera, lopata, motyka v 6 materiálech; materiál podle podílu
   zvládnutých úkolů v patrech nástroje (`MATERIAL_STEPS`), netherit až při 100 %, dosažený se nebere (`save.gear.stages`).
   Krumpáč dál podle povedených kol (`TIERS`). Nové patro přiřadit k nástroji (test to hlídá).
+- **Střídání pater** (`logic/rotation.ts`): po 3 kolech stejného patra za sebou patro „odpočívá“ (dlaždice ztlumená, konec kola nabídne
+  „Hrát …“ jiné patro, to nejdéle nehrané); otevře se po kole jiného patra. Ondřej 20. 10. 2026 (Adam hrál 10× za sebou Čísla).
 - **Zvládnutý úkol** = `mastery() === 'good'` (aspoň 3× správně a poslední dobou bez chyby).
 - Odměny podle počtu kol (krumpáče, oblečení `at:`, dům 12 dílů, farma 10 dílů) končí kolem 22. kola;
   další dlouhodobé cíle mají být vázané na zvládnutí, ne na počet kol (jinak se vyplácí hrát lehké patro dokola).

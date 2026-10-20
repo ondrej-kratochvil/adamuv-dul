@@ -31,6 +31,7 @@ import { setBtn } from '../ui/icons.js';
 import { logRound } from '../app/stats.js';
 import { updateHint } from '../ui/hint.js';
 import { levelName, queueRows } from '../app/sync.js';
+import { restingLevel, suggestLevel } from '../logic/rotation.ts';
 
 const ROUND_LEN = 8;
 // kolik kostek z 8 musí být bez chyby, aby dům rostl
@@ -255,7 +256,7 @@ function endRound() {
     $('#endOverlay').hidden = false;
     sfx.nope();
     const enc = cheerFor(false);
-    speak(`Tentokrát ${grewNot}. Bez chyby jsi měl ${got} z ${R_len}, potřebuješ aspoň ${need}. ${enc}${enchTalk}${vilTalk}${cardTalk}`);
+    speak(`Tentokrát ${grewNot}. Bez chyby jsi měl ${got} z ${R_len}, potřebuješ aspoň ${need}. ${enc}${enchTalk}${vilTalk}${cardTalk}${rotate(level)}`);
     $('#btnAgain').focus({ preventScroll: true });
     return;
   }
@@ -309,7 +310,8 @@ function endRound() {
   const dayTalk = day ? (day.usedTotem ? ` Totem zachránil tvou řadu!` : '') + (day.count > 1 ? ` Hraješ ${day.count} ${dayWord(day.count)} v řadě, bonus ${day.bonus} ${gemWord(day.bonus)}.` : ` Dnešní den se počítá do řady, bonus ${day.bonus} ${gemWord(day.bonus)}.`) : '';
   // pokrok na domě nebo farmě říct nahlas (Ondřej 19. 10. 2026), po hotové farmě už ne
   const grewTalk = st <= FARM_START + FARM_STAGES.length ? ' ' + grew : '';
-  speak((perfect ? 'Bez jediné chyby! ' : '') + cheer + grewTalk + (newTier ? ` Máš nový ${after.name} krumpáč!` : '') + story + dayTalk + netherTalk + babyTalk + prerovTalk + toolTalk + enchTalk + vilTalk + cardTalk + (fresh.length ? ` V šatníku máš ${fresh.map(([, it]) => it.name).join(' a ')}.` : ''));
+  const rot = rotate(level);
+  speak((perfect ? 'Bez jediné chyby! ' : '') + cheer + grewTalk + (newTier ? ` Máš nový ${after.name} krumpáč!` : '') + story + dayTalk + netherTalk + babyTalk + prerovTalk + toolTalk + enchTalk + vilTalk + cardTalk + (fresh.length ? ` V šatníku máš ${fresh.map(([, it]) => it.name).join(' a ')}.` : '') + rot);
   $('#btnAgain').focus({ preventScroll: true });
 }
 // Pauza (Ondřej 20. 10. 2026): zadání se schová, čas stojí; v deníku a tabulce se pauza odliší od odchodu z kola
@@ -330,6 +332,15 @@ function resumeRound() {
   $('#game').classList.remove('paused'); $('#pauseOverlay').hidden = true;
   if (G.R.resumeNext || G.R.busy) { G.R.resumeNext = false; G.R.busy = true; nextTask(); }
   else if (G.R.say) speak(G.R.say);
+}
+// po 3 kolech stejného patra nabídne tlačítko jiné patro (logic/rotation.ts); vrací větu k přečtení
+function rotate(level) {
+  const rest = restingLevel(save.log, Object.keys(LEVELS));
+  if (rest !== level) return '';
+  const sug = suggestLevel(save.log, Object.keys(LEVELS), level), name = LEVELS[sug].name;
+  $('#endOverlay').dataset.level = sug;
+  setBtn($('#btnAgain'), 'next', `Hrát ${name}`);
+  return ` Patro ${LEVELS[level].name} si teď dá pauzu. Zkus ${name}: tlačítko se šipkou, je na něm napsáno Hrát ${name}.`;
 }
 function goHome() {
   $('#game').classList.remove('paused'); $('#pauseOverlay').hidden = true;

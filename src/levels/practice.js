@@ -3,16 +3,18 @@ import { G } from '../core/state.js';
 import { save } from '../save/save.ts';
 import { ctx } from '../game/ctx.js';
 import * as T from '../logic/tasks.ts';
-import { PRACTICE_MIN, pickPractice, weakItems } from '../logic/practice.ts';
+import { PRACTICE_MIN, pickPractice, practicePool, weakItems } from '../logic/practice.ts';
 import { partLabel } from '../content/pictures.ts';
 import { display } from './reading.js';
 
 function practiceReady() { return weakItems(save.stats).length >= PRACTICE_MIN; }
 function genPractice() {
   // seznam slabých úloh platí celé kolo (správná odpověď úlohu ze seznamu hned nevyřadí)
-  if (!G.R.weak) G.R.weak = weakItems(save.stats);
-  const w = pickPractice(G.R.weak, G.R.recent) || { level: 'letters', item: 'A' };
-  G.R.recent.push(w.level + ':' + w.item);
+  if (!G.R.weak) G.R.weak = practicePool(save.stats);
+  if (!G.R.picked) G.R.picked = [];
+  // když už se všechno zopakovalo dvakrát: běžný úkol z patra, kde Adam má slabé úlohy
+  const w = pickPractice(G.R.weak, G.R.picked) || { level: G.R.weak[Math.floor(Math.random() * G.R.weak.length)].level, item: '' };
+  G.R.picked.push(w.level + ':' + w.item);
   const t = T.genPracticeTask(w.level, w.item, ctx());
   return w.level === 'reading' ? { ...t, task: partLabel(t.answer, display(t.answer)) } : t;
 }

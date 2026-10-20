@@ -13,7 +13,7 @@ import { streakNow } from '../rewards/streak.js';
 import { renderNotes } from '../world/family.js';
 import { ENCH_ORDER, masteryPoints } from '../rewards/enchant.js';
 import { backfillLog, flushSync } from '../app/sync.js';
-import { syncDefaults, validSyncUrl } from '../logic/sync.ts';
+import { renameDevice, syncDefaults, validSyncUrl } from '../logic/sync.ts';
 
 function updateVoiceInfo() {
   const el = $('#voiceInfo'); if (!el) return;
@@ -64,6 +64,7 @@ function updateSync(msg) {
     : `Odesláno ${s.sent} záznamů${s.last ? `, naposledy ${fmtWhen(s.last)}` : ''}. Čeká na odeslání: ${s.queue.length}.${s.error ? ` Poslední chyba: ${s.error}` : ''}`);
 }
 $('#btnSyncSave').addEventListener('click', () => {
+  const dn = $('#syncDevice').value.trim(); if (dn && dn !== save.sync.device) renameDevice(save.sync, dn.slice(0, 40)); // název i adresa v jednom kroku
   const u = $('#syncUrl').value.trim();
   if (u && !validSyncUrl(u)) { updateSync('Tohle není adresa nasazeného skriptu. Má vypadat jako https://script.google.com/macros/s/…/exec'); return; }
   save.sync.url = u; save.sync.error = ''; persist();
@@ -77,7 +78,7 @@ async function syncNow() {
   await flushSync(); updateSync();
 }
 $('#btnSyncNow').addEventListener('click', syncNow);
-$('#syncDevice').addEventListener('change', e => { const v = e.target.value.trim(); if (v) { save.sync.device = v.slice(0, 40); persist(); updateSync('Název uložen. Nové záznamy půjdou do tabulky s tímhle názvem.'); } });
+$('#syncDevice').addEventListener('change', e => { const v = e.target.value.trim(); if (v) { renameDevice(save.sync, v.slice(0, 40)); persist(); updateSync('Název uložen. Nové záznamy půjdou do tabulky s tímhle názvem.'); } });
 $('#btnResetNo').addEventListener('click', () => { $('#resetConfirm').hidden = true; });
 $('#btnResetYes').addEventListener('click', () => { try { localStorage.setItem(BACKUP_KEY, JSON.stringify(save)); } catch (e) {} const keep = { sync: { ...syncDefaults(), url: save.sync.url, device: save.sync.device, uid: save.sync.uid }, caseMode: save.caseMode, slow: save.slow, strict: save.strict, pron: save.pron, outfit: save.outfit, notes: save.notes, dogName: save.dogName }; /* nastavení rodiče včetně výslovnosti zůstává */ replaceSave(Object.assign(defaults(), keep)); persist(); updateRestore(); $('#resetConfirm').hidden = true; updateSettings(); });
 
