@@ -1,14 +1,13 @@
 # Hlášky nových příbuzných: návrh k odsouhlasení
 
 > **Co:** návrh vlastních hlášek pro nové příbuzné (po povedeném kole, po nepovedeném kole, „dnes ti fandí“)
-> **Stav:** draft (čeká na Ondřeje)
+> **Stav:** hotovo (Ondřej odsouhlasil 20. 10. 2026: „hlášky schvaluju“). Platné znění je v `src/content/family-lines.ts`.
 > **Stav k:** 20. 10. 2026
 > **Souhrn:**
-> - Vašek, Terka a Víťa (od verze 28), praděda Ruda, Šárka a Tomáš (od verze 29) mají portrét, převlékání a vzkazy, ale zatím nefandí (`quiet` v `src/world/family.js`).
+> - Vašek, Terka, Víťa, praděda Ruda, Šárka a Tomáš fandí od verze 30, jen vlastními větami (`own` v `src/world/family.js`).
 > - Víťa je stejně starý jako Adam a taky chodí do 1. třídy: kamarádsky popichuje („to bych dal taky“), nikdy nezesměšňuje.
 > - O nových příbuzných nevím nic dalšího (bydliště, záliby, co s Adamem dělají), proto věty bez míst a podrobností; doplním, co Ondřej řekne.
 > - Tomášovi je 18: mluví jako velký kluk, kterého Adam může obdivovat. Šárka a Tomáš jen jménem (Ondřej).
-> - Po odsouhlasení: hlášky do `src/content/family-lines.ts`, u schválených pryč `quiet`.
 > - Prababička Marcelka (Markova máma) čeká na podobu (fotka nebo popis).
 > **Souvisí:** `docs/hlasky-navrh.md` (první várka), `CLAUDE.md` (údaje o rodině jen podle Ondřeje)
 

@@ -23,16 +23,17 @@ const FAMILY = [
   { id: 'david', name: 'brácha Davídek', gen: 'bráchy Davídka', f: false, hair: '#ecd27e', top: '#e0b324', small: true },
   // rodina Pájina bratra (Ondřej 20. 10. 2026): barvy vlasů z jeho odpovědí, brýle u Terky a vousy u Vaška podle jeho fotek;
   // délku vlasů Terky Ondřej neuvedl, má stejný střih jako máma
-  { id: 'vasek', name: 'strejda Vašek', gen: 'strejdy Vaška', f: false, hair: '#4a2a14', top: '#2a4f8a', beard: true, quiet: true },
-  { id: 'terka', name: 'teta Terka', gen: 'tety Terky', f: true, hair: '#4a2a14', long: true, glasses: true, top: '#d86a9a', quiet: true },
-  // bratranec Víťa: stejně starý jako Adam, taky 1. třída. Vašek, Terka i Víťa fandí až s vlastními hláškami
-  // odsouhlasenými Ondřejem (návrh docs/hlasky-navrh-2.md); do té doby quiet: jen vzkazy a převlékání
-  { id: 'vita', name: 'bratranec Víťa', gen: 'bratrance Víti', f: false, hair: '#a07a52', top: '#3f9b3a', kid: true, quiet: true },
+  { id: 'vasek', name: 'strejda Vašek', gen: 'strejdy Vaška', f: false, hair: '#4a2a14', top: '#2a4f8a', beard: true, own: true },
+  { id: 'terka', name: 'teta Terka', gen: 'tety Terky', f: true, hair: '#4a2a14', long: true, glasses: true, top: '#d86a9a', own: true },
+  // bratranec Víťa: stejně starý jako Adam, taky 1. třída. Noví příbuzní (own) říkají jen své odsouhlasené věty
+  // (Ondřej 20. 10. 2026, docs/hlasky-navrh-2.md), ne společné typu „To je můj šikovný kluk!“
+  { id: 'vita', name: 'bratranec Víťa', gen: 'bratrance Víti', f: false, hair: '#a07a52', top: '#3f9b3a', kid: true, own: true },
   // praděda Ruda (Ivin táta), Šárka (Markova žena) a její syn Tomáš (18): oslovení podle Ondřeje, podoba podle jeho fotek 20. 10. 2026.
-  // Prababička Marcelka (Markova máma) chybí, dokud Ondřej neřekne nebo neukáže, jak vypadá.
-  { id: 'ruda', name: 'praděda Ruda', gen: 'pradědy Rudy', f: false, hair: '#ececec', top: '#5a6e8a', quiet: true },
-  { id: 'sarka', name: 'Šárka', gen: 'Šárky', f: true, hair: '#5a3418', long: true, top: '#f2f2f2', quiet: true },
-  { id: 'tomas', name: 'Tomáš', gen: 'Tomáše', f: false, hair: '#a07a52', buzz: true, top: '#f2f2f2', quiet: true },
+  { id: 'ruda', name: 'praděda Ruda', gen: 'pradědy Rudy', f: false, hair: '#ececec', top: '#5a6e8a', own: true },
+  { id: 'sarka', name: 'Šárka', gen: 'Šárky', f: true, hair: '#5a3418', long: true, top: '#f2f2f2', own: true },
+  // prababička Marcelka (Markova máma): krátké tmavě hnědé vlasy a brýle podle Ondřejovy fotky 20. 10. 2026; hlášky čekají na schválení
+  { id: 'marcelka', name: 'prababička Marcelka', gen: 'prababičky Marcelky', f: true, hair: '#3a2414', bob: 6, glasses: true, top: '#9ad8c8', quiet: true },
+  { id: 'tomas', name: 'Tomáš', gen: 'Tomáše', f: false, hair: '#a07a52', buzz: true, top: '#f2f2f2', own: true },
 ];
 // kamarádi ze třídy: jen vzkazy, bez podoby ve hře (dokud ji neřekne Ondřej), místo obličeje obálka
 const FRIENDS = [
@@ -84,7 +85,7 @@ const ENCOURAGE = [
   p => 'Pomalu a pozorně, a půjde to. Věřím ti!',
   p => `I ${g2(p, 'já jsem se to musela', 'já jsem se to musel')} učit. Zkus to ještě jednou!`,
 ];
-const FANS = FAMILY.filter(p => !p.quiet); // kdo fandí (bez odsouhlasených hlášek ne)
+const FANS = FAMILY.filter(p => !p.quiet); // kdo fandí (člen bez odsouhlasených hlášek má quiet)
 function pickPerson() { const opts = FANS.filter(p => p.id !== save.lastCheer); const p = pick(Math.random, opts); save.lastCheer = p.id; return p; }
 // kdo dnes fandí: každý den někdo jiný, podle data
 function todaysFan() { const n = dayNum(dayStr()); return FANS[((n % FANS.length) + FANS.length) % FANS.length]; }
@@ -117,7 +118,7 @@ function cheerFor(ok, milestone) {
   else {
     p = pickPerson();
     const own = FAMILY_LINES[p.id] || { cheers: [], enc: [] };
-    line = pickLine(ok ? own.cheers : own.enc, (ok ? CHEERS : ENCOURAGE).map(f => f(p)), save.recentLines || []);
+    line = pickLine(ok ? own.cheers : own.enc, p.own ? [] : (ok ? CHEERS : ENCOURAGE).map(f => f(p)), save.recentLines || []);
   }
   save.recentLines = remember(save.recentLines || [], line);
   showCheer([p], line); persist();

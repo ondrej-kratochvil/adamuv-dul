@@ -48,5 +48,5 @@ test('převlečený portrét je vidět i na úvodní obrazovce a Sundat všechno
 test('noví příbuzní můžou poslat vzkaz', async ({ page }) => {
   await openGame(page, { total: 5 });
   await openSettings(page);
-  for (const n of ['strejda Vašek', 'teta Terka', 'bratranec Víťa', 'praděda Ruda', 'Šárka', 'Tomáš']) await expect(page.locator('#noteWho').getByRole('button', { name: n, exact: true })).toBeVisible();
+  for (const n of ['strejda Vašek', 'teta Terka', 'bratranec Víťa', 'praděda Ruda', 'Šárka', 'Tomáš', 'prababička Marcelka']) await expect(page.locator('#noteWho').getByRole('button', { name: n, exact: true })).toBeVisible();
 });

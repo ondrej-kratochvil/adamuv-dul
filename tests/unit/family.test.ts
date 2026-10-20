@@ -7,12 +7,17 @@ const at = (iso: string) => new Date(iso);
 
 describe('hlášky rodiny', () => {
   it('každý má vlastní pochvaly, povzbuzení a pozdrav', () => {
-    for (const id of ['paja', 'ondra', 'jindra', 'bob', 'iva', 'marek', 'david']) {
+    for (const id of ['paja', 'ondra', 'jindra', 'bob', 'iva', 'marek', 'david', 'vita', 'vasek', 'terka', 'ruda', 'sarka', 'tomas']) {
       const l = FAMILY_LINES[id];
       expect(l.cheers.length, id).toBeGreaterThanOrEqual(6);
       expect(l.enc.length, id).toBeGreaterThanOrEqual(2);
       expect(l.hello.length, id).toBeGreaterThan(5);
     }
+  });
+  it('noví příbuzní (own) říkají jen své věty, i když se opakují', () => {
+    const own = FAMILY_LINES.vita.cheers;
+    let recent: string[] = []; const rng = seeded(5);
+    for (let i = 0; i < 40; i++) { const l = pickLine(own, [], recent, rng); expect(own).toContain(l); recent = remember(recent, l); }
   });
   it('vlastní věty asi ze 70 %, nedávné se neopakují', () => {
     const own = ['a', 'b', 'c', 'd', 'e', 'f', 'g'], common = ['x', 'y', 'z'];

@@ -85,6 +85,79 @@ export const FAMILY_LINES: Record<string, Lines> = {
     enc: ['Nevadí, Adam! Znovu!', 'Adam, já ti fandím!'],
     hello: 'Ahoj Adam! Já fandím! Chceš popolu?',
   },
+  vita: { // Bratranec Víťa (stejně starý, 1. třída) (odsouhlasil Ondřej 20. 10. 2026, docs/hlasky-navrh-2.md)
+    cheers: [
+      'Hm, dobrý. Ale já bych to dal taky!',
+      'To bylo rychlý! Schválně, kdo z nás to dá dřív.',
+      'Taky chodím do první třídy, tohle bych zvládl. Ale dals to fakt dobře!',
+      'No jo, šikula. Příště to zkusím já a uvidíme!',
+      'Páni, bez chyby? To musím zkusit taky!',
+      'Tak jo, uznávám, to bylo dobrý. Plácneme si!',
+      'Dobrý, Adame! Ale moje písmenka jsou stejně hezčí.',
+    ],
+    enc: ['Ha, tohle by mi šlo! Ale nevadí, zkus to znovu.', 'Taky se mi to někdy nepovede. Příště to dáš!', 'Hele, dívej se pořádně na každý písmenko. Ty to zvládneš!'],
+    hello: 'Ahoj Adame, tady Víťa! Schválně, kolik toho dneska dáš. Já bych to dal taky!',
+  },
+  vasek: { // Strejda Vašek (odsouhlasil Ondřej 20. 10. 2026, docs/hlasky-navrh-2.md)
+    cheers: [
+      'Výborně, Adame! Strejda má radost.',
+      'Ty jsi ale šikula! To musím říct Víťovi.',
+      'Takhle se to dělá! Víťa bude koukat.',
+      'Paráda! Až se uvidíme, dáme si plácnutí.',
+      'Dobrá práce, Adame! Jen tak dál.',
+      'Super! Lepšího horníka neznám.',
+    ],
+    enc: ['Nevadí, Adame. Zkus to znovu, strejda ti fandí!', 'Pomalu a pozorně, a půjde to.', 'Chybami se člověk učí. Příště to dáš!'],
+    hello: 'Ahoj Adame, tady strejda Vašek. Zahraj si, fandím ti!',
+  },
+  terka: { // Teta Terka (odsouhlasil Ondřej 20. 10. 2026, docs/hlasky-navrh-2.md)
+    cheers: [
+      'Adame, to je paráda! Teta je na tebe pyšná.',
+      'Ty už čteš jako velký školák!',
+      'Šikula! To musím povědět Víťovi.',
+      'Výborně! Až se uvidíme, všechno mi ukážeš.',
+      'To se ti povedlo! Teta ti posílá pusu.',
+      'Jsi úžasný, Adame! Jen tak dál.',
+    ],
+    enc: ['Nevadí, Adame, zkus to znovu. Teta ti drží palce!', 'Každý se někdy splete. Příště to dáš!', 'Klidně a pomalu, ty to zvládneš.'],
+    hello: 'Ahoj Adame, tady teta Terka. Fandím ti, zahraj si!',
+  },
+  ruda: { // Praděda Ruda (Ivin táta) (odsouhlasil Ondřej 20. 10. 2026, docs/hlasky-navrh-2.md)
+    cheers: [
+      'Výborně, Adame! Praděda má velkou radost.',
+      'Takového šikovného pravnuka nemá nikdo jiný!',
+      'To jsi dal krásně. Jsem na tebe pyšný.',
+      'Paráda! Až se uvidíme, všechno mi povíš.',
+      'Ty už čteš jako velký školák. To je radost!',
+      'Šikula! Jen tak dál, Adame.',
+    ],
+    enc: ['Nevadí, Adame. Pomalu a pozorně, a půjde to.', 'I praděda se kdysi učil písmenka. Zkus to znovu!', 'Chybami se člověk učí. Fandím ti!'],
+    hello: 'Ahoj Adame, tady praděda Ruda. Zahraj si, fandím ti!',
+  },
+  sarka: { // Šárka (odsouhlasil Ondřej 20. 10. 2026, docs/hlasky-navrh-2.md)
+    cheers: [
+      'Výborně, Adame! To se ti povedlo.',
+      'Ty jsi ale šikula! Mám z tebe radost.',
+      'Paráda! To musím povědět dědovi Markovi.',
+      'Super, Adame! Jen tak dál.',
+      'Ty už čteš jako velký školák!',
+      'To bylo krásné! Plácneme si?',
+    ],
+    enc: ['Nevadí, Adame. Zkus to znovu, fandím ti!', 'Každý se někdy splete. Příště to dáš!', 'Klidně a pomalu, ty to zvládneš.'],
+    hello: 'Ahoj Adame, tady Šárka. Fandím ti, zahraj si!',
+  },
+  tomas: { // Tomáš (18) (odsouhlasil Ondřej 20. 10. 2026, docs/hlasky-navrh-2.md)
+    cheers: [
+      'Hustý, Adame! To bys mi musel ukázat, jak jsi to dal.',
+      'Dobrý! V první třídě bych to tak rychle nedal.',
+      'Pecka! Ty jsi fakt borec.',
+      'To bylo čistý, žádná chyba. Respekt!',
+      'Super! Až se uvidíme, plácneme si.',
+      'Takhle se kope! Diamantový krumpáč by sis zasloužil.',
+    ],
+    enc: ['V pohodě, to se stane i mně. Dej to znova!', 'Klid, Adame. Pořádně se podívej a dáš to.', 'Nevzdávej to, borče. Příště to bude!'],
+    hello: 'Čau Adame, tady Tomáš. Zahraj si, fandím ti!',
+  },
 };
 
 // Máma se stará: připomínky podle času v tabletu, každá jednou za den. Mají přednost před náhodnou pochvalou.

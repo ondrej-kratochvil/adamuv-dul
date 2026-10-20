@@ -71,6 +71,11 @@ z `MASTERY_SETS()` + max. 30 příkladů + max. 20 čísel 21 až 99 mimo desít
 
 - Rodina (`FAMILY`): máma Pája, táta Ondra, babička Jindra, děda Bob, babička Iva, děda Marek, brácha Davídek. Barvy vlasů
   podle Ondřeje (19. 10. 2026), děda Marek téměř holohlavý; nic dalšího nedomýšlet. Chválí, povzbuzují, „dnes ti fandí“.
+- Další příbuzní (Ondřej 20. 10. 2026, podoba podle jeho odpovědí a fotek, fotky v repu nejsou): strejda Vašek, teta Terka
+  a bratranec Víťa (rodina Pájina bratra; Víťa je stejně starý a kamarádsky popichuje), praděda Ruda (Ivin táta), Šárka
+  (Markova žena) a její syn Tomáš (18). Hlášky v `docs/hlasky-navrh-2.md` (odsouhlaseno).
+  Prababička Marcelka (Markova máma) od verze 30, hlášky čekají na schválení (`docs/hlasky-navrh-3.md`).
+- Dlaždice **Rodina**: převlékání portrétů za smaragdy (`content/family-wear.ts`, `world/dressup.js`).
 - Vzkazy od rodiny i od kamarádů Toma a Médi (nastavení; kamarádi bez podoby, jen obálka), jméno a barvu psa vybírá Adam,
   název hry volí Adam (`GAME_NAMES`).
 - Nastavení pro rodiče se otevře jen po vyřešení příkladu pro dospělého (násobení, `logic/gate.ts`); přenos postupu na jiný tablet (zkopírovat, vložit).
