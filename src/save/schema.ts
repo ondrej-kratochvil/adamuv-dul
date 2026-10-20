@@ -8,7 +8,8 @@ export const SCHEMA = 4; // 1 = vše do verze hry 15 (bez čísla schématu), 2 
                         // 3 = doba řešení a záměny u úloh, procvičování, fronta pro tabulku Google (verze hry 27),
                         // 4 = převlékání rodiny (verze hry 28)
 
-export interface LogEntry { t: number; d: string; level: string; clean: number; done: number; len: number; ok: boolean; quit: boolean; secs: number; rate?: number }
+// pauses/pauseSecs: pauzy v kole (od verze 36); secs je doba bez pauz
+export interface LogEntry { t: number; d: string; level: string; clean: number; done: number; len: number; ok: boolean; quit: boolean; secs: number; rate?: number; pauses?: number; pauseSecs?: number }
 export interface Note { who: string; text: string; done: boolean; t?: number }
 
 export interface SaveState {

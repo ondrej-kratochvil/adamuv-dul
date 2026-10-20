@@ -20,9 +20,9 @@ import { confusions, quickWrongShare, slowItems, weakItems } from '../logic/prac
 
 const LOG_MAX = 1500;
 function logRound(ok, quit = false) {
-  const e = { t: Date.now(), d: dayStr(), level: G.R.level, clean: G.R.clean, done: G.R.i, len: G.R.len, ok, quit, secs: Math.round((Date.now() - G.R.start) / 1000) };
+  const e = { t: Date.now(), d: dayStr(), level: G.R.level, clean: G.R.clean, done: G.R.i, len: G.R.len, ok, quit, secs: Math.round((Date.now() - G.R.start) / 1000), ...(G.R.pauses ? { pauses: G.R.pauses, pauseSecs: Math.round(G.R.pauseMs / 1000) } : {}) };
   save.log.push(e);
-  queueRows([{ Druh: 'kolo', Patro: levelName(e.level), 'Bez chyby': e.clean, Úloh: e.len, Hotovo: e.done, Povedené: ok ? 'ano' : 'ne', Odešel: quit ? 'ano' : 'ne', Sekundy: e.secs }]);
+  queueRows([{ Druh: 'kolo', Patro: levelName(e.level), 'Bez chyby': e.clean, Úloh: e.len, Hotovo: e.done, Povedené: ok ? 'ano' : 'ne', Odešel: quit ? 'ano' : 'ne', Sekundy: e.secs, Pauzy: e.pauses || 0, 'Pauza (s)': e.pauseSecs || 0 }]);
   if (save.log.length > LOG_MAX) save.log.splice(0, save.log.length - LOG_MAX);
   persist();
   if (!quit) renderRate();
@@ -101,7 +101,7 @@ function renderStats() {
     body.insertAdjacentHTML('beforeend', head + (items.length ? `<div class="chips">${chips}</div>` : '<p>Zatím nic.</p>') + det);
   });
   const recent = save.log.slice(-15).reverse();
-  body.insertAdjacentHTML('beforeend', `<h3>Poslední kola</h3><div class="table-wrap"><table class="log-table"><thead><tr><th>Kdy</th><th>Patro</th><th>Bez chyby</th><th>Hodnocení</th><th>Doba</th></tr></thead><tbody>${recent.map(e => `<tr><td>${fmtDate(e.t)}</td><td>${levelName(e.level)}</td><td>${e.quit ? `odešel po ${e.done} z ${e.len}` : `${e.clean} z ${e.len}${e.ok ? '' : ' (nepovedené)'}`}</td><td>${e.rate ? e.rate + ' z 10' : '–'}</td><td>${fmtMin(e.secs)}</td></tr>`).join('') || '<tr><td colspan="5">Zatím žádné kolo.</td></tr>'}</tbody></table></div>`);
+  body.insertAdjacentHTML('beforeend', `<h3>Poslední kola</h3><div class="table-wrap"><table class="log-table"><thead><tr><th>Kdy</th><th>Patro</th><th>Bez chyby</th><th>Hodnocení</th><th>Doba</th></tr></thead><tbody>${recent.map(e => `<tr><td>${fmtDate(e.t)}</td><td>${levelName(e.level)}</td><td>${e.quit ? `odešel po ${e.done} z ${e.len}` : `${e.clean} z ${e.len}${e.ok ? '' : ' (nepovedené)'}`}</td><td>${e.rate ? e.rate + ' z 10' : '–'}</td><td>${fmtMin(e.secs)}${e.pauses ? ` (+ pauza ${fmtMin(e.pauseSecs)})` : ''}</td></tr>`).join('') || '<tr><td colspan="5">Zatím žádné kolo.</td></tr>'}</tbody></table></div>`);
   body.insertAdjacentHTML('beforeend', `<p style="margin-top:14px">${save.sync.url ? `Data se po každém kole posílají do tabulky Google${save.sync.last ? ` (naposledy ${fmtDate(save.sync.last)}${save.sync.queue.length ? `, čeká ${save.sync.queue.length} záznamů` : ''})` : ''}.` : 'Data jsou uložená jen v tomhle zařízení. Do tabulky Google je jde posílat samy (Pro rodiče, Statistiky do tabulky).'} Přehled jde i zkopírovat a poslat.</p><div class="actions"><button class="gbtn go" id="btnCopyStats">Zkopírovat přehled</button></div><textarea class="copy-out" id="copyOut" hidden readonly></textarea>`);
   $('#btnCopyStats').addEventListener('click', copyStats);
 }

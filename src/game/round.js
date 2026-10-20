@@ -36,7 +36,8 @@ const protectionLevels = () => ['hat', 'shirt', 'pants', 'shoes'].reduce((a, pc)
 const stuckMs = () => stuckMsFor(protectionLevels());
 function startRound(level) {
   const L = levelDef(level);
-  G.R = { level, i: 0, busy: true, recent: [], loot: [], clean: 0, len: L.len || ROUND_LEN, start: Date.now() };
+  G.R = { level, i: 0, busy: true, recent: [], loot: [], clean: 0, len: L.len || ROUND_LEN, start: Date.now(), pauses: 0, pauseMs: 0 };
+  $('#game').classList.remove('paused'); $('#pauseOverlay').hidden = true;
   G.TR = null; $('#trace').hidden = true; $('#blocks').hidden = false; $('#task').hidden = true;
   show('game');
   $('#gameGround').style.backgroundImage = `url(${tex(mineTex(L.tex), true)})`;
@@ -52,6 +53,7 @@ function startRound(level) {
 }
 function nextTask() {
   if (!G.R) return;
+  if (G.R.paused) { G.R.resumeNext = true; return; } // během pauzy další úkol počká
   if (G.R.i >= G.R.len) return endRound();
   const level = G.R.level, L = curLevel();
   let target;
@@ -111,7 +113,7 @@ function layoutBlocks() {
 addEventListener('resize', () => { if (!$('#build').hidden) fitBuild(); layoutBlocks(); if (G.TR && !$('#trace').hidden) layoutTrace(); if (!$('#house').hidden) fitCanvas($('#houseBig')); if (!$('#farm').hidden) fitCanvas($('#farmBig')); if (!$('#nether').hidden) fitCanvas($('#netherBig')); if (!$('#prerov').hidden) fitCanvas($('#prerovBig')); if (!$('#ender').hidden) fitCanvas($('#enderBig')); });
 function retrigger(el, cls) { el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls); }
 function tapBlock(it, el) {
-  if (!G.R || G.R.busy || G.R.stuck) return;
+  if (!G.R || G.R.busy || G.R.stuck || G.R.paused) return;
   audio();
   const pl = $('#gamePlayer'); retrigger(pl, 'swing');
   if (it !== G.R.target) {
@@ -163,6 +165,7 @@ function breakBlock(el) {
   const target = G.R.target;
   setTimeout(() => {
     if (!G.R || G.R.target !== target) return;
+    if (G.R.paused) { G.R.resumeNext = true; return; }
     speak(pick(Math.random, PRAISE) + (G.R.after ? ' ' + G.R.after : ''), () => setTimeout(nextTask, 200));
   }, 250);
 }
@@ -301,7 +304,27 @@ function endRound() {
   speak((perfect ? 'Bez jediné chyby! ' : '') + cheer + grewTalk + (newTier ? ` Máš nový ${after.name} krumpáč!` : '') + story + dayTalk + netherTalk + babyTalk + prerovTalk + enchTalk + vilTalk + cardTalk + (fresh.length ? ` V šatníku máš ${fresh.map(([, it]) => it.name).join(' a ')}.` : ''));
   $('#btnAgain').focus({ preventScroll: true });
 }
+// Pauza (Ondřej 20. 10. 2026): zadání se schová, čas stojí; v deníku a tabulce se pauza odliší od odchodu z kola
+function pauseRound(auto = false) {
+  if (!G.R || G.R.paused || !$('#endOverlay').hidden) return;
+  G.R.paused = true; G.R.pausedAt = Date.now(); G.R.pauses++;
+  G.speechId++; if (synth) synth.cancel(); // nedořečená věta se po pauze nezopakuje sama: postará se resumeRound
+  $('#game').classList.add('paused'); $('#pauseOverlay').hidden = false;
+  if (!auto) speak('Pauza. Zadání jsem schoval. Až budeš chtít pokračovat, klepni na zelené tlačítko s trojúhelníkem, je na něm napsáno Pokračovat.');
+}
+function resumeRound() {
+  if (!G.R || !G.R.paused) return;
+  audio();
+  const d = Date.now() - G.R.pausedAt;
+  // čas pauzy se do doby úlohy ani kola nepočítá
+  G.R.start += d; if (G.R.shownAt) G.R.shownAt += d; if (G.R.heardAt) G.R.heardAt += d; G.R.pauseMs += d;
+  G.R.paused = false; G.speechId++; if (synth) synth.cancel();
+  $('#game').classList.remove('paused'); $('#pauseOverlay').hidden = true;
+  if (G.R.resumeNext || G.R.busy) { G.R.resumeNext = false; G.R.busy = true; nextTask(); }
+  else if (G.R.say) speak(G.R.say);
+}
 function goHome() {
+  $('#game').classList.remove('paused'); $('#pauseOverlay').hidden = true;
   G.speechId++; if (synth) synth.cancel();
   if (G.R && G.R.level !== 'boss' && G.R.i > 0 && G.R.i < G.R.len) logRound(false, true); // rozehrané a opuštěné kolo: signál, že nebaví
   if (G.R && G.R.loot.length && $('#endOverlay').hidden) { addBlocks(save.build, G.R.loot.map(l => l.t)); persist(); } // už vykopané kostky se neztratí
@@ -309,4 +332,4 @@ function goHome() {
   renderHome(); show('home');
 }
 
-export { NEED_CLEAN, PRAISE, logTask, ROUND_LEN, STUCK_MS, breakBlock, burst, endRound, flyTo, goHome, layoutBlocks, nextTask, protectionLevels, retrigger, startRound, stuckMs, tapBlock };
+export { pauseRound, resumeRound, NEED_CLEAN, PRAISE, logTask, ROUND_LEN, STUCK_MS, breakBlock, burst, endRound, flyTo, goHome, layoutBlocks, nextTask, protectionLevels, retrigger, startRound, stuckMs, tapBlock };

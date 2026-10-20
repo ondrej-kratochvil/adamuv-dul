@@ -1,6 +1,13 @@
 {
-  "version": 35,
+  "version": 36,
   "changes": [
+    {
+      "version": 36,
+      "date": "2026-10-20",
+      "notes": [
+        "Nové tlačítko pauzy se dvěma čárkami, vedle šipky zpět. Hra počká a zadání schová. Pak klepni na zelené tlačítko s trojúhelníkem, je na něm napsáno Pokračovat."
+      ]
+    },
     {
       "version": 35,
       "date": "2026-10-20",

@@ -58,6 +58,7 @@
           <button class="gbtn icon" id="btnBack" aria-label="Zpět domů">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h3v3h-3v3h-3v4h3v3h3v3h-3v-3h-3v-3H8v-4h3V7h3V4z"/></svg>
           </button>
+          <button class="gbtn icon" id="btnPause" aria-label="Pauza"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg></button>
           <div class="pips" id="pips"></div>
           <div class="gems hud-gems" id="hudGems" aria-label="Smaragdy"></div>
           <div class="hud-pick" id="hudPick" aria-hidden="true"></div>
@@ -272,6 +273,13 @@
 </div>
 
 <!-- KONEC KOLA -->
+<div class="overlay pause-overlay" id="pauseOverlay" hidden>
+  <div class="panel" role="dialog" aria-labelledby="pauseTitle">
+    <h2 id="pauseTitle">Pauza</h2>
+    <p>Zadání jsem schoval a čas stojí. Až budeš chtít, pokračuj.</p>
+    <div class="actions"><button class="gbtn go" id="btnResume" data-icon="play">Pokračovat</button></div>
+  </div>
+</div>
 <div class="overlay" id="endOverlay" hidden>
   <div class="panel" role="dialog" aria-labelledby="endTitle">
     <h2 class="end-title" id="endTitle">Výborně, Adame!</h2>

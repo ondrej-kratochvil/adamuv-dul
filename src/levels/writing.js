@@ -65,6 +65,7 @@ function drawTrace() {
 function tracePoint(e) { const r = $('#traceCanvas').getBoundingClientRect(); return [(e.clientX - r.left) / G.TR.k, (e.clientY - r.top) / G.TR.k]; }
 const dist = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1]);
 function traceDown(e) {
+  if (G.R && G.R.paused) return;
   if (!G.TR || !G.R || G.R.busy) return;
   audio();
   const q = tracePoint(e), st = G.TR.strokes[G.TR.si];

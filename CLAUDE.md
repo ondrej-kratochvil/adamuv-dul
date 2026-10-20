@@ -50,6 +50,8 @@ přidej i odměny, aby Adam nedošel na strop dřív, než dojde obsah.
 
 - U každé úlohy se ukládá doba řešení (klouzavý průměr `t`, počet `tn`), záměny (`conf`: co Adam vybral místo správné) a rychlé
   tipy (`qw`, chyba do 1,2 s od konce zadání), viz `recordResult` v `logic/mastery.ts`.
+- **Pauza** (`pauseRound`/`resumeRound` v `game/round.js`, tlačítko vedle Zpět, i při odchodu z aplikace): zadání a kostky se schovají,
+  čas úlohy ani kola neběží; v deníku `pauses`/`pauseSecs`, v tabulce sloupce Pauzy a Pauza (s). Odliší přerušení od odchodu z kola.
 - **Tabulka Google** (`logic/sync.ts`, `app/sync.js`, skript `docs/google-tabulka.gs`, návod `docs/google-tabulka.md`): po každé úloze,
   kole a hodnocení řádek do fronty v uloženém stavu, odeslání hned, při startu, při návratu do hry a po připojení. Řádky mají ID,
   skript duplicity přeskočí. Adresa skriptu jen v nastavení (repo je veřejné), nikdy v kódu. Nic o rodině se neposílá.

@@ -8,7 +8,7 @@ Bez internetu záznamy čekají v tabletu (nejvýš 5000) a odejdou při další
 | List | Řádek za | Sloupce |
 |---|---|---|
 | **Úlohy** | každou vyřešenou úlohu | čas, patro, úloha, napoprvé (ano/ne), sekundy, záměny (co vybral místo správné), tipy (chyby do 1,2 s), kolo (patro nebo Procvičování) |
-| **Kola** | každé kolo | čas, patro, bez chyby, úloh, hotovo, povedené, odešel, sekundy |
+| **Kola** | každé kolo | čas, patro, bez chyby, úloh, hotovo, povedené, odešel, sekundy (bez pauz), pauzy, pauza (s) |
 | **Hodnocení** | každé hodnocení kola 1–10 | čas, patro, hodnocení |
 | **Stav** | přepisuje se | zvládnuto z celku v každém patře, smaragdy, řada dní |
 

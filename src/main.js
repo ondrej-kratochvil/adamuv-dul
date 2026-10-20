@@ -21,11 +21,13 @@ import { startBoss } from './world/finale.js';
 import { applyName, checkVersion, gameName, openNames, renderVersion } from './app/name.js';
 import { iconizeButtons } from './ui/icons.js';
 import { openStats } from './app/stats.js';
-import { goHome, startRound } from './game/round.js';
+import { goHome, pauseRound, resumeRound, startRound } from './game/round.js';
 import { flushSync } from './app/sync.js';
 import { clearFamily } from './world/dressup.js';
 
 $('#btnBack').addEventListener('click', goHome);
+$('#btnPause').addEventListener('click', () => pauseRound());
+$('#btnResume').addEventListener('click', resumeRound);
 $('#btnHouseBack').addEventListener('click', goHome);
 $('#btnWardBack').addEventListener('click', goHome);
 $('#btnFarmBack').addEventListener('click', goHome);
@@ -78,7 +80,7 @@ checkEnchants(); // očarování za už zvládnuté úkoly
 checkVersion(); // nová verze na serveru? (při startu a při návratu do hry)
 flushSync(); // co čeká na odeslání do tabulky Google (třeba z doby bez internetu)
 addEventListener('online', () => flushSync());
-document.addEventListener('visibilitychange', () => { if (!document.hidden) { checkVersion(); flushSync(); } });
+document.addEventListener('visibilitychange', () => { if (document.hidden) pauseRound(true); else { checkVersion(); flushSync(); } }); // odchod z aplikace = pauza
 paintTextures();
 renderHome();
 // ikona na ploše a hraní bez internetu
