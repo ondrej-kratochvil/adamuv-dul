@@ -4,8 +4,9 @@ import type { Stats } from '../logic/mastery';
 import type { Streak } from '../logic/streak';
 import { syncDefaults, type SyncState } from '../logic/sync';
 
-export const SCHEMA = 3; // 1 = vše do verze hry 15 (bez čísla schématu), 2 = s číslem schématu a nejvyšším stavem vesnice,
-                        // 3 = doba řešení a záměny u úloh, procvičování, fronta pro tabulku Google (verze hry 27)
+export const SCHEMA = 4; // 1 = vše do verze hry 15 (bez čísla schématu), 2 = s číslem schématu a nejvyšším stavem vesnice,
+                        // 3 = doba řešení a záměny u úloh, procvičování, fronta pro tabulku Google (verze hry 27),
+                        // 4 = převlékání rodiny (verze hry 28)
 
 export interface LogEntry { t: number; d: string; level: string; clean: number; done: number; len: number; ok: boolean; quit: boolean; secs: number; rate?: number }
 export interface Note { who: string; text: string; done: boolean; t?: number }
@@ -27,6 +28,8 @@ export interface SaveState {
   momSaid: { d: string; ids: string[] }; // které připomínky mámy dnes zazněly
   practice: number;             // odehraná kola procvičování (logic/practice.ts)
   sync: SyncState;              // odesílání do tabulky Google (logic/sync.ts)
+  famWear: Record<string, Record<string, string>>; // co má kdo z rodiny na sobě (logic/family-wear.ts)
+  famOwned: string[];           // koupené kousky na převlékání
   [k: string]: unknown;
 }
 
@@ -47,11 +50,13 @@ export function defaults(): SaveState {
     momSaid: { d: '', ids: [] },
     practice: 0,
     sync: syncDefaults(),
+    famWear: {},
+    famOwned: [],
   };
 }
 
 const isObj = (x: unknown): x is Record<string, unknown> => !!x && typeof x === 'object' && !Array.isArray(x);
-const NESTED = ['rounds', 'outfit', 'dog', 'gifts', 'streak', 'build', 'pron', 'momSaid', 'sync'] as const;
+const NESTED = ['rounds', 'outfit', 'dog', 'gifts', 'streak', 'build', 'pron', 'momSaid', 'sync', 'famWear'] as const;
 
 // převede jakákoli starší data na aktuální tvar; nic, co Adam získal, nezahodí
 export function migrate(raw: unknown): SaveState {
@@ -66,7 +71,9 @@ export function migrate(raw: unknown): SaveState {
   if (!Array.isArray(out.streak.days)) out.streak.days = [];
   if (!Array.isArray(out.sync.queue)) out.sync.queue = [];
   if (typeof out.practice !== 'number') out.practice = 0;
-  for (const k of ['log', 'ench', 'notes', 'decor', 'recentLines'] as const) if (!Array.isArray(out[k])) (out as Record<string, unknown>)[k] = [];
+  // v3 -> v4: převlékání rodiny začíná prázdné
+  if (!Array.isArray(out.famOwned)) out.famOwned = [];
+  for (const k of ['log', 'ench', 'notes', 'decor', 'recentLines', 'famOwned'] as const) if (!Array.isArray(out[k])) (out as Record<string, unknown>)[k] = [];
   if (!isObj(out.stats)) out.stats = {};
   if (from > SCHEMA) out.schema = from; // novější data ze starší hry nesnižovat
   else out.schema = SCHEMA;

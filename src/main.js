@@ -23,6 +23,7 @@ import { iconizeButtons } from './ui/icons.js';
 import { openStats } from './app/stats.js';
 import { goHome, startRound } from './game/round.js';
 import { flushSync } from './app/sync.js';
+import { clearFamily } from './world/dressup.js';
 
 $('#btnBack').addEventListener('click', goHome);
 $('#btnHouseBack').addEventListener('click', goHome);
@@ -39,6 +40,8 @@ $('#btnFight').addEventListener('click', startBoss);
 $('#btnVictoryHome').addEventListener('click', () => { G.speechId++; if (synth) synth.cancel(); $('#victoryOverlay').hidden = true; goHome(); });
 $('#btnNetherMine').addEventListener('click', () => { audio(); save.netherMine = !save.netherMine; persist(); openNether(); speak(save.netherMine ? 'Teď kopeš v Netheru.' : 'Teď kopeš doma v dole.'); });
 $('#btnShopBack').addEventListener('click', goHome);
+$('#btnFamBack').addEventListener('click', goHome);
+$('#btnFamClear').addEventListener('click', clearFamily);
 $('#btnStreak').addEventListener('click', openStreak);
 $('#btnStats').addEventListener('click', openStats);
 $('#btnNoteAdd').addEventListener('click', () => { const t = $('#noteText').value.trim(); if (!t) return; save.notes.push({ who: noteWho, text: t, done: false, t: Date.now() }); persist(); $('#noteText').value = ''; renderNotes(); });

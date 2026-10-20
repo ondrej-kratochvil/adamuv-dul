@@ -49,7 +49,7 @@ describe('schéma 3 (verze hry 27): doba řešení, procvičování, tabulka Goo
     const old = fixture('save-v2');
     const s = migrate(old);
     for (const k of Object.keys(old)) if (k !== 'schema') expect(s[k], k).toEqual(old[k]);
-    expect(s.schema).toBe(3);
+    expect(s.schema).toBe(SCHEMA);
     expect(s.practice).toBe(0);
     expect(s.sync).toEqual({ url: '', queue: [], last: 0, sent: 0, error: '', seq: 0 });
   });
@@ -57,5 +57,22 @@ describe('schéma 3 (verze hry 27): doba řešení, procvičování, tabulka Goo
     const s = migrate({ total: 1, rounds: {}, sync: { url: 'https://script.google.com/macros/s/abc/exec', queue: 'x' } });
     expect(s.sync.queue).toEqual([]);
     expect(s.sync.url).toBe('https://script.google.com/macros/s/abc/exec');
+  });
+});
+
+describe('schéma 4 (verze hry 28): převlékání rodiny', () => {
+  it('starší postup dostane prázdné převlékání, nic jiného se nezmění', () => {
+    const old = { ...defaults(), schema: 3, famWear: undefined, famOwned: undefined, total: 12, emeralds: 140 } as Record<string, unknown>;
+    delete old.famWear; delete old.famOwned;
+    const s = migrate(old);
+    expect(s.famWear).toEqual({});
+    expect(s.famOwned).toEqual([]);
+    expect(s.emeralds).toBe(140);
+    expect(s.schema).toBe(4);
+  });
+  it('převlečená rodina se při převodu neztratí', () => {
+    const s = migrate({ total: 1, rounds: {}, famWear: { iva: { head: 'koruna' } }, famOwned: ['koruna'] });
+    expect(s.famWear).toEqual({ iva: { head: 'koruna' } });
+    expect(s.famOwned).toEqual(['koruna']);
   });
 });

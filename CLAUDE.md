@@ -38,6 +38,9 @@ přidej i odměny, aby Adam nedošel na strop dřív, než dojde obsah.
 - **Procvičování** (`logic/practice.ts`, `levels/practice.js`, dlaždice Procvičit): kolo z úloh s chybami, záměnami nebo dlouhým
   přemýšlením (`weakItems`), odměny jako za běžné kolo, počítá se do `save.practice`. Psaní ne (jiný druh úkolu).
   Otevře se od 3 slabých úloh. Zavedeno 20. 10. 2026 (Ondřej: „kolik času strávil u které úlohy, abychom ji mohli opakovat“).
+- **Převlékání rodiny** (`content/family-wear.ts`, `logic/family-wear.ts`, `world/dressup.js`, dlaždice Rodina): kousky za smaragdy,
+  koupený kousek má Adam napořád a dá ho komukoli (na každé místo jeden). Vzácné (`need`) jen za podíl zvládnutých úkolů.
+  Převlečený portrét je vidět všude (`famCanvas`). Zavedeno 20. 10. 2026 jako zábava a další využití smaragdů.
 - **Zvládnutý úkol** = `mastery() === 'good'` (aspoň 3× správně a poslední dobou bez chyby).
 - Odměny podle počtu kol (krumpáče, oblečení `at:`, dům 12 dílů, farma 10 dílů) končí kolem 22. kola;
   další dlouhodobé cíle mají být vázané na zvládnutí, ne na počet kol (jinak se vyplácí hrát lehké patro dokola).
@@ -67,7 +70,8 @@ aktualizaci a po ní novinky ukáže.
   věta „Slabika so.“ to nespravila (Ondřej 19. 10. 2026), proto pryč. Rizikové slabiky (`RISKY_SYLLABLES`) jdou v nastavení
   vyzkoušet; výchozí „s písmeny“ („so, es, o“) jen u so a me (`LETTERS_BY_DEFAULT`, ověřeno Ondřejem na jeho mobilu s Androidem 19. 10. 2026, na Adamově tabletu předpoklad), rodič v nastavení vybere variantu, která na tabletu zní česky (`save.pron`).
   Novou slabiku bez čárky, která je anglickým slovem, přidat do `RISKY_SYLLABLES`.
-- Podoby rodiny jen podle toho, co řekl Ondřej (`FAMILY`); nic nedomýšlet. Hlášky rodiny jsou v `content/family-lines.ts`
+- Podoby rodiny jen podle toho, co řekl nebo ukázal Ondřej (`FAMILY`; Vašek, Terka, Víťa podle jeho odpovědí a fotek 20. 10. 2026); nic nedomýšlet.
+  Fotky rodiny do repa nikdy (je veřejné), jen znaky v komentáři. Člen bez odsouhlasených hlášek má `quiet` (nefandí). Hlášky rodiny jsou v `content/family-lines.ts`
   (odsouhlasené Ondřejem 19. 10. 2026; místa jako Újezdec, Zavadilka, Biskupice smí být ve veřejném repu). Nové hlášky
   nejdřív navrhnout Ondřejovi, nevymýšlet nové údaje o rodině.
 ## Kód a testy

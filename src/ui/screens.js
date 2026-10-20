@@ -21,9 +21,11 @@ import { renderUpdate } from '../app/name.js';
 import { buildOpen, drawBuild, openBuild } from '../world/build.js';
 import { startRound } from '../game/round.js';
 import { levelProgress } from '../logic/mastery.ts';
+import { openFamily } from '../world/dressup.js';
+import { FAMILY, famCanvas } from '../world/family.js';
 import { practiceReady } from '../levels/practice.js';
 
-function show(id) { ['home', 'game', 'house', 'wardrobe', 'farm', 'shop', 'stats', 'village', 'nether', 'album', 'prerov', 'ender', 'build'].forEach(s => { $('#' + s).hidden = s !== id; }); }
+function show(id) { ['home', 'game', 'house', 'wardrobe', 'farm', 'shop', 'stats', 'village', 'nether', 'album', 'prerov', 'ender', 'build', 'family'].forEach(s => { $('#' + s).hidden = s !== id; }); }
 function paintTextures(root = document) {
   root.querySelectorAll('[data-tex]').forEach(el => { el.style.backgroundImage = `url(${tex(el.dataset.tex, el.dataset.dark === '1')})`; });
 }
@@ -91,6 +93,15 @@ function renderHome() {
   sb.insertAdjacentHTML('beforeend', '<span class="lvl-name">Obchod</span>');
   sb.addEventListener('click', openShop);
   wrap.appendChild(sb);
+  // Rodina: převlékání portrétů (world/dressup.js); na dlaždici babička Iva, nebo kdo má něco na sobě
+  const fb = document.createElement('button'); fb.className = 'lvl family'; fb.setAttribute('aria-label', 'Rodina');
+  const fblk = blockEl('planks', '', false); fblk.tabIndex = -1; fblk.setAttribute('aria-hidden', 'true');
+  const dressed = FAMILY.find(p => save.famWear && save.famWear[p.id]) || FAMILY.find(p => p.id === 'iva');
+  const fpl = fblk.querySelector('.plate'); fpl.innerHTML = ''; fpl.appendChild(famCanvas(dressed));
+  fb.appendChild(fblk);
+  fb.insertAdjacentHTML('beforeend', '<span class="lvl-name">Rodina</span>');
+  fb.addEventListener('click', () => { audio(); openFamily(); });
+  wrap.appendChild(fb);
   const ab = document.createElement('button'); ab.className = 'lvl'; ab.setAttribute('aria-label', 'Sbírka');
   const ablk = blockEl('planks', '', false); ablk.tabIndex = -1; ablk.setAttribute('aria-hidden', 'true');
   const ap = ablk.querySelector('.plate'); ap.innerHTML = ''; ap.appendChild(picCanvas('LES'));

@@ -152,7 +152,7 @@ function bark() {
   [0, .18].forEach(t0 => { const o = a.createOscillator(), gn = a.createGain(); o.type = 'square'; const t = a.currentTime + t0; o.frequency.setValueAtTime(560, t); o.frequency.exponentialRampToValueAtTime(260, t + .12); gn.gain.setValueAtTime(.08, t); gn.gain.exponentialRampToValueAtTime(.0001, t + .14); o.connect(gn).connect(a.destination); o.start(t); o.stop(t + .16); });
 }
 function updateGems(popId) {
-  ['homeGems', 'hudGems', 'shopGems'].forEach(id => { const el = $('#' + id); if (!el) return; el.innerHTML = ''; el.appendChild(sprIcon('emerald')); el.append(String(save.emeralds)); });
+  ['homeGems', 'hudGems', 'shopGems', 'famGems'].forEach(id => { const el = $('#' + id); if (!el) return; el.innerHTML = ''; el.appendChild(sprIcon('emerald')); el.append(String(save.emeralds)); });
   if (popId) retrigger($('#' + popId), 'pop');
 }
 function drawFarm(cv) {

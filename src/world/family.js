@@ -8,6 +8,8 @@ import { gemWord, updateGems } from './farm.js';
 import { dayNum, dayStr, easterMonday, holidayOn } from '../logic/calendar.ts';
 import { FAMILY_LINES, MOM_OPEN } from '../content/family-lines.ts';
 import { momReminder, pickLine, remember } from '../logic/family.ts';
+import { wornItems } from '../logic/family-wear.ts';
+import { wearById } from '../content/family-wear.ts';
 
 const FAMILY = [
   // barvy vlasů podle Ondřeje (19. 10. 2026); brýle ani vousy nikdo neuvedl, proto nejsou; děda Marek téměř holohlavý (Ondřej); drdol u babiček jen odlišuje babičky od dědů
@@ -18,6 +20,13 @@ const FAMILY = [
   { id: 'iva', name: 'babička Iva', gen: 'babičky Ivy', f: true, hair: '#e2c06c', long: false, top: '#3f9b3a' },
   { id: 'marek', name: 'děda Marek', gen: 'dědy Marka', f: false, hair: '#dcc274', top: '#c0392b', bald: true }, // téměř holohlavý, zbytek vlasů blond
   { id: 'david', name: 'brácha Davídek', gen: 'bráchy Davídka', f: false, hair: '#ecd27e', top: '#e0b324', small: true },
+  // rodina Pájina bratra (Ondřej 20. 10. 2026): barvy vlasů z jeho odpovědí, brýle u Terky a vousy u Vaška podle jeho fotek;
+  // délku vlasů Terky Ondřej neuvedl, má stejný střih jako máma (drdol mají jen babičky)
+  { id: 'vasek', name: 'strejda Vašek', gen: 'strejdy Vaška', f: false, hair: '#4a2a14', top: '#2a4f8a', beard: true, quiet: true },
+  { id: 'terka', name: 'teta Terka', gen: 'tety Terky', f: true, hair: '#4a2a14', long: true, glasses: true, top: '#d86a9a', quiet: true },
+  // bratranec Víťa: stejně starý jako Adam, taky 1. třída. Vašek, Terka i Víťa fandí až s vlastními hláškami
+  // odsouhlasenými Ondřejem (návrh docs/hlasky-navrh-2.md); do té doby quiet: jen vzkazy a převlékání
+  { id: 'vita', name: 'bratranec Víťa', gen: 'bratrance Víti', f: false, hair: '#a07a52', top: '#3f9b3a', kid: true, quiet: true },
 ];
 // kamarádi ze třídy: jen vzkazy, bez podoby ve hře (dokud ji neřekne Ondřej), místo obličeje obálka
 const FRIENDS = [
@@ -43,10 +52,13 @@ function famCanvas(p) {
   if (!p.long && p.f) { R(6, 0, 4, 2, p.hair); } // drdol
   if (p.grey) { R(5, 2, 1, 1, p.grey); R(9, 2, 1, 1, p.grey); R(4, 4, 1, 1, p.grey); R(11, 5, 1, 1, p.grey); } // trochu prošedivělé
   if (p.small) { R(5, 4, 3, 1, p.hair); R(9, 8, 1, 1, '#e8a0a0'); R(6, 8, 1, 1, '#e8a0a0'); } // ofina a tvářičky
+  if (p.kid) { R(5, 4, 4, 1, p.hair); } // ofina (stejně starý jako Adam)
   R(6, 6, 1, 1, '#2b2b2b'); R(9, 6, 1, 1, '#2b2b2b');
-  if (p.glasses) { [4, 8].forEach(x => { const G = '#3a3a3a'; R(x, 5, 4, 1, G); R(x, 8, 4, 1, G); R(x, 5, 1, 4, G); R(x + 3, 5, 1, 4, G); R(x + 1, 6, 2, 2, '#d8eef8'); }); R(6, 6, 1, 1, '#2b2b2b'); R(9, 6, 1, 1, '#2b2b2b'); } // obroučky brýlí
+  if (p.glasses) { const G = '#4a4a4a'; R(5, 5, 6, 1, G); R(5, 7, 2, 1, G); R(9, 7, 2, 1, G); R(4, 6, 1, 1, G); R(11, 6, 1, 1, G); R(5, 6, 6, 1, '#cfe9f7'); R(6, 6, 1, 1, '#2b2b2b'); R(9, 6, 1, 1, '#2b2b2b'); } // obroučky a světlá skla kolem očí
   if (p.beard) { R(5, 9, 6, 2, p.hair); R(6, 8, 4, 1, p.hair); }
   R(7, 9, 2, 1, '#9b4a3c');
+  // kousky, které Adam rodině nasadil (Rodina, world/dressup.js)
+  if (!p.friend && save.famWear) wornItems(save.famWear, p.id).forEach(id => wearById(id).paint(R));
   return c;
 }
 const CHEERS = [
@@ -66,9 +78,10 @@ const ENCOURAGE = [
   p => 'Pomalu a pozorně, a půjde to. Věřím ti!',
   p => `I ${g2(p, 'já jsem se to musela', 'já jsem se to musel')} učit. Zkus to ještě jednou!`,
 ];
-function pickPerson() { const opts = FAMILY.filter(p => p.id !== save.lastCheer); const p = pick(Math.random, opts); save.lastCheer = p.id; return p; }
+const FANS = FAMILY.filter(p => !p.quiet); // kdo fandí (bez odsouhlasených hlášek ne)
+function pickPerson() { const opts = FANS.filter(p => p.id !== save.lastCheer); const p = pick(Math.random, opts); save.lastCheer = p.id; return p; }
 // kdo dnes fandí: každý den někdo jiný, podle data
-function todaysFan() { const n = dayNum(dayStr()); return FAMILY[((n % FAMILY.length) + FAMILY.length) % FAMILY.length]; }
+function todaysFan() { const n = dayNum(dayStr()); return FANS[((n % FANS.length) + FANS.length) % FANS.length]; }
 // české svátky a rodinná výročí (logic/calendar.ts); dárek smaragdů jednou za rok
 function holiday() { return holidayOn(new Date()); }
 const isBirthday = () => dayStr().slice(5) === '06-17'; // Adam má narozeniny 17. 6.
@@ -128,4 +141,4 @@ function renderNotes() {
 }
 let noteWho = 'ondra';
 
-export { FRIENDS, SENDERS, CHEERS, ENCOURAGE, FAMILY, cheerFor, dogName, easterMonday, fam, famCanvas, g2, holiday, isBirthday, noteWho, pickPerson, renderFan, renderNotes, showCheer, todaysFan };
+export { FANS, FRIENDS, SENDERS, CHEERS, ENCOURAGE, FAMILY, cheerFor, dogName, easterMonday, fam, famCanvas, g2, holiday, isBirthday, noteWho, pickPerson, renderFan, renderNotes, showCheer, todaysFan };

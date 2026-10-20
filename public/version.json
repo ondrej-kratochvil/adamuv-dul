@@ -1,6 +1,14 @@
 {
-  "version": 27,
+  "version": 28,
   "changes": [
+    {
+      "version": 28,
+      "date": "2026-10-20",
+      "notes": [
+        "Nová dlaždice Rodina: za smaragdy kupuj čepice, brýle, nosy a kníry a převlékej rodinu!",
+        "Do rodiny přibyli strejda Vašek, teta Terka a bratranec Víťa."
+      ]
+    },
     {
       "version": 27,
       "date": "2026-10-20",
