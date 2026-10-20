@@ -1,7 +1,8 @@
 // Generátory úkolů: tisíce náhodných úkolů v každé fázi obtížnosti.
 import { describe, expect, it } from 'vitest';
-import { conflict, genLetters, genMath, genNumbers, genReading, genWords, genWriting, WRITING_EASY, WRITING_HARD, WRITING_HARD_FROM, writingPool, type Ctx, type Task } from '../../src/logic/tasks';
+import { conflict, genLetters, genMath, genNumbers, genReading, genWords, genWriting, WRITING_EASY, WRITING_HARD, WRITING_HARD_FROM, writingPool, crossingReady, isCrossing, type Ctx, type Task } from '../../src/logic/tasks';
 import { choiceCount } from '../../src/logic/mastery';
+import type { Stats } from '../../src/logic/mastery';
 import { seeded } from '../../src/logic/random';
 import { GLYPHS } from '../../src/content/glyphs';
 
@@ -85,5 +86,28 @@ describe('psaní', () => {
     let spir = 0; const N = 4000;
     for (let s = 1; s <= N; s++) if (genWriting({ rounds: { writing: 9 }, stats: { 'writing:spirala': { ok: 0, miss: 20 } }, recent: [], rng: seeded(s) }) === 'spirala') spir++;
     expect(spir / N).toBeLessThan(0.1); // 28 úkolů, dvojnásobná váha ≈ 7 %
+  });
+});
+
+describe('přechod přes desítku (Ondřej 20. 10. 2026)', () => {
+  it('pozná příklady s přechodem', () => {
+    for (const [a, op, b] of [[8, '+', 7], [9, '+', 2], [16, '-', 9], [13, '-', 6]] as const) expect(isCrossing(a, op, b), `${a}${op}${b}`).toBe(true);
+    for (const [a, op, b] of [[6, '+', 4], [13, '+', 4], [13, '+', 7], [17, '-', 5], [10, '-', 3], [20, '-', 3], [15, '-', 10]] as const) expect(isCrossing(a, op, b), `${a}${op}${b}`).toBe(false);
+  });
+  it('do 20 bez přechodu, dokud Adam nezvládne 10 příkladů v druhé desítce', () => {
+    for (let s = 1; s <= 600; s++) {
+      const t = genMath({ rounds: { math: 5 }, stats: {}, recent: [], rng: seeded(s) });
+      const m = /^(\d+)([+-])(\d+)$/.exec(t.stat.slice(5))!;
+      expect(isCrossing(+m[1], m[2], +m[3]), t.stat).toBe(false);
+    }
+  });
+  it('potom přechod jen u menšiny příkladů', () => {
+    const stats: Stats = {};
+    ['11+2', '12+3', '13+4', '14+5', '15+1', '16+2', '17-3', '18-4', '19-5', '15-2'].forEach(k => { stats['math:' + k] = { ok: 3, miss: 0, n: 3 }; });
+    expect(crossingReady(stats)).toBe(true);
+    let cross = 0; const N = 2000;
+    for (let s = 1; s <= N; s++) { const t = genMath({ rounds: { math: 5 }, stats, recent: [], rng: seeded(s) }); const m = /^(\d+)([+-])(\d+)$/.exec(t.stat.slice(5))!; if (isCrossing(+m[1], m[2], +m[3])) cross++; }
+    expect(cross / N).toBeGreaterThan(.2);
+    expect(cross / N).toBeLessThan(.4);
   });
 });

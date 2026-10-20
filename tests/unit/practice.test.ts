@@ -59,6 +59,13 @@ describe('výběr úloh k procvičení', () => {
   });
 });
 
+describe('procvičování a přechod přes desítku', () => {
+  it('příklad s přechodem se neprocvičuje, dokud ho hra nedává', () => {
+    const w = weakItems({ 'math:16-9': { ok: 0, miss: 1, bad: 2, n: 1, conf: { '6': 1, '8': 1 } }, 'math:8-2': { ok: 0, miss: 1, bad: 1, n: 1 } });
+    expect(w.map(x => x.item)).toEqual(['8-2']);
+  });
+});
+
 describe('úkol pro danou úlohu', () => {
   it('každé patro dá úkol se zadanou správnou odpovědí', () => {
     const cases: [string, string, string][] = [['letters', 'Ů', 'letters:Ů'], ['syllables', 'LÍ', 'syllables:LÍ'], ['words', 'SLÁMA', 'words:SLÁMA'],

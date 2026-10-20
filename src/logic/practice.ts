@@ -2,6 +2,7 @@
 // Psaní se neprocvičuje tady (jiný druh úkolu: jízda prstem), jen patra s kostkami.
 import { avgSecs, mastery, type Stats } from './mastery';
 import { weightedPick, type Rng } from './random';
+import { crossingReady, isCrossing } from './tasks';
 
 export const PRACTICE_LEVELS = ['letters', 'syllables', 'words', 'reading', 'numbers', 'math'];
 export const PRACTICE_MIN = 3;  // procvičit jde, až je aspoň tolik slabých úloh
@@ -42,10 +43,12 @@ export function quickWrongShare(stats: Stats, level: string): number | null {
 export function weakItems(stats: Stats): WeakItem[] {
   const med: Record<string, number> = {};
   for (const lv of PRACTICE_LEVELS) med[lv] = levelMedianSecs(stats, lv);
-  const out: WeakItem[] = [];
+  const out: WeakItem[] = [], cross = crossingReady(stats);
   for (const [k, s] of Object.entries(stats)) {
     const [level, item] = split(k);
     if (!PRACTICE_LEVELS.includes(level)) continue;
+    // přechod přes desítku se neprocvičuje, dokud ho hra ještě nedává
+    if (level === 'math' && !cross) { const m = /^(\d+)([+-])(\d+)$/.exec(item); if (m && isCrossing(+m[1], m[2], +m[3])) continue; }
     let score = 0; const why: string[] = [];
     if (s.miss > 0) { score += s.miss * 2; why.push('chyby'); }
     const top = s.conf ? Object.entries(s.conf).sort((a, b) => b[1] - a[1])[0] : null;

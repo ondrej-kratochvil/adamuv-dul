@@ -3,7 +3,7 @@ import { LETTERS, PARTNER, SAME_SOUND, SAY_LETTER, SYLL, SYL_V, VOWELS, vFam } f
 import { WORDS } from '../content/words';
 import { PIC, PIC_PART, PIC_WORDS } from '../content/pictures';
 import { SHAPE_NAMES } from '../content/glyphs';
-import { choiceCount, weight, type Stats } from './mastery';
+import { choiceCount, mastery, weight, type Stats } from './mastery';
 import { range, rnd, shuffle, weightedPick, type Rng } from './random';
 import { pronounce } from './pronounce';
 
@@ -78,13 +78,33 @@ export function genNumbers(ctx: Ctx): Task {
   const near = [n - 1, n + 1, n - 10, n + 10, rev, n === 6 ? 9 : n === 9 ? 6 : -1];
   return { answer: String(n), choices: pickChoices(n, near, pool, choiceCount(r), ctx.rng).map(String), say: String(n), stat: 'numbers:' + n, key: 'n' + n };
 }
-// příklady: do 10, po 3 povedených kolech do 20, po 7 i celé desítky do 100
+// Přechod přes desítku (8 + 7, 16 − 9) až po zvládnutí počítání do 20 bez přechodu (Ondřej 20. 10. 2026, jako ve škole):
+// aspoň 10 zvládnutých příkladů v druhé desítce bez přechodu; pak přechod jen u menšiny příkladů.
+export const CROSSING_READY = 10, CROSSING_SHARE = .3;
+export function isCrossing(a: number, op: string, b: number): boolean {
+  if (op === '+') return a % 10 + b % 10 > 10;
+  return a > 10 && a % 10 !== 0 && a % 10 < b % 10;
+}
+const parseMath = (k: string) => { const m = /^(\d+)([+-])(\d+)$/.exec(k); return m ? { a: +m[1], op: m[2], b: +m[3] } : null; };
+export function crossingReady(stats: Stats): boolean {
+  let n = 0;
+  for (const [k, s] of Object.entries(stats)) {
+    if (!k.startsWith('math:') || mastery(s) !== 'good') continue;
+    const p = parseMath(k.slice(5)); if (!p) continue;
+    const top = Math.max(p.a, p.b, p.op === '+' ? p.a + p.b : p.a);
+    if (top > 10 && top <= 20 && !isCrossing(p.a, p.op, p.b)) n++;
+  }
+  return n >= CROSSING_READY;
+}
+// příklady: do 10, po 3 povedených kolech do 20 (přechod přes desítku viz výše), po 7 i celé desítky do 100
 export function genMath(ctx: Ctx): Task {
   const rng = ctx.rng || Math.random, r = ctx.rounds.math || 0;
   let a = 0, b = 0, op = '+', key = '', tens = false, tries = 0;
   const fm = ctx.force ? /^(\d+)([+-])(\d+)$/.exec(ctx.force) : null;
   if (fm) { a = +fm[1]; op = fm[2]; b = +fm[3]; key = ctx.force!; tens = a % 10 === 0 && b % 10 === 0 && Math.max(a, b, op === '+' ? a + b : a) > 20; }
-  else do {
+  else {
+  const crossOk = r >= 3 && crossingReady(ctx.stats) && rng() < CROSSING_SHARE;
+  do {
     op = rng() < .5 ? '+' : '-';
     tens = r >= 7 && rng() < .4;
     const max = r < 3 ? 10 : 20;
@@ -92,7 +112,8 @@ export function genMath(ctx: Ctx): Task {
     else if (op === '+') { a = rnd(0, max - 1, rng); b = rnd(0, max - a, rng); }
     else { a = rnd(1, max, rng); b = rnd(0, a, rng); }
     key = a + op + b;
-  } while ((ctx.recent.includes(key) || ((a === 0 || b === 0) && rng() < .8)) && ++tries < 40);
+  } while ((ctx.recent.includes(key) || ((a === 0 || b === 0) && rng() < .8) || (!tens && isCrossing(a, op, b) !== crossOk && tries < 35)) && ++tries < 40);
+  }
   const ans = op === '+' ? a + b : a - b, step = tens ? 10 : 1;
   const pool = tens ? range(0, 100, 10) : range(0, Math.max(r < 3 ? 10 : 20, a, ans));
   const near = [ans + step, ans - step, ans + 2 * step, ans - 2 * step, op === '+' ? a - b : a + b];

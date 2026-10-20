@@ -34,7 +34,7 @@ Pravidla pro úpravy jsou v [`CLAUDE.md`](CLAUDE.md), rodinný kontext v `osobni
 | Slova | `words` | 32 slov ze známých písmen (`WORDS`), distraktory podle Levenshteina | do 3 písmen, po 3 kolech do 4, po 6 vše |
 | Čtení | `reading` | slovo na ceduli, vybere obrázek (`PIC`, 12 + množné č. OSY, ÚLY, LAMY, MÍSY) | množné číslo po 3 kolech |
 | Čísla | `numbers` | slyší číslo, najde ho | do 10, po 3 kolech do 20, po 7 do 100 |
-| Počty | `math` | sčítání a odčítání | do 10, do 20, pak i desítky do 100 |
+| Počty | `math` | sčítání a odčítání | do 10, pak do 20 bez přechodu přes desítku; přechod (8 + 7, 16 − 9) až po 10 zvládnutých příkladech ve druhé desítce, jen u 30 % příkladů; pak i desítky do 100 |
 | Psaní | `writing` | jízda prstem ve vymezené dráze: číslice, tiskací písmena, cviky (vlnka, cikcak, kopečky, smyčka, spirála) | nejdřív 1–5, I, L, O, vlnka, cikcak, kopečky, od 3. kola vše ostatní; smyčka a spirála od 8. povedeného kola |
 
 Kolo = 8 úkolů (psaní 5). Kolo se počítá, když je dost úkolů bez chyby (přísnost 4/5/6 z 8, v psaní 3/4/5 z 5; `needClean()` v `logic/rewards.ts`).

@@ -1,6 +1,13 @@
 {
-  "version": 34,
+  "version": 35,
   "changes": [
+    {
+      "version": 35,
+      "date": "2026-10-20",
+      "notes": [
+        "Počty do dvaceti jsou teď nejdřív bez přechodu přes desítku. Těžší příklady přijdou, až ti půjdou ty lehčí."
+      ]
+    },
     {
       "version": 34,
       "date": "2026-10-20",
