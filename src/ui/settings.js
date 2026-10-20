@@ -13,6 +13,7 @@ import { streakNow } from '../rewards/streak.js';
 import { renderNotes } from '../world/family.js';
 import { ENCH_ORDER, masteryPoints } from '../rewards/enchant.js';
 import { backfillCount, backfillLog, flushSync } from '../app/sync.js';
+import { renderProfiles } from '../app/profiles.js';
 import { renameDevice, syncDefaults, validSyncUrl } from '../logic/sync.ts';
 
 function updateVoiceInfo() {
@@ -33,7 +34,7 @@ function updateSettings() {
 }
 // Nastavení je pro rodiče: otevře se po vyřešení příkladu pro dospělého (logic/gate.ts)
 let gate = null;
-function openSettings() { updateSettings(); renderNotes(); updateRestore(); renderPron(); updateSync(); $('#resetConfirm').hidden = true; $('#setOverlay').hidden = false; }
+function openSettings() { renderProfiles(); updateSettings(); renderNotes(); updateRestore(); renderPron(); updateSync(); $('#resetConfirm').hidden = true; $('#setOverlay').hidden = false; }
 function openGate() {
   gate = makeGate();
   $('#gateQ').textContent = gate.text; $('#gateInput').value = ''; $('#gateMsg').textContent = '';

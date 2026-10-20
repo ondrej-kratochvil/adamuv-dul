@@ -24,6 +24,7 @@ import { iconizeButtons } from './ui/icons.js';
 import { flushRate, openStats } from './app/stats.js';
 import { goHome, pauseRound, resumeRound, startRound } from './game/round.js';
 import { flushSync, initDevice } from './app/sync.js';
+import { initProfiles } from './app/profiles.js';
 import { clearFamily } from './world/dressup.js';
 
 $('#btnBack').addEventListener('click', goHome);
@@ -81,6 +82,7 @@ if (!save.gear) save.gear = { held: 'pick', stages: {} };
 if (updateTools(save.stats, save.gear.stages).length) persist(); // materiály nástrojů podle už zvládnutých úkolů (bez hlášení)
 checkEnchants(); // očarování za už zvládnuté úkoly
 checkVersion(); // nová verze na serveru? (při startu a při návratu do hry)
+initProfiles();
 initDevice();
 flushSync(); // co čeká na odeslání do tabulky Google (třeba z doby bez internetu)
 addEventListener('online', () => flushSync());

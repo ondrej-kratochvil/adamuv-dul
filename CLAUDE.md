@@ -62,6 +62,13 @@ přidej i odměny, aby Adam nedošel na strop dřív, než dojde obsah.
   skript duplicity přeskočí. Víc zařízení do jedné tabulky: sloupec Zařízení (`sync.device`, název v nastavení), značka `sync.uid` v ID,
   list „Stav <zařízení>“; vložený postup nepřebírá `sync` (patří zařízení). Adresa skriptu jen v nastavení (repo je veřejné), nikdy v kódu. Nic o rodině se neposílá.
 
+## Profily hráčů
+
+- `logic/profiles.ts`, `app/profiles.js`, nastavení pro rodiče „Profily hráčů“ (Ondřej 20. 10. 2026: testovat bez zásahu do Adamových
+  statistik, hrát může i někdo jiný). Adamův profil (`adam`) zůstává pod původním klíčem `adamuv-dul-v1`, ostatní `adamuv-dul-v1:<id>`,
+  seznam v `adamuv-dul-profily`. Nový profil od začátku nebo jako kopie postupu; kopie nepřebírá tabulku Google. Přepnutí = nové načtení hry.
+  Na úvodní obrazovce je u jiného profilu červený štítek „Profil: …“; v tabulce sloupec Profil. Hlas zatím oslovuje „Adame“ každého.
+
 ## Verze a novinky
 
 Každá úprava, která jde na `main`, zvýší `APP_VERSION` v `index.html` a přidá do `version.json` záznam se stejným

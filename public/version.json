@@ -1,6 +1,13 @@
 {
-  "version": 45,
+  "version": 46,
   "changes": [
+    {
+      "version": 46,
+      "date": "2026-10-20",
+      "notes": [
+        "Hra umí víc hráčů. Rodiče můžou v nastavení založit profil třeba pro kamaráda, tvůj postup zůstane tvůj."
+      ]
+    },
     {
       "version": 45,
       "date": "2026-10-20",

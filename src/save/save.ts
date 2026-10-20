@@ -1,8 +1,14 @@
 // Uložený postup v tabletu (localStorage). Před převodem starší verze se uloží záloha.
 import { defaults, migrate, SCHEMA, type SaveState } from './schema';
+import { PROFILES_KEY, activeProfile, backupKeyFor, keyFor, parseRegistry, type Registry } from '../logic/profiles';
 
-export const KEY = 'adamuv-dul-v1';
-export const BACKUP_KEY = 'adamuv-dul-zaloha';
+// aktivní profil hráče (logic/profiles.ts); přepnutí profilu znovu načte stránku
+function readRegistry(): Registry { try { return parseRegistry(localStorage.getItem(PROFILES_KEY)); } catch { return parseRegistry(null); } }
+export const registry: Registry = readRegistry();
+export const profile = activeProfile(registry);
+export const KEY = keyFor(profile.id);
+export const BACKUP_KEY = backupKeyFor(profile.id);
+export function saveRegistry(): void { try { localStorage.setItem(PROFILES_KEY, JSON.stringify(registry)); } catch { /* nic */ } }
 
 function read(): SaveState {
   let raw: string | null = null;

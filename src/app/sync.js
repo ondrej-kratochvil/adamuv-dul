@@ -1,5 +1,6 @@
 // Odesílání statistik do tabulky Google (pravidla a fronta v logic/sync.ts, skript v docs/google-tabulka.gs)
-import { persist, save } from '../save/save.ts';
+import { persist, profile, save } from '../save/save.ts';
+import { MAIN_ID } from '../logic/profiles.ts';
 import { BATCH, acknowledge, enqueue, ensureDevice, localStamp, validSyncUrl } from '../logic/sync.ts';
 import { LEVEL_KEYS, levelProgress, masteryPoints } from '../logic/mastery.ts';
 import { LEVELS } from '../levels/reading.js';
@@ -8,7 +9,8 @@ function levelName(key) { return LEVELS[key] ? LEVELS[key].name : key === 'pract
 // přidá řádky do fronty (každý s časem) a zkusí je hned poslat
 function queueRows(rows) {
   const now = Date.now();
-  enqueue(save.sync, rows.map(r => ({ Čas: localStamp(now), ...r })), now);
+  // jiný profil než Adamův se v tabulce odliší sloupcem Profil
+  enqueue(save.sync, rows.map(r => ({ Čas: localStamp(now), ...(profile.id !== MAIN_ID ? { Profil: profile.name } : {}), ...r })), now);
   persist();
   flushSync();
 }

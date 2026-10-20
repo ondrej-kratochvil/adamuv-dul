@@ -401,8 +401,12 @@ canvas.ench { animation: ench 1.8s ease-in-out infinite; }
 .faces.many canvas { width: 40px; height: 40px; }
 .faces.many canvas + canvas { margin-left: -6px; }
 .family-notes .seg .gbtn { font-size: 15px; padding: 6px 10px; }
+.profile-list { display: grid; gap: 6px; margin: 6px 0; }
+.profile-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-family: var(--f-read); }
+.profile-on { background: #bfe6a8; border: 2px solid #161616; padding: 1px 6px; font-size: 14px; }
+.profile-badge { background: #a8341c; }
 .lbl-small { display: block; font-family: var(--f-read); font-size: 14px; margin-top: 6px; }
-.family-notes textarea, .family-notes input, #syncUrl, #syncDevice { width: 100%; font-family: var(--f-read); font-size: 16px; padding: 6px; border: 3px solid #161616; margin: 6px 0; }
+.family-notes textarea, .family-notes input, #syncUrl, #syncDevice, #profileName { width: 100%; font-family: var(--f-read); font-size: 16px; padding: 6px; border: 3px solid #161616; margin: 6px 0; }
 .note-list { margin: 6px 0; padding-left: 18px; }
 .note-list li { margin-bottom: 4px; }
 .note-list button { font-size: 13px; margin-left: 6px; }
