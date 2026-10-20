@@ -55,6 +55,8 @@ function renderHome() {
   const wrap = $('#levels'); wrap.innerHTML = '';
   renderUpdate(wrap);
   renderFan(wrap);
+  // dlaždice pater a dalších obrazovek; na velké obrazovce sloupec vlevo, místa (dům, farma…) vpravo
+  const tiles = document.createElement('div'); tiles.className = 'tiles'; wrap.appendChild(tiles);
   Object.entries(LEVELS).forEach(([key, L]) => {
     const btn = document.createElement('button'); btn.className = 'lvl'; btn.setAttribute('aria-label', L.name);
     const b = blockEl(L.tex, '', !!L.small); b.tabIndex = -1; b.setAttribute('aria-hidden', 'true');
@@ -64,7 +66,7 @@ function renderHome() {
     const p = levelProgress(save.stats, key), pct = Math.round(p.got / p.all * 100);
     btn.insertAdjacentHTML('beforeend', `<span class="lvl-name">${L.name}</span><span class="lvl-bar" aria-hidden="true"><i style="width:${pct}%"></i></span><span class="lvl-sub">${p.got} z ${p.all}</span>`);
     btn.addEventListener('click', () => { audio(); startRound(key); });
-    wrap.appendChild(btn);
+    tiles.appendChild(btn);
   });
   // Procvičit: kolo z úloh, které Adamovi nejdou (levels/practice.js); dokud žádné nejsou, je zamčené
   const ready = practiceReady();
@@ -74,13 +76,13 @@ function renderHome() {
   pb.appendChild(pblk);
   pb.insertAdjacentHTML('beforeend', (ready ? '' : LOCK_SVG) + '<span class="lvl-name">Procvičit</span>');
   pb.addEventListener('click', () => { audio(); if (ready) startRound('practice'); else { sfx.nope(); speak('Procvičování se otevře, až budou úkoly, které ti ještě nejdou. Teď ti jde všechno, co jsi zkusil!'); } });
-  wrap.appendChild(pb);
+  tiles.appendChild(pb);
   [].forEach(([name, t, s]) => { // zamčená patra „brzy“ (teď žádná)
     const btn = document.createElement('button'); btn.className = 'lvl'; btn.disabled = true;
     const b = blockEl(t, s, true); b.tabIndex = -1; b.setAttribute('aria-hidden', 'true');
     btn.appendChild(b);
     btn.insertAdjacentHTML('beforeend', `${LOCK_SVG}<span class="lvl-name">${name}</span><span class="lvl-sub">brzy</span>`);
-    wrap.appendChild(btn);
+    tiles.appendChild(btn);
   });
   const wb = document.createElement('button'); wb.className = 'lvl'; wb.setAttribute('aria-label', 'Šatník');
   const wblk = blockEl('planks', '', false); wblk.tabIndex = -1; wblk.setAttribute('aria-hidden', 'true');
@@ -88,14 +90,14 @@ function renderHome() {
   wb.appendChild(wblk);
   wb.insertAdjacentHTML('beforeend', '<span class="lvl-name">Šatník</span>');
   wb.addEventListener('click', openWardrobe);
-  wrap.appendChild(wb);
+  tiles.appendChild(wb);
   const sb = document.createElement('button'); sb.className = 'lvl'; sb.setAttribute('aria-label', 'Obchod');
   const sblk = blockEl('planks', '', false); sblk.tabIndex = -1; sblk.setAttribute('aria-hidden', 'true');
   const splate = sblk.querySelector('.plate'); splate.innerHTML = ''; splate.appendChild(sprIcon('emerald'));
   sb.appendChild(sblk);
   sb.insertAdjacentHTML('beforeend', '<span class="lvl-name">Obchod</span>');
   sb.addEventListener('click', openShop);
-  wrap.appendChild(sb);
+  tiles.appendChild(sb);
   // Rodina: převlékání portrétů (world/dressup.js); na dlaždici babička Iva, nebo kdo má něco na sobě
   const fb = document.createElement('button'); fb.className = 'lvl family'; fb.setAttribute('aria-label', 'Rodina');
   const fblk = blockEl('planks', '', false); fblk.tabIndex = -1; fblk.setAttribute('aria-hidden', 'true');
@@ -104,14 +106,14 @@ function renderHome() {
   fb.appendChild(fblk);
   fb.insertAdjacentHTML('beforeend', '<span class="lvl-name">Rodina</span>');
   fb.addEventListener('click', () => { audio(); openFamily(); });
-  wrap.appendChild(fb);
+  tiles.appendChild(fb);
   const ab = document.createElement('button'); ab.className = 'lvl'; ab.setAttribute('aria-label', 'Sbírka');
   const ablk = blockEl('planks', '', false); ablk.tabIndex = -1; ablk.setAttribute('aria-hidden', 'true');
   const ap = ablk.querySelector('.plate'); ap.innerHTML = ''; ap.appendChild(picCanvas('LES'));
   ab.appendChild(ablk);
   ab.insertAdjacentHTML('beforeend', `<span class="lvl-name">Sbírka</span><span class="lvl-sub">${save.cards.length} z ${cardWords().length}</span>`);
   ab.addEventListener('click', openAlbum);
-  wrap.appendChild(ab);
+  tiles.appendChild(ab);
   const places = document.createElement('div'); places.className = 'places';
   const card = (label, draw, open, locked, wide) => {
     const c = document.createElement('button'); c.className = 'house-card' + (locked ? ' locked' : '') + (wide ? ' wide' : ''); c.setAttribute('aria-label', label);

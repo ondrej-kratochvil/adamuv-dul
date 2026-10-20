@@ -88,6 +88,7 @@ button:focus-visible { outline: 4px solid var(--gold); outline-offset: 3px; }
 }
 .hero { cursor: pointer; --h: clamp(80px, 14vh, 150px); height: var(--h); flex: none; margin-left: 0; margin-right: calc(var(--h) * .32); } /* místo pro krumpáč, který přečnívá doprava */
 .home-ground { overflow: auto; }
+.tiles { display: contents; } /* na mobilu a tabletu dlaždice v mřížce .levels jako dřív */
 .levels { --tile: clamp(84px, 24vw, 136px); display: grid; grid-template-columns: repeat(auto-fit, minmax(calc(var(--tile) + 8px), 1fr)); gap: 12px 8px; /* sloupec podle velikosti dlaždice: mobil na výšku 3, tablet 5 */ padding-block: 16px; max-width: 900px; margin: 0 auto; }
 .lvl { background: none; border: 0; padding: 0; display: grid; align-content: start; justify-items: center; gap: 10px; position: relative; }
 .lvl .blk { width: var(--tile); }
@@ -448,3 +449,17 @@ canvas.ench { animation: ench 1.8s ease-in-out infinite; }
   .winter .sky::before, .cloud, .listen.talking, .blk.glow, .player canvas.glint, canvas.ench { animation: none; }
   .player canvas.glint { opacity: .45; }
 }
+
+/* Počítač, velká obrazovka na šířku (Ondřej 21. 10. 2026): dlaždice vlevo, dům, farma a další místa vpravo přes celou šířku */
+@media (min-width: 1100px) and (min-aspect-ratio: 5/4) {
+  .levels { --tile: clamp(104px, 7.4vw, 140px); max-width: none; grid-template-columns: auto minmax(0, 1fr); gap: 16px 28px; align-items: start; }
+  .levels > .update, .levels > .fan { grid-column: 1 / -1; }
+  .tiles { display: grid; grid-template-columns: repeat(4, calc(var(--tile) + 8px)); gap: 12px 8px; align-content: start; position: sticky; top: 8px; }
+  .lvl .glyph { font-size: calc(var(--tile) * .27); }
+  .lvl .syl .glyph { font-size: calc(var(--tile) * .19); }
+  .places { grid-column: 2; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 14px 18px; justify-items: stretch; align-items: start; }
+  .places .house-card.wide { grid-column: span 2; }
+  /* obrázky jen do třetiny výšky obrazovky, ať je víc míst vidět najednou */
+  .places .house-card canvas, .places .house-card.wide canvas { width: 100%; height: min(30vh, 260px); aspect-ratio: auto; object-fit: contain; object-position: 50% 100%; }
+}
+

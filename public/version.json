@@ -1,6 +1,13 @@
 {
-  "version": 37,
+  "version": 38,
   "changes": [
+    {
+      "version": 38,
+      "date": "2026-10-21",
+      "notes": [
+        "Na počítači jsou patra vlevo a dům, farma a další místa vpravo, ať se vejdou na velkou obrazovku."
+      ]
+    },
     {
       "version": 37,
       "date": "2026-10-20",
