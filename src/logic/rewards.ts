@@ -50,3 +50,13 @@ export const eyesFor = (pts: number, max: number): number => Math.min(EYES, Math
 // a ještě 140 smaragdů; smaragdy se mají dál k něčemu hodit, ale vzácné věci jen za opravdové učení)
 export const rareNeed = (frac: number, max: number): number => Math.ceil(frac * max);
 export const rareLeft = (frac: number, pts: number, max: number): number => Math.max(0, rareNeed(frac, max) - pts);
+
+// Ztráta smaragdů za chyby (Ondřej 20. 10. 2026: „Adamovi je pořád trochu jedno, že dělá chyby“). Mírně: první 2 chyby v kole
+// zdarma (po druhé varování), každá další stojí 1 smaragd, nejvýš 5 za kolo, nikdy pod nulu. Nic jiného se nebere.
+export const FREE_ERRORS = 2, ERROR_COST = 1, MAX_ERROR_LOSS = 5;
+// errors = počet chyb v kole včetně této, lost = kolik už kolo vzalo, balance = smaragdy teď
+export function errorCost(errors: number, lost: number, balance: number): number {
+  if (errors <= FREE_ERRORS || lost >= MAX_ERROR_LOSS) return 0;
+  return Math.min(ERROR_COST, Math.max(0, balance));
+}
+export const errorWarning = (errors: number): boolean => errors === FREE_ERRORS;

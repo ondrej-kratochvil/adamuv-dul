@@ -49,7 +49,7 @@ přidej i odměny, aby Adam nedošel na strop dřív, než dojde obsah.
 - **Zvládnutý úkol** = `mastery() === 'good'` (aspoň 3× správně a poslední dobou bez chyby).
 - Odměny podle počtu kol (krumpáče, oblečení `at:`, dům 12 dílů, farma 10 dílů) končí kolem 22. kola;
   další dlouhodobé cíle mají být vázané na zvládnutí, ne na počet kol (jinak se vyplácí hrát lehké patro dokola).
-- Získané odměny se nikdy neberou zpět.
+- Získané odměny se nikdy neberou zpět. Jediná výjimka jsou smaragdy za chyby (viz níže), věci a stavby nikdy.
 
 ## Statistiky
 
@@ -70,7 +70,9 @@ aktualizaci a po ní novinky ukáže.
 
 ## Další zásady
 
-- Za chybu se nic nebere, jen se nic nepřidá (zaseknutý krumpáč, kolo se nepočítá). Zaseknutí trvá 2 s; Ochrana na výbavě ho zkracuje o 50 ms za úroveň, nejvíc na 1,2 s (`stuckMs()`). Kratší ne, aby se tipování nevyplatilo.
+- **Ztráta smaragdů za chyby** (Ondřej 20. 10. 2026, Adamovi byly chyby jedno; `errorCost` v `logic/rewards.ts`): první 2 chyby v kole
+  zdarma (po druhé varování), každá další 1 smaragd, nejvýš 5 za kolo, nikdy pod nulu; v deníku `lost`, v tabulce „Ztracené smaragdy“.
+  Jinak se za chybu nic nebere (zaseknutý krumpáč, kolo se nepočítá). Zaseknutí trvá 2 s; Ochrana na výbavě ho zkracuje o 50 ms za úroveň, nejvíc na 1,2 s (`stuckMs()`). Kratší ne, aby se tipování nevyplatilo.
 - Texty pro Adama musí jít přečíst nahlas (hlas prohlížeče, čeština). Každé tlačítko pro Adama má ikonu (`data-icon` / `setBtn`, sada `ICONS`), aby mu rozuměl i bez čtení.
   Když text pro Adama (hlas, novinky) odkazuje na tlačítko, popiš ho obrázkem a barvou a přidej i nápis
   („zelené tlačítko s fajfkou, je na něm napsáno Rozumím“), ať si Adam nápis postupně spojí s tlačítkem.

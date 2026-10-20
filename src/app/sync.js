@@ -21,6 +21,8 @@ function stateRows() {
   return { zarizeni: save.sync.device, aktualizace: localStamp(Date.now()), smaragdy: save.emeralds, rada: save.streak.count, nejdelsiRada: save.streak.best, patra: rows };
 }
 // při prvním nastavení tabulky pošle i kola odehraná dřív (z deníku; úlohy jednotlivě se dřív neukládaly)
+// kolik starších kol by se poslalo (0 = není se na co ptát)
+function backfillCount() { if (save.sync.sent || save.sync.backfilled) return 0; const start = save.sync.start || Infinity; return save.log.filter(e => e.t < start).length; }
 function backfillLog() {
   if (save.sync.sent || save.sync.backfilled) return;
   const start = save.sync.start || Infinity; // novější kola už ve frontě jsou
@@ -54,4 +56,4 @@ async function flushSync() {
   } finally { busy = false; }
 }
 
-export { initDevice, backfillLog, flushSync, levelName, queueRows, stateRows };
+export { backfillCount, initDevice, backfillLog, flushSync, levelName, queueRows, stateRows };

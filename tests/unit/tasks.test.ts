@@ -111,3 +111,15 @@ describe('přechod přes desítku (Ondřej 20. 10. 2026)', () => {
     expect(cross / N).toBeLessThan(.4);
   });
 });
+
+describe('chytáky v Číslech (Ondřej 20. 10. 2026)', () => {
+  it('u dvojciferných skoro vždy prohozené číslice', () => {
+    let rev = 0; const N = 400;
+    for (let s = 1; s <= N; s++) { const t = genNumbers({ rounds: { numbers: 9 }, stats: {}, recent: [], rng: seeded(s), force: '68' }); if (t.choices.includes('86')) rev++; expect(t.choices).toContain('68'); }
+    expect(rev / N).toBeGreaterThan(.75);
+  });
+  it('jednociferná čísla bez nesmyslných chytáků', () => {
+    for (let s = 1; s <= 100; s++) { const t = genNumbers({ rounds: { numbers: 9 }, stats: {}, recent: [], rng: seeded(s), force: '7' }); expect(new Set(t.choices).size).toBe(t.choices.length); }
+  });
+});
+

@@ -67,6 +67,8 @@ test('tabulka Google: po nastavení adresy odejdou dřívější kola i nové ú
   await expect(page.locator('#syncInfo')).toContainText('Tohle není adresa');
   await page.locator('#syncUrl').fill(URL);
   await page.locator('#btnSyncSave').click();
+  await expect(page.locator('#backfillConfirm')).toBeVisible(); // poprvé se ptá na starší kola
+  await page.locator('#btnBackfillYes').click();
   await expect(page.locator('#syncInfo')).toContainText('Čeká na odeslání: 0');
   const rows = got.flatMap(b => b.rows);
   expect(rows.filter(r => r.Druh === 'úloha').length).toBe(8);
@@ -114,3 +116,19 @@ test('hodnocení kola jde do tabulky jen jednou, s posledním číslem', async (
   q = (await saved(page)).sync.queue.filter(r => r.Druh === 'hodnocení');
   expect(q.map(r => r.Hodnocení)).toEqual([8]);
 });
+
+test('první zadání adresy: „Jen nová“ starší kola nepošle', async ({ page }) => {
+  const URL = 'https://script.google.com/macros/s/TEST789/exec', got = [];
+  await page.route(URL, async route => { got.push(JSON.parse(route.request().postData())); await route.fulfill({ status: 200, contentType: 'application/json', headers: { 'access-control-allow-origin': '*' }, body: JSON.stringify({ ok: true }) }); });
+  await openGame(page, { total: 5, log: [{ t: Date.now() - 86400000, d: '2026-10-19', level: 'numbers', clean: 8, done: 8, len: 8, ok: true, quit: false, secs: 44 }] });
+  await playRound(page, 'Písmena');
+  await page.locator('#btnEndHome').click();
+  await openSettings(page);
+  await page.locator('#syncUrl').fill(URL);
+  await page.locator('#btnSyncSave').click();
+  await page.locator('#btnBackfillNo').click();
+  await expect(page.locator('#syncInfo')).toContainText('Čeká na odeslání: 0');
+  const kola = got.flatMap(b => b.rows).filter(r => r.Druh === 'kolo');
+  expect(kola.map(r => r.Patro)).toEqual(['Písmena']);
+});
+

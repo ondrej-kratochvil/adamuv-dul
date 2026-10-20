@@ -62,8 +62,9 @@ export function genLetters(level: string, ctx: Ctx): Task {
 
 /* ---------- čísla a počty ---------- */
 // správná odpověď + podobné (o jedna vedle, prohozené číslice…) + doplnit náhodnými
-export function pickChoices(ans: number, near: number[], pool: number[], k: number, rng: Rng = Math.random): number[] {
-  const out = [ans];
+// must = možnosti, které se mají objevit vždy (chytáky, třeba prohozené číslice)
+export function pickChoices(ans: number, near: number[], pool: number[], k: number, rng: Rng = Math.random, must: number[] = []): number[] {
+  const out = [ans, ...must.filter(x => x !== ans && pool.includes(x)).slice(0, k - 1)];
   for (const x of shuffle(near.filter(x => pool.includes(x) && x !== ans), rng)) { if (out.length >= k) break; if (!out.includes(x) && rng() < .8) out.push(x); }
   for (const x of shuffle(pool.slice(), rng)) { if (out.length >= k) break; if (!out.includes(x)) out.push(x); }
   return shuffle(out, rng);
@@ -76,7 +77,11 @@ export function genNumbers(ctx: Ctx): Task {
   const n = forced >= 0 ? forced : weightedPick(pool.filter(x => !avoid.includes('n' + x)), x => weight(ctx.stats, 'numbers', String(x)), ctx.rng);
   const rev = n > 9 ? Number(String(n).split('').reverse().join('')) : -1;
   const near = [n - 1, n + 1, n - 10, n + 10, rev, n === 6 ? 9 : n === 9 ? 6 : -1];
-  return { answer: String(n), choices: pickChoices(n, near, pool, choiceCount(r), ctx.rng).map(String), say: String(n), stat: 'numbers:' + n, key: 'n' + n };
+  // chytáky (Ondřej 20. 10. 2026, chyby 21/12, 84/94, 83/73): u dvojciferných skoro vždy prohozené číslice a často sousední desítka
+  const rng = ctx.rng || Math.random, must: number[] = [];
+  if (rev > 9 && rev !== n && rng() < .85) must.push(rev);
+  if (n > 10 && rng() < .6) must.push(rng() < .5 ? n + 10 : n - 10);
+  return { answer: String(n), choices: pickChoices(n, near, pool, choiceCount(r), rng, must).map(String), say: String(n), stat: 'numbers:' + n, key: 'n' + n };
 }
 // Přechod přes desítku (8 + 7, 16 − 9) až po zvládnutí počítání do 20 bez přechodu (Ondřej 20. 10. 2026, jako ve škole):
 // aspoň 10 zvládnutých příkladů v druhé desítce bez přechodu; pak přechod jen u menšiny příkladů.

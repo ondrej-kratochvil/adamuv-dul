@@ -13,7 +13,7 @@ import { dogHappy, updateGems } from '../world/farm.js';
 import { luckBonus } from '../rewards/enchant.js';
 import { mineTex } from '../world/nether.js';
 import { curLevel } from '../world/finale.js';
-import { PRAISE, logTask, nextTask, retrigger } from '../game/round.js';
+import { PRAISE, logTask, nextTask, penalize, retrigger } from '../game/round.js';
 
 const LANE = 16; // šířka dráhy; prst musí zůstat uvnitř
 const TRACE_TOL = LANE / 2 + 2, TRACE_SLIP = LANE / 2 + 3.5;
@@ -101,7 +101,7 @@ function traceUp() { if (!G.TR) return; G.TR.down = false; G.TR.trail = []; draw
 function traceSlip() {
   G.TR.down = false; G.TR.pi = 0; G.TR.trail = [];
   G.R.firstTry = false; sfx.nope(); retrigger($('#trace'), 'slip');
-  speak('Vyjel jsi z dráhy. Zkus to znovu od zelené tečky.');
+  speak(penalize() + 'Vyjel jsi z dráhy. Zkus to znovu od zelené tečky.');
   drawTrace();
 }
 function finishTrace() {

@@ -20,9 +20,9 @@ import { confusions, quickWrongShare, slowItems, weakItems } from '../logic/prac
 
 const LOG_MAX = 1500;
 function logRound(ok, quit = false) {
-  const e = { t: Date.now(), d: dayStr(), level: G.R.level, clean: G.R.clean, done: G.R.i, len: G.R.len, ok, quit, secs: Math.round((Date.now() - G.R.start) / 1000), ...(G.R.pauses ? { pauses: G.R.pauses, pauseSecs: Math.round(G.R.pauseMs / 1000) } : {}) };
+  const e = { t: Date.now(), d: dayStr(), level: G.R.level, clean: G.R.clean, done: G.R.i, len: G.R.len, ok, quit, secs: Math.round((Date.now() - G.R.start) / 1000), ...(G.R.pauses ? { pauses: G.R.pauses, pauseSecs: Math.round(G.R.pauseMs / 1000) } : {}), ...(G.R.lost ? { lost: G.R.lost } : {}) };
   save.log.push(e);
-  queueRows([{ Druh: 'kolo', Patro: levelName(e.level), 'Bez chyby': e.clean, Úloh: e.len, Hotovo: e.done, Povedené: ok ? 'ano' : 'ne', Odešel: quit ? 'ano' : 'ne', Sekundy: e.secs, Pauzy: e.pauses || 0, 'Pauza (s)': e.pauseSecs || 0 }]);
+  queueRows([{ Druh: 'kolo', Patro: levelName(e.level), 'Bez chyby': e.clean, Úloh: e.len, Hotovo: e.done, Povedené: ok ? 'ano' : 'ne', Odešel: quit ? 'ano' : 'ne', Sekundy: e.secs, Pauzy: e.pauses || 0, 'Pauza (s)': e.pauseSecs || 0, 'Ztracené smaragdy': e.lost || 0 }]);
   if (save.log.length > LOG_MAX) save.log.splice(0, save.log.length - LOG_MAX);
   persist();
   if (!quit) renderRate();

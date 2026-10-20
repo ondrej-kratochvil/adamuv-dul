@@ -6,7 +6,7 @@ import { PIC, PIC_WORDS, PLURAL } from '../../src/content/pictures';
 import { GLYPHS } from '../../src/content/glyphs';
 import { ENCH_ORDER } from '../../src/content/enchants';
 import { WRITING_ALL } from '../../src/logic/tasks';
-import { BUILDING_STAGES, EYES, buildingStage, eyesFor, newEnchants, rareLeft, rareNeed, stuckMsFor } from '../../src/logic/rewards';
+import { BUILDING_STAGES, EYES, buildingStage, eyesFor, errorCost, errorWarning, MAX_ERROR_LOSS, newEnchants, rareLeft, rareNeed, stuckMsFor } from '../../src/logic/rewards';
 import { masteryPoints } from '../../src/logic/mastery';
 
 const KNOWN = new Set(LETTERS);
@@ -69,3 +69,17 @@ describe('vzácné věci v obchodě', () => {
     expect(rareLeft(.3, 500, 177)).toBe(0);
   });
 });
+
+describe('ztráta smaragdů za chyby (Ondřej 20. 10. 2026)', () => {
+  it('první dvě chyby zdarma, po druhé varování, pak 1 smaragd za chybu', () => {
+    expect([1, 2].map(e => errorCost(e, 0, 50))).toEqual([0, 0]);
+    expect(errorWarning(2)).toBe(true);
+    expect(errorCost(3, 0, 50)).toBe(1);
+    expect(errorCost(9, 4, 50)).toBe(1);
+  });
+  it('nejvýš 5 za kolo a nikdy pod nulu', () => {
+    expect(errorCost(20, MAX_ERROR_LOSS, 50)).toBe(0);
+    expect(errorCost(3, 0, 0)).toBe(0);
+  });
+});
+

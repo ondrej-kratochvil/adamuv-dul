@@ -12,7 +12,7 @@ import { FARM_STAGES, farmStage } from '../world/farm.js';
 import { streakNow } from '../rewards/streak.js';
 import { renderNotes } from '../world/family.js';
 import { ENCH_ORDER, masteryPoints } from '../rewards/enchant.js';
-import { backfillLog, flushSync } from '../app/sync.js';
+import { backfillCount, backfillLog, flushSync } from '../app/sync.js';
 import { renameDevice, syncDefaults, validSyncUrl } from '../logic/sync.ts';
 
 function updateVoiceInfo() {
@@ -69,8 +69,14 @@ $('#btnSyncSave').addEventListener('click', () => {
   if (u && !validSyncUrl(u)) { updateSync('Tohle není adresa nasazeného skriptu. Má vypadat jako https://script.google.com/macros/s/…/exec'); return; }
   save.sync.url = u; save.sync.error = ''; persist();
   updateSync(u ? 'Adresa uložena. Zkouším odeslat…' : 'Odesílání vypnuto.');
-  if (u) { backfillLog(); syncNow(); }
+  if (!u) return;
+  // poprvé: zeptat se, jestli poslat i kola odehraná dřív (na zařízení, kde se hra jen zkoušela, je posílat nechceme)
+  const n = backfillCount();
+  if (n) { $('#backfillInfo').textContent = `Na tomhle zařízení je ${n} starších kol. Poslat je do tabulky taky? Když se tu hra jen zkoušela, zvolte Jen nová.`; $('#backfillConfirm').hidden = false; return; }
+  syncNow();
 });
+$('#btnBackfillYes').addEventListener('click', () => { $('#backfillConfirm').hidden = true; backfillLog(); syncNow(); });
+$('#btnBackfillNo').addEventListener('click', () => { $('#backfillConfirm').hidden = true; save.sync.backfilled = true; persist(); syncNow(); });
 async function syncNow() {
   if (!save.sync.url) { updateSync(); return; }
   if (!save.sync.queue.length) { updateSync('Není co odeslat, všechno už v tabulce je.'); return; }

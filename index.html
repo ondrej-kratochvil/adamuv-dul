@@ -433,6 +433,11 @@
     <label class="lbl-small" for="syncUrl">Adresa tabulky:</label>
     <input id="syncUrl" type="url" inputmode="url" placeholder="https://script.google.com/macros/s/…/exec" autocomplete="off" spellcheck="false">
     <div class="seg"><button class="gbtn go" id="btnSyncSave">Uložit adresu</button><button class="gbtn" id="btnSyncNow">Odeslat teď</button></div>
+    <div class="confirm" id="backfillConfirm" hidden>
+      <p style="margin:0" id="backfillInfo"></p>
+      <button class="gbtn go" id="btnBackfillYes">Poslat i starší kola</button>
+      <button class="gbtn" id="btnBackfillNo">Jen nová</button>
+    </div>
     <p id="syncInfo" role="status"></p>
     <h3>Přenos na jiný tablet</h3>
     <p>Postup jde zkopírovat jako text (třeba poslat zprávou) a na jiném tabletu vložit. Vložení nahradí postup v tomhle tabletu, předchozí stav se uloží jako záloha.</p>

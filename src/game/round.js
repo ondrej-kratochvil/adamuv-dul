@@ -6,7 +6,7 @@ import { updateTools } from '../logic/tools.ts';
 import { toolName } from '../content/tools.ts';
 import { toolCanvas } from '../gfx/tools.js';
 import { fitBuild } from '../world/build.js';
-import { NEED_CLEAN, STUCK_MS, needClean, stuckMsFor } from '../logic/rewards.ts';
+import { NEED_CLEAN, STUCK_MS, errorCost, errorWarning, needClean, stuckMsFor } from '../logic/rewards.ts';
 import { $, REDUCED } from '../core/dom.js';
 import { persist, save } from '../save/save.ts';
 import { cracks, pick, tex, texCanvas } from '../gfx/textures.js';
@@ -41,7 +41,7 @@ const stuckMs = () => stuckMsFor(protectionLevels());
 function startRound(level) {
   flushRate();
   const L = levelDef(level);
-  G.R = { level, i: 0, busy: true, recent: [], loot: [], clean: 0, len: L.len || ROUND_LEN, start: Date.now(), pauses: 0, pauseMs: 0 };
+  G.R = { level, i: 0, busy: true, recent: [], loot: [], clean: 0, len: L.len || ROUND_LEN, start: Date.now(), pauses: 0, pauseMs: 0, errors: 0, lost: 0 };
   $('#game').classList.remove('paused'); $('#pauseOverlay').hidden = true;
   G.TR = null; $('#trace').hidden = true; $('#blocks').hidden = false; $('#task').hidden = true;
   show('game');
@@ -124,12 +124,13 @@ function tapBlock(it, el) {
   if (it !== G.R.target) {
     // chyba: krumpáč se na chvíli zasekne, takže tipování se nevyplácí
     G.R.firstTry = false; G.R.wrongs++; G.R.stuck = true;
+    const pen = penalize();
     if (G.R.wrongPicks) { G.R.wrongPicks.push(it); if (!G.R.heardAt || Date.now() - G.R.heardAt < QUICK_WRONG_MS) G.R.quick++; }
     sfx.nope(); retrigger(el, 'nope');
     $('#blocks').classList.add('stuck'); retrigger($('#hudPick'), 'stuck');
     if (G.R.wrongs >= 2) G.R.els[G.R.choices.indexOf(G.R.target)].classList.add('glow');
     const t = G.R.target;
-    setTimeout(() => { if (G.R && G.R.target === t && !G.R.busy) speak(G.R.picture ? 'Chyba, krumpáč se zasekl. Přečti slovo ještě jednou, písmenko po písmenku.' : (/^math:/.test(G.R.statKey) ? 'Chyba, krumpáč se zasekl. Zkus to znovu: ' : 'Chyba, krumpáč se zasekl. Poslouchej: ') + G.R.say); }, 300);
+    setTimeout(() => { if (G.R && G.R.target === t && !G.R.busy) speak(pen + (G.R.picture ? 'Chyba, krumpáč se zasekl. Přečti slovo ještě jednou, písmenko po písmenku.' : (/^math:/.test(G.R.statKey) ? 'Chyba, krumpáč se zasekl. Zkus to znovu: ' : 'Chyba, krumpáč se zasekl. Poslouchej: ') + G.R.say)); }, 300);
     setTimeout(() => { if (G.R && G.R.target === t) { G.R.stuck = false; $('#blocks').classList.remove('stuck'); $('#hudPick').classList.remove('stuck'); } }, stuckMs());
     return;
   }
@@ -146,6 +147,13 @@ function tapBlock(it, el) {
 function logTask(ms, wrong, quick) {
   const [lv, ...rest] = G.R.statKey.split(':');
   queueRows([{ Druh: 'úloha', Patro: levelName(lv), Úloha: rest.join(':'), Napoprvé: G.R.firstTry ? 'ano' : 'ne', Sekundy: Math.round(ms / 100) / 10, Záměny: wrong.join(', '), Tipy: quick, Kolo: levelName(G.R.level) }]);
+}
+// chyba v kole: od třetí stojí smaragd (logic/rewards.ts errorCost); vrací větu, která se řekne před opakováním zadání
+function penalize() {
+  G.R.errors++;
+  const cost = errorCost(G.R.errors, G.R.lost, save.emeralds);
+  if (cost) { save.emeralds -= cost; G.R.lost += cost; persist(); updateGems(); retrigger($('#hudGems'), 'lose'); return 'Smaragd je pryč. '; }
+  return errorWarning(G.R.errors) ? 'Pozor, další chyba už bude stát smaragd. ' : '';
 }
 const PRAISE = ['Výborně!', 'Super!', 'Ano!', 'Paráda!', 'Skvěle!', 'To je ono!', 'Přesně tak!'];
 function breakBlock(el) {
@@ -231,10 +239,12 @@ function endRound() {
   const vilTalk = vil.length ? ' Ve vesnici přibylo: ' + vil.map(v => v.st >= 8 ? `${v.b.name} je hotová a nastěhoval se ${v.b.who}` : `${v.b.name}, ${BLD_STAGES[v.st - 1]}`).join(' a ') + '.' : '';
   const enchTalk = newEnch.length ? ` Máš nové očarování: ${newEnch.map(e => `${pieceName(e.pc)}, ${e.name} ${e.lvl}`).join(' a ')}.` : '';
   const eg = $('#endGems');
+  const lostR = G.R.lost || 0;
+  const lostTalk = lostR ? ` Za chyby jsi ztratil ${lostR} ${gemWord(lostR)}.` : '';
   const showGems = (bonus = 0) => {
     const extra = [perfect ? `${PERFECT_BONUS} za kolo bez chyby` : '', bonus ? `${bonus} za řadu dní` : ''].filter(Boolean).join(', ');
     eg.innerHTML = ''; eg.appendChild(sprIcon('emerald'));
-    eg.append(`+${earned + bonus}` + (extra ? ` (z toho ${extra})` : '') + `, máš ${save.emeralds}`);
+    eg.append(`+${earned + bonus}` + (extra ? ` (z toho ${extra})` : '') + (lostR ? `, za chyby −${lostR}` : '') + `, máš ${save.emeralds}`);
   };
   showGems();
   const np = $('#newPick'), no = $('#newOutfit');
@@ -257,7 +267,7 @@ function endRound() {
     $('#endOverlay').hidden = false;
     sfx.nope();
     const enc = cheerFor(false);
-    speak(`Tentokrát ${grewNot}. Bez chyby jsi měl ${got} z ${R_len}, potřebuješ aspoň ${need}. ${enc}${enchTalk}${vilTalk}${cardTalk}${rotate(level)}`);
+    speak(`Tentokrát ${grewNot}. Bez chyby jsi měl ${got} z ${R_len}, potřebuješ aspoň ${need}. ${enc}${lostTalk}${enchTalk}${vilTalk}${cardTalk}${rotate(level)}`);
     $('#btnAgain').focus({ preventScroll: true });
     return;
   }
@@ -312,7 +322,7 @@ function endRound() {
   // pokrok na domě nebo farmě říct nahlas (Ondřej 19. 10. 2026), po hotové farmě už ne
   const grewTalk = st <= FARM_START + FARM_STAGES.length ? ' ' + grew : '';
   const rot = rotate(level);
-  speak((perfect ? 'Bez jediné chyby! ' : '') + cheer + grewTalk + (newTier ? ` Máš nový ${after.name} krumpáč!` : '') + story + dayTalk + netherTalk + babyTalk + prerovTalk + toolTalk + enchTalk + vilTalk + cardTalk + (fresh.length ? ` V šatníku máš ${fresh.map(([, it]) => it.name).join(' a ')}.` : '') + rot);
+  speak((perfect ? 'Bez jediné chyby! ' : '') + cheer + lostTalk + grewTalk + (newTier ? ` Máš nový ${after.name} krumpáč!` : '') + story + dayTalk + netherTalk + babyTalk + prerovTalk + toolTalk + enchTalk + vilTalk + cardTalk + (fresh.length ? ` V šatníku máš ${fresh.map(([, it]) => it.name).join(' a ')}.` : '') + rot);
   $('#btnAgain').focus({ preventScroll: true });
 }
 // Pauza (Ondřej 20. 10. 2026): zadání se schová, čas stojí; v deníku a tabulce se pauza odliší od odchodu z kola
@@ -353,4 +363,4 @@ function goHome() {
   renderHome(); show('home');
 }
 
-export { pauseRound, resumeRound, NEED_CLEAN, PRAISE, logTask, ROUND_LEN, STUCK_MS, breakBlock, burst, endRound, flyTo, goHome, layoutBlocks, nextTask, protectionLevels, retrigger, startRound, stuckMs, tapBlock };
+export { penalize, pauseRound, resumeRound, NEED_CLEAN, PRAISE, logTask, ROUND_LEN, STUCK_MS, breakBlock, burst, endRound, flyTo, goHome, layoutBlocks, nextTask, protectionLevels, retrigger, startRound, stuckMs, tapBlock };

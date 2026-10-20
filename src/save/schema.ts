@@ -9,7 +9,7 @@ export const SCHEMA = 5; // 1 = vše do verze hry 15 (bez čísla schématu), 2 
                         // 4 = převlékání rodiny (verze hry 28), 5 = název a značka zařízení pro tabulku (verze hry 39)
 
 // pauses/pauseSecs: pauzy v kole (od verze 36); secs je doba bez pauz
-export interface LogEntry { t: number; d: string; level: string; clean: number; done: number; len: number; ok: boolean; quit: boolean; secs: number; rate?: number; pauses?: number; pauseSecs?: number }
+export interface LogEntry { t: number; d: string; level: string; clean: number; done: number; len: number; ok: boolean; quit: boolean; secs: number; rate?: number; pauses?: number; pauseSecs?: number; lost?: number }
 export interface Note { who: string; text: string; done: boolean; t?: number }
 
 export interface SaveState {

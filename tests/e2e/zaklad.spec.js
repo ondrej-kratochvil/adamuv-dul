@@ -22,13 +22,13 @@ for (const level of LEVELS) {
   });
 }
 
-test('kolo s mnoha chybami se nepočítá a nic se nebere', async ({ page }) => {
+test('kolo s mnoha chybami se nepočítá a za chyby od třetí ubyde nejvýš 5 smaragdů (pravidlo od 20. 10. 2026)', async ({ page }) => {
   await openGame(page, { total: 3, emeralds: 7 });
   await playRound(page, 'Písmena', { wrong: 8 });
   await expect(page.locator('#endTitle')).toHaveText('Skoro!');
   const s = await saved(page);
   expect(s.total).toBe(3);
-  expect(s.emeralds).toBe(7);
+  expect(s.emeralds).toBe(2); // 8 chyb: 2 zdarma, 6 by stálo, strop 5
 });
 
 test('psaní: vyjetí z dráhy je chyba', async ({ page }) => {
