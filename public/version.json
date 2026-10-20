@@ -1,6 +1,13 @@
 {
-  "version": 43,
+  "version": 44,
   "changes": [
+    {
+      "version": 44,
+      "date": "2026-10-20",
+      "notes": [
+        "Po kole ti občas fandí i Horník, Kid, Rili, Mia, Vivien a Venda."
+      ]
+    },
     {
       "version": 43,
       "date": "2026-10-20",
