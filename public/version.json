@@ -1,6 +1,13 @@
 {
-  "version": 38,
+  "version": 39,
   "changes": [
+    {
+      "version": 39,
+      "date": "2026-10-21",
+      "notes": [
+        "Na počítači jsou nástroje v šatníku menší, ať se vejdou."
+      ]
+    },
     {
       "version": 38,
       "date": "2026-10-21",

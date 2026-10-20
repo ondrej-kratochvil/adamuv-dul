@@ -57,7 +57,8 @@ přidej i odměny, aby Adam nedošel na strop dřív, než dojde obsah.
   čas úlohy ani kola neběží; v deníku `pauses`/`pauseSecs`, v tabulce sloupce Pauzy a Pauza (s). Odliší přerušení od odchodu z kola.
 - **Tabulka Google** (`logic/sync.ts`, `app/sync.js`, skript `docs/google-tabulka.gs`, návod `docs/google-tabulka.md`): po každé úloze,
   kole a hodnocení řádek do fronty v uloženém stavu, odeslání hned, při startu, při návratu do hry a po připojení. Řádky mají ID,
-  skript duplicity přeskočí. Adresa skriptu jen v nastavení (repo je veřejné), nikdy v kódu. Nic o rodině se neposílá.
+  skript duplicity přeskočí. Víc zařízení do jedné tabulky: sloupec Zařízení (`sync.device`, název v nastavení), značka `sync.uid` v ID,
+  list „Stav <zařízení>“; vložený postup nepřebírá `sync` (patří zařízení). Adresa skriptu jen v nastavení (repo je veřejné), nikdy v kódu. Nic o rodině se neposílá.
 
 ## Verze a novinky
 

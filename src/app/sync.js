@@ -1,6 +1,6 @@
 // Odesílání statistik do tabulky Google (pravidla a fronta v logic/sync.ts, skript v docs/google-tabulka.gs)
 import { persist, save } from '../save/save.ts';
-import { BATCH, acknowledge, enqueue, localStamp, validSyncUrl } from '../logic/sync.ts';
+import { BATCH, acknowledge, enqueue, ensureDevice, localStamp, validSyncUrl } from '../logic/sync.ts';
 import { LEVEL_KEYS, levelProgress, masteryPoints } from '../logic/mastery.ts';
 import { LEVELS } from '../levels/reading.js';
 
@@ -18,7 +18,7 @@ function stateRows() {
   const m = masteryPoints(save.stats);
   rows.push({ Patro: 'Celkem', Zvládnuto: m.pts, Celkem: m.max, Procent: Math.round(m.pts / m.max * 100), 'Odehraná kola': save.total });
   rows.push({ Patro: 'Procvičování', Zvládnuto: '', Celkem: '', Procent: '', 'Odehraná kola': save.practice || 0 });
-  return { aktualizace: localStamp(Date.now()), smaragdy: save.emeralds, rada: save.streak.count, nejdelsiRada: save.streak.best, patra: rows };
+  return { zarizeni: save.sync.device, aktualizace: localStamp(Date.now()), smaragdy: save.emeralds, rada: save.streak.count, nejdelsiRada: save.streak.best, patra: rows };
 }
 // při prvním nastavení tabulky pošle i kola odehraná dřív (z deníku; úlohy jednotlivě se dřív neukládaly)
 function backfillLog() {
@@ -29,6 +29,8 @@ function backfillLog() {
   enqueue(save.sync, rows, Date.now()); save.sync.queue.push(...q); save.sync.start = st || save.sync.start;
   save.sync.backfilled = true; persist();
 }
+// název a značka tohoto zařízení (tablet, počítač…); dotykové = tablet
+function initDevice() { const touch = typeof matchMedia === 'function' && matchMedia('(pointer: coarse)').matches; ensureDevice(save.sync, touch); persist(); }
 let busy = false;
 async function flushSync() {
   const s = save.sync;
@@ -52,4 +54,4 @@ async function flushSync() {
   } finally { busy = false; }
 }
 
-export { backfillLog, flushSync, levelName, queueRows, stateRows };
+export { initDevice, backfillLog, flushSync, levelName, queueRows, stateRows };

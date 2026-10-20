@@ -4,9 +4,9 @@ import type { Stats } from '../logic/mastery';
 import type { Streak } from '../logic/streak';
 import { syncDefaults, type SyncState } from '../logic/sync';
 
-export const SCHEMA = 4; // 1 = vše do verze hry 15 (bez čísla schématu), 2 = s číslem schématu a nejvyšším stavem vesnice,
+export const SCHEMA = 5; // 1 = vše do verze hry 15 (bez čísla schématu), 2 = s číslem schématu a nejvyšším stavem vesnice,
                         // 3 = doba řešení a záměny u úloh, procvičování, fronta pro tabulku Google (verze hry 27),
-                        // 4 = převlékání rodiny (verze hry 28)
+                        // 4 = převlékání rodiny (verze hry 28), 5 = název a značka zařízení pro tabulku (verze hry 39)
 
 // pauses/pauseSecs: pauzy v kole (od verze 36); secs je doba bez pauz
 export interface LogEntry { t: number; d: string; level: string; clean: number; done: number; len: number; ok: boolean; quit: boolean; secs: number; rate?: number; pauses?: number; pauseSecs?: number }
@@ -74,6 +74,7 @@ export function migrate(raw: unknown): SaveState {
   if (!Array.isArray(out.streak.days)) out.streak.days = [];
   if (!Array.isArray(out.sync.queue)) out.sync.queue = [];
   if (typeof out.practice !== 'number') out.practice = 0;
+  // v4 -> v5: sync dostane device a uid z výchozích hodnot (NESTED), hra je doplní při startu (initDevice)
   // v3 -> v4: převlékání rodiny začíná prázdné
   if (!Array.isArray(out.famOwned)) out.famOwned = [];
   for (const k of ['log', 'ench', 'notes', 'decor', 'recentLines', 'famOwned'] as const) if (!Array.isArray(out[k])) (out as Record<string, unknown>)[k] = [];

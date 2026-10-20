@@ -59,7 +59,7 @@ $('#btnReset').addEventListener('click', () => { $('#resetConfirm').hidden = fal
 // tabulka Google (app/sync.js, návod docs/google-tabulka.md)
 const fmtWhen = t => { const d = new Date(t); return `${d.getDate()}. ${d.getMonth() + 1}. ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`; };
 function updateSync(msg) {
-  const s = save.sync; $('#syncUrl').value = s.url;
+  const s = save.sync; $('#syncUrl').value = s.url; $('#syncDevice').value = s.device;
   $('#syncInfo').textContent = msg || (!s.url ? 'Zatím nenastaveno, statistiky zůstávají jen v tabletu.'
     : `Odesláno ${s.sent} záznamů${s.last ? `, naposledy ${fmtWhen(s.last)}` : ''}. Čeká na odeslání: ${s.queue.length}.${s.error ? ` Poslední chyba: ${s.error}` : ''}`);
 }
@@ -77,8 +77,9 @@ async function syncNow() {
   await flushSync(); updateSync();
 }
 $('#btnSyncNow').addEventListener('click', syncNow);
+$('#syncDevice').addEventListener('change', e => { const v = e.target.value.trim(); if (v) { save.sync.device = v.slice(0, 40); persist(); updateSync('Název uložen. Nové záznamy půjdou do tabulky s tímhle názvem.'); } });
 $('#btnResetNo').addEventListener('click', () => { $('#resetConfirm').hidden = true; });
-$('#btnResetYes').addEventListener('click', () => { try { localStorage.setItem(BACKUP_KEY, JSON.stringify(save)); } catch (e) {} const keep = { sync: { ...syncDefaults(), url: save.sync.url }, caseMode: save.caseMode, slow: save.slow, strict: save.strict, pron: save.pron, outfit: save.outfit, notes: save.notes, dogName: save.dogName }; /* nastavení rodiče včetně výslovnosti zůstává */ replaceSave(Object.assign(defaults(), keep)); persist(); updateRestore(); $('#resetConfirm').hidden = true; updateSettings(); });
+$('#btnResetYes').addEventListener('click', () => { try { localStorage.setItem(BACKUP_KEY, JSON.stringify(save)); } catch (e) {} const keep = { sync: { ...syncDefaults(), url: save.sync.url, device: save.sync.device, uid: save.sync.uid }, caseMode: save.caseMode, slow: save.slow, strict: save.strict, pron: save.pron, outfit: save.outfit, notes: save.notes, dogName: save.dogName }; /* nastavení rodiče včetně výslovnosti zůstává */ replaceSave(Object.assign(defaults(), keep)); persist(); updateRestore(); $('#resetConfirm').hidden = true; updateSettings(); });
 
 /* výslovnost slabik: rodič poslechne varianty a vybere tu, která na jeho tabletu zní česky */
 const PRON_LABEL = { plain: 'obyčejně', split: 'rozděleně', letters: 's písmeny' };
@@ -111,6 +112,7 @@ $('#btnRestoreNo').addEventListener('click', () => { $('#restoreConfirm').hidden
 $('#btnRestoreYes').addEventListener('click', () => {
   const b = readBackup(); if (!b) return updateRestore();
   try { localStorage.setItem(BACKUP_KEY, JSON.stringify(save)); } catch (e) {}
+  b.sync = save.sync; // odesílání patří zařízení, ne postupu
   replaceSave(b); persist(); updateSettings(); updateRestore();
   $('#transferMsg').textContent = 'Záloha je vrácená.';
 });
@@ -139,6 +141,7 @@ $('#btnImportNo').addEventListener('click', () => { $('#importConfirm').hidden =
 $('#btnImportYes').addEventListener('click', () => {
   if (!pending) return;
   try { localStorage.setItem(BACKUP_KEY, JSON.stringify(save)); } catch (e) {}
+  pending.sync = save.sync; // vložený postup z jiného zařízení nepřebere jeho adresu, název ani frontu
   replaceSave(pending); persist(); pending = null; updateRestore();
   $('#importConfirm').hidden = true; tt.hidden = true; msg.textContent = 'Postup je nahraný.';
   updateSettings();

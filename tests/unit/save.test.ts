@@ -51,7 +51,7 @@ describe('schéma 3 (verze hry 27): doba řešení, procvičování, tabulka Goo
     for (const k of Object.keys(old)) if (k !== 'schema') expect(s[k], k).toEqual(old[k]);
     expect(s.schema).toBe(SCHEMA);
     expect(s.practice).toBe(0);
-    expect(s.sync).toEqual({ url: '', queue: [], last: 0, sent: 0, error: '', seq: 0 });
+    expect(s.sync).toEqual({ url: '', queue: [], last: 0, sent: 0, error: '', seq: 0, device: '', uid: '' });
   });
   it('rozbitá fronta se opraví na prázdnou, adresa zůstane', () => {
     const s = migrate({ total: 1, rounds: {}, sync: { url: 'https://script.google.com/macros/s/abc/exec', queue: 'x' } });
@@ -68,7 +68,7 @@ describe('schéma 4 (verze hry 28): převlékání rodiny', () => {
     expect(s.famWear).toEqual({});
     expect(s.famOwned).toEqual([]);
     expect(s.emeralds).toBe(140);
-    expect(s.schema).toBe(4);
+    expect(s.schema).toBe(SCHEMA);
   });
   it('převlečená rodina se při převodu neztratí', () => {
     const s = migrate({ total: 1, rounds: {}, famWear: { iva: { head: 'koruna' } }, famOwned: ['koruna'] });
@@ -76,3 +76,13 @@ describe('schéma 4 (verze hry 28): převlékání rodiny', () => {
     expect(s.famOwned).toEqual(['koruna']);
   });
 });
+
+describe('schéma 5 (verze hry 39): název zařízení pro tabulku', () => {
+  it('postup ve schématu 4 s nastavenou tabulkou: adresa, fronta i počty zůstanou, přibude prázdný název a značka', () => {
+    const q = [{ ID: 'a-1', Druh: 'kolo' }];
+    const s = migrate({ schema: 4, total: 40, rounds: {}, sync: { url: 'https://script.google.com/macros/s/X/exec', queue: q, last: 5, sent: 120, error: '', seq: 9 } });
+    expect(s.sync).toMatchObject({ url: 'https://script.google.com/macros/s/X/exec', queue: q, sent: 120, seq: 9, device: '', uid: '' });
+    expect(s.schema).toBe(5);
+  });
+});
+

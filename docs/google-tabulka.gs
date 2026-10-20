@@ -52,9 +52,11 @@ function appendRows(ss, name, rows) {
 }
 
 function writeState(ss, st) {
-  const sh = ss.getSheetByName('Stav') || ss.insertSheet('Stav', 0);
+  // každé zařízení (tablet, počítač…) má svůj list Stav, ať se nepřepisují
+  const name = st.zarizeni ? 'Stav ' + st.zarizeni : 'Stav';
+  const sh = ss.getSheetByName(name) || ss.insertSheet(name, 0);
   sh.clear();
-  const rows = [['Aktualizováno', st.aktualizace], ['Smaragdy', st.smaragdy], ['Řada dní', st.rada], ['Nejdelší řada', st.nejdelsiRada], ['', '']];
+  const rows = [['Zařízení', st.zarizeni || ''], ['Aktualizováno', st.aktualizace], ['Smaragdy', st.smaragdy], ['Řada dní', st.rada], ['Nejdelší řada', st.nejdelsiRada], ['', '']];
   sh.getRange(1, 1, rows.length, 2).setValues(rows);
   const p = st.patra || [];
   if (p.length) {

@@ -10,9 +10,10 @@ Bez internetu záznamy čekají v tabletu (nejvýš 5000) a odejdou při další
 | **Úlohy** | každou vyřešenou úlohu | čas, patro, úloha, napoprvé (ano/ne), sekundy, záměny (co vybral místo správné), tipy (chyby do 1,2 s), kolo (patro nebo Procvičování) |
 | **Kola** | každé kolo | čas, patro, bez chyby, úloh, hotovo, povedené, odešel, sekundy (bez pauz), pauzy, pauza (s) |
 | **Hodnocení** | každé hodnocení kola 1–10 | čas, patro, hodnocení |
-| **Stav** | přepisuje se | zvládnuto z celku v každém patře, smaragdy, řada dní |
+| **Stav …** | přepisuje se, každé zařízení svůj list (např. „Stav tablet“, „Stav počítač děda Bob“) | zvládnuto z celku v každém patře, smaragdy, řada dní |
 
-Každý řádek má ID, takže opakované odeslání (výpadek spojení) nic nezdvojí. Jména ani nic jiného o rodině se neposílá.
+Každý řádek má sloupec **Zařízení** (název z nastavení hry) a ID se značkou zařízení, takže víc zařízení může posílat do jedné tabulky
+a nesmíchají se. Každý řádek má ID, takže opakované odeslání (výpadek spojení) nic nezdvojí. Jména ani nic jiného o rodině se neposílá.
 
 ## Nastavení (asi 5 minut, na počítači)
 
@@ -34,6 +35,15 @@ Každý řádek má ID, takže opakované odeslání (výpadek spojení) nic nez
 
 Adresa je jako heslo: kdo ji zná, může do tabulky zapisovat (číst ne). Proto není v kódu hry ani v repu,
 je jen v tabletu (a v exportu postupu). Když unikne, v Apps Scriptu udělejte nové nasazení a starou adresu archivujte.
+
+## Další zařízení (třeba počítač u dědy)
+
+Do hry na dalším zařízení vložte **stejnou adresu** a v nastavení vyplňte **Název tohoto zařízení** (např. „počítač děda Bob“).
+Řádky se odliší sloupcem Zařízení a každé zařízení má svůj list Stav. Postup se mezi zařízeními nepřenáší sám (každé má svůj),
+ručně jde přes Zkopírovat postup a Vložit postup; vložení nepřebere název ani adresu tabulky.
+
+Listy Stav po zařízeních umí skript od 21. 10. 2026: po vložení nové verze skriptu je potřeba **Nasadit → Spravovat nasazení →
+upravit → Verze: Nová verze → Nasadit** (adresa zůstane stejná). Dokud se to nestane, přepisují zařízení společný list Stav.
 
 ## Když skript změníte
 

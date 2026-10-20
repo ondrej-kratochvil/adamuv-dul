@@ -126,7 +126,7 @@ button:focus-visible { outline: 4px solid var(--gold); outline-offset: 3px; }
 .ward-tabs { display: flex; gap: 8px; flex-wrap: wrap; }
 .ward-tabs .gbtn { width: clamp(52px, 14vw, 68px); height: clamp(52px, 14vw, 68px); padding: 6px; }
 .ward-tabs .gbtn[aria-pressed="true"] { background: var(--go); }
-.ward-items { display: grid; grid-template-columns: repeat(auto-fill, minmax(76px, 1fr)); gap: 10px; }
+.ward-items { display: grid; grid-template-columns: repeat(auto-fill, minmax(76px, 110px)); gap: 10px; }
 .swatch { position: relative; aspect-ratio: 1; background: #e6e6e6; border: 3px solid #161616; box-shadow: inset 3px 3px 0 #ffffff, inset -3px -3px 0 #8b8b8b; padding: 8px; display: grid; place-items: center; }
 .swatch canvas, .ward-tabs canvas { width: 100%; height: 100%; }
 .swatch[aria-pressed="true"] { background: #bfe6a8; outline: 4px solid var(--go); outline-offset: 2px; }
@@ -381,7 +381,7 @@ canvas.ench { animation: ench 1.8s ease-in-out infinite; }
 .gate-q { display: block; font-family: var(--f-read); font-size: 24px; margin-bottom: 8px; }
 .gate input { width: 100%; font-family: var(--f-read); font-size: 28px; padding: 6px 10px; border: 3px solid #161616; margin-bottom: 6px; }
 .gate-msg { min-height: 1.4em; color: #9a2a14; font-weight: 700; }
-.tool-row { grid-column: 1 / -1; display: grid; grid-template-columns: 70px repeat(6, minmax(0, 1fr)); gap: 6px; align-items: center; }
+.tool-row { grid-column: 1 / -1; display: grid; grid-template-columns: 70px repeat(6, minmax(0, 96px)); gap: 6px; align-items: center; } /* na počítači ne přes celou šířku (Ondřej 21. 10. 2026) */
 .tool-row b { font-family: var(--f-read); font-size: 15px; }
 .tool-cell { padding: 4px; }
 .tool-cell canvas { width: 100%; height: auto; }
@@ -397,7 +397,8 @@ canvas.ench { animation: ench 1.8s ease-in-out infinite; }
 .faces.many canvas { width: 40px; height: 40px; }
 .faces.many canvas + canvas { margin-left: -6px; }
 .family-notes .seg .gbtn { font-size: 15px; padding: 6px 10px; }
-.family-notes textarea, .family-notes input, #syncUrl { width: 100%; font-family: var(--f-read); font-size: 16px; padding: 6px; border: 3px solid #161616; margin: 6px 0; }
+.lbl-small { display: block; font-family: var(--f-read); font-size: 14px; margin-top: 6px; }
+.family-notes textarea, .family-notes input, #syncUrl, #syncDevice { width: 100%; font-family: var(--f-read); font-size: 16px; padding: 6px; border: 3px solid #161616; margin: 6px 0; }
 .note-list { margin: 6px 0; padding-left: 18px; }
 .note-list li { margin-bottom: 4px; }
 .note-list button { font-size: 13px; margin-left: 6px; }

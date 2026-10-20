@@ -85,3 +85,18 @@ test('bez internetu záznamy počkají a chyba se ukáže', async ({ page }) => 
   expect(s.sync.queue.length).toBeGreaterThanOrEqual(9);
   expect(s.sync.error).not.toBe('');
 });
+
+test('vložený postup z jiného zařízení nepřebere název zařízení, adresu ani frontu tohoto zařízení', async ({ page }) => {
+  const URL = 'https://script.google.com/macros/s/PC1/exec';
+  await page.route(URL, route => route.abort());
+  await openGame(page, { total: 5, sync: { url: URL, queue: [], last: 0, sent: 0, error: '', seq: 0, device: 'počítač děda Bob', uid: 'pc01', backfilled: true } });
+  await openSettings(page);
+  await expect(page.locator('#syncDevice')).toHaveValue('počítač děda Bob');
+  const other = await page.evaluate(() => { const s = JSON.parse(JSON.stringify(window.__adam.save)); s.total = 41; s.sync = { url: 'https://script.google.com/macros/s/TABLET/exec', queue: [], last: 0, sent: 99, error: '', seq: 0, device: 'tablet', uid: 'tb01' }; return 'ADAMUV-DUL-POSTUP:' + JSON.stringify(s); });
+  await page.locator('#btnImport').click();
+  await page.locator('#transferText').fill(other);
+  await page.locator('#btnImportYes').click();
+  const s = await saved(page);
+  expect(s.total).toBe(41);
+  expect(s.sync).toMatchObject({ url: URL, device: 'počítač děda Bob', uid: 'pc01' });
+});

@@ -1,6 +1,7 @@
 // Fronta pro tabulku Google (verze 27)
 import { describe, expect, it } from 'vitest';
-import { acknowledge, enqueue, localStamp, QUEUE_MAX, syncDefaults, validSyncUrl } from '../../src/logic/sync';
+import { acknowledge, enqueue, ensureDevice, localStamp, QUEUE_MAX, syncDefaults, validSyncUrl } from '../../src/logic/sync';
+import { seeded } from '../../src/logic/random';
 
 describe('odesílání do tabulky Google', () => {
   it('pozná adresu nasazeného Apps Scriptu', () => {
@@ -29,3 +30,21 @@ describe('odesílání do tabulky Google', () => {
     expect(localStamp(new Date(2026, 9, 20, 7, 5, 9).getTime())).toBe('2026-10-20 07:05:09');
   });
 });
+
+describe('více zařízení v jedné tabulce (21. 10. 2026)', () => {
+  it('nové zařízení dostane název podle druhu a značku; řádky nesou název i značku v ID', () => {
+    const t = syncDefaults(); ensureDevice(t, true, seeded(1));
+    const p = syncDefaults(); ensureDevice(p, false, seeded(2));
+    expect(t.device).toBe('tablet'); expect(p.device).toBe('počítač');
+    expect(t.uid).toMatch(/^[0-9a-z]{4}$/); expect(t.uid).not.toBe(p.uid);
+    p.device = 'počítač děda Bob';
+    enqueue(t, [{ Druh: 'kolo' }], 1000); enqueue(p, [{ Druh: 'kolo' }], 1000);
+    expect(t.queue[0].Zařízení).toBe('tablet'); expect(p.queue[0].Zařízení).toBe('počítač děda Bob');
+    expect(t.queue[0].ID).not.toBe(p.queue[0].ID);
+  });
+  it('název, který už je nastavený, se nepřepíše', () => {
+    const s = syncDefaults(); s.device = 'počítač děda Bob'; ensureDevice(s, true);
+    expect(s.device).toBe('počítač děda Bob');
+  });
+});
+

@@ -428,6 +428,9 @@
     </div>
     <h3>Statistiky do tabulky Google</h3>
     <p>Hra může po každém kole poslat výsledky do tabulky Google ve vašem účtu. Pak je nemusíte posílat z tabletu. Bez internetu záznamy počkají a odejdou později. Návod: <a href="https://github.com/ondrej-kratochvil/adamuv-dul/blob/main/docs/google-tabulka.md" target="_blank" rel="noopener">docs/google-tabulka.md</a>.</p>
+    <label class="lbl-small" for="syncDevice">Název tohoto zařízení (do tabulky, ať se zařízení nesmíchají):</label>
+    <input id="syncDevice" type="text" maxlength="40" placeholder="tablet, počítač děda Bob…" autocomplete="off">
+    <label class="lbl-small" for="syncUrl">Adresa tabulky:</label>
     <input id="syncUrl" type="url" inputmode="url" placeholder="https://script.google.com/macros/s/…/exec" autocomplete="off" spellcheck="false">
     <div class="seg"><button class="gbtn go" id="btnSyncSave">Uložit adresu</button><button class="gbtn" id="btnSyncNow">Odeslat teď</button></div>
     <p id="syncInfo" role="status"></p>
