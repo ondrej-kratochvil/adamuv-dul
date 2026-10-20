@@ -17,8 +17,11 @@ Každý řádek má ID, takže opakované odeslání (výpadek spojení) nic nez
 ## Nastavení (asi 5 minut, na počítači)
 
 1. Na [sheets.new](https://sheets.new) založte novou tabulku a pojmenujte ji třeba „Adamův důl – statistiky“.
-2. V tabulce **Rozšíření → Apps Script**. Smažte, co v editoru je, a vložte celý obsah souboru
-   [`google-tabulka.gs`](google-tabulka.gs). Uložte (ikona diskety).
+2. V tabulce **Rozšíření → Apps Script**. V editoru (soubor Kód.gs) označte všechno (Ctrl+A) a smažte, ať tam nezůstane
+   ani výchozí `function myFunction`. Pak otevřete čistý text skriptu
+   <https://raw.githubusercontent.com/ondrej-kratochvil/adamuv-dul/main/docs/google-tabulka.gs>, označte vše (Ctrl+A),
+   zkopírujte a vložte. Uložte (ikona diskety). Skript má asi 70 řádků; když editor hlásí chybu na řádku za koncem
+   skriptu, vložilo se něco navíc nebo dvakrát.
 3. Vpravo nahoře **Nasadit → Nové nasazení**. U „Vyberte typ“ (ozubené kolo) zvolte **Webová aplikace**.
    - Popis: Adamův důl
    - Spustit jako: **Já**

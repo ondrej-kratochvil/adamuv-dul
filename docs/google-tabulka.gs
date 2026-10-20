@@ -1,12 +1,10 @@
-/**
- * Adamův důl: příjem statistik do tabulky Google.
- * Vložte do tabulky přes Rozšíření → Apps Script, uložte a nasaďte jako webovou aplikaci
- * (Spustit jako: já, Přístup: kdokoli). Návod: docs/google-tabulka.md.
- *
- * Hra posílá řádky s polem „Druh“: kolo → list Kola, úloha → list Úlohy, hodnocení → list Hodnocení.
- * List Stav se při každém odeslání přepíše aktuálním zvládnutím pater.
- * Každý řádek má ID; když hra pošle stejný řádek znovu (výpadek spojení), podruhé se nezapíše.
- */
+// Adamův důl: příjem statistik do tabulky Google.
+// Vložte do tabulky přes Rozšíření > Apps Script (nejdřív v editoru smažte všechno, co tam je), uložte
+// a nasaďte jako webovou aplikaci (Spustit jako: já, Přístup: kdokoli). Návod: docs/google-tabulka.md.
+// Hra posílá řádky s polem Druh: kolo > list Kola, úloha > list Úlohy, hodnocení > list Hodnocení.
+// List Stav se při každém odeslání přepíše aktuálním zvládnutím pater.
+// Každý řádek má ID; když hra pošle stejný řádek znovu (výpadek spojení), podruhé se nezapíše.
+// Soubor schválně neobsahuje hvězdičky ani blokové komentáře (snáz se kopíruje).
 const SHEETS = { 'kolo': 'Kola', 'úloha': 'Úlohy', 'hodnocení': 'Hodnocení' };
 
 function doPost(e) {
