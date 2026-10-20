@@ -19,8 +19,8 @@ describe('hlášky rodiny', () => {
     let recent: string[] = []; const rng = seeded(5);
     for (let i = 0; i < 40; i++) { const l = pickLine(own, [], recent, rng); expect(own).toContain(l); recent = remember(recent, l); }
   });
-  it('vlastní věty asi ze 70 %, nedávné se neopakují', () => {
-    const own = ['a', 'b', 'c', 'd', 'e', 'f', 'g'], common = ['x', 'y', 'z'];
+  it('vlastní věty asi z 90 %, nedávné se neopakují', () => {
+    const own = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'], common = ['x', 'y', 'z'];
     let ownCount = 0, recent: string[] = [];
     const rng = seeded(3);
     for (let i = 0; i < 2000; i++) {
@@ -30,8 +30,8 @@ describe('hlášky rodiny', () => {
       recent = remember(recent, l);
       expect(recent.length).toBeLessThanOrEqual(NO_REPEAT);
     }
-    expect(ownCount / 2000).toBeGreaterThan(.6);
-    expect(ownCount / 2000).toBeLessThan(.8);
+    expect(ownCount / 2000).toBeGreaterThan(.8);
+    expect(ownCount / 2000).toBeLessThan(.97);
   });
   it('když jsou všechny věty nedávné, stejně nějakou vybere', () => {
     expect(['a']).toContain(pickLine(['a'], [], ['a']));

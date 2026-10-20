@@ -13,8 +13,12 @@ export const FAMILY_LINES: Record<string, Lines> = {
       'Paráda! Až budeš v Újezdci, postavíme spolu něco u rybníka.',
       'Šikula! Zahrada by potřebovala takového pomocníka.',
       'To je můj Adámek! Pošlu ti pusu až do Přerova.',
+      // podle povolání a zálib (Ondřej 20. 10. 2026, docs/hlasky-navrh-4.md)
+      'Spočítala jsem to: bez chyby! Babička účetní má radost.',
+      'Argo by ti zaštěkal pochvalu! Haf!',
+      'Argo ti posílá pac. Šikula!',
     ],
-    enc: ['Nevadí, Adame. I na zahradě to někdy hned nevyroste.', 'Zkus to znovu, babička ti drží palce!', 'Pomaloučku a pozorně. Ty to zvládneš.'],
+    enc: ['Nevadí, Adame. I na zahradě to někdy hned nevyroste.', 'Zkus to znovu, babička ti drží palce!', 'Pomaloučku a pozorně. Ty to zvládneš.', 'Argo se taky učil povely dlouho. Zkus to znovu!'],
     hello: 'Ahoj Adame, tady babička Iva z Újezdce. Zahraj si, fandím ti!',
   },
   marek: {
@@ -26,8 +30,12 @@ export const FAMILY_LINES: Record<string, Lines> = {
       'Paráda! Na chatě by se hodil tvůj diamantový krumpáč.',
       'To je práce! Až přijedeš na chatu, postavíme něco spolu.',
       'Adame, ty jsi jednička. Děda má radost!',
+      // podle povolání a zálib (Ondřej 20. 10. 2026, docs/hlasky-navrh-4.md)
+      'Výborně! Svítí ti to jako nová žárovka.',
+      'Takového šikulu bych vzal do firmy!',
+      'To je jako redstone v Minecraftu: všechno zapojené správně!',
     ],
-    enc: ['Nevadí. Na chatě se taky něco napoprvé nepovede, a pak se to opraví.', 'Zkus to znovu, stavitel to nevzdává!', 'Pořádně se podívej a zkus to ještě jednou. Věřím ti.'],
+    enc: ['Nevadí. Na chatě se taky něco napoprvé nepovede, a pak se to opraví.', 'Zkus to znovu, stavitel to nevzdává!', 'Pořádně se podívej a zkus to ještě jednou. Věřím ti.', 'I elektrikář někdy zapojí drátek špatně. Opraví to a jede dál!'],
     hello: 'Ahoj Adame, tady děda Marek. Na chatě zase něco stavím, a ty si zahraj!',
   },
   bob: {
@@ -39,8 +47,12 @@ export const FAMILY_LINES: Record<string, Lines> = {
       'To je výkon! Mávám ti z okna naproti.',
       'Paráda! Až opravíme domy v Biskupicích, budeš tam stavbyvedoucí.',
       'Ty už čteš jako velký školák! Děda koukal.',
+      // podle povolání a zálib (Ondřej 20. 10. 2026, docs/hlasky-navrh-4.md)
+      'Zahraju ti na varhany slavnostní fanfáru!',
+      'Na flétnu bych ti zapískal pochvalu!',
+      'To zní líp než celý orchestr. Výborně!',
     ],
-    enc: ['Nevadí, Adame. Zkus to znovu, děda ti fandí.', 'Pomalu a pozorně. Spěchat se nemusí.', 'I velcí stavitelé někdy něco pokazí. Zkus to ještě jednou.'],
+    enc: ['Nevadí, Adame. Zkus to znovu, děda ti fandí.', 'Pomalu a pozorně. Spěchat se nemusí.', 'I velcí stavitelé někdy něco pokazí. Zkus to ještě jednou.', 'I na varhany se musí cvičit. Zkus to znovu!'],
     hello: 'Ahoj Adame, tady děda Bob z bytu naproti. Zahraj si, mávám ti z okna!',
   },
   jindra: {
@@ -52,8 +64,12 @@ export const FAMILY_LINES: Record<string, Lines> = {
       'To je můj šikovný vnouček!',
       'Na Zavadilce bys mohl kopat záhonky. Kopat ti jde!',
       'Mám z tebe velkou radost, Adame.',
+      // podle povolání a zálib (Ondřej 20. 10. 2026, docs/hlasky-navrh-4.md)
+      'To je krásné jako písnička na akordeon!',
+      'Moji žáci by koukali, jak ti to jde!',
+      'Zahraju ti na keyboard vítěznou písničku!',
     ],
-    enc: ['Nevadí, broučku. Zkus to znovu.', 'I na zahradě se musí čekat, než něco vyroste. Příště to dáš!', 'Babička ti drží palce. Ještě jednou!'],
+    enc: ['Nevadí, broučku. Zkus to znovu.', 'I na zahradě se musí čekat, než něco vyroste. Příště to dáš!', 'Babička ti drží palce. Ještě jednou!', 'Na keyboard se taky nejdřív hraje pomalu. Zkus to znovu!'],
     hello: 'Ahoj Adame, tady babička Jindra. Zahraj si, a pak přijď k nám naproti!',
   },
   ondra: {
@@ -65,8 +81,12 @@ export const FAMILY_LINES: Record<string, Lines> = {
       'Paráda, Adame. Jsem na tebe moc pyšný.',
       'Ty už čteš sám! Táta má velkou radost.',
       'Jedničkář! Plácneme si, až přijdu domů.',
+      // podle povolání a zálib (Ondřej 20. 10. 2026, docs/hlasky-navrh-4.md)
+      'Zahraju ti na cello oslavnou písničku!',
+      'Tuhle hru jsem pro tebe dělal a ty ji hraješ skvěle!',
+      'Tohle bych naprogramoval jako nejlepší úroveň!',
     ],
-    enc: ['Nevadí, Adame. I táta se musel učit. Zkus to znovu.', 'Chybami se člověk učí. Příště to dáš!', 'Pozorně poslouchej a jde to. Věřím ti.'],
+    enc: ['Nevadí, Adame. I táta se musel učit. Zkus to znovu.', 'Chybami se člověk učí. Příště to dáš!', 'Pozorně poslouchej a jde to. Věřím ti.', 'I na cello se každá skladba cvičí pořád dokola. Zkus to znovu!'],
     hello: 'Ahoj Adame, tady táta. Jsem na tebe hrdý, zahraj si!',
   },
   paja: {
@@ -77,8 +97,11 @@ export const FAMILY_LINES: Record<string, Lines> = {
       'To je můj velký školák!',
       'Šikovný! Ale nezapomeň se napít.',
       'Mám z tebe radost, broučku.',
+      // podle povolání a zálib (Ondřej 20. 10. 2026, docs/hlasky-navrh-4.md)
+      'To je krásné jako nehty z mého studia!',
+      'Tohle bych ti namalovala na nehet, takovou máš radost!',
     ],
-    enc: ['Nevadí, broučku. Zkus to znovu.', 'Pomalu a pozorně, ty to dáš.', 'Máma ti fandí!'],
+    enc: ['Nevadí, broučku. Zkus to znovu.', 'Pomalu a pozorně, ty to dáš.', 'Máma ti fandí!', 'I nehty se někdy musí předělat. Zkus to znovu, broučku!'],
     hello: 'Ahoj Adame, tady máma. Zahraj si, ale ne moc dlouho!',
   },
   david: { // malý, ještě nevyslovuje (Ondřej): „popolu“ = Kofolu
@@ -107,8 +130,11 @@ export const FAMILY_LINES: Record<string, Lines> = {
       'Paráda! Až se uvidíme, dáme si plácnutí.',
       'Dobrá práce, Adame! Jen tak dál.',
       'Super! Lepšího horníka neznám.',
+      // podle povolání a zálib (Ondřej 20. 10. 2026, docs/hlasky-navrh-4.md)
+      'Jako programátor říkám: bez chyby, žádný bug!',
+      'Tohle bych líp nenaprogramoval ani já!',
     ],
-    enc: ['Nevadí, Adame. Zkus to znovu, strejda ti fandí!', 'Pomalu a pozorně, a půjde to.', 'Chybami se člověk učí. Příště to dáš!'],
+    enc: ['Nevadí, Adame. Zkus to znovu, strejda ti fandí!', 'Pomalu a pozorně, a půjde to.', 'Chybami se člověk učí. Příště to dáš!', 'I programátor má někdy chybu. Najde ji, opraví a jede dál!'],
     hello: 'Ahoj Adame, tady strejda Vašek. Zahraj si, fandím ti!',
   },
   terka: { // Teta Terka (odsouhlasil Ondřej 20. 10. 2026, docs/hlasky-navrh-2.md)
@@ -119,8 +145,11 @@ export const FAMILY_LINES: Record<string, Lines> = {
       'Výborně! Až se uvidíme, všechno mi ukážeš.',
       'To se ti povedlo! Teta ti posílá pusu.',
       'Jsi úžasný, Adame! Jen tak dál.',
+      // podle povolání a zálib (Ondřej 20. 10. 2026, docs/hlasky-navrh-4.md)
+      'Výborně! Tohle povím v Oxalisu všem kolegyním.',
+      'Šikula! Připiju si na tebe dobrým čajem.',
     ],
-    enc: ['Nevadí, Adame, zkus to znovu. Teta ti drží palce!', 'Každý se někdy splete. Příště to dáš!', 'Klidně a pomalu, ty to zvládneš.'],
+    enc: ['Nevadí, Adame, zkus to znovu. Teta ti drží palce!', 'Každý se někdy splete. Příště to dáš!', 'Klidně a pomalu, ty to zvládneš.', 'Nevadí, Adame. Dej si chvilku pauzu a zkus to znovu!'],
     hello: 'Ahoj Adame, tady teta Terka. Fandím ti, zahraj si!',
   },
   ruda: { // Praděda Ruda (Ivin táta) (odsouhlasil Ondřej 20. 10. 2026, docs/hlasky-navrh-2.md)
@@ -131,8 +160,11 @@ export const FAMILY_LINES: Record<string, Lines> = {
       'Paráda! Až se uvidíme, všechno mi povíš.',
       'Ty už čteš jako velký školák. To je radost!',
       'Šikula! Jen tak dál, Adame.',
+      // podle povolání a zálib (Ondřej 20. 10. 2026, docs/hlasky-navrh-4.md)
+      'To je úlovek! Jako kapr na rybách.',
+      'Na rybách bych ti zatleskal, ale ryby by utekly!',
     ],
-    enc: ['Nevadí, Adame. Pomalu a pozorně, a půjde to.', 'I praděda se kdysi učil písmenka. Zkus to znovu!', 'Chybami se člověk učí. Fandím ti!'],
+    enc: ['Nevadí, Adame. Pomalu a pozorně, a půjde to.', 'I praděda se kdysi učil písmenka. Zkus to znovu!', 'Chybami se člověk učí. Fandím ti!', 'Na rybách taky hned nezabere. Trpělivost a zkus to znovu!'],
     hello: 'Ahoj Adame, tady praděda Ruda. Zahraj si, fandím ti!',
   },
   sarka: { // Šárka (odsouhlasil Ondřej 20. 10. 2026, docs/hlasky-navrh-2.md)
@@ -143,8 +175,11 @@ export const FAMILY_LINES: Record<string, Lines> = {
       'Super, Adame! Jen tak dál.',
       'Ty už čteš jako velký školák!',
       'To bylo krásné! Plácneme si?',
+      // podle povolání a zálib (Ondřej 20. 10. 2026, docs/hlasky-navrh-4.md)
+      'Tohle bych ti poslala doporučeně: jsi šikula!',
+      'Na poště povím všem, jak ti to jde!',
     ],
-    enc: ['Nevadí, Adame. Zkus to znovu, fandím ti!', 'Každý se někdy splete. Příště to dáš!', 'Klidně a pomalu, ty to zvládneš.'],
+    enc: ['Nevadí, Adame. Zkus to znovu, fandím ti!', 'Každý se někdy splete. Příště to dáš!', 'Klidně a pomalu, ty to zvládneš.', 'I dopis někdy dojde napodruhé. Zkus to znovu!'],
     hello: 'Ahoj Adame, tady Šárka. Fandím ti, zahraj si!',
   },
   tomas: { // Tomáš (18) (odsouhlasil Ondřej 20. 10. 2026, docs/hlasky-navrh-2.md)
@@ -155,8 +190,11 @@ export const FAMILY_LINES: Record<string, Lines> = {
       'To bylo čistý, žádná chyba. Respekt!',
       'Super! Až se uvidíme, plácneme si.',
       'Takhle se kope! Diamantový krumpáč by sis zasloužil.',
+      // podle povolání a zálib (Ondřej 20. 10. 2026, docs/hlasky-navrh-4.md)
+      'Jedeš jak na motorce! Brrrm!',
+      'Takhle rychle jezdím jen na motorce. Respekt!',
     ],
-    enc: ['V pohodě, to se stane i mně. Dej to znova!', 'Klid, Adame. Pořádně se podívej a dáš to.', 'Nevzdávej to, borče. Příště to bude!'],
+    enc: ['V pohodě, to se stane i mně. Dej to znova!', 'Klid, Adame. Pořádně se podívej a dáš to.', 'Nevzdávej to, borče. Příště to bude!', 'I na motorce se jezdí opatrně. Zkus to pomaleji!'],
     hello: 'Čau Adame, tady Tomáš. Zahraj si, fandím ti!',
   },
   marcelka: { // prababička Marcelka, Markova máma (odsouhlasil Ondřej 20. 10. 2026, docs/hlasky-navrh-3.md)

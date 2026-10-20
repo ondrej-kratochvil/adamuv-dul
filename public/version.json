@@ -1,6 +1,14 @@
 {
-  "version": 33,
+  "version": 34,
   "changes": [
+    {
+      "version": 34,
+      "date": "2026-10-20",
+      "notes": [
+        "Nahoře vedle smaragdů vidíš číslo verze hry, jako v Minecraftu. Klepni na něj a hra ti ho řekne.",
+        "Rodina má nové věty: děda Bob hraje na varhany, praděda Ruda chytá ryby a Tomáš jezdí na motorce."
+      ]
+    },
     {
       "version": 33,
       "date": "2026-10-20",

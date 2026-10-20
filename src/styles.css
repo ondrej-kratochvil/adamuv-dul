@@ -180,6 +180,9 @@ button:focus-visible { outline: 4px solid var(--gold); outline-offset: 3px; }
 .gems canvas { width: 28px; height: 28px; }
 .gems.pop { animation: pop .3s; }
 @keyframes pop { 50% { transform: scale(1.3); } }
+.ver-badge { display: inline-flex; align-items: center; gap: 4px; background: rgba(0,0,0,.2); border: 3px solid rgba(0,0,0,.45); padding: 3px 8px 3px 5px; font-family: var(--f-read); font-weight: 700; font-size: 15px; color: var(--white); text-shadow: 1px 1px 0 #000; } /* číslo verze, Adam ho rád sleduje */
+.ver-badge svg { width: 16px; height: 16px; fill: #f2c94c; }
+.update .ver-n { display: inline-block; min-width: 2.2em; padding: 0 4px; margin-right: 4px; background: #2e5a7f; color: #fff; font-weight: 700; text-align: center; }
 .home-stats { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
 .streak { display: inline-flex; align-items: center; gap: 6px; background: rgba(0,0,0,.2); border: 3px solid rgba(0,0,0,.45); padding: 4px 10px 4px 6px; font-family: var(--f-read); font-weight: 700; font-size: 22px; color: var(--white); text-shadow: 2px 2px 0 #000; font-variant-numeric: tabular-nums; }
 .streak canvas { width: 34px; height: 34px; }

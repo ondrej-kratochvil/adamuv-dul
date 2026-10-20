@@ -1,5 +1,5 @@
 // Název hry, který si vybral Adam
-import { notesBetween } from '../logic/version.ts';
+import { changesBetween, versionLabel } from '../logic/version.ts';
 import { G } from '../core/state.js';
 import { $ } from '../core/dom.js';
 import { persist, save } from '../save/save.ts';
@@ -40,17 +40,18 @@ async function checkVersion() {
     if (!$('#home').hidden) renderHome();
   } catch (e) {}
 }
-function notesSince(from, to) { return notesBetween(serverVersion ? serverVersion.changes : [], from, to); }
+function notesSince(from, to) { return changesBetween(serverVersion ? serverVersion.changes : [], from, to); }
+const cap = s => s[0].toUpperCase() + s.slice(1);
 let updateSpoken = 0; // novinky se přečtou jednou za spuštění
 function renderUpdate(wrap) {
   const box = document.createElement('div'); box.className = 'update';
   let title, notes, btn;
   if (serverVersion && serverVersion.version > APP_VERSION) {
     // na serveru je novější verze, než právě běží
-    title = 'Je tu nová verze hry!'; notes = notesSince(APP_VERSION, serverVersion.version); btn = ['refresh', 'Aktualizovat', () => { G.speechId++; if (synth) synth.cancel(); location.reload(); }];
+    title = `Je tu nová ${versionLabel(serverVersion.version)}!`; notes = notesSince(APP_VERSION, serverVersion.version); btn = ['refresh', 'Aktualizovat', () => { G.speechId++; if (synth) synth.cancel(); location.reload(); }];
   } else if (save.seenVersion < APP_VERSION && (save.seenVersion > 0 || save.total > 0)) {
     // hra se právě aktualizovala: jednou ukázat novinky
-    title = 'Co je ve hře nového'; notes = notesSince(save.seenVersion || APP_VERSION - 1, APP_VERSION);
+    title = `Co je nového ve hře, ${versionLabel(APP_VERSION)}`; notes = notesSince(save.seenVersion || APP_VERSION - 1, APP_VERSION);
     btn = ['check', 'Rozumím', () => { G.speechId++; if (synth) synth.cancel(); save.seenVersion = APP_VERSION; persist(); renderHome(); }];
   } else {
     if (save.seenVersion !== APP_VERSION) { save.seenVersion = APP_VERSION; persist(); } // první spuštění: bez novinek
@@ -58,8 +59,10 @@ function renderUpdate(wrap) {
   }
   // tlačítko popsat obrázkem i nápisem: Adam ho pozná podle obrázku a postupně si spojí i nápis
   const hint = btn[0] === 'check' ? ' Až budeš chtít hrát, klepni na zelené tlačítko s fajfkou, je na něm napsáno Rozumím.' : ' Novou verzi spustíš zeleným tlačítkem s kruhovou šipkou, je na něm napsáno Aktualizovat.';
-  const say = `${title}. ${notes.join(' ')}${hint}`;
-  box.innerHTML = `<b>${title}</b>${notes.length ? `<ul>${notes.map(n => `<li>${n}</li>`).join('')}</ul>` : ''}<div class="actions"><button class="gbtn go"></button><button class="gbtn"></button></div>`;
+  // novinky po verzích, od nejstarší, každá s číslem verze
+  const one = notes.length === 1;
+  const say = `${title}. ${notes.map(c => (one ? '' : `${cap(versionLabel(c.version))}. `) + c.notes.join(' ')).join(' ')}${hint}`;
+  box.innerHTML = `<b>${title}</b>${notes.length ? `<ul>${notes.map(c => `<li>${one ? '' : `<span class="ver-n">${c.version}</span> `}${c.notes.join(' ')}</li>`).join('')}</ul>` : ''}<div class="actions"><button class="gbtn go"></button><button class="gbtn"></button></div>`;
   const [b1, b2] = box.querySelectorAll('button');
   setBtn(b1, btn[0], btn[1]); setBtn(b2, 'speaker', 'Přečíst znovu');
   b1.addEventListener('click', btn[2]);
@@ -74,4 +77,10 @@ function renderUpdate(wrap) {
   else document.addEventListener('pointerdown', function first(e) { document.removeEventListener('pointerdown', first, true); if (!b1.contains(e.target)) { audio(); go(); } }, true);
 }
 
-export { GAME_NAMES, applyName, checkVersion, gameName, notesSince, openNames, renderNames, renderUpdate, serverVersion, updateSpoken };
+// číslo verze na úvodní obrazovce: klepnutí ho přečte (a řekne, když je na internetu novější)
+function renderVersion() {
+  const b = $('#btnVersion'); if (!b) return;
+  setBtn(b, 'tag', versionLabel(APP_VERSION));
+  b.onclick = () => { audio(); speak(`Hra má číslo verze ${APP_VERSION}.` + (serverVersion && serverVersion.version > APP_VERSION ? ` Na internetu už čeká verze ${serverVersion.version}.` : '')); };
+}
+export { renderVersion, GAME_NAMES, applyName, checkVersion, gameName, notesSince, openNames, renderNames, renderUpdate, serverVersion, updateSpoken };

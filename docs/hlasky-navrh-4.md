@@ -1,7 +1,7 @@
 # Hlášky podle povolání a zálib: návrh k odsouhlasení
 
 > **Co:** další vlastní věty rodiny podle toho, co kdo dělá (přidají se k dosavadním, nic se nemaže)
-> **Stav:** draft (čeká na Ondřeje)
+> **Stav:** hotovo (Ondřej 20. 10. 2026: „nové informace použij pro hlášky“, ve hře od verze 34). Platné znění v `src/content/family-lines.ts`.
 > **Stav k:** 20. 10. 2026
 > **Souhrn:**
 > - Údaje od Ondřeje 20. 10. 2026: Marek elektrikář s firmou, Bob bývalý učitel akordeonu a flétny a hraje na varhany, Jindra učí

@@ -1,7 +1,7 @@
 // Každá nová verze hry má záznam novinek pro Adama (pravidlo z CLAUDE.md).
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
-import { notesBetween } from '../../src/logic/version';
+import { changesBetween, notesBetween, versionLabel } from '../../src/logic/version';
 
 const root = new URL('../../', import.meta.url);
 const versionJson = JSON.parse(readFileSync(new URL('public/version.json', root), 'utf8'));
@@ -29,6 +29,8 @@ describe('novinky z více verzí', () => {
     const ch = [{ version: 3, notes: ['c'] }, { version: 2, notes: ['b1', 'b2'] }, { version: 1, notes: ['a'] }];
     expect(notesBetween(ch, 1, 3)).toEqual(['b1', 'b2', 'c']);
     expect(notesBetween(ch, 0, 1)).toEqual(['a']);
+    expect(changesBetween(ch, 0, 3).map(c => c.version)).toEqual([1, 2, 3]);
+    expect(versionLabel(34)).toBe('verze 34');
   });
 });
 

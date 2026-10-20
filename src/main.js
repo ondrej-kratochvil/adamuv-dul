@@ -18,7 +18,7 @@ import { openNether } from './world/nether.js';
 import { checkCards } from './rewards/cards.js';
 import { initBabies } from './world/babies.js';
 import { startBoss } from './world/finale.js';
-import { applyName, checkVersion, gameName, openNames } from './app/name.js';
+import { applyName, checkVersion, gameName, openNames, renderVersion } from './app/name.js';
 import { iconizeButtons } from './ui/icons.js';
 import { openStats } from './app/stats.js';
 import { goHome, startRound } from './game/round.js';
@@ -69,6 +69,7 @@ $('#cheer').addEventListener('click', () => { audio(); if ($('#cheer').dataset.s
 if (season() === 'winter' || season() === 'xmas') document.body.classList.add('winter');
 iconizeButtons();
 applyName();
+renderVersion();
 if (save.obsidian === null || save.obsidian === undefined) save.obsidian = save.streak.days.length; // obsidián i za dny odehrané před portálem
 if (!save.babies) initBabies();
 if (!save.cards) { save.cards = []; checkCards(true); } // kartičky za už zvládnutá slova

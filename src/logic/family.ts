@@ -3,10 +3,10 @@ import { EARLY_BIRD, MOM_PLAY_LIMIT_MIN, MOM_PLAY_TEXT, MOM_SLOTS, MORNING_UNTIL
 import { pad2 } from './calendar';
 import type { Rng } from './random';
 
-export const OWN_SHARE = .7;   // podíl vlastních vět člověka
+export const OWN_SHARE = .9;   // podíl vlastních vět člověka (Ondřej 20. 10. 2026: méně obecných, víc osobních; dřív 70 %)
 export const NO_REPEAT = 5;    // stejná věta nejdřív po tolika jiných
 
-// vybere větu: ze 70 % vlastní, jinak společnou; vynechá nedávno řečené (když to jde)
+// vybere větu: z 90 % vlastní, jinak společnou; vynechá nedávno řečené (když to jde)
 export function pickLine(own: string[], common: string[], recent: readonly string[], rng: Rng = Math.random): string {
   const fresh = (xs: string[]) => xs.filter(x => !recent.includes(x));
   const ownFirst = own.length > 0 && (rng() < OWN_SHARE || !common.length);
