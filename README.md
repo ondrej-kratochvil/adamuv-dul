@@ -60,6 +60,13 @@ Za chybu se krumpáč zasekne (2 s, Ochrana zkracuje až na 1,2 s), v psaní vyj
 Zvládnutý úkol = `mastery() === 'good'` (aspoň 3× správně a poslední dobou bez chyby); body `masteryPoints()` v `logic/mastery.ts`
 z `MASTERY_SETS()` + max. 30 příkladů + max. 20 čísel 21 až 99 mimo desítky. Teď 197 úkolů celkem.
 
+## Statistiky a procvičování
+
+- Ve Statistikách (Pro rodiče) u každého patra: zvládnuté úlohy, nad čím Adam nejdéle přemýšlí, co si s čím plete, podíl rychlých tipů;
+  nahoře „Co procvičit“. Pod každou dlaždicí patra na úvodní obrazovce pruh „zvládnuto x z y“ (`levelProgress`).
+- Dlaždice **Procvičit** skládá kolo ze slabých úloh (`logic/practice.ts`).
+- Výsledky mohou samy chodit do tabulky Google: [docs/google-tabulka.md](docs/google-tabulka.md).
+
 ## Personalizace
 
 - Rodina (`FAMILY`): máma Pája, táta Ondra, babička Jindra, děda Bob, babička Iva, děda Marek, brácha Davídek. Barvy vlasů

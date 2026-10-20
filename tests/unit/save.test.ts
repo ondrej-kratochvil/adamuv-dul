@@ -43,3 +43,19 @@ describe('uložený postup', () => {
     expect(importText('{"a":1}')).toBeNull();
   });
 });
+
+describe('schéma 3 (verze hry 27): doba řešení, procvičování, tabulka Google', () => {
+  it('postup ve schématu 2 (tvar jako export z Adamova tabletu 19. 10. 2026): nic se neztratí, doplní se nová pole', () => {
+    const old = fixture('save-v2');
+    const s = migrate(old);
+    for (const k of Object.keys(old)) if (k !== 'schema') expect(s[k], k).toEqual(old[k]);
+    expect(s.schema).toBe(3);
+    expect(s.practice).toBe(0);
+    expect(s.sync).toEqual({ url: '', queue: [], last: 0, sent: 0, error: '', seq: 0 });
+  });
+  it('rozbitá fronta se opraví na prázdnou, adresa zůstane', () => {
+    const s = migrate({ total: 1, rounds: {}, sync: { url: 'https://script.google.com/macros/s/abc/exec', queue: 'x' } });
+    expect(s.sync.queue).toEqual([]);
+    expect(s.sync.url).toBe('https://script.google.com/macros/s/abc/exec');
+  });
+});

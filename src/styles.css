@@ -93,6 +93,11 @@ button:focus-visible { outline: 4px solid var(--gold); outline-offset: 3px; }
 .lvl .blk { width: var(--tile); }
 .lvl-name { font-family: var(--f-read); font-size: clamp(16px, 4.4vw, 21px); font-weight: 700; color: var(--white); text-shadow: 2px 2px 0 #000; }
 .lvl-sub { font-family: var(--f-read); font-size: 15px; color: #e9dcc8; text-shadow: 1px 1px 0 #000; margin-top: -8px; }
+.lvl-bar { width: var(--tile); height: 10px; margin-top: -4px; background: #2a1d12; border: 2px solid #161616; display: block; } /* zvládnutí patra */
+.lvl-bar i { display: block; height: 100%; background: #5fc062; }
+.lvl.practice .plate svg { width: 66%; height: 66%; image-rendering: pixelated; }
+.lvl.practice.locked .blk { filter: saturate(.55) brightness(.75); }
+.lvl-det { margin: 6px 0 0; font-size: 15px; }
 .lvl[disabled] { cursor: default; }
 .lvl[disabled] .blk { filter: saturate(.55) brightness(.75); }
 .lock { position: absolute; top: 8px; right: calc(50% - var(--tile) / 2 + 6px); width: 34px; height: 34px; }
@@ -369,7 +374,7 @@ canvas.ench { animation: ench 1.8s ease-in-out infinite; }
 .faces.many canvas { width: 40px; height: 40px; }
 .faces.many canvas + canvas { margin-left: -6px; }
 .family-notes .seg .gbtn { font-size: 15px; padding: 6px 10px; }
-.family-notes textarea, .family-notes input { width: 100%; font-family: var(--f-read); font-size: 16px; padding: 6px; border: 3px solid #161616; margin: 6px 0; }
+.family-notes textarea, .family-notes input, #syncUrl { width: 100%; font-family: var(--f-read); font-size: 16px; padding: 6px; border: 3px solid #161616; margin: 6px 0; }
 .note-list { margin: 6px 0; padding-left: 18px; }
 .note-list li { margin-bottom: 4px; }
 .note-list button { font-size: 13px; margin-left: 6px; }

@@ -35,10 +35,21 @@ přidej i odměny, aby Adam nedošel na strop dřív, než dojde obsah.
 - **Vzácné věci v obchodě** (`RARE` ve `world/farm.js`, `rareLeft` v `logic/rewards.ts`): kromě smaragdů potřebují podíl
   zvládnutých úkolů (15, 30, 50, 75 %). Zavedeno 20. 10. 2026: Adam měl po prvním dni všechny obyčejné věci a 140 smaragdů.
   Až Adam koupí všechno, přidat další vzácné věci, ať smaragdy mají k čemu být.
+- **Procvičování** (`logic/practice.ts`, `levels/practice.js`, dlaždice Procvičit): kolo z úloh s chybami, záměnami nebo dlouhým
+  přemýšlením (`weakItems`), odměny jako za běžné kolo, počítá se do `save.practice`. Psaní ne (jiný druh úkolu).
+  Otevře se od 3 slabých úloh. Zavedeno 20. 10. 2026 (Ondřej: „kolik času strávil u které úlohy, abychom ji mohli opakovat“).
 - **Zvládnutý úkol** = `mastery() === 'good'` (aspoň 3× správně a poslední dobou bez chyby).
 - Odměny podle počtu kol (krumpáče, oblečení `at:`, dům 12 dílů, farma 10 dílů) končí kolem 22. kola;
   další dlouhodobé cíle mají být vázané na zvládnutí, ne na počet kol (jinak se vyplácí hrát lehké patro dokola).
 - Získané odměny se nikdy neberou zpět.
+
+## Statistiky
+
+- U každé úlohy se ukládá doba řešení (klouzavý průměr `t`, počet `tn`), záměny (`conf`: co Adam vybral místo správné) a rychlé
+  tipy (`qw`, chyba do 1,2 s od konce zadání), viz `recordResult` v `logic/mastery.ts`.
+- **Tabulka Google** (`logic/sync.ts`, `app/sync.js`, skript `docs/google-tabulka.gs`, návod `docs/google-tabulka.md`): po každé úloze,
+  kole a hodnocení řádek do fronty v uloženém stavu, odeslání hned, při startu, při návratu do hry a po připojení. Řádky mají ID,
+  skript duplicity přeskočí. Adresa skriptu jen v nastavení (repo je veřejné), nikdy v kódu. Nic o rodině se neposílá.
 
 ## Verze a novinky
 

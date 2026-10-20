@@ -1,6 +1,6 @@
 // Herní kolo
 import { G } from '../core/state.js';
-import { recordResult } from '../logic/mastery.ts';
+import { QUICK_WRONG_MS, recordResult } from '../logic/mastery.ts';
 import { BUILD_UNLOCK, addBlocks } from '../logic/build.ts';
 import { fitBuild } from '../world/build.js';
 import { NEED_CLEAN, STUCK_MS, needClean, stuckMsFor } from '../logic/rewards.ts';
@@ -23,10 +23,11 @@ import { NETHER_STAGES, PORTAL_NEED, mineTex } from '../world/nether.js';
 import { cardEl, checkCards } from '../rewards/cards.js';
 import { BABY_DAYS, babyCanvas } from '../world/babies.js';
 import { PREROV } from '../world/prerov.js';
-import { BOSS, bossHit, bossVictory, curLevel } from '../world/finale.js';
+import { bossHit, bossVictory, curLevel, levelDef } from '../world/finale.js';
 import { setBtn } from '../ui/icons.js';
 import { logRound } from '../app/stats.js';
 import { updateHint } from '../ui/hint.js';
+import { levelName, queueRows } from '../app/sync.js';
 
 const ROUND_LEN = 8;
 // kolik kostek z 8 musí být bez chyby, aby dům rostl
@@ -34,7 +35,7 @@ const ROUND_LEN = 8;
 const protectionLevels = () => ['hat', 'shirt', 'pants', 'shoes'].reduce((a, pc) => a + enchLevel(pc, 'Ochrana'), 0);
 const stuckMs = () => stuckMsFor(protectionLevels());
 function startRound(level) {
-  const L = LEVELS[level] || BOSS;
+  const L = levelDef(level);
   G.R = { level, i: 0, busy: true, recent: [], loot: [], clean: 0, len: L.len || ROUND_LEN, start: Date.now() };
   G.TR = null; $('#trace').hidden = true; $('#blocks').hidden = false; $('#task').hidden = true;
   show('game');
@@ -60,6 +61,7 @@ function nextTask() {
     G.R.hits = 0; G.R.wrongs = 0; G.R.firstTry = true; G.R.busy = false; G.R.stuck = false;
     $('#blocks').hidden = true; $('#trace').hidden = false; $('#task').hidden = true;
     G.R.els = null; setupTrace(ch); updateHint();
+    G.R.shownAt = Date.now();
     const say = G.R.say; setTimeout(() => { if (G.R && G.R.say === say && !G.R.busy) speak(say); }, 250);
     return;
   }
@@ -76,6 +78,8 @@ function nextTask() {
   }
   G.R.target = target;
   G.R.hits = 0; G.R.wrongs = 0; G.R.firstTry = true; G.R.busy = false; G.R.stuck = false;
+  // doba řešení a záměny (Statistiky, Procvičování, tabulka): od ukázání kostek; tip = chyba do 1,2 s od konce zadání
+  G.R.shownAt = Date.now(); G.R.heardAt = 0; G.R.wrongPicks = []; G.R.quick = 0;
   $('#blocks').classList.remove('stuck'); $('#hudPick').classList.remove('stuck');
   const box = $('#blocks'); box.innerHTML = '';
   G.R.els = G.R.choices.map(it => {
@@ -89,7 +93,7 @@ function nextTask() {
   layoutBlocks();
   updateHint();
   const say = G.R.say;
-  setTimeout(() => { if (G.R && G.R.say === say && !G.R.busy) speak(say); }, 250);
+  setTimeout(() => { if (G.R && G.R.say === say && !G.R.busy) speak(say, () => { if (G.R && G.R.say === say && !G.R.heardAt) G.R.heardAt = Date.now(); }); }, 250);
 }
 function layoutBlocks() {
   if (!G.R || !G.R.els) return;
@@ -113,6 +117,7 @@ function tapBlock(it, el) {
   if (it !== G.R.target) {
     // chyba: krumpáč se na chvíli zasekne, takže tipování se nevyplácí
     G.R.firstTry = false; G.R.wrongs++; G.R.stuck = true;
+    if (G.R.wrongPicks) { G.R.wrongPicks.push(it); if (!G.R.heardAt || Date.now() - G.R.heardAt < QUICK_WRONG_MS) G.R.quick++; }
     sfx.nope(); retrigger(el, 'nope');
     $('#blocks').classList.add('stuck'); retrigger($('#hudPick'), 'stuck');
     if (G.R.wrongs >= 2) G.R.els[G.R.choices.indexOf(G.R.target)].classList.add('glow');
@@ -130,10 +135,17 @@ function tapBlock(it, el) {
   }
   breakBlock(el);
 }
+// řádek úlohy do tabulky Google (app/sync.js)
+function logTask(ms, wrong, quick) {
+  const [lv, ...rest] = G.R.statKey.split(':');
+  queueRows([{ Druh: 'úloha', Patro: levelName(lv), Úloha: rest.join(':'), Napoprvé: G.R.firstTry ? 'ano' : 'ne', Sekundy: Math.round(ms / 100) / 10, Záměny: wrong.join(', '), Tipy: quick, Kolo: levelName(G.R.level) }]);
+}
 const PRAISE = ['Výborně!', 'Super!', 'Ano!', 'Paráda!', 'Skvěle!', 'To je ono!', 'Přesně tak!'];
 function breakBlock(el) {
   G.R.busy = true;
-  recordResult(save.stats, G.R.statKey, G.R.firstTry); persist();
+  const ms = Date.now() - G.R.shownAt;
+  recordResult(save.stats, G.R.statKey, G.R.firstTry, { ms, wrong: G.R.wrongPicks, quick: G.R.quick }); persist();
+  logTask(ms, G.R.wrongPicks || [], G.R.quick || 0);
   el.querySelector('.crack').style.backgroundImage = `url(${cracks[3]})`;
   sfx.breakIt();
   const rect = el.getBoundingClientRect();
@@ -245,7 +257,7 @@ function endRound() {
   title.textContent = 'Výborně, Adame!'; title.classList.remove('fail');
   setBtn($('#btnAgain'), 'next', 'Další kolo');
   const before = tierOf(save.total);
-  save.total++; save.rounds[level]++; persist();
+  save.total++; if (level in save.rounds) save.rounds[level]++; else if (level === 'practice') save.practice = (save.practice || 0) + 1; persist();
   const day = registerDay();
   if (day) showGems(day.bonus);
   const pn = $('#newPrerov'); let prerovTalk = '';
@@ -297,4 +309,4 @@ function goHome() {
   renderHome(); show('home');
 }
 
-export { NEED_CLEAN, PRAISE, ROUND_LEN, STUCK_MS, breakBlock, burst, endRound, flyTo, goHome, layoutBlocks, nextTask, protectionLevels, retrigger, startRound, stuckMs, tapBlock };
+export { NEED_CLEAN, PRAISE, logTask, ROUND_LEN, STUCK_MS, breakBlock, burst, endRound, flyTo, goHome, layoutBlocks, nextTask, protectionLevels, retrigger, startRound, stuckMs, tapBlock };

@@ -20,6 +20,8 @@ import { drawEnder, endOpen, openEnder } from '../world/finale.js';
 import { renderUpdate } from '../app/name.js';
 import { buildOpen, drawBuild, openBuild } from '../world/build.js';
 import { startRound } from '../game/round.js';
+import { levelProgress } from '../logic/mastery.ts';
+import { practiceReady } from '../levels/practice.js';
 
 function show(id) { ['home', 'game', 'house', 'wardrobe', 'farm', 'shop', 'stats', 'village', 'nether', 'album', 'prerov', 'ender', 'build'].forEach(s => { $('#' + s).hidden = s !== id; }); }
 function paintTextures(root = document) {
@@ -41,6 +43,8 @@ function blockEl(texName, label, isSyl) {
   return b;
 }
 const LOCK_SVG = '<svg class="lock" viewBox="0 0 16 16" aria-hidden="true"><path fill="#161616" d="M4 6V4h1V3h1V2h4v1h1v1h1v2h1v9H3V6h1zm2 0h4V4H6v2z"/><path fill="#f6cf45" d="M4 7h8v7H4z"/><path fill="#161616" d="M7 9h2v3H7z"/></svg>';
+// terč na dlaždici Procvičit (červeno-bílé kruhy po pixelech)
+const TARGET_SVG = '<svg viewBox="0 0 16 16" aria-hidden="true"><path fill="#c62f2f" d="M5 1h6v1h2v2h1v2h1v4h-1v2h-1v2h-2v1H5v-1H3v-2H2v-2H1V6h1V4h1V2h2z"/><path fill="#f4f4f4" d="M6 3h4v1h1v1h1v1h1v4h-1v1h-1v1h-1v1H6v-1H5v-1H4v-1H3V6h1V5h1V4h1z"/><path fill="#c62f2f" d="M7 5h2v1h1v1h1v2h-1v1H9v1H7v-1H6V9H5V7h1V6h1z"/><path fill="#f4f4f4" d="M7 7h2v2H7z"/></svg>';
 function renderHome() {
   mountPlayer($('#heroPlayer'));
   const wrap = $('#levels'); wrap.innerHTML = '';
@@ -51,10 +55,21 @@ function renderHome() {
     const b = blockEl(L.tex, '', !!L.small); b.tabIndex = -1; b.setAttribute('aria-hidden', 'true');
     setGlyph(b.querySelector('.glyph'), save.caseMode === 'lower' ? L.sample.join(' ').toLocaleLowerCase('cs') : save.caseMode === 'upper' ? L.sample.join(' ').toLocaleUpperCase('cs') : L.sample.join(' '));
     btn.appendChild(b);
-    btn.insertAdjacentHTML('beforeend', `<span class="lvl-name">${L.name}</span>`);
+    // ukazatel zvládnutí patra (Ondřej 20. 10. 2026): kolik úloh z kolika umí
+    const p = levelProgress(save.stats, key), pct = Math.round(p.got / p.all * 100);
+    btn.insertAdjacentHTML('beforeend', `<span class="lvl-name">${L.name}</span><span class="lvl-bar" aria-hidden="true"><i style="width:${pct}%"></i></span><span class="lvl-sub">${p.got} z ${p.all}</span>`);
     btn.addEventListener('click', () => { audio(); startRound(key); });
     wrap.appendChild(btn);
   });
+  // Procvičit: kolo z úloh, které Adamovi nejdou (levels/practice.js); dokud žádné nejsou, je zamčené
+  const ready = practiceReady();
+  const pb = document.createElement('button'); pb.className = 'lvl practice' + (ready ? '' : ' locked'); pb.setAttribute('aria-label', 'Procvičit');
+  const pblk = blockEl('bookshelf', '', false); pblk.tabIndex = -1; pblk.setAttribute('aria-hidden', 'true');
+  pblk.querySelector('.plate').innerHTML = TARGET_SVG;
+  pb.appendChild(pblk);
+  pb.insertAdjacentHTML('beforeend', (ready ? '' : LOCK_SVG) + '<span class="lvl-name">Procvičit</span>');
+  pb.addEventListener('click', () => { audio(); if (ready) startRound('practice'); else { sfx.nope(); speak('Procvičování se otevře, až budou úkoly, které ti ještě nejdou. Teď ti jde všechno, co jsi zkusil!'); } });
+  wrap.appendChild(pb);
   [].forEach(([name, t, s]) => { // zamčená patra „brzy“ (teď žádná)
     const btn = document.createElement('button'); btn.className = 'lvl'; btn.disabled = true;
     const b = blockEl(t, s, true); b.tabIndex = -1; b.setAttribute('aria-hidden', 'true');

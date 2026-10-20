@@ -22,6 +22,7 @@ import { applyName, checkVersion, gameName, openNames } from './app/name.js';
 import { iconizeButtons } from './ui/icons.js';
 import { openStats } from './app/stats.js';
 import { goHome, startRound } from './game/round.js';
+import { flushSync } from './app/sync.js';
 
 $('#btnBack').addEventListener('click', goHome);
 $('#btnHouseBack').addEventListener('click', goHome);
@@ -71,7 +72,9 @@ if (!save.cards) { save.cards = []; checkCards(true); } // kartičky za už zvl�
 if (!save.village) { save.village = {}; checkVillage(true); } // vesnice začíná podle toho, co už Adam umí
 checkEnchants(); // očarování za už zvládnuté úkoly
 checkVersion(); // nová verze na serveru? (při startu a při návratu do hry)
-document.addEventListener('visibilitychange', () => { if (!document.hidden) checkVersion(); });
+flushSync(); // co čeká na odeslání do tabulky Google (třeba z doby bez internetu)
+addEventListener('online', () => flushSync());
+document.addEventListener('visibilitychange', () => { if (!document.hidden) { checkVersion(); flushSync(); } });
 paintTextures();
 renderHome();
 // ikona na ploše a hraní bez internetu

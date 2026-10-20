@@ -12,6 +12,8 @@ import { FARM_STAGES, farmStage } from '../world/farm.js';
 import { streakNow } from '../rewards/streak.js';
 import { renderNotes } from '../world/family.js';
 import { ENCH_ORDER, masteryPoints } from '../rewards/enchant.js';
+import { backfillLog, flushSync } from '../app/sync.js';
+import { syncDefaults, validSyncUrl } from '../logic/sync.ts';
 
 function updateVoiceInfo() {
   const el = $('#voiceInfo'); if (!el) return;
@@ -31,7 +33,7 @@ function updateSettings() {
 }
 // Nastavení je pro rodiče: otevře se po vyřešení příkladu pro dospělého (logic/gate.ts)
 let gate = null;
-function openSettings() { updateSettings(); renderNotes(); updateRestore(); renderPron(); $('#resetConfirm').hidden = true; $('#setOverlay').hidden = false; }
+function openSettings() { updateSettings(); renderNotes(); updateRestore(); renderPron(); updateSync(); $('#resetConfirm').hidden = true; $('#setOverlay').hidden = false; }
 function openGate() {
   gate = makeGate();
   $('#gateQ').textContent = gate.text; $('#gateInput').value = ''; $('#gateMsg').textContent = '';
@@ -54,8 +56,29 @@ $('#rateNormal').addEventListener('click', () => { save.slow = false; persist();
 $('#rateSlow').addEventListener('click', () => { save.slow = true; persist(); updateSettings(); });
 $('#btnTestVoice').addEventListener('click', () => { loadVoices(); speak('Ahoj Adame! Tady je hra. ' + ['MA', 'MÉ', 'SO', 'LY'].map(s => pronounceAs(s, save.pron?.[s] || defaultMode(s))).join('. ') + '.'); setTimeout(loadVoices, 800); });
 $('#btnReset').addEventListener('click', () => { $('#resetConfirm').hidden = false; });
+// tabulka Google (app/sync.js, návod docs/google-tabulka.md)
+const fmtWhen = t => { const d = new Date(t); return `${d.getDate()}. ${d.getMonth() + 1}. ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`; };
+function updateSync(msg) {
+  const s = save.sync; $('#syncUrl').value = s.url;
+  $('#syncInfo').textContent = msg || (!s.url ? 'Zatím nenastaveno, statistiky zůstávají jen v tabletu.'
+    : `Odesláno ${s.sent} záznamů${s.last ? `, naposledy ${fmtWhen(s.last)}` : ''}. Čeká na odeslání: ${s.queue.length}.${s.error ? ` Poslední chyba: ${s.error}` : ''}`);
+}
+$('#btnSyncSave').addEventListener('click', () => {
+  const u = $('#syncUrl').value.trim();
+  if (u && !validSyncUrl(u)) { updateSync('Tohle není adresa nasazeného skriptu. Má vypadat jako https://script.google.com/macros/s/…/exec'); return; }
+  save.sync.url = u; save.sync.error = ''; persist();
+  updateSync(u ? 'Adresa uložena. Zkouším odeslat…' : 'Odesílání vypnuto.');
+  if (u) { backfillLog(); syncNow(); }
+});
+async function syncNow() {
+  if (!save.sync.url) { updateSync(); return; }
+  if (!save.sync.queue.length) { updateSync('Není co odeslat, všechno už v tabulce je.'); return; }
+  $('#syncInfo').textContent = 'Odesílám…';
+  await flushSync(); updateSync();
+}
+$('#btnSyncNow').addEventListener('click', syncNow);
 $('#btnResetNo').addEventListener('click', () => { $('#resetConfirm').hidden = true; });
-$('#btnResetYes').addEventListener('click', () => { try { localStorage.setItem(BACKUP_KEY, JSON.stringify(save)); } catch (e) {} const keep = { caseMode: save.caseMode, slow: save.slow, strict: save.strict, pron: save.pron, outfit: save.outfit, notes: save.notes, dogName: save.dogName }; /* nastavení rodiče včetně výslovnosti zůstává */ replaceSave(Object.assign(defaults(), keep)); persist(); updateRestore(); $('#resetConfirm').hidden = true; updateSettings(); });
+$('#btnResetYes').addEventListener('click', () => { try { localStorage.setItem(BACKUP_KEY, JSON.stringify(save)); } catch (e) {} const keep = { sync: { ...syncDefaults(), url: save.sync.url }, caseMode: save.caseMode, slow: save.slow, strict: save.strict, pron: save.pron, outfit: save.outfit, notes: save.notes, dogName: save.dogName }; /* nastavení rodiče včetně výslovnosti zůstává */ replaceSave(Object.assign(defaults(), keep)); persist(); updateRestore(); $('#resetConfirm').hidden = true; updateSettings(); });
 
 /* výslovnost slabik: rodič poslechne varianty a vybere tu, která na jeho tabletu zní česky */
 const PRON_LABEL = { plain: 'obyčejně', split: 'rozděleně', letters: 's písmeny' };

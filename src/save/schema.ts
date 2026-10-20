@@ -2,8 +2,10 @@
 // Pravidlo: každá změna tvaru = nové číslo SCHEMA a krok v migrate() + test v tests/unit/save.test.ts.
 import type { Stats } from '../logic/mastery';
 import type { Streak } from '../logic/streak';
+import { syncDefaults, type SyncState } from '../logic/sync';
 
-export const SCHEMA = 2; // 1 = vše do verze hry 15 (bez čísla schématu), 2 = s číslem schématu a nejvyšším stavem vesnice
+export const SCHEMA = 3; // 1 = vše do verze hry 15 (bez čísla schématu), 2 = s číslem schématu a nejvyšším stavem vesnice,
+                        // 3 = doba řešení a záměny u úloh, procvičování, fronta pro tabulku Google (verze hry 27)
 
 export interface LogEntry { t: number; d: string; level: string; clean: number; done: number; len: number; ok: boolean; quit: boolean; secs: number; rate?: number }
 export interface Note { who: string; text: string; done: boolean; t?: number }
@@ -23,6 +25,8 @@ export interface SaveState {
   pron: Record<string, string>; // výslovnost vybraná rodičem (logic/pronounce.ts)
   recentLines: string[];        // posledních pár hlášek rodiny (aby se neopakovaly)
   momSaid: { d: string; ids: string[] }; // které připomínky mámy dnes zazněly
+  practice: number;             // odehraná kola procvičování (logic/practice.ts)
+  sync: SyncState;              // odesílání do tabulky Google (logic/sync.ts)
   [k: string]: unknown;
 }
 
@@ -41,11 +45,13 @@ export function defaults(): SaveState {
     pron: {},
     recentLines: [],
     momSaid: { d: '', ids: [] },
+    practice: 0,
+    sync: syncDefaults(),
   };
 }
 
 const isObj = (x: unknown): x is Record<string, unknown> => !!x && typeof x === 'object' && !Array.isArray(x);
-const NESTED = ['rounds', 'outfit', 'dog', 'gifts', 'streak', 'build', 'pron', 'momSaid'] as const;
+const NESTED = ['rounds', 'outfit', 'dog', 'gifts', 'streak', 'build', 'pron', 'momSaid', 'sync'] as const;
 
 // převede jakákoli starší data na aktuální tvar; nic, co Adam získal, nezahodí
 export function migrate(raw: unknown): SaveState {
@@ -56,7 +62,10 @@ export function migrate(raw: unknown): SaveState {
   // v1 -> v2: číslo schématu; vesnice si pamatuje nejvyšší dosažené fáze (už ji existující data mají)
   const out = Object.assign(d, s) as SaveState;
   for (const k of NESTED) out[k] = Object.assign(defaults()[k] as object, isObj(s[k]) ? s[k] : {}) as never;
+  // v2 -> v3: nová pole (practice, sync) doplní výchozí hodnoty, statistiky úloh se jen rozšiřují (doba, záměny)
   if (!Array.isArray(out.streak.days)) out.streak.days = [];
+  if (!Array.isArray(out.sync.queue)) out.sync.queue = [];
+  if (typeof out.practice !== 'number') out.practice = 0;
   for (const k of ['log', 'ench', 'notes', 'decor', 'recentLines'] as const) if (!Array.isArray(out[k])) (out as Record<string, unknown>)[k] = [];
   if (!isObj(out.stats)) out.stats = {};
   if (from > SCHEMA) out.schema = from; // novější data ze starší hry nesnižovat

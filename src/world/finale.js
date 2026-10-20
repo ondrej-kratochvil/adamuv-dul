@@ -13,6 +13,7 @@ import { masteryPoints } from '../rewards/enchant.js';
 import { eyesFor } from '../logic/rewards.ts';
 import { gameName } from '../app/name.js';
 import { retrigger, startRound } from '../game/round.js';
+import { PRACTICE } from '../levels/practice.js';
 
 // Oči Enderu přibývají se zvládnutými úkoly (12 očí = vše zvládnuto). Portál do Endu se otevře, až má Adam zvládnuté všechno;
 // to je strop hry podle pravidla „maximum až po zvládnutí všeho“. Bitvu jde pak opakovat, odměny jsou jednou.
@@ -51,7 +52,8 @@ function genBoss() {
   return { answer: t, choices: makeChoices(lv, t, choiceCount(lv)), say: sayText(lv, t), stat: lv + ':' + t, key: t };
 }
 const BOSS = { name: 'Ender drak', tex: 'endStone', gen: genBoss, len: BOSS_HITS, intro: 'Ender drak! Každá správná odpověď je šíp. Poraz ho!' };
-const curLevel = () => LEVELS[G.R.level] || BOSS;
+function levelDef(level) { return LEVELS[level] || (level === 'practice' ? PRACTICE : BOSS); }
+const curLevel = () => levelDef(G.R.level);
 function bossHit(fromEl) {
   const left = G.R.len - G.R.i;
   $('#bossHp').style.width = (left / G.R.len * 100) + '%';
@@ -80,4 +82,4 @@ function bossVictory() {
 }
 function startBoss() { audio(); startRound('boss'); }
 
-export { BOSS, BOSS_BONUS, BOSS_HITS, EYES, RING, bossHit, bossVictory, curLevel, drawEnder, endOpen, eyesHave, genBoss, openEnder, startBoss };
+export { BOSS, BOSS_BONUS, BOSS_HITS, EYES, RING, bossHit, bossVictory, curLevel, levelDef, drawEnder, endOpen, eyesHave, genBoss, openEnder, startBoss };

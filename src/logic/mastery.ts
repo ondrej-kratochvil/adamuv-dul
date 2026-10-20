@@ -6,7 +6,10 @@ import { PIC_WORDS } from '../content/pictures';
 import { GLYPHS } from '../content/glyphs';
 import { range } from './random';
 
-export interface Stat { ok: number; miss: number; n?: number; bad?: number }
+// t = obvyklá doba řešení v ms (klouzavý průměr, novější pokusy váží víc, ať se zlepšení projeví), tn = počet měření
+// (doba od ukázání úkolu po správnou kostku), qw = chyby rychlým klepnutím (tip),
+// conf = co Adam vybral místo správné odpovědi (záměny), vše od verze 27
+export interface Stat { ok: number; miss: number; n?: number; bad?: number; t?: number; tn?: number; qw?: number; conf?: Record<string, number> }
 export type Stats = Record<string, Stat>;
 export type Mastery = '' | 'good' | 'mid' | 'bad';
 
@@ -18,11 +21,18 @@ export function mastery(s?: Stat): Mastery {
   return 'mid';
 }
 
-// zápis výsledku úkolu: na první pokus = ok (a jedna stará chyba se odpustí), jinak chyba
-export function recordResult(stats: Stats, key: string, firstTry: boolean): Stat {
+export const TASK_MS_MAX = 60000;  // déle = odešel od tabletu, do průměru se počítá jen minuta
+export const QUICK_WRONG_MS = 1200; // chyba klepnutím do 1,2 s od konce zadání = spíš tip než omyl
+export const TIME_WEIGHT = .4;     // váha nejnovějšího měření v klouzavém průměru
+export interface Detail { ms?: number; wrong?: string[]; quick?: number }
+// zápis výsledku úkolu: na první pokus = ok (a jedna stará chyba se odpustí), jinak chyba; k tomu doba a záměny
+export function recordResult(stats: Stats, key: string, firstTry: boolean, d: Detail = {}): Stat {
   const s = stats[key] || { ok: 0, miss: 0 };
   if (firstTry) { s.ok++; s.miss = Math.max(0, s.miss - 1); } else { s.miss++; s.bad = (s.bad || 0) + 1; }
   s.n = (s.n || 0) + 1;
+  if (typeof d.ms === 'number' && d.ms >= 0) { const ms = Math.min(TASK_MS_MAX, d.ms); s.t = Math.round(s.tn ? s.t! * (1 - TIME_WEIGHT) + ms * TIME_WEIGHT : ms); s.tn = (s.tn || 0) + 1; }
+  if (d.quick) s.qw = (s.qw || 0) + d.quick;
+  for (const w of d.wrong || []) { s.conf = s.conf || {}; s.conf[w] = (s.conf[w] || 0) + 1; }
   stats[key] = s;
   return s;
 }
@@ -56,6 +66,9 @@ export function levelProgress(stats: Stats, lv: string): { got: number; all: num
   if (lv === 'numbers') { got += Math.min(BIG_NUMBERS_MAX, goodKeys(stats, 'numbers:').filter(isBigNumber).length); all += BIG_NUMBERS_MAX; }
   return { got, all };
 }
+
+// obvyklá doba řešení v sekundách (null = zatím neměřeno)
+export const avgSecs = (s?: Stat): number | null => s && s.tn ? s.t! / 1000 : null;
 
 export const LEVEL_KEYS = ['letters', 'syllables', 'words', 'reading', 'numbers', 'math', 'writing'];
 

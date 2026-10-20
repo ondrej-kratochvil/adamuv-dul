@@ -1,6 +1,14 @@
 {
-  "version": 26,
+  "version": 27,
   "changes": [
+    {
+      "version": 27,
+      "date": "2026-10-20",
+      "notes": [
+        "Pod každým patrem je zelený proužek: ukazuje, kolik toho už umíš.",
+        "Nová dlaždice Procvičit s terčem dá úkoly, které ti ještě nejdou. Dostaneš za ně odměny jako za každé kolo."
+      ]
+    },
     {
       "version": 26,
       "date": "2026-10-20",

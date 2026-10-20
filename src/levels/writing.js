@@ -13,7 +13,7 @@ import { dogHappy, updateGems } from '../world/farm.js';
 import { luckBonus } from '../rewards/enchant.js';
 import { mineTex } from '../world/nether.js';
 import { curLevel } from '../world/finale.js';
-import { PRAISE, nextTask, retrigger } from '../game/round.js';
+import { PRAISE, logTask, nextTask, retrigger } from '../game/round.js';
 
 const LANE = 16; // šířka dráhy; prst musí zůstat uvnitř
 const TRACE_TOL = LANE / 2 + 2, TRACE_SLIP = LANE / 2 + 3.5;
@@ -105,7 +105,9 @@ function traceSlip() {
 }
 function finishTrace() {
   G.R.busy = true;
-  recordResult(save.stats, G.R.statKey, G.R.firstTry);
+  const ms = Date.now() - (G.R.shownAt || Date.now());
+  recordResult(save.stats, G.R.statKey, G.R.firstTry, { ms });
+  logTask(ms, [], 0);
   const clean = G.R.firstTry, texName = mineTex(curLevel().tex);
   if (clean) { G.R.clean++; save.emeralds += 1 + luckBonus(); updateGems('hudGems'); dogHappy($('#gameDog')); }
   persist();
