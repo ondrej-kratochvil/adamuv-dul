@@ -1,6 +1,13 @@
 {
-  "version": 44,
+  "version": 45,
   "changes": [
+    {
+      "version": 45,
+      "date": "2026-10-20",
+      "notes": [
+        "Kid, Horník, Venda, Mia, Vivien a Rili mají nové věty. Třeba Venda ti za dobré kolo upeče dort!"
+      ]
+    },
     {
       "version": 44,
       "date": "2026-10-20",
