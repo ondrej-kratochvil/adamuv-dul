@@ -13,7 +13,7 @@ test('večer po kole připomene máma zuby a postel, jen jednou', async ({ page 
 
 test('pozdrav na úvodní obrazovce je vlastní věta', async ({ page }) => {
   await openGame(page);
-  await expect(page.locator('.fan .bubble')).toContainText(/Ahoj Adam|Dobré ráno, Adame/); // ranní pozdrav (Marcelka) do 9:00
+  await expect(page.locator('.fan .bubble')).toContainText(/(Ahoj|Čau|Dobré ráno),? Adam/); // kdo fandí, závisí na dni (Tomáš říká „Čau“, Marcelka ráno „Dobré ráno“)
   await expect(page.locator('.fan .bubble')).not.toContainText('Dneska ti fandí');
 });
 

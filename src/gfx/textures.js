@@ -22,6 +22,7 @@ const painters = {
   goldOre(g, r) { painters.stone(g, r); ore(g, r, ['#f2c94c', '#d8a23a', '#fff1a6']); },
   redstoneOre(g, r) { painters.stone(g, r); ore(g, r, ['#d02a1e', '#a01810', '#ff5a3c']); },
   lapisOre(g, r) { painters.stone(g, r); ore(g, r, ['#2f5ec4', '#1f45a0', '#5a86e8']); },
+  emeraldOre(g, r) { painters.stone(g, r); ore(g, r, ['#2fbf5a', '#1f9446', '#a6f5bb']); },
   diamondOre(g, r) { painters.stone(g, r); ore(g, r, ['#5de0e6', '#2fb8c4', '#b1f6f8']); },
   cobble(g, r) {
     noise(g, r, ['#7d7d7d', '#8a8a8a', '#6f6f6f', '#999999']);

@@ -19,6 +19,7 @@ const BUILDINGS = [
   { lv: 'reading', name: 'kino', in: 'v kině', who: 'pan promítač', what: 'obrázků ke čtení', wall: 'darkstone', roof: 'roofRed', icon: 'film', robe: '#c0392b' },
   { lv: 'numbers', name: 'tržiště', in: 'na tržišti', who: 'pan trhovec', what: 'čísel', wall: 'planksY', roof: 'roofBlue', icon: 'coin', robe: '#7a5230' },
   { lv: 'math', name: 'banka', in: 'v bance', who: 'pan bankéř', what: 'příkladů', wall: 'quartz', roof: 'roofBlue', icon: 'emerald', robe: '#2b2b2b' },
+  { lv: 'speech', name: 'divadlo', in: 'v divadle', who: 'paní herečka', what: 'slov na poslech', wall: 'quartz', roof: 'roofRed', icon: 'mask', robe: '#9b5de5' },
   { lv: 'writing', name: 'pošta', in: 'na poště', who: 'paní pošťačka', what: 'tahů psaní', wall: 'planksY', roof: 'roofRed', icon: 'letter', robe: '#e0b324' },
 ];
 const BLD_STAGES = ['základy', 'zeď', 'dveře', 'okna', 'střecha', 'vršek střechy', 'cedule', 'vesničan'];
@@ -36,6 +37,7 @@ function signCanvas(icon) {
   if (icon === 'film') { R(3, 6, 10, 4, '#2b2b2b'); [4, 6, 8, 10].forEach(x => { R(x, 6, 1, 1, '#e8d6b0'); R(x, 9, 1, 1, '#e8d6b0'); }); }
   if (icon === 'coin') { R(6, 5, 4, 6, '#f2c94c'); R(5, 6, 6, 4, '#f2c94c'); R(7, 6, 2, 4, '#c9a227'); }
   if (icon === 'belt') { R(3, 7, 10, 2, '#1d1d1d'); R(7, 6, 2, 5, '#1d1d1d'); R(6, 10, 1, 2, '#1d1d1d'); R(9, 10, 1, 2, '#1d1d1d'); }
+  if (icon === 'mask') { R(4, 5, 8, 6, '#f2c94c'); R(5, 7, 2, 1, '#3a2a1a'); R(9, 7, 2, 1, '#3a2a1a'); R(6, 9, 4, 1, '#c0392b'); R(5, 10, 1, 1, '#c0392b'); R(10, 10, 1, 1, '#c0392b'); }
   if (icon === 'letter') { R(4, 6, 8, 5, '#ffffff'); R(5, 7, 1, 1, '#8a8a8a'); R(6, 8, 1, 1, '#8a8a8a'); R(7, 9, 2, 1, '#8a8a8a'); R(9, 8, 1, 1, '#8a8a8a'); R(10, 7, 1, 1, '#8a8a8a'); }
   return c;
 }

@@ -2,6 +2,7 @@
 import { G } from '../core/state.js';
 import { QUICK_WRONG_MS, recordResult } from '../logic/mastery.ts';
 import { BUILD_UNLOCK, addBlocks } from '../logic/build.ts';
+import { speechActivity, stopMic } from '../levels/speech.js';
 import { updateTools } from '../logic/tools.ts';
 import { toolName } from '../content/tools.ts';
 import { toolCanvas } from '../gfx/tools.js';
@@ -64,6 +65,8 @@ function nextTask() {
   if (G.R.i >= G.R.len) return endRound();
   const level = G.R.level, L = curLevel();
   let target;
+  $('#speechPanel').hidden = true;
+  if (L.speech && speechActivity()) return; // Mluvení: vyslovit, cvik, foukání v panelu
   if (L.trace) {
     const ch = L.trace();
     G.R.recent.push(ch); G.R.target = ch; G.R.say = writingSay(ch); G.R.statKey = 'writing:' + ch;
@@ -92,7 +95,7 @@ function nextTask() {
   $('#blocks').classList.remove('stuck'); $('#hudPick').classList.remove('stuck');
   const box = $('#blocks'); box.innerHTML = '';
   G.R.els = G.R.choices.map(it => {
-    const b = blockEl(mineTex(L.tex), G.R.picture ? '' : display(it), it.length > 1);
+    const b = blockEl(mineTex(L.tex), G.R.picture ? '' : L.label ? L.label(it) : display(it), it.length > 1);
     if (G.R.picture) { const pl = b.querySelector('.plate'); pl.innerHTML = ''; pl.appendChild(picCanvas(it)); }
     else if (it.length >= 3) b.querySelector('.glyph').style.fontSize = `calc(var(--bs, 120px) * ${Math.min(.32, 1 / it.length).toFixed(3)})`; // delší slova menším písmem, ať se vejdou
     b.setAttribute('aria-label', 'kostka');
@@ -364,6 +367,7 @@ function rotate(level) {
 }
 function goHome() {
   flushRate();
+  stopMic();
   $('#game').classList.remove('paused'); $('#pauseOverlay').hidden = true;
   G.speechId++; if (synth) synth.cancel();
   if (G.R && G.R.level !== 'boss' && G.R.i > 0 && G.R.i < G.R.len) logRound(false, true); // rozehrané a opuštěné kolo: signál, že nebaví

@@ -36,7 +36,7 @@ describe('nástroje', () => {
   });
   it('každé patro patří aspoň k jednomu nástroji (krumpáč jde za kola)', () => {
     const covered = new Set(TOOLS.flatMap(t => t.levels));
-    for (const lv of ['letters', 'syllables', 'words', 'reading', 'numbers', 'math', 'writing']) expect(covered.has(lv), lv).toBe(true);
+    for (const lv of ['letters', 'syllables', 'words', 'reading', 'numbers', 'math', 'writing', 'speech']) expect(covered.has(lv), lv).toBe(true);
     for (const t of TOOLS) expect(toolProgress({}, t).all).toBeGreaterThan(0);
   });
   it('názvy podle rodu', () => {

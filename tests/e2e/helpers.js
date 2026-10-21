@@ -65,6 +65,18 @@ export async function playRound(page, label, { wrong = 0 } = {}) {
   const end = page.locator('#endOverlay');
   for (let k = 0; k < 600; k++) {
     if (await end.isVisible()) return;
+    // Mluvení: úkoly v panelu (vyslovit s rodičem, foukání bez mikrofonu potvrdí tlačítko; cvik doběhne sám)
+    const panel = page.locator('#speechPanel');
+    if (await panel.isVisible()) {
+      const btns = panel.locator('.gbtn'), n = await btns.count();
+      if (n) {
+        const bad = mistakes > 0 && n === 3;
+        await btns.nth(bad ? 1 : 0).click().catch(() => {});
+        if (bad) mistakes--;
+      }
+      await page.waitForTimeout(150);
+      continue;
+    }
     const s = await page.evaluate(() => { const r = window.__adam.R; return r ? { level: r.level, busy: r.busy, stuck: r.stuck, ready: !!(r.els || window.__adam.TR), first: r.firstTry } : null; });
     if (s && !s.busy && !s.stuck && s.ready) {
       if (s.level === 'writing') {
@@ -85,4 +97,4 @@ export async function playRound(page, label, { wrong = 0 } = {}) {
   throw new Error('kolo neskončilo');
 }
 
-export const LEVELS = ['Písmena', 'Slabiky', 'Slova', 'Čtení', 'Čísla', 'Počty', 'Psaní'];
+export const LEVELS = ['Písmena', 'Slabiky', 'Slova', 'Čtení', 'Čísla', 'Počty', 'Mluvení', 'Psaní'];

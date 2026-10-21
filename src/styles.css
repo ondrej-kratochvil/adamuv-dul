@@ -392,6 +392,15 @@ canvas.ench { animation: ench 1.8s ease-in-out infinite; }
 .tool-cell .lock { top: 2px; right: 2px; width: 14px; height: 14px; }
 .tool-cell.locked canvas { opacity: .5; }
 .tool-note { grid-column: 1 / -1; font-family: var(--f-read); font-size: 14px; margin: 6px 0 0; }
+/* patro Mluvení */
+.speech-panel { position: relative; flex: 1; min-height: 0; display: grid; place-items: center; align-content: center; gap: 10px; padding: 14px max(16px, env(safe-area-inset-right, 0px)) 18px max(16px, env(safe-area-inset-left, 0px)); text-align: center; }
+.sp-pic { font-size: clamp(90px, 22vh, 180px); line-height: 1; background: var(--plate); border: 6px solid var(--plate-edge); padding: 10px 24px; }
+.sp-mill { border-radius: 50%; padding: 10px; transition: none; }
+.sp-word { font-family: var(--f-read); font-weight: 700; font-size: clamp(36px, 8vw, 60px); color: var(--white); text-shadow: 3px 3px 0 #000; }
+.sp-text, .sp-note { font-family: var(--f-read); font-size: 20px; color: var(--white); text-shadow: 2px 2px 0 #000; margin: 0; max-width: 32ch; }
+.sp-bar { width: min(420px, 90%); height: 18px; border: 3px solid #161616; background: rgba(0,0,0,.35); }
+.sp-bar i { display: block; height: 100%; width: 0; background: var(--go); }
+.speech-panel .actions { justify-content: center; width: min(560px, 100%); }
 .update { grid-column: 1 / -1; justify-self: center; width: min(640px, 100%); background: #fff7d1; border: 3px solid #161616; padding: 10px 14px; font-family: var(--f-read); display: grid; gap: 8px; }
 .update b { font-size: 19px; }
 .update ul { margin: 0; padding-left: 20px; font-size: 16px; line-height: 1.4; }
@@ -436,6 +445,9 @@ canvas.ench { animation: ench 1.8s ease-in-out infinite; }
 #endOverlay .actions .gbtn svg { width: 20px; height: 20px; }
 #endOverlay .end-house { width: min(100%, calc(24vh * 320 / 224)); margin-bottom: 8px; }
 #cheer .bubble, #cheer canvas { cursor: pointer; }
+/* celá rodina na konci kola v malé mřížce, ať nevytlačí dům z obrazovky */
+#endOverlay .faces.many { display: grid; grid-template-columns: repeat(5, 26px); gap: 2px; width: auto; flex: none; }
+#endOverlay .faces.many canvas { width: 26px; height: 26px; margin: 0; border-width: 2px; }
 
 /* dům */
 .house-view { flex: 1; min-height: 0; display: grid; place-items: center; padding-block: 12px 16px; }

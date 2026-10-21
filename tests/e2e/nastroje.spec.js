@@ -16,9 +16,10 @@ test('šatník ukáže nástroje se zámky a vybraný jde do ruky', async ({ pag
 
 test('materiál nástroje se dopočítá podle už zvládnutých úkolů hned po spuštění', async ({ page }) => {
   const stats = {}; for (const c of 'AÁEÉIÍOÓUÚŮYÝMLS') stats['letters:' + c] = { ok: 3, miss: 0, n: 3 };
+  for (const c of ['MA','ME','MI','MO','MU','LA','LE','LI','LO','LU','SA','SE','SI','SO','SU']) stats['syllables:' + c] = { ok: 3, miss: 0, n: 3 };
   await openGame(page, { total: 3, gear: { held: 'pick', stages: {} }, stats });
   await page.reload();
-  expect((await saved(page)).gear.stages.shovel).toBe(1); // 16 ze 46 úkolů v Písmenech a Slabikách = kámen
+  expect((await saved(page)).gear.stages.shovel).toBe(1); // 31 úkolů z Písmen, Slabik a Mluvení (přes 20 %, pod 40 %) = kámen
   await page.getByRole('button', { name: 'Šatník', exact: true }).click();
   await page.getByRole('button', { name: 'Nástroje', exact: true }).click();
   await expect(page.getByRole('button', { name: 'kamenná lopata' })).not.toHaveClass(/locked/);

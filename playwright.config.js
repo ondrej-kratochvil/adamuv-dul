@@ -10,5 +10,5 @@ export default defineConfig({
   workers: process.env.CI ? undefined : 2,
   reporter: process.env.CI ? [['github'], ['list']] : 'list',
   use: { baseURL: 'http://127.0.0.1:4173/', ...devices['Pixel 7'], browserName: 'chromium', locale: 'cs-CZ', timezoneId: 'Europe/Prague' },
-  webServer: { command: 'npm run build && npm run preview', url: 'http://127.0.0.1:4173/', reuseExistingServer: !process.env.CI, timeout: 120_000 },
+  webServer: { command: 'npm run build && npm run preview', url: 'http://127.0.0.1:4173/', reuseExistingServer: false /* vždy čerstvé sestavení: přerušený běh jinak nechá starý server a testy by zkoušely starou hru */, timeout: 120_000 },
 });

@@ -5,7 +5,7 @@ import { openGame, openSettings, playRound, saved } from './helpers.js';
 test('vesnice se nebourá: postavená škola zůstane i po nových chybách', async ({ page }) => {
   await openGame(page, { total: 25, village: { letters: 8 }, stats: { 'letters:A': { ok: 3, miss: 2, n: 5 } } });
   await page.getByRole('button', { name: 'Vesnice', exact: true }).click();
-  await expect(page.locator('#villageCap')).toContainText('Hotových budov: 1 z 7');
+  await expect(page.locator('#villageCap')).toContainText(/Hotových budov: 1 z \d/);
 });
 
 test('po hotové farmě se už nic neslibuje a tlačítko pod obrázkem otevře farmu', async ({ page }) => {

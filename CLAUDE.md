@@ -46,6 +46,10 @@ přidej i odměny, aby Adam nedošel na strop dřív, než dojde obsah.
   Krumpáč dál podle povedených kol (`TIERS`). Nové patro přiřadit k nástroji (test to hlídá).
 - **Střídání pater** (`logic/rotation.ts`): po 3 kolech stejného patra za sebou patro „odpočívá“ (dlaždice ztlumená, konec kola nabídne
   „Hrát …“ jiné patro, to nejdéle nehrané); otevře se po kole jiného patra. Ondřej 20. 10. 2026 (Adam hrál 10× za sebou Čísla).
+- **Mluvení** (`content/speech.ts`, `logic/speech.ts`, `levels/speech.js`, od 20. 10. 2026): logopedie na R, Ř, L a sykavky.
+  Hra výslovnost NEHODNOTÍ. Do zvládnutí se počítá jen sluch (`speech:slovo`); vyslovování hodnotí rodič (`say:slovo`),
+  cvik a foukání se nehodnotí. Slova a cviky doladit podle sešitu z logopedie (fotky od Ondřeje). Patro patří k lopatě
+  a k budově divadlo.
 - **Zvládnutý úkol** = `mastery() === 'good'` (aspoň 3× správně a poslední dobou bez chyby).
 - Odměny podle počtu kol (krumpáče, oblečení `at:`, dům 12 dílů, farma 10 dílů) končí kolem 22. kola;
   další dlouhodobé cíle mají být vázané na zvládnutí, ne na počet kol (jinak se vyplácí hrát lehké patro dokola).

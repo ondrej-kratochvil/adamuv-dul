@@ -5,6 +5,7 @@ import { NAMES } from '../content/words.ts';
 import { PIC, PIC_WORDS, PLURAL, partLabel } from '../content/pictures.ts';
 import { genMath, genNumbers } from './math.js';
 import { genWriting } from './writing.js';
+import { genSpeechHear, soundLabel } from './speech.js';
 import { ctx } from '../game/ctx.js';
 import * as T from '../logic/tasks.ts';
 import { choiceCount as choiceCountL, weight as weightL } from '../logic/mastery.ts';
@@ -30,6 +31,7 @@ const LEVELS = {
   reading: { name: 'Čtení', tex: 'diamondOre', gen: genReading, picture: true, sample: ['OSA'], small: true, intro: 'Přečti slovo na ceduli a kopni do správného obrázku.' },
   numbers: { name: 'Čísla', tex: 'goldOre', gen: genNumbers, sample: ['3', '7'], intro: 'Poslouchej číslo a kopej do správné kostky.' },
   math: { name: 'Počty', tex: 'lapisOre', gen: genMath, sample: ['2+3'], small: true, intro: 'Spočítej příklad a kopej do správného výsledku.' },
+  speech: { name: 'Mluvení', tex: 'emeraldOre', gen: genSpeechHear, speech: true, label: soundLabel, sample: ['R', 'Š'], intro: 'Mluvení! Poslouchej slovo a ukaž, jakou hlásku v něm slyšíš. Občas řekneš slovo nahlas nebo procvičíš pusu.' },
   writing: { name: 'Psaní', tex: 'redstoneOre', trace: genWriting, len: 5, sample: ['1 A'], intro: 'Jeď prstem po dráze a nevyjeď z ní. Začni u zelené tečky a jeď po šipce.' },
 };
 const inCzech = (_kind, w) => T.pronounce(w, save.pron || {}); // dřív „Slovo w.“, teď jen výslovnost

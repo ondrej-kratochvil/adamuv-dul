@@ -1,6 +1,14 @@
 {
-  "version": 46,
+  "version": 47,
   "changes": [
+    {
+      "version": 47,
+      "date": "2026-10-21",
+      "notes": [
+        "Nové patro Mluvení! Poslouchej slovo a ukaž, jestli v něm slyšíš třeba R, nebo L.",
+        "Někdy řekneš slovo nahlas a rodič poslouchá. Taky budeš cvičit pusu a foukat do větrného mlýna."
+      ]
+    },
     {
       "version": 46,
       "date": "2026-10-20",

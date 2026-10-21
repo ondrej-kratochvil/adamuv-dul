@@ -21,7 +21,7 @@ export const TOOLS: Tool[] = [
   { id: 'axe', name: 'sekera', fem: true, levels: ['writing'], levelNames: 'Psaní', map: [
     '................', '......DD........', '.....DHHD.......', '....DHHHSD......', '....DHHSKHD.....', '.....DSKHHD.....', '.....SK.DD......', '....SK..........',
     '...SK...........', '..SK............', '.SK.............', 'SK..............', 'K...............', '................', '................', '................'] },
-  { id: 'shovel', name: 'lopata', fem: true, levels: ['letters', 'syllables'], levelNames: 'Písmena a Slabiky', map: [
+  { id: 'shovel', name: 'lopata', fem: true, levels: ['letters', 'syllables', 'speech'], levelNames: 'Písmena, Slabiky a Mluvení', map: [
     '................', '..........DDD...', '.........DHHHD..', '.........DHHHD..', '.........DHHD...', '........SKDD....', '.......SK.......', '......SK........',
     '.....SK.........', '....SK..........', '...SK...........', '..SK............', '.SK.............', 'KK..............', '................', '................'] },
   { id: 'hoe', name: 'motyka', fem: true, levels: ['words', 'reading'], levelNames: 'Slova a Čtení', map: [

@@ -4,6 +4,8 @@ import { readFileSync } from 'node:fs';
 import { defaults, exportText, importText, migrate, SCHEMA } from '../../src/save/schema';
 
 const fixture = (n: string) => JSON.parse(readFileSync(new URL(`../fixtures/${n}.json`, import.meta.url), 'utf8'));
+// stará hodnota zůstane celá; u objektů smí přibýt nová pole s výchozí hodnotou (třeba počítadlo kol nového patra)
+const kept = (now: unknown, was: unknown, k: string) => was && typeof was === 'object' && !Array.isArray(was) ? expect(now, k).toMatchObject(was as object) : expect(now, k).toEqual(was);
 
 describe('uložený postup', () => {
   it('nesmysl nebo prázdno = výchozí stav', () => {
@@ -21,7 +23,7 @@ describe('uložený postup', () => {
   it('pokročilý postup: všechno zůstane', () => {
     const old = fixture('save-pokrocily');
     const s = migrate(old);
-    for (const k of Object.keys(old)) expect(s[k], k).toEqual(old[k]);
+    for (const k of Object.keys(old)) kept(s[k], old[k], k);
   });
   it('neznámá budoucí pole se nezahodí', () => {
     expect(migrate({ total: 1, rounds: {}, novinka: [1, 2] }).novinka).toEqual([1, 2]);
@@ -48,7 +50,7 @@ describe('schéma 3 (verze hry 27): doba řešení, procvičování, tabulka Goo
   it('postup ve schématu 2 (tvar jako export z Adamova tabletu 19. 10. 2026): nic se neztratí, doplní se nová pole', () => {
     const old = fixture('save-v2');
     const s = migrate(old);
-    for (const k of Object.keys(old)) if (k !== 'schema') expect(s[k], k).toEqual(old[k]);
+    for (const k of Object.keys(old)) if (k !== 'schema') kept(s[k], old[k], k);
     expect(s.schema).toBe(SCHEMA);
     expect(s.practice).toBe(0);
     expect(s.sync).toEqual({ url: '', queue: [], last: 0, sent: 0, error: '', seq: 0, device: '', uid: '' });

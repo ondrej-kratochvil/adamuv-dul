@@ -5,7 +5,7 @@ import { BATCH, acknowledge, enqueue, ensureDevice, localStamp, validSyncUrl } f
 import { LEVEL_KEYS, levelProgress, masteryPoints } from '../logic/mastery.ts';
 import { LEVELS } from '../levels/reading.js';
 
-function levelName(key) { return LEVELS[key] ? LEVELS[key].name : key === 'practice' ? 'Procvičování' : key === 'boss' ? 'Ender drak' : key; }
+function levelName(key) { return LEVELS[key] ? LEVELS[key].name : key === 'practice' ? 'Procvičování' : key === 'boss' ? 'Ender drak' : key === 'say' ? 'Mluvení (vyslovit)' : key === 'exercise' ? 'Mluvení (cvik)' : key; }
 // přidá řádky do fronty (každý s časem) a zkusí je hned poslat
 function queueRows(rows) {
   const now = Date.now();

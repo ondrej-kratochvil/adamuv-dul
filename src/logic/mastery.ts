@@ -5,6 +5,7 @@ import { WORDS } from '../content/words';
 import { PIC_WORDS } from '../content/pictures';
 import { GLYPHS } from '../content/glyphs';
 import { range } from './random';
+import { SPEECH_ITEMS } from './speech';
 
 // t = obvyklá doba řešení v ms (klouzavý průměr, novější pokusy váží víc, ať se zlepšení projeví), tn = počet měření
 // (doba od ukázání úkolu po správnou kostku), qw = chyby rychlým klepnutím (tip),
@@ -54,6 +55,7 @@ const isBigNumber = (k: string) => { const n = Number(k); return n > 20 && n < 1
 
 export const MASTERY_SETS = (): Record<string, string[]> => ({
   letters: LETTERS, syllables: SYLL, words: WORDS, reading: PIC_WORDS, writing: Object.keys(GLYPHS), numbers: NUMBERS_BASE,
+  speech: SPEECH_ITEMS(), // jen sluch (co slyší ve slově); vyslovování hodnotí rodič a do odměn se nepočítá
 });
 
 const goodKeys = (stats: Stats, prefix: string) => Object.keys(stats).filter(k => k.startsWith(prefix) && mastery(stats[k]) === 'good').map(k => k.slice(prefix.length));
@@ -70,7 +72,7 @@ export function levelProgress(stats: Stats, lv: string): { got: number; all: num
 // obvyklá doba řešení v sekundách (null = zatím neměřeno)
 export const avgSecs = (s?: Stat): number | null => s && s.tn ? s.t! / 1000 : null;
 
-export const LEVEL_KEYS = ['letters', 'syllables', 'words', 'reading', 'numbers', 'math', 'writing'];
+export const LEVEL_KEYS = ['letters', 'syllables', 'words', 'reading', 'numbers', 'math', 'writing', 'speech'];
 
 // celkový pokrok přes všechna patra
 export function masteryPoints(stats: Stats): { pts: number; max: number } {

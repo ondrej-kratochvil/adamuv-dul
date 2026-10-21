@@ -39,7 +39,7 @@ export function defaults(): SaveState {
   return {
     schema: SCHEMA,
     caseMode: 'both', slow: false, strict: 'normal', total: 0,
-    rounds: { letters: 0, syllables: 0, words: 0, numbers: 0, math: 0, writing: 0, reading: 0 },
+    rounds: { letters: 0, syllables: 0, words: 0, numbers: 0, math: 0, writing: 0, reading: 0, speech: 0 },
     stats: {}, log: [], ench: [], emeralds: 0, notes: [], dogName: '', gifts: {}, bday: 0, lastCheer: '',
     village: null, obsidian: null, netherMine: false, cards: null, weeks: null, babies: null, eyes: 0, dragon: 0,
     seenVersion: 0, gameName: 'Adamův důl',
