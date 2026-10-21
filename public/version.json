@@ -1,6 +1,13 @@
 {
-  "version": 49,
+  "version": 50,
   "changes": [
+    {
+      "version": 50,
+      "date": "2026-10-21",
+      "notes": [
+        "Oprava pro rodiče: každý profil posílá statistiky do tabulky zvlášť a nic se neposílá dvakrát."
+      ]
+    },
     {
       "version": 49,
       "date": "2026-10-21",

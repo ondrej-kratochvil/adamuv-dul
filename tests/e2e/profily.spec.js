@@ -44,3 +44,29 @@ test('nový profil od začátku a jeho smazání', async ({ page }) => {
   expect(await page.evaluate(() => window.__adam.save.total)).toBe(12);
   expect(await page.evaluate(() => Object.keys(localStorage).filter(k => k.startsWith('adamuv-dul-v1:')).length)).toBe(0);
 });
+
+// Ondřej 21. 10. 2026: v kopii profilu „Ondra“ to vypadalo, že se adresa smazala; po jejím zadání kopie poslala
+// znovu Adamova stará kola (bez sloupce Profil) a přepsala list „Stav mobil táty“
+test('kopie profilu: vysvětlí, proč nemá adresu, nepošle znovu zkopírovaná kola a má vlastní list Stav', async ({ page }) => {
+  const URL = 'https://script.google.com/macros/s/PROF/exec', got = [];
+  await page.route(URL, async route => { got.push(JSON.parse(route.request().postData())); await route.fulfill({ status: 200, contentType: 'application/json', headers: { 'access-control-allow-origin': '*' }, body: JSON.stringify({ ok: true }) }); });
+  await openGame(page, { total: 5, seenVersion: 999, log: [{ t: Date.now() - 86400000, d: '2026-10-19', level: 'numbers', clean: 8, done: 8, len: 8, ok: true, quit: false, secs: 44 }],
+    sync: { url: URL, queue: [], last: 0, sent: 10, error: '', seq: 0, device: 'mobil táty', uid: 'ab12', backfilled: true } });
+  await openSettings(page, 'profiles');
+  await page.locator('#profileName').fill('Ondra');
+  await page.locator('#profileCopy').check();
+  await page.locator('#btnProfileNew').click();
+  await page.waitForLoadState('load');
+  await openSettings(page, 'sync');
+  await expect(page.locator('#syncInfo')).toContainText('pro každý profil zvlášť');
+  await page.locator('#syncUrl').fill(URL);
+  await page.locator('#btnSyncSave').click();
+  await expect(page.locator('#backfillConfirm')).toBeHidden();
+  await page.locator('#btnSetClose').click();
+  await playRound(page, 'Písmena');
+  await page.locator('#btnEndHome').click();
+  await expect.poll(() => got.flatMap(b => b.rows).filter(r => r.Druh === 'kolo').length).toBe(1);
+  const kola = got.flatMap(b => b.rows).filter(r => r.Druh === 'kolo');
+  expect(kola[0]).toMatchObject({ Patro: 'Písmena', Profil: 'Ondra' });
+  expect(got.at(-1).stav.zarizeni).toBe('mobil táty (Ondra)');
+});

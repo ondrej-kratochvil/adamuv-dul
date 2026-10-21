@@ -10,7 +10,8 @@ function createProfile(name, copy) {
   const id = addProfile(registry, name);
   if (copy) {
     const data = JSON.parse(JSON.stringify(save));
-    data.sync = { ...syncDefaults(), device: save.sync.device };
+    // zkopírovaná kola patří původnímu profilu a v tabulce už jsou: kopie je znovu neposílá (backfilled)
+    data.sync = { ...syncDefaults(), device: save.sync.device, backfilled: true };
     try { localStorage.setItem(keyFor(id), JSON.stringify(data)); } catch (e) { /* nic */ }
   }
   switchTo(id);

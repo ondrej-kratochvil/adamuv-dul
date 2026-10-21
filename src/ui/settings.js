@@ -1,6 +1,6 @@
 // Nastavení
 import { $ } from '../core/dom.js';
-import { BACKUP_KEY, defaults, persist, save, replaceSave } from '../save/save.ts';
+import { BACKUP_KEY, defaults, persist, profile, save, replaceSave } from '../save/save.ts';
 import { exportText, importText } from '../save/schema.ts';
 import { PRON_MODES, RISKY_SYLLABLES, RISKY_WORDS, defaultMode, pronounceAs } from '../logic/pronounce.ts';
 import { iconSvg } from './icons.js';
@@ -14,6 +14,7 @@ import { renderNotes } from '../world/family.js';
 import { ENCH_ORDER, masteryPoints } from '../rewards/enchant.js';
 import { backfillCount, backfillLog, flushSync } from '../app/sync.js';
 import { renderProfiles } from '../app/profiles.js';
+import { MAIN_ID } from '../logic/profiles.ts';
 import { renameDevice, syncDefaults, validSyncUrl } from '../logic/sync.ts';
 
 // karta Hlas upozorní, když chybí český hlas (návod je až uvnitř karty)
@@ -73,7 +74,9 @@ $('#btnReset').addEventListener('click', () => { $('#resetConfirm').hidden = fal
 const fmtWhen = t => { const d = new Date(t); return `${d.getDate()}. ${d.getMonth() + 1}. ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`; };
 function updateSync(msg) {
   const s = save.sync; $('#syncUrl').value = s.url; $('#syncDevice').value = s.device;
-  $('#syncInfo').textContent = msg || (!s.url ? 'Zatím nenastaveno, statistiky zůstávají jen v tabletu.'
+  // adresa patří každému profilu zvlášť (21. 10. 2026: na profilu Ondra to vypadalo, že se adresa smazala)
+  const other = profile.id !== MAIN_ID ? `Hraje se profil ${profile.name}. Adresa tabulky se nastavuje pro každý profil zvlášť, ` : '';
+  $('#syncInfo').textContent = msg || (!s.url ? (other ? other + `Adamův profil ji má svou. Tenhle profil zatím do tabulky neposílá; když adresu zadáte, jeho záznamy budou mít sloupec Profil.` : 'Zatím nenastaveno, statistiky zůstávají jen v tabletu.')
     : `Odesláno ${s.sent} záznamů${s.last ? `, naposledy ${fmtWhen(s.last)}` : ''}. Čeká na odeslání: ${s.queue.length}.${s.error ? ` Poslední chyba: ${s.error}` : ''}`);
 }
 $('#btnSyncSave').addEventListener('click', () => {

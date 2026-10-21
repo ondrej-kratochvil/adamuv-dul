@@ -6,11 +6,13 @@ import { LEVEL_KEYS, levelProgress, masteryPoints } from '../logic/mastery.ts';
 import { LEVELS } from '../levels/reading.js';
 
 function levelName(key) { return LEVELS[key] ? LEVELS[key].name : key === 'practice' ? 'Procvičování' : key === 'boss' ? 'Ender drak' : key === 'say' ? 'Mluvení (vyslovit)' : key === 'exercise' ? 'Mluvení (cvik)' : key; }
+// jiný profil než Adamův se v tabulce odliší sloupcem Profil a vlastním listem Stav
+const profileCol = () => profile.id !== MAIN_ID ? { Profil: profile.name } : {};
+const stateName = () => profile.id !== MAIN_ID ? `${save.sync.device} (${profile.name})` : save.sync.device;
 // přidá řádky do fronty (každý s časem) a zkusí je hned poslat
 function queueRows(rows) {
   const now = Date.now();
-  // jiný profil než Adamův se v tabulce odliší sloupcem Profil
-  enqueue(save.sync, rows.map(r => ({ Čas: localStamp(now), ...(profile.id !== MAIN_ID ? { Profil: profile.name } : {}), ...r })), now);
+  enqueue(save.sync, rows.map(r => ({ Čas: localStamp(now), ...profileCol(), ...r })), now);
   persist();
   flushSync();
 }
@@ -20,7 +22,7 @@ function stateRows() {
   const m = masteryPoints(save.stats);
   rows.push({ Patro: 'Celkem', Zvládnuto: m.pts, Celkem: m.max, Procent: Math.round(m.pts / m.max * 100), 'Odehraná kola': save.total });
   rows.push({ Patro: 'Procvičování', Zvládnuto: '', Celkem: '', Procent: '', 'Odehraná kola': save.practice || 0 });
-  return { zarizeni: save.sync.device, aktualizace: localStamp(Date.now()), smaragdy: save.emeralds, rada: save.streak.count, nejdelsiRada: save.streak.best, patra: rows };
+  return { zarizeni: stateName(), aktualizace: localStamp(Date.now()), smaragdy: save.emeralds, rada: save.streak.count, nejdelsiRada: save.streak.best, patra: rows };
 }
 // při prvním nastavení tabulky pošle i kola odehraná dřív (z deníku; úlohy jednotlivě se dřív neukládaly)
 // kolik starších kol by se poslalo (0 = není se na co ptát)
@@ -28,7 +30,7 @@ function backfillCount() { if (save.sync.sent || save.sync.backfilled) return 0;
 function backfillLog() {
   if (save.sync.sent || save.sync.backfilled) return;
   const start = save.sync.start || Infinity; // novější kola už ve frontě jsou
-  const rows = save.log.filter(e => e.t < start).map(e => ({ Čas: localStamp(e.t), Druh: 'kolo', Patro: levelName(e.level), 'Bez chyby': e.clean, Úloh: e.len, Hotovo: e.done, Povedené: e.ok ? 'ano' : 'ne', Odešel: e.quit ? 'ano' : 'ne', Sekundy: e.secs, ...(e.rate ? { Hodnocení: e.rate } : {}) }));
+  const rows = save.log.filter(e => e.t < start).map(e => ({ Čas: localStamp(e.t), ...profileCol(), Druh: 'kolo', Patro: levelName(e.level), 'Bez chyby': e.clean, Úloh: e.len, Hotovo: e.done, Povedené: e.ok ? 'ano' : 'ne', Odešel: e.quit ? 'ano' : 'ne', Sekundy: e.secs, ...(e.rate ? { Hodnocení: e.rate } : {}) }));
   const q = save.sync.queue, st = save.sync.start; save.sync.queue = [];
   enqueue(save.sync, rows, Date.now()); save.sync.queue.push(...q); save.sync.start = st || save.sync.start;
   save.sync.backfilled = true; persist();
