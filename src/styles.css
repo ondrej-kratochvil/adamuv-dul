@@ -475,6 +475,13 @@ canvas.ench { animation: ench 1.8s ease-in-out infinite; }
 .set ul { padding-left: 20px; margin: 0 0 8px; }
 .seg { display: flex; flex-wrap: wrap; gap: 8px; }
 .seg .gbtn { font-size: 17px; padding: 8px 14px; }
+/* karty nastavení (Ondřej 21. 10. 2026: nastavení bylo dlouhé a nepřehledné) */
+.set-tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin: 0 0 6px; position: sticky; top: -22px; z-index: 1; background: var(--gui); padding: 6px 0; }
+@media (min-width: 600px) { .set-tabs { grid-template-columns: repeat(6, 1fr); } }
+.set-tabs .gbtn { font-size: 16px; padding: 8px 4px; }
+.set-tabs .gbtn[aria-selected="true"] { background: var(--go); }
+.set-tabs .gbtn.warn::after { content: " !"; color: #ffd166; }
+.set-tab > h3:first-child { margin-top: 10px; }
 .seg .gbtn[aria-pressed="true"] { background: var(--go); }
 .voice-ok { color: #2c5e1a; font-weight: 700; }
 .voice-bad { color: #9a2a14; font-weight: 700; }

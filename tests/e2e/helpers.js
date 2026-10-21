@@ -33,12 +33,14 @@ export async function openGame(page, state = null) {
 }
 
 // nastavení pro rodiče: ozubené kolo a pak příklad pro dospělého (násobení)
-export async function openSettings(page) {
+// tab = karta nastavení (game, voice, family, progress, profiles, sync)
+export async function openSettings(page, tab) {
   await page.locator('#btnSettings').click();
   const [a, b] = (await page.locator('#gateQ').textContent()).split(' × ').map(Number);
   await page.locator('#gateInput').fill(String(a * b));
   await page.locator('#btnGateOk').click();
   await expect(page.locator('#setOverlay')).toBeVisible();
+  if (tab) await page.locator(`.set-tabs [data-tab="${tab}"]`).click();
 }
 
 export const saved = page => page.evaluate(k => JSON.parse(localStorage.getItem(k)), KEY);

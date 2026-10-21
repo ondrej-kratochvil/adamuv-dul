@@ -1,6 +1,13 @@
 {
-  "version": 48,
+  "version": 49,
   "changes": [
+    {
+      "version": 49,
+      "date": "2026-10-21",
+      "notes": [
+        "Nastavení pro rodiče je teď rozdělené na karty, aby se v něm táta a máma lépe vyznali."
+      ]
+    },
     {
       "version": 48,
       "date": "2026-10-21",

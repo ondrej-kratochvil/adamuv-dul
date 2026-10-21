@@ -73,6 +73,12 @@ přidej i odměny, aby Adam nedošel na strop dřív, než dojde obsah.
   seznam v `adamuv-dul-profily`. Nový profil od začátku nebo jako kopie postupu; kopie nepřebírá tabulku Google. Přepnutí = nové načtení hry.
   Na úvodní obrazovce je u jiného profilu červený štítek „Profil: …“ (na mobilu jen jméno a verze „v48“, hlavička na jeden řádek, test `verze-cislo`); v tabulce sloupec Profil. Hlas zatím oslovuje „Adame“ každého.
 
+## Nastavení pro rodiče
+
+- Karty (Ondřej 21. 10. 2026, nastavení bylo dlouhé): Hra (písmo, přísnost), Hlas (hlas, výslovnost slabik), Rodina (vzkazy, jméno psa),
+  Postup (statistiky, od začátku, záloha, přenos), Profily, Tabulka (Google). Nová volba patří do karty podle tématu, ne na konec.
+  Při dalším otevření zůstane poslední karta; karta Hlas má „!“, když chybí český hlas. V testech `openSettings(page, 'karta')`.
+
 ## Verze a novinky
 
 Každá úprava, která jde na `main`, zvýší `APP_VERSION` v `index.html` a přidá do `version.json` záznam se stejným

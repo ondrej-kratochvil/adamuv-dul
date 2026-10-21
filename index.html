@@ -373,6 +373,16 @@
 <div class="overlay" id="setOverlay" hidden>
   <div class="panel set" role="dialog" aria-labelledby="setTitle">
     <h2 id="setTitle">Pro rodiče</h2>
+    <div class="set-tabs" role="tablist" aria-label="Části nastavení">
+      <button class="gbtn" role="tab" data-tab="game">Hra</button>
+      <button class="gbtn" role="tab" data-tab="voice">Hlas</button>
+      <button class="gbtn" role="tab" data-tab="family">Rodina</button>
+      <button class="gbtn" role="tab" data-tab="progress">Postup</button>
+      <button class="gbtn" role="tab" data-tab="profiles">Profily</button>
+      <button class="gbtn" role="tab" data-tab="sync">Tabulka</button>
+    </div>
+
+    <div class="set-tab" role="tabpanel" data-tab="game">
 
     <h3>Písmo na kostkách</h3>
     <div class="seg" id="segCase">
@@ -388,7 +398,9 @@
       <button class="gbtn" data-strict="normal" id="strictNormal">střední (5 z 8, 4 z 5)</button>
       <button class="gbtn" data-strict="strict" id="strictHard">přísná (6 z 8, 5 z 5)</button>
     </div>
+    </div>
 
+    <div class="set-tab" role="tabpanel" data-tab="voice">
     <h3>Hlas</h3>
     <p id="voiceInfo"></p>
     <div class="seg">
@@ -407,8 +419,9 @@
       </ul>
       <p>Potom stránku zavřete a otevřete znovu.</p>
     </div>
+    </div>
 
-    <div class="family-notes">
+    <div class="set-tab family-notes" role="tabpanel" data-tab="family">
       <h3>Vzkazy od rodiny</h3>
       <p>Vzkaz se Adamovi přečte nahlas po nejbližším povedeném kole, i s obrázkem toho, kdo ho poslal.</p>
       <div class="seg" id="noteWho"></div>
@@ -420,6 +433,7 @@
       <input id="dogName" type="text" maxlength="20" placeholder="Pejsek">
     </div>
 
+    <div class="set-tab" role="tabpanel" data-tab="progress">
     <h3>Postup</h3>
     <p id="progressInfo"></p>
     <div class="seg"><button class="gbtn go" id="btnStats">Statistiky</button><button class="gbtn" id="btnReset">Začít od začátku</button><button class="gbtn" id="btnRestore" hidden>Vrátit zálohu</button></div>
@@ -428,25 +442,6 @@
       <button class="gbtn" id="btnRestoreYes" style="background:#a8341c">Ano, vrátit</button>
       <button class="gbtn" id="btnRestoreNo">Nechat</button>
     </div>
-    <h3>Profily hráčů</h3>
-    <p>Každý profil má svůj postup i statistiky. Na testování nebo pro kamaráda založte nový profil. Do tabulky Google posílá jen profil, který má v nastavení adresu (nový ji nemá). Hlas zatím oslovuje každého „Adame“.</p>
-    <div class="profile-list" id="profileList"></div>
-    <input id="profileName" type="text" maxlength="24" placeholder="Jméno profilu, třeba Test nebo Víťa" autocomplete="off">
-    <label class="lbl-small"><input type="checkbox" id="profileCopy"> <span id="profileCopyLbl">kopie postupu</span> (jinak od začátku)</label>
-    <div class="seg"><button class="gbtn go" id="btnProfileNew">Vytvořit a přepnout</button></div>
-    <h3>Statistiky do tabulky Google</h3>
-    <p>Hra může po každém kole poslat výsledky do tabulky Google ve vašem účtu. Pak je nemusíte posílat z tabletu. Bez internetu záznamy počkají a odejdou později. Návod: <a href="https://github.com/ondrej-kratochvil/adamuv-dul/blob/main/docs/google-tabulka.md" target="_blank" rel="noopener">docs/google-tabulka.md</a>.</p>
-    <label class="lbl-small" for="syncDevice">Název tohoto zařízení (do tabulky, ať se zařízení nesmíchají):</label>
-    <input id="syncDevice" type="text" maxlength="40" placeholder="tablet, počítač děda Bob…" autocomplete="off">
-    <label class="lbl-small" for="syncUrl">Adresa tabulky:</label>
-    <input id="syncUrl" type="url" inputmode="url" placeholder="https://script.google.com/macros/s/…/exec" autocomplete="off" spellcheck="false">
-    <div class="seg"><button class="gbtn go" id="btnSyncSave">Uložit adresu</button><button class="gbtn" id="btnSyncNow">Odeslat teď</button></div>
-    <div class="confirm" id="backfillConfirm" hidden>
-      <p style="margin:0" id="backfillInfo"></p>
-      <button class="gbtn go" id="btnBackfillYes">Poslat i starší kola</button>
-      <button class="gbtn" id="btnBackfillNo">Jen nová</button>
-    </div>
-    <p id="syncInfo" role="status"></p>
     <h3>Přenos na jiný tablet</h3>
     <p>Postup jde zkopírovat jako text (třeba poslat zprávou) a na jiném tabletu vložit. Vložení nahradí postup v tomhle tabletu, předchozí stav se uloží jako záloha.</p>
     <div class="seg"><button class="gbtn" id="btnExport">Zkopírovat postup</button><button class="gbtn" id="btnImport">Vložit postup</button></div>
@@ -461,6 +456,32 @@
       <p style="margin:0">Smaže se všechno, co Adam získal: dům, farma, vesnice, smaragdy, pes, oblečení z odměn, očarování, Nether, Přerov, kartičky, řada dní i statistiky. Zůstane jen nastavení a vzkazy. Poslední stav se uloží jako záloha v tabletu.</p>
       <button class="gbtn" id="btnResetYes" style="background:#a8341c">Ano, smazat</button>
       <button class="gbtn" id="btnResetNo">Nechat</button>
+    </div>
+    </div>
+
+    <div class="set-tab" role="tabpanel" data-tab="profiles">
+    <h3>Profily hráčů</h3>
+    <p>Každý profil má svůj postup i statistiky. Na testování nebo pro kamaráda založte nový profil. Do tabulky Google posílá jen profil, který má v nastavení adresu (nový ji nemá). Hlas zatím oslovuje každého „Adame“.</p>
+    <div class="profile-list" id="profileList"></div>
+    <input id="profileName" type="text" maxlength="24" placeholder="Jméno profilu, třeba Test nebo Víťa" autocomplete="off">
+    <label class="lbl-small"><input type="checkbox" id="profileCopy"> <span id="profileCopyLbl">kopie postupu</span> (jinak od začátku)</label>
+    <div class="seg"><button class="gbtn go" id="btnProfileNew">Vytvořit a přepnout</button></div>
+    </div>
+
+    <div class="set-tab" role="tabpanel" data-tab="sync">
+    <h3>Statistiky do tabulky Google</h3>
+    <p>Hra může po každém kole poslat výsledky do tabulky Google ve vašem účtu. Pak je nemusíte posílat z tabletu. Bez internetu záznamy počkají a odejdou později. Návod: <a href="https://github.com/ondrej-kratochvil/adamuv-dul/blob/main/docs/google-tabulka.md" target="_blank" rel="noopener">docs/google-tabulka.md</a>.</p>
+    <label class="lbl-small" for="syncDevice">Název tohoto zařízení (do tabulky, ať se zařízení nesmíchají):</label>
+    <input id="syncDevice" type="text" maxlength="40" placeholder="tablet, počítač děda Bob…" autocomplete="off">
+    <label class="lbl-small" for="syncUrl">Adresa tabulky:</label>
+    <input id="syncUrl" type="url" inputmode="url" placeholder="https://script.google.com/macros/s/…/exec" autocomplete="off" spellcheck="false">
+    <div class="seg"><button class="gbtn go" id="btnSyncSave">Uložit adresu</button><button class="gbtn" id="btnSyncNow">Odeslat teď</button></div>
+    <div class="confirm" id="backfillConfirm" hidden>
+      <p style="margin:0" id="backfillInfo"></p>
+      <button class="gbtn go" id="btnBackfillYes">Poslat i starší kola</button>
+      <button class="gbtn" id="btnBackfillNo">Jen nová</button>
+    </div>
+    <p id="syncInfo" role="status"></p>
     </div>
 
     <div class="actions" style="margin-top:20px">

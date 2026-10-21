@@ -16,12 +16,15 @@ import { backfillCount, backfillLog, flushSync } from '../app/sync.js';
 import { renderProfiles } from '../app/profiles.js';
 import { renameDevice, syncDefaults, validSyncUrl } from '../logic/sync.ts';
 
+// karta Hlas upozorní, když chybí český hlas (návod je až uvnitř karty)
+function voiceTabWarn() { const t = $('.set-tabs [data-tab="voice"]'); if (t) t.classList.toggle('warn', !$('#voiceHelp').hidden); }
 function updateVoiceInfo() {
   const el = $('#voiceInfo'); if (!el) return;
-  if (!synth) { el.innerHTML = '<span class="voice-bad">Prohlížeč neumí předčítat.</span>'; $('#voiceHelp').hidden = false; return; }
+  if (!synth) { el.innerHTML = '<span class="voice-bad">Prohlížeč neumí předčítat.</span>'; $('#voiceHelp').hidden = false; voiceTabWarn(); return; }
   if (csVoice) { el.innerHTML = `<span class="voice-ok">Český hlas: ${csVoice.name}</span>`; $('#voiceHelp').hidden = true; }
   else if (voicesKnown) { el.innerHTML = '<span class="voice-bad">Český hlas nebyl nalezen.</span>'; $('#voiceHelp').hidden = false; }
   else { el.textContent = 'Zjišťuji dostupné hlasy… Klepněte na Vyzkoušet hlas.'; $('#voiceHelp').hidden = true; }
+  voiceTabWarn();
 }
 function updateSettings() {
   document.querySelectorAll('#segCase [data-case]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.case === save.caseMode)));
@@ -29,12 +32,21 @@ function updateSettings() {
   $('#rateNormal').setAttribute('aria-pressed', String(!save.slow));
   $('#rateSlow').setAttribute('aria-pressed', String(save.slow));
   const st = Math.min(12, save.total);
-  $('#progressInfo').textContent = `Odehraná kola: písmena ${save.rounds.letters}, slabiky ${save.rounds.syllables}, slova ${save.rounds.words}, čtení ${save.rounds.reading}, čísla ${save.rounds.numbers}, počty ${save.rounds.math}, psaní ${save.rounds.writing}. Dům: ${st} z 12 dílů. Farma: ${farmStage()} z ${FARM_STAGES.length}. Smaragdy: ${save.emeralds}. Řada: ${streakNow().count} (nejdelší ${save.streak.best}). Krumpáč: ${tierOf(save.total).name}. Očarování: ${save.ench.length} z ${ENCH_ORDER.length} (zvládnuto ${masteryPoints().pts} z ${masteryPoints().max} úkolů).`;
+  $('#progressInfo').textContent = `Odehraná kola: písmena ${save.rounds.letters}, slabiky ${save.rounds.syllables}, slova ${save.rounds.words}, čtení ${save.rounds.reading}, čísla ${save.rounds.numbers}, počty ${save.rounds.math}, psaní ${save.rounds.writing}, mluvení ${save.rounds.speech || 0}. Dům: ${st} z 12 dílů. Farma: ${farmStage()} z ${FARM_STAGES.length}. Smaragdy: ${save.emeralds}. Řada: ${streakNow().count} (nejdelší ${save.streak.best}). Krumpáč: ${tierOf(save.total).name}. Očarování: ${save.ench.length} z ${ENCH_ORDER.length} (zvládnuto ${masteryPoints().pts} z ${masteryPoints().max} úkolů).`;
   updateVoiceInfo();
 }
 // Nastavení je pro rodiče: otevře se po vyřešení příkladu pro dospělého (logic/gate.ts)
 let gate = null;
-function openSettings() { renderProfiles(); updateSettings(); renderNotes(); updateRestore(); renderPron(); updateSync(); $('#resetConfirm').hidden = true; $('#setOverlay').hidden = false; }
+// karty nastavení; při dalším otevření zůstane naposledy otevřená karta
+let setTab = 'game';
+function showSetTab(tab) {
+  setTab = tab;
+  document.querySelectorAll('.set-tabs [data-tab]').forEach(b => { b.setAttribute('aria-selected', String(b.dataset.tab === tab)); b.tabIndex = b.dataset.tab === tab ? 0 : -1; });
+  document.querySelectorAll('.set-tab').forEach(p => { p.hidden = p.dataset.tab !== tab; });
+  const panel = $('#setOverlay .panel'); if (panel) panel.scrollTop = 0;
+}
+document.querySelectorAll('.set-tabs [data-tab]').forEach(b => b.addEventListener('click', () => showSetTab(b.dataset.tab)));
+function openSettings() { renderProfiles(); updateSettings(); renderNotes(); updateRestore(); renderPron(); updateSync(); $('#resetConfirm').hidden = true; showSetTab(setTab); $('#setOverlay').hidden = false; }
 function openGate() {
   gate = makeGate();
   $('#gateQ').textContent = gate.text; $('#gateInput').value = ''; $('#gateMsg').textContent = '';

@@ -10,7 +10,7 @@ test('slabiky se čtou bez slova „Slabika“', async ({ page }) => {
 
 test('v nastavení jde u slabiky vybrat a poslechnout výslovnost', async ({ page }) => {
   await openGame(page);
-  await openSettings(page);
+  await openSettings(page, 'voice');
   const row = page.locator('.pron-row', { hasText: /^so/ });
   await expect(row.locator('[aria-pressed="true"]')).toContainText('s písmeny');
   await row.locator('[data-mode="plain"]').click();

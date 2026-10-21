@@ -53,7 +53,7 @@ test('nastavení se otevře jen po správném příkladu; po chybě přijde nov�
 
 test('začít od začátku řekne, co všechno se smaže, a nechá zálohu', async ({ page }) => {
   await openGame(page, { total: 20, emeralds: 50 });
-  await openSettings(page);
+  await openSettings(page, 'progress');
   await page.locator('#btnReset').click();
   await expect(page.locator('#resetConfirm')).toContainText('smaragdy');
   await expect(page.locator('#resetConfirm')).toContainText('záloha');
@@ -77,14 +77,14 @@ test('vzkaz se skloňuje správně', async ({ page }) => {
 test('postup jde přenést na jiný tablet', async ({ page, context }) => {
   await context.grantPermissions(['clipboard-read', 'clipboard-write']);
   await openGame(page, { total: 17, emeralds: 42, dogName: 'Lola' });
-  await openSettings(page);
+  await openSettings(page, 'progress');
   await page.locator('#btnExport').click();
   const text = await page.locator('#transferText').inputValue();
   expect(text).toMatch(/^ADAMUV-DUL-POSTUP:/);
   // druhý „tablet“: čistá hra
   const p2 = await context.newPage();
   await openGame(p2);
-  await openSettings(p2);
+  await openSettings(p2, 'progress');
   await p2.locator('#btnImport').click();
   await p2.locator('#transferText').fill(text);
   await expect(p2.locator('#importInfo')).toContainText('17 povedených kol');

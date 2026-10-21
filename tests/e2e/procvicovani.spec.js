@@ -47,7 +47,7 @@ test('chyba se zapíše jako záměna a Statistiky ji ukážou', async ({ page }
   const conf = Object.entries(s.stats).filter(([, v]) => v.conf);
   expect(conf.length).toBeGreaterThan(0);
   await page.locator('#btnEndHome').click();
-  await openSettings(page);
+  await openSettings(page, 'progress');
   await page.locator('#btnStats').click();
   await expect(page.locator('#statsBody')).toContainText('Plete si:');
   await expect(page.locator('#statsBody')).toContainText('Co procvičit');
@@ -61,7 +61,7 @@ test('tabulka Google: po nastavení adresy odejdou dřívější kola i nové ú
   await playRound(page, 'Písmena');
   await page.locator('#btnEndHome').click();
   expect((await saved(page)).sync.queue.length).toBeGreaterThan(8); // bez adresy čeká ve frontě
-  await openSettings(page);
+  await openSettings(page, 'sync');
   await page.locator('#syncUrl').fill('https://example.com/x');
   await page.locator('#btnSyncSave').click();
   await expect(page.locator('#syncInfo')).toContainText('Tohle není adresa');
@@ -95,9 +95,10 @@ test('vložený postup z jiného zařízení nepřebere název zařízení, adre
   const URL = 'https://script.google.com/macros/s/PC1/exec';
   await page.route(URL, route => route.abort());
   await openGame(page, { total: 5, sync: { url: URL, queue: [], last: 0, sent: 0, error: '', seq: 0, device: 'počítač děda Bob', uid: 'pc01', backfilled: true } });
-  await openSettings(page);
+  await openSettings(page, 'sync');
   await expect(page.locator('#syncDevice')).toHaveValue('počítač děda Bob');
   const other = await page.evaluate(() => { const s = JSON.parse(JSON.stringify(window.__adam.save)); s.total = 41; s.sync = { url: 'https://script.google.com/macros/s/TABLET/exec', queue: [], last: 0, sent: 99, error: '', seq: 0, device: 'tablet', uid: 'tb01' }; return 'ADAMUV-DUL-POSTUP:' + JSON.stringify(s); });
+  await page.locator('.set-tabs [data-tab="progress"]').click();
   await page.locator('#btnImport').click();
   await page.locator('#transferText').fill(other);
   await page.locator('#btnImportYes').click();
@@ -123,7 +124,7 @@ test('první zadání adresy: „Jen nová“ starší kola nepošle', async ({ 
   await openGame(page, { total: 5, log: [{ t: Date.now() - 86400000, d: '2026-10-19', level: 'numbers', clean: 8, done: 8, len: 8, ok: true, quit: false, secs: 44 }] });
   await playRound(page, 'Písmena');
   await page.locator('#btnEndHome').click();
-  await openSettings(page);
+  await openSettings(page, 'sync');
   await page.locator('#syncUrl').fill(URL);
   await page.locator('#btnSyncSave').click();
   await page.locator('#btnBackfillNo').click();

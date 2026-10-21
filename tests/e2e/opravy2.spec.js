@@ -52,7 +52,7 @@ test('plocha stavění se vejde i na nízkou obrazovku', async ({ page }) => {
 
 test('zálohu jde vrátit a vrácení jde vrátit zpátky', async ({ page }) => {
   await openGame(page, { total: 20, emeralds: 50 });
-  await openSettings(page);
+  await openSettings(page, 'progress');
   await expect(page.locator('#btnRestore')).toBeHidden();
   await page.locator('#btnReset').click();
   await page.locator('#btnResetYes').click();
@@ -81,7 +81,7 @@ test('nepovedené 12. kolo neříká, že kostky čekají ve Stavění (review 3
 
 test('začít od začátku nechá výslovnost vybranou rodičem (review 4)', async ({ page }) => {
   await openGame(page, { total: 20, pron: { SO: 'plain', LY: 'letters' } });
-  await openSettings(page);
+  await openSettings(page, 'progress');
   await page.locator('#btnReset').click();
   await page.locator('#btnResetYes').click();
   const s = await saved(page);
