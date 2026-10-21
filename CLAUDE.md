@@ -71,7 +71,7 @@ přidej i odměny, aby Adam nedošel na strop dřív, než dojde obsah.
 - `logic/profiles.ts`, `app/profiles.js`, nastavení pro rodiče „Profily hráčů“ (Ondřej 20. 10. 2026: testovat bez zásahu do Adamových
   statistik, hrát může i někdo jiný). Adamův profil (`adam`) zůstává pod původním klíčem `adamuv-dul-v1`, ostatní `adamuv-dul-v1:<id>`,
   seznam v `adamuv-dul-profily`. Nový profil od začátku nebo jako kopie postupu; kopie nepřebírá tabulku Google. Přepnutí = nové načtení hry.
-  Na úvodní obrazovce je u jiného profilu červený štítek „Profil: …“; v tabulce sloupec Profil. Hlas zatím oslovuje „Adame“ každého.
+  Na úvodní obrazovce je u jiného profilu červený štítek „Profil: …“ (na mobilu jen jméno a verze „v48“, hlavička na jeden řádek, test `verze-cislo`); v tabulce sloupec Profil. Hlas zatím oslovuje „Adame“ každého.
 
 ## Verze a novinky
 

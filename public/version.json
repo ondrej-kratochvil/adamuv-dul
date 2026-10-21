@@ -1,6 +1,13 @@
 {
-  "version": 47,
+  "version": 48,
   "changes": [
+    {
+      "version": 48,
+      "date": "2026-10-21",
+      "notes": [
+        "Na mobilu je nahoře všechno v jednom řádku. Číslo verze je teď krátce, třeba v48."
+      ]
+    },
     {
       "version": 47,
       "date": "2026-10-21",

@@ -42,6 +42,6 @@ function initProfiles() {
   $('#btnProfileNew').addEventListener('click', () => createProfile($('#profileName').value, $('#profileCopy').checked));
   // na úvodní obrazovce je vidět, že se nehraje Adamův profil
   const badge = $('#profileBadge');
-  if (badge) { badge.hidden = profile.id === MAIN_ID; badge.textContent = `Profil: ${profile.name}`; }
+  if (badge) { badge.hidden = profile.id === MAIN_ID; badge.textContent = ''; badge.append(Object.assign(document.createElement('span'), { className: 'ver-long', textContent: 'Profil: ' }), profile.name); badge.title = `Profil: ${profile.name}`; } // na mobilu jen jméno
 }
 export { createProfile, deleteProfile, initProfiles, renderProfiles, switchTo };

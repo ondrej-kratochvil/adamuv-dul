@@ -80,7 +80,7 @@ function renderUpdate(wrap) {
 // číslo verze na úvodní obrazovce: klepnutí ho přečte (a řekne, když je na internetu novější)
 function renderVersion() {
   const b = $('#btnVersion'); if (!b) return;
-  setBtn(b, 'tag', versionLabel(APP_VERSION));
+  setBtn(b, 'tag', `<span class="ver-long">${versionLabel(APP_VERSION).replace(/\d+$/, '')}</span><span class="ver-short">v</span>${APP_VERSION}`); // na mobilu jen „v47“
   b.onclick = () => { audio(); speak(`Hra má číslo verze ${APP_VERSION}.` + (serverVersion && serverVersion.version > APP_VERSION ? ` Na internetu už čeká verze ${serverVersion.version}.` : '')); };
 }
 export { renderVersion, GAME_NAMES, applyName, checkVersion, gameName, notesSince, openNames, renderNames, renderUpdate, serverVersion, updateSpoken };
