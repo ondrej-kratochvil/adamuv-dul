@@ -84,7 +84,19 @@ describe('schéma 5 (verze hry 39): název zařízení pro tabulku', () => {
     const q = [{ ID: 'a-1', Druh: 'kolo' }];
     const s = migrate({ schema: 4, total: 40, rounds: {}, sync: { url: 'https://script.google.com/macros/s/X/exec', queue: q, last: 5, sent: 120, error: '', seq: 9 } });
     expect(s.sync).toMatchObject({ url: 'https://script.google.com/macros/s/X/exec', queue: q, sent: 120, seq: 9, device: '', uid: '' });
-    expect(s.schema).toBe(5);
+    expect(s.schema).toBe(SCHEMA);
+  });
+});
+
+describe('schéma 6 (verze hry 51): ranní karta a dnešní úkol', () => {
+  it('starší postup dostane prázdný dnešní úkol (karta přijde při spuštění), nic jiného se nezmění', () => {
+    const s = migrate({ schema: 5, total: 30, emeralds: 77, rounds: { speech: 2 } });
+    expect(s.daily).toEqual({ d: '', quest: null, shown: false });
+    expect(s).toMatchObject({ total: 30, emeralds: 77, schema: 6 });
+  });
+  it('rozehraný dnešní úkol se při převodu neztratí', () => {
+    const daily = { d: '2026-10-22', quest: { kind: 'rounds', level: 'speech', need: 2, got: 1, done: false }, shown: true };
+    expect(migrate({ total: 1, rounds: {}, daily }).daily).toEqual(daily);
   });
 });
 

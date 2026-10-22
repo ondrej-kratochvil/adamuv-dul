@@ -21,6 +21,7 @@ import { blockEl, renderHome, show } from '../ui/screens.js';
 import { FARM_STAGES, FARM_START, PERFECT_BONUS, bark, dogHappy, drawFarm, farmStage, fitCanvas, gemWord, mountDog, spr, sprIcon, updateGems } from '../world/farm.js';
 import { dayWord, registerDay } from '../rewards/streak.js';
 import { cheerFor, dogName } from '../world/family.js';
+import { questAfterRound } from '../world/daily.js';
 import { ROMAN, checkEnchants, enchLevel, luckBonus, pieceName } from '../rewards/enchant.js';
 import { BLD_STAGES, VILLAGE_BONUS, checkVillage, signCanvas } from '../world/village.js';
 import { NETHER_STAGES, PORTAL_NEED, mineTex } from '../world/nether.js';
@@ -253,10 +254,10 @@ function endRound() {
   const eg = $('#endGems');
   const lostR = G.R.lost || 0;
   const lostTalk = lostR ? ` Za chyby jsi ztratil ${lostR} ${gemWord(lostR)}.` : '';
-  const showGems = (bonus = 0) => {
-    const extra = [perfect ? `${PERFECT_BONUS} za kolo bez chyby` : '', bonus ? `${bonus} za řadu dní` : ''].filter(Boolean).join(', ');
+  const showGems = (bonus = 0, quest = 0) => {
+    const extra = [perfect ? `${PERFECT_BONUS} za kolo bez chyby` : '', bonus ? `${bonus} za řadu dní` : '', quest ? `${quest} za dnešní úkol` : ''].filter(Boolean).join(', ');
     eg.innerHTML = ''; eg.appendChild(sprIcon('emerald'));
-    eg.append(`+${earned + bonus}` + (extra ? ` (z toho ${extra})` : '') + (lostR ? `, za chyby −${lostR}` : '') + `, máš ${save.emeralds}`);
+    eg.append(`+${earned + bonus + quest}` + (extra ? ` (z toho ${extra})` : '') + (lostR ? `, za chyby −${lostR}` : '') + `, máš ${save.emeralds}`);
   };
   showGems();
   const np = $('#newPick'), no = $('#newOutfit');
@@ -289,7 +290,9 @@ function endRound() {
   const before = tierOf(save.total);
   save.total++; if (level in save.rounds) save.rounds[level]++; else if (level === 'practice') save.practice = (save.practice || 0) + 1; persist();
   const day = registerDay();
-  if (day) showGems(day.bonus);
+  const questBonus = questAfterRound(level, true, perfect); // dnešní úkol (world/daily.js)
+  if (day || questBonus) showGems(day ? day.bonus : 0, questBonus);
+  const questTalk = questBonus ? ` Splnil jsi dnešní úkol! Bonus ${questBonus} ${gemWord(questBonus)}.` : '';
   const pn = $('#newPrerov'); let prerovTalk = '';
   const newPlaces = day ? PREROV.filter(x => day.prevBest < x.at && day.count >= x.at) : [];
   if (newPlaces.length) { pn.hidden = false; pn.innerHTML = ''; pn.appendChild(signCanvas('A')); pn.insertAdjacentHTML('beforeend', `<span>V Přerově přibylo: ${newPlaces.map(x => x.name).join(', ')}!</span>`); prerovTalk = ` Hraješ ${day.count} dní v řadě, a tak v Přerově přibylo: ${newPlaces.map(x => x.name).join(' a ')}!`; }
@@ -334,7 +337,7 @@ function endRound() {
   // pokrok na domě nebo farmě říct nahlas (Ondřej 19. 10. 2026), po hotové farmě už ne
   const grewTalk = st <= FARM_START + FARM_STAGES.length ? ' ' + grew : '';
   const rot = rotate(level);
-  speak((perfect ? 'Bez jediné chyby! ' : '') + cheer + lostTalk + grewTalk + (newTier ? ` Máš nový ${after.name} krumpáč!` : '') + story + dayTalk + netherTalk + babyTalk + prerovTalk + toolTalk + enchTalk + vilTalk + cardTalk + (fresh.length ? ` V šatníku máš ${fresh.map(([, it]) => it.name).join(' a ')}.` : '') + rot);
+  speak((perfect ? 'Bez jediné chyby! ' : '') + cheer + lostTalk + grewTalk + (newTier ? ` Máš nový ${after.name} krumpáč!` : '') + story + questTalk + dayTalk + netherTalk + babyTalk + prerovTalk + toolTalk + enchTalk + vilTalk + cardTalk + (fresh.length ? ` V šatníku máš ${fresh.map(([, it]) => it.name).join(' a ')}.` : '') + rot);
   $('#btnAgain').focus({ preventScroll: true });
 }
 // Pauza (Ondřej 20. 10. 2026): zadání se schová, čas stojí; v deníku a tabulce se pauza odliší od odchodu z kola

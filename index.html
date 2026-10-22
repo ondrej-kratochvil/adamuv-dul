@@ -352,6 +352,17 @@
   </div>
 </div>
 
+<!-- RANNÍ KARTA: den, svátek, dnešní úkol (world/daily.js) -->
+<div class="overlay" id="dayOverlay" hidden>
+  <div class="panel day-card" role="dialog" aria-labelledby="dayTitle">
+    <div class="cheer" id="dayWho"></div>
+    <h2 id="dayTitle"></h2>
+    <p id="dayNames"></p>
+    <p class="day-quest" id="dayQuest"></p>
+    <div class="actions"><button class="gbtn go" id="btnDayGo" data-icon="next">Hrát</button><button class="gbtn" id="btnDayLater" data-icon="check">Později</button></div>
+  </div>
+</div>
+
 <!-- ZÁMEK NASTAVENÍ (příklad pro dospělého) -->
 <div class="overlay" id="gateOverlay" hidden>
   <div class="panel gate" role="dialog" aria-labelledby="gateTitle">

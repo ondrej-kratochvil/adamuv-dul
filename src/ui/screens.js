@@ -14,6 +14,7 @@ import { LEVELS, picCanvas } from '../levels/reading.js';
 import { drawFarm, farmStage, fitCanvas, mountDog, openFarm, openShop, sprIcon, updateGems } from '../world/farm.js';
 import { renderStreakBtn } from '../rewards/streak.js';
 import { renderFan } from '../world/family.js';
+import { renderQuest } from '../world/daily.js';
 import { renderEnchBook } from '../rewards/enchant.js';
 import { drawVillageThumb, openVillage } from '../world/village.js';
 import { drawNether, openNether, portalLit } from '../world/nether.js';
@@ -56,6 +57,7 @@ function renderHome() {
   const wrap = $('#levels'); wrap.innerHTML = '';
   renderUpdate(wrap);
   renderFan(wrap);
+  renderQuest(wrap); // dnešní úkol (world/daily.js)
   // dlaždice pater a dalších obrazovek; na velké obrazovce sloupec vlevo, místa (dům, farma…) vpravo
   const tiles = document.createElement('div'); tiles.className = 'tiles'; wrap.appendChild(tiles);
   const resting = restingLevel(save.log, Object.keys(LEVELS));

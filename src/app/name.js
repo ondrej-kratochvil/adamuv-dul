@@ -31,15 +31,22 @@ function renderNames() {
     list.appendChild(b);
   });
 }
-let serverVersion = null;
-async function checkVersion() {
-  try {
-    const r = await fetch('version.json?t=' + Date.now(), { cache: 'no-store' });
-    if (!r.ok) return;
-    serverVersion = await r.json();
-    if (!$('#home').hidden) renderHome();
-  } catch (e) {}
+let serverVersion = null, lastCheck = Promise.resolve();
+function checkVersion() {
+  lastCheck = (async () => {
+    try {
+      const r = await fetch('version.json?t=' + Date.now(), { cache: 'no-store' });
+      if (!r.ok) return;
+      serverVersion = await r.json();
+      if (!$('#home').hidden) renderHome();
+    } catch (e) {}
+  })();
+  return lastCheck;
 }
+// až bude jasné, jestli na serveru není novější verze (bez internetu nejdéle 4 s)
+function whenVersionKnown() { return Promise.race([lastCheck, new Promise(r => setTimeout(r, 4000))]); }
+// čeká aktualizace, nebo novinky po aktualizaci ještě nejsou potvrzené (tlačítko Rozumím): ranní karta počká
+function updatePending() { return !!(serverVersion && serverVersion.version > APP_VERSION) || (save.seenVersion < APP_VERSION && (save.seenVersion > 0 || save.total > 0)); }
 function notesSince(from, to) { return changesBetween(serverVersion ? serverVersion.changes : [], from, to); }
 const cap = s => s[0].toUpperCase() + s.slice(1);
 let updateSpoken = 0; // novinky se přečtou jednou za spuštění
@@ -72,7 +79,11 @@ function renderUpdate(wrap) {
   const key = title + serverVersion?.version;
   if (updateSpoken === key) return;
   updateSpoken = key;
-  const go = () => { if (!$('#home').hidden && document.body.contains(box)) speak(say); };
+  const go = () => {
+    // ranní karta má přednost: novinky se přečtou, až ji Adam zavře (world/daily.js)
+    if (!$('#dayOverlay').hidden) { $('#dayOverlay').addEventListener('dayclosed', go, { once: true }); return; }
+    if (!$('#home').hidden && document.body.contains(box)) speak(say);
+  };
   if (navigator.userActivation?.hasBeenActive) go();
   else document.addEventListener('pointerdown', function first(e) { document.removeEventListener('pointerdown', first, true); if (!b1.contains(e.target)) { audio(); go(); } }, true);
 }
@@ -83,4 +94,4 @@ function renderVersion() {
   setBtn(b, 'tag', `<span class="ver-long">${versionLabel(APP_VERSION).replace(/\d+$/, '')}</span><span class="ver-short">v</span>${APP_VERSION}`); // na mobilu jen „v47“
   b.onclick = () => { audio(); speak(`Hra má číslo verze ${APP_VERSION}.` + (serverVersion && serverVersion.version > APP_VERSION ? ` Na internetu už čeká verze ${serverVersion.version}.` : '')); };
 }
-export { renderVersion, GAME_NAMES, applyName, checkVersion, gameName, notesSince, openNames, renderNames, renderUpdate, serverVersion, updateSpoken };
+export { updatePending, whenVersionKnown, renderVersion, GAME_NAMES, applyName, checkVersion, gameName, notesSince, openNames, renderNames, renderUpdate, serverVersion, updateSpoken };

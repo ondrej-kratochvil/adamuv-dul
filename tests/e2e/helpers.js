@@ -14,8 +14,8 @@ export async function mockSpeech(page) {
   });
 }
 
-// Otevře hru s daným uloženým stavem (null = čistá hra).
-export async function openGame(page, state = null) {
+// Otevře hru s daným uloženým stavem (null = čistá hra). Ranní kartu (world/daily.js) zavře, když day není true.
+export async function openGame(page, state = null, { day = false } = {}) {
   await mockSpeech(page);
   // testy nezávislé na internetu: písma z Google se nestahují (hra má náhradní písma)
   await page.route(/fonts\.(googleapis|gstatic)\.com/, r => r.abort());
@@ -29,12 +29,16 @@ export async function openGame(page, state = null) {
   }, [KEY, state]);
   await page.goto('./');
   await expect(page.locator('#home')).toBeVisible();
+  await page.locator('body[data-day-checked]').waitFor({ state: 'attached' }); // karta přijde až po zjištění verze
+  if (!day && await page.locator('#dayOverlay').isVisible()) await page.locator('#btnDayLater').click();
   return errors;
 }
 
 // nastavení pro rodiče: ozubené kolo a pak příklad pro dospělého (násobení)
 // tab = karta nastavení (game, voice, family, progress, profiles, sync)
 export async function openSettings(page, tab) {
+  // po přepnutí profilu (nové načtení) přijde ranní karta i pro nového hráče
+  if (await page.locator('#dayOverlay').isVisible()) await page.locator('#btnDayLater').click();
   await page.locator('#btnSettings').click();
   const [a, b] = (await page.locator('#gateQ').textContent()).split(' × ').map(Number);
   await page.locator('#gateInput').fill(String(a * b));
@@ -62,7 +66,8 @@ async function traceCurrent(page) {
 
 // Dohraje kolo: wrong = kolik úkolů nejdřív odpovědět špatně (kostky) nebo kolikrát vyjet z dráhy (psaní).
 export async function playRound(page, label, { wrong = 0 } = {}) {
-  await page.getByRole('button', { name: label, exact: true }).first().click();
+  if (label) await page.getByRole('button', { name: label, exact: true }).first().click(); // bez názvu: kolo už běží
+
   let mistakes = wrong;
   const end = page.locator('#endOverlay');
   for (let k = 0; k < 600; k++) {

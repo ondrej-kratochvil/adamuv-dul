@@ -26,6 +26,7 @@ import { goHome, pauseRound, resumeRound, startRound } from './game/round.js';
 import { flushSync, initDevice } from './app/sync.js';
 import { initProfiles } from './app/profiles.js';
 import { clearFamily } from './world/dressup.js';
+import { initDay } from './world/daily.js';
 
 $('#btnBack').addEventListener('click', goHome);
 $('#btnPause').addEventListener('click', () => pauseRound());
@@ -89,6 +90,7 @@ addEventListener('online', () => flushSync());
 document.addEventListener('visibilitychange', () => { if (document.hidden) { pauseRound(true); flushRate(); } else { checkVersion(); flushSync(); } }); // odchod z aplikace = pauza
 paintTextures();
 renderHome();
+initDay(); // ranní karta při prvním otevření dne
 // ikona na ploše a hraní bez internetu
 if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => {});
 // pro automatické testy: přístup k běžícímu kolu a uloženému stavu

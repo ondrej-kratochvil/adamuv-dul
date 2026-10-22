@@ -1,6 +1,14 @@
 {
-  "version": 50,
+  "version": 51,
   "changes": [
+    {
+      "version": 51,
+      "date": "2026-10-22",
+      "notes": [
+        "Každé ráno ti někdo z rodiny řekne, jaký je den, kdo má svátek a jaký máš dnešní úkol.",
+        "Za splněný dnešní úkol dostaneš 5 smaragdů navíc. Tlačítkem na kartě rovnou otevřeš patro, kde se úkol hraje."
+      ]
+    },
     {
       "version": 50,
       "date": "2026-10-21",
