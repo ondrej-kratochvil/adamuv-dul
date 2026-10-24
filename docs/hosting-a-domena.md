@@ -6,7 +6,8 @@
 > **Souhrn:**
 > - Hosting: Cloudflare (Workers se statickými soubory + databáze D1).
 > - Koncovka `.games` je vhodná; názvy Schoolcraft, Educraft, Learncraft, Minedraft, Mineschool a WordMine nedoporučeny kvůli kolizím.
-> - Nejsilnější nový kandidát: **Digademy** (`digademy.games` podle DNS a RDAP pravděpodobně volná).
+> - Veřejný název zatím není vybrán. Nové tvrdé požadavky jsou dvě slabiky, snadná dětská výslovnost a žádné R/Ř.
+> - **Kopum** je zatím nejlepší pracovní varianta, ale nikoli čistý mezinárodní vítěz: existuje aktivní značka pracích prostředků Kopum Plus.
 > - Registrátor: Cloudflare Registrar je nejlepší varianta s kartou; Dynadot jen pokud je nutný předplacený kredit.
 > - Postup krok za krokem: [navod-registrator-a-hosting.md](navod-registrator-a-hosting.md)
 > - Cíl: Ondřej založí účty, nastaví platbu a vytvoří API klíče; běžnou správu dělá Claude Code přes API a příkazovou řádku.
@@ -225,9 +226,119 @@ Před registrací je stále nutné ověřit EUIPO a DPMA, případně USPTO, zej
 Ve hře si každé dítě může dál zvolit vlastní název světa, například „Adamův důl“; veřejná značka a doména
 mohou používat jednotný název Digademy.
 
+## Další hledání krátkého názvu (24. 10. 2026)
+
+### Zpřesněné požadavky
+
+Po dalších návrzích bylo zadání zpřísněno:
+
+- ideálně přesně dvě slabiky;
+- snadná výslovnost pro české šestileté dítě, které obtížně vyslovuje R;
+- nepoužívat R/Ř, anglické `th` ani obtížné souhláskové shluky;
+- mezinárodní použitelnost v češtině, slovenštině a angličtině;
+- spojení široké výuky s dolováním, podzemím nebo stavěním;
+- neomezovat název pouze na písmena, protože hra obsahuje také čtení, počty, psaní a mluvení;
+- vyhnout se koncovému `dig`: české koncové odznění může výslovnost přiblížit slovu „dick“;
+- preferovat odlišitelný novotvar, který lze snáze chránit jako značku.
+
+Tyto požadavky mění starší pořadí. **Digademy** je významově dobré a doménově čisté, ale není dvouslabičné
+a obsahuje problematické `dig`. **LoreRock** obsahuje dvě R a spojení hlásek je obtížné. Oba názvy proto
+zůstávají pouze historickými kandidáty, nikoli aktuálním doporučením.
+
+### ClassCave a další anglické složeniny
+
+**ClassCave** byl podrobněji prověřen a nedoporučuje se:
+
+- existuje aktivní školní platforma **ClassCade**;
+- ClassCade má registrovanou ochrannou známku ve stejném oboru;
+- rozdíl jediného písmene u podobně znějícího názvu by přinášel riziko záměny;
+- `classcave.com` je registrovaná, zatímco `classcave.games` byla v době kontroly pravděpodobně volná.
+
+Další prověřené dvouslabičné anglické nebo uměle vytvořené názvy:
+
+| Název | Stav `.games` | Zjištění | Hodnocení |
+|---|---|---|---|
+| WitLode | pravděpodobně volná | bez přesné kolize; `wit + lode` znamená důvtip a rudné ložisko; blízké WITFORGE, Learning Lodge a herní značka Lode Runner | významově silné, ale `wit` a `lode` Češi neznají a název se špatně diktuje |
+| Skillode | pravděpodobně volná | existuje SKILLOD („Skill on demand“) a uživatelské jméno Skillode | nedoporučeno kvůli podobnosti a nejasnému zápisu |
+| LoreRock | pravděpodobně volná | bez relevantní vzdělávací kolize; pouze přezdívka italského hudebníka | vyřazeno kvůli dvěma R a obtížné výslovnosti |
+| Lorock | pravděpodobně volná | jméno postavy ze hry The Adventures of Lomax z roku 1996 | vyřazeno kvůli R a starší herní kolizi |
+| WitGem | pravděpodobně volná | bývalý blog, bez vzdělávací či herní kolize | čistší kolize, ale výuka i dolování jsou málo zřejmé |
+| LoreGem | pravděpodobně volná | fanouškovský předmět pro Dungeons & Dragons a zaniklé firmy | vyřazeno kvůli R; nepřímá vazba na dolování |
+| LodeLore | pravděpodobně volná | bez přesné kolize, ale `lode` se používá v herním prostoru včetně Lode Runner | dvě méně známá anglická slova a R |
+| LearnOre | neuvedeno | existuje aktivní vzdělávací platforma Learnore | přímá kolize, vyřazeno |
+| Wisdore | pravděpodobně volná | Wisdor Technology a podobný název Wisdo | nedoporučeno |
+| Umkop | pravděpodobně volná | české spojení „umět + kopat“, bez zjištěné přímé kolize | dobře funguje česky, ale mezinárodně je význam nesrozumitelný |
+
+LearnLode, TeachOre, ThinkOre, MindDig, DigQuest a další podobné složeniny byly vyřazeny kvůli přímým
+nebo blízkým kolizím, obtížné výslovnosti či problematickému `dig`.
+
+### Jednoduché názvy typu MINO a KOPI
+
+Ondřej preferuje zvuk jednoduchých otevřených slabik jako **MI-NO** a **KO-PI**. Přesné názvy však nelze
+doporučit:
+
+| Název | Zjištění | Hodnocení |
+|---|---|---|
+| Mino | aktivní aplikace „Mino: Kids Stories & Learning“ pro děti 2–8 let; studio Mino Games s desítkami milionů stažení; `mino.games` je registrovaná a parkovaná | závažná přímá kolize ve vzdělávání i hrách |
+| Kopi | aktivní rodinná kavárenská hra KOPI na Steamu od roku 2025, podporuje také češtinu; existuje i Kopi Games | přímá herní kolize |
+| Umko | makedonská vzdělávací aplikace pro děti 4–7 let se 36 hrami a samostatná slovinská dětská značka knih, her a školních výrobků | přímá kolize v téměř totožném oboru |
+| Kopo | KOPO Mobile Education nabízí vzdělávací hry a kvízy; existuje také karetní hra Kopo | přímá kolize ve vzdělávání i hrách |
+| Kambu | vzdělávací aplikace KAMBU Hangul Games se 100 tisíci staženími; známka Tencentu ve třídě 41 pro online hry a vzdělávací soutěže | závažná přímá kolize |
+| Minok | autor několika her na itch.io, včetně vzdělávací hry Chemistry | blízká kolize v hrách a vzdělávání |
+| Mivu | živá americká známka MIVU ve třídě 9 pro počítačový hardware a software; aktivní wellness aplikace | zbytečné známkové riziko |
+| Staku | bez přesné vzdělávací kolize; existuje menší hra „Staku Pilko 3D“ a německá firma Staku GmbH | výuka ani dolování nejsou z názvu patrné |
+| Tunok | bez vzdělávací či známkové kolize; postava „Tunok - Elder Mage“ ve VR projektu a registrovaná `tunok.com` | čistší, ale význam je umělý a málo srozumitelný |
+
+### Podrobné prověření názvu Kopum
+
+**Výslovnost a význam**
+
+- Zamýšlená výslovnost je **KO-PUM**: dvě snadné slabiky bez R/Ř.
+- Český význam lze číst jako **KOP** (kopání) + **UM** (umět, znalost).
+- Název se přirozeně používá ve větě „Jdu hrát Kopum“.
+- Nebyl nalezen vulgární ani posměšný význam v češtině, slovenštině nebo angličtině.
+- Korejsky `kopum` znamená „pěna“.
+- Lotyšské `kopumā` znamená „celkově“ a název **KOPUMS** používá lotyšský festival příležitostí pro mládež.
+
+**Kolize**
+
+- Nebyla nalezena hra, dětská aplikace ani vzdělávací služba s přesným názvem Kopum.
+- Existuje však aktivní korejská značka pracích kapslí **Kopum Plus**, distribuovaná v Uzbekistánu.
+- V Uzbekistánu od roku 2025 působí aktivní společnost **KOPUM TRADE**, která značku propaguje také přes influencery.
+- Tvůrce identity popisuje Kopum jako vlastní značku vytvořenou pro korejský výrobek na uzbeckém trhu.
+- Firma veřejně používá označení `TM KOPUM PLUS`. Ve veřejném hledání nebyla nalezena známka KOPUM pro
+  software, hry nebo vzdělávání, ale toto zjištění nenahrazuje rešerši EUIPO, WIPO a národních registrů.
+- Přesná shoda s aktivní spotřební značkou je v jiném oboru, takže právní riziko záměny se jeví menší než
+  u názvů typu Mino, Kambu nebo ClassCave. Zhoršuje však mezinárodní odlišitelnost a výsledky vyhledávání.
+
+**Domény**
+
+- Autoritativní RDAP Identity Digital dne 24. 10. 2026 vrátil pro `kopum.games` stav 404. Doména tedy byla
+  pravděpodobně volná.
+- Forpsi téhož dne potvrdilo jako volné nejméně `kopum.cz`, `.eu`, `.sk`, `.online`, `.cloud`, `.info`,
+  `.net`, `.pro`, `.store`, `.shop`, `.org`, `.tech`, `.ai`, `.io`, `.fun`, `.de`, `.pl`, `.me`, `.biz`,
+  `.blog` a `.art`.
+- Ceny prvního roku bez DPH: `.cz` 170 Kč, `.eu` 109 Kč, `.sk` 265 Kč, `.online` 45 Kč, `.cloud` 22 Kč,
+  `.info` 49 Kč, `.net` 330 Kč, `.pro` 49 Kč, `.store` 55 Kč, `.shop` 119 Kč, `.org` 360 Kč,
+  `.tech` 79 Kč, `.ai` 2 499 Kč, `.io` 699 Kč, `.fun` 55 Kč, `.de` 300 Kč, `.pl` 99 Kč,
+  `.me` 570 Kč, `.biz` 459 Kč, `.blog` 598 Kč a `.art` 750 Kč.
+- Nabídky jsou akční ceny prvního roku; zejména levné `.online`, `.cloud` a `.info` mohou mít výrazně
+  dražší obnovu. Nejsou potřebné jako ochranné registrace.
+- `kopum.com` je registrovaná a podle veřejného vyhledávání nabízena k prodeji.
+
+**Průběžný verdikt**
+
+Kopum je foneticky a významově zatím nejlepší pracovní varianta. Pro malou českou hru by kolize s pracími
+prostředky pravděpodobně nebyla zásadní. Pro dlouhodobou mezinárodní značku však nejde o čistého vítěze:
+přesný název už aktivně používá jiná značka a není k dispozici `.com`.
+
+Pokud má být název pouze dočasně rezervován, dává smysl nejvýše levná `kopum.cz` a případně hlavní
+`kopum.games`. Balíčky `.online`, `.info`, `.cloud` a další akční koncovky nekupovat. Před větší investicí
+provést oficiální rešerši známek ve třídách 9 a 41, nebo pokračovat v hledání odlišitelnějšího názvu.
+
 ## Co bude potřeba od Ondřeje (po rozhodnutí)
 
-1. Rozhodnout o názvu; aktuální doporučení je Digademy. Před registrací prověřit ochranné známky.
+1. Rozhodnout o názvu; žádný kandidát zatím nesplňuje všechna kritéria bez významné výhrady. Kopum je nejlepší pracovní varianta, nikoli konečné doporučení. Před registrací prověřit ochranné známky.
 2. Vybrat variantu A, nebo B.
 3. Údaje vlastníka domény (jméno, adresa, e-mail) pro registr; ve WHOIS skryté.
 4. API klíč registrátora a token Cloudflare (Workers, D1, DNS) uložit do proměnných prostředí, ne do chatu ani do repa.
@@ -284,3 +395,16 @@ mohou používat jednotný název Digademy.
 - [PickCrafter – Microsoft Store](https://microsoft.com/sr-cyrl-ba/p/pickcrafter-crafting-game/9pm8g2wwllm5)
 - [Mines – hazardní hra (příklad stránky)](https://fishlab.in/en-in/download-app/)
 - [Mine Mine – Simple Minesweeper](https://apps.apple.com/lc/app/mine-mine-simple-minesweeper/id6741587531)
+- [Mino: Kids Stories & Learning – App Store](https://apps.apple.com/pt/app/mino-kids-stories-learning/id6753982146)
+- [Mino Games](https://www.minogames.com/)
+- [KOPI – Steam](https://store.steampowered.com/app/2909960/Kopi/)
+- [KOPI – oficiální stránka a media kit](https://dreamonastick.com/kopi/media-kit/)
+- [Umko – learning through play](https://www.koma.mk/2021/04/02/umko-learning-through-play/)
+- [Slovinská dětská značka UMKO](https://www.moj-izziv.si/projekt/umko/)
+- [KOPO Mobile Education](https://www.kopo.com/index.php)
+- [Minok – hry na itch.io](https://minok.itch.io/)
+- [MIVU – známka ve třídě 9](https://markinton.com/trademark/mivu-85829840)
+- [Kopum Plus](http://kopumplus.com/)
+- [Kopum – vznik názvu a identity značky](https://minim.uz/en/portfolio/home-care/kopum--naming-and-logo-for-a-korean-brand-in-uzbekistan.htm)
+- [KOPUM TRADE – záznam společnosti](https://orginfo.uz/ru/organization/47c4c41a4629/)
+- [Lotyšský festival KOPUMS](https://www.researchlatvia.gov.lv/en/science-visits-youth-kopums-festival)
