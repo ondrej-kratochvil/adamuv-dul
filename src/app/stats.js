@@ -59,7 +59,7 @@ function levelItems(key) {
   if (key === 'numbers') return range(0, 20).map(String);
   return Object.keys(save.stats).filter(k => k.startsWith(key + ':')).map(k => k.slice(key.length + 1));
 }
-const itemLabel = (key, it) => key === 'writing' && SHAPE_NAMES[it] ? SHAPE_NAMES[it].replace(/u$/, 'a') : key === 'math' ? it.replace('-', '−') : it;
+const itemLabel = (key, it) => key === 'writing' && SHAPE_NAMES[it] ? SHAPE_NAMES[it].replace(/u$/, 'a') : key === 'writing' && it.startsWith('c-') ? 'psací ' + it.slice(2) : key === 'math' ? it.replace('-', '−') : it;
 function levelSummary(key) {
   const rows = save.log.filter(e => e.level === key);
   const played = rows.filter(e => !e.quit), rated = rows.filter(e => e.rate);

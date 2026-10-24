@@ -1,6 +1,14 @@
 {
-  "version": 55,
+  "version": 56,
   "changes": [
+    {
+      "version": 56,
+      "date": "2026-10-24",
+      "notes": [
+        "V Psaní si můžeš obtahovat psací písmena jako v písance: e, i, u, l, p, m, a a o.",
+        "Ve Čtení teď čteš i věty jako ve slabikáři, třeba PEPA MÁ PILU. Kopni do obrázku, o kterém věta je."
+      ]
+    },
     {
       "version": 55,
       "date": "2026-10-24",

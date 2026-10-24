@@ -42,3 +42,26 @@ for (const [ch, base] of Object.entries(CARON_OF)) GLYPHS[ch] = [...GLYPHS[base]
 export const SHAPE_NAMES: Record<string, string> = { vlnka: 'vlnku', cikcak: 'cikcak', kopecky: 'kopečky', smycka: 'smyčku', spirala: 'spirálu' };
 // co se v Psaní obtahuje: číslice, zapnutá písmena a cviky (přepočítá logic/letters.ts applyLetters)
 export const WRITING_ITEMS: string[] = [...'0123456789', ...'AEIOUYMLS', ...Object.keys(SHAPE_NAMES)];
+
+// Psací písmo podle Adamovy Písanky II (ALTER, Ondřej 24. 10. 2026): pořadí e, i, u, ů, l, t, p, m, n, j, a, o.
+// Stejný rámeček 100 × 140, ale linky jako v písance: střední linka 58, základní 120, dotahy nahoru do 12, p a j dolů pod 120.
+// Klíč „c-e“ = psací e (aby se nepletl s tiskacím E).
+export const CURSIVE_ORDER = ['e', 'i', 'u', 'ů', 'l', 't', 'p', 'm', 'n', 'j', 'a', 'o'];
+export const CURSIVE_LINES = [58, 120];
+const DOT = 'M46 32 L50 37';
+export const CURSIVE: Record<string, string[]> = {
+  e: ['M12 112 C35 108 70 92 70 74 C70 56 42 56 36 78 C30 100 45 122 70 120 C80 119 86 116 90 112'],
+  i: ['M14 116 C30 110 44 90 48 58 L48 108 C48 122 66 122 86 110', DOT],
+  u: ['M8 116 C22 108 28 88 30 58 L30 102 C30 124 62 124 64 96 L64 58 L64 108 C64 122 78 122 94 110'],
+  ů: ['M8 116 C22 108 28 88 30 58 L30 102 C30 124 62 124 64 96 L64 58 L64 108 C64 122 78 122 94 110', 'M48 20 C38 20 38 40 48 40 C58 40 58 20 48 20'],
+  l: ['M10 116 C40 100 64 60 64 32 C64 6 38 8 40 34 L40 108 C40 122 62 122 88 110'],
+  t: ['M14 116 C28 108 40 80 44 18 L44 108 C44 122 64 122 88 110', 'M26 62 L64 62'],
+  p: ['M8 116 C20 108 28 86 30 58 L30 138', 'M30 76 C38 56 74 54 74 84 C74 116 44 122 30 108'],
+  m: ['M6 118 C14 110 18 86 18 58 L18 120', 'M18 76 C22 56 44 56 44 76 L44 120', 'M44 76 C48 56 72 56 72 78 L72 108 C72 122 84 122 96 112'],
+  n: ['M10 118 C20 110 24 86 26 58 L26 120', 'M26 76 C32 56 64 56 64 78 L64 108 C64 122 78 122 94 112'],
+  j: ['M14 116 C28 108 44 88 48 58 L48 124 C48 138 26 138 28 128 C30 116 56 112 86 104', DOT],
+  a: ['M70 70 C60 52 26 56 26 88 C26 122 66 122 70 74 L70 108 C70 122 82 122 94 112'],
+  o: ['M50 58 C24 58 22 120 50 120 C76 120 78 58 50 58 C62 66 74 68 92 62'],
+};
+for (const [ch, strokes] of Object.entries(CURSIVE)) GLYPHS['c-' + ch] = strokes;
+export const isCursive = (k: string): boolean => k.startsWith('c-');

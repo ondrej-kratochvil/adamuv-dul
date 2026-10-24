@@ -132,3 +132,13 @@ describe('schéma 8 (Schoolcraft, verze hry 53): hráč a písmena', () => {
     expect(migrate({ schema: 8, total: 2, rounds: {}, player: vita }).player).toEqual(vita);
   });
 });
+
+describe('schéma 9 (verze hry 56): psací písmo', () => {
+  it('Adam ho má zapnuté, nový hráč ne; vybrané nastavení zůstane', () => {
+    expect(migrate({ schema: 8, total: 5, rounds: {}, player: 'adam' }).cursive).toBe(true);
+    expect(migrate({ total: 5, rounds: {} }).cursive).toBe(true); // starý postup = Adam
+    expect(migrate({ schema: 8, total: 5, rounds: {}, player: { v: 1, name: 'Víťa', voc: 'Víťo', poss: 'Víťův', gender: 'm', family: [], friends: [] } }).cursive).toBe(false);
+    expect(migrate({ schema: 9, total: 5, rounds: {}, player: 'adam', cursive: false }).cursive).toBe(false);
+    expect(defaults().cursive).toBe(false);
+  });
+});

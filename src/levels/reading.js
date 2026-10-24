@@ -24,7 +24,13 @@ function genWords() { return T.genWords(ctx()); }
 // písmena: poslech písmene, občas „Na jaké písmeno začíná slovo…?“ (logic/tasks.ts genFirstSound)
 function genLettersL() { return T.genLetters('letters', ctx()); }
 // slovo na ceduli se ukazuje velkým nebo malým písmem podle nastavení
-function genReading() { const t = T.genReading(ctx()); return { ...t, task: partLabel(t.answer, display(t.answer)) }; }
+function genReading() { const t = T.genReading(ctx()); return { ...t, task: t.sentence ? displaySentence(t.sentence) : partLabel(t.answer, display(t.answer)) }; }
+// věta velkými, nebo malými se začátkem a jmény velkým písmenem (podle nastavení písma)
+function displaySentence(st) {
+  const m = save.caseMode;
+  if (!(m === 'lower' || (m === 'both' && Math.random() < .5))) return st;
+  return T.sentenceSay(st);
+}
 
 const LEVELS = {
   letters: { name: 'Písmena', tex: 'dirt', items: LETTERS, gen: genLettersL, sample: ['A', 'm'], intro: 'Poslouchej a kopej do správného písmenka.' },

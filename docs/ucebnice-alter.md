@@ -7,7 +7,7 @@
 > - Čtení: Živá abeceda + pracovní sešit + Slabikář (ALTER), tiskací písmo; pořadí A O E U I, dlouhé, M, L, S, P, T, J, Y (ve slabikách).
 > - Psaní: Písanka II (psací písmo e, i, u, ů, l, p, t, m, j, a, o a psací číslice); zatím nezačatá.
 > - Matematika 1 (ALTER, „Numerace, sčítání a odčítání do 6“): čísla 1–6 a 0, sčítání a odčítání do 6, porovnávání, doplňování, rozklad.
-> - Hra: slova a jména z učebnic, úkol „Na jaké písmeno začíná slovo…?“, Počty nejdřív do 6, porovnávání a doplňování (verze 55).
+> - Hra: slova a jména z učebnic, úkol „Na jaké písmeno začíná slovo…?“, Počty nejdřív do 6, porovnávání a doplňování (verze 55); věty ve Čtení a psací písmo v Psaní (verze 56).
 > **Souvisí:** [content/alphabet.ts](../src/content/alphabet.ts), [logic/tasks.ts](../src/logic/tasks.ts), [logic/stages.ts](../src/logic/stages.ts)
 
 ## Čtení (Živá abeceda, pracovní sešit, Slabikář)
@@ -16,12 +16,13 @@
 - Pořadí: A, O, E, U, I; dlouhé Á É Í Ó Ú Ů; M (první slabiky MA ME MI MO MU, MÁ MÍ); L; S; P; T; J; Y jen ve slabikách (LY PY SY MY TY, SÝ).
 - Každé písmeno: říkanka (kroužkuje se písmeno), obtahování velkého a malého tiskacího, „kde slyšíš hlásku“ (začátek, střed, konec), rozlišení počáteční hlásky u 15 obrázků, pak slabiky (hnízdo: souhláska + samohláska), žebříky slabik, slova a krátké věty velkým tiskacím písmem s obloučky pod slabikami.
 - Slova a jména z učebnic (přidána do hry, výběr jen ze zapnutých písmen): MÁME, MÁMO, MÁMU, MAMI, EMU, OLA, OLU, ELU, MELE, LÁME, MILÁ, MÁLO, MÍSU, SOLÍ, SÍLU, SAM, UMÍ, MUSÍ, SELE, MÍLA, LILI; PEPA, PEPO, PUSU, MAPU, PASE, PÁLÍ, PÍPÁ, LEPÍ; TÁTO, OTA, OTO, TETU, TULÍ, TOPÍ, METE, MOTÁ, TEPLO, MOTÝL, LOPATY, PYTEL; JÍME, JÁSÁ, JULA, SEJE, JETEL, JELITO, MYJE, PIJE; SYPE, MAPY, LÍPY, MY, TY a další.
-- Věty z učebnic (zatím jen jako zdroj, patro na věty ve hře není): EMA MÁ MÍSU. PEPA MÁ PILU. TÁTA TOPÍ. TETA METE. MALÝ EMIL SYPE. PEPA JÍ JELITO. TELE SE PASE U LÍPY.
+- Věty z učebnic: EMA MÁ MÍSU. PEPA MÁ PILU. TÁTA TOPÍ. TETA METE. MALÝ EMIL SYPE. PEPA JÍ JELITO. TELE SE PASE U LÍPY.
+- Ve hře (verze 56, content/sentences.ts): od 4. kola Čtení asi třetina úkolů je věta „kdo + má/solí/lepí/mele + co“ (EMA MÁ MÍSU., PEPA LEPÍ MAPU., MÁME SŮL.); dítě ji přečte a kopne do obrázku. Jen věty ze zapnutých písmen a s obrázky.
 
 ## Psaní (Písanka II „Písmena, číslice“)
 
 - Psací písmo s lineaturou: e, i, u/ů, n/m, l, spojení, p, t, m, j, a, o (la, sa, lo, so); psací číslice 0 až 10.
-- Ve hře se zatím obtahují tiskací písmena (jako v Živé abecedě). Psací písmo je námět na později, až ho Adam začne psát.
+- Ve hře (verze 56, content/glyphs.ts CURSIVE): psací e, i, u, ů, l, t, p, m, n, j, a, o v linkách jako v písance (střední a základní linka), jen samohlásky a zapnuté souhlásky. Zapíná se v nastavení (karta Hra → Psací písmo), Adam ho má zapnuté. Psací číslice zatím ne (tiskací tvary se od psacích moc neliší).
 
 ## Matematika 1 (ALTER, s Krtečkem)
 

@@ -54,11 +54,13 @@ function renderLetters() {
       const on = save.letters.includes(c);
       if (on && save.letters.length === 1) return; // aspoň jedna souhláska
       save.letters = normalizeLetters(on ? save.letters.filter(x => x !== c) : [...save.letters, c]);
-      applyLetters(save.letters); persist(); renderLetters();
+      applyLetters(save.letters, save.cursive); persist(); renderLetters();
     });
     box.appendChild(b);
   });
   $('#lettersInfo').textContent = `Zapnuto: ${save.letters.join(', ')}. Ve hře je teď ${SYLL.length} slabik a ${WORDS.length} slov.`;
+  $('#btnCursive').setAttribute('aria-pressed', String(!!save.cursive));
+  $('#btnCursive').textContent = save.cursive ? 'Psací písmo: zapnuto' : 'Psací písmo: vypnuto';
 }
 // Nastavení je pro rodiče: otevře se po vyřešení příkladu pro dospělého (logic/gate.ts)
 let gate = null;
@@ -80,6 +82,7 @@ function openGate() {
 }
 $('#btnSettings').addEventListener('click', openGate);
 initPlayerSet();
+$('#btnCursive').addEventListener('click', () => { save.cursive = !save.cursive; applyLetters(save.letters, save.cursive); persist(); renderLetters(); });
 $('#gateForm').addEventListener('submit', e => {
   e.preventDefault();
   if (gate && gateOk(gate, $('#gateInput').value)) { $('#gateOverlay').hidden = true; gate = null; openSettings(); return; }
@@ -127,7 +130,7 @@ async function syncNow() {
 $('#btnSyncNow').addEventListener('click', syncNow);
 $('#syncDevice').addEventListener('change', e => { const v = e.target.value.trim(); if (v) { renameDevice(save.sync, v.slice(0, 40)); persist(); updateSync('Název uložen. Nové záznamy půjdou do tabulky s tímhle názvem.'); } });
 $('#btnResetNo').addEventListener('click', () => { $('#resetConfirm').hidden = true; });
-$('#btnResetYes').addEventListener('click', () => { try { localStorage.setItem(BACKUP_KEY, JSON.stringify(save)); } catch (e) {} const keep = { sync: { ...syncDefaults(), url: save.sync.url, device: save.sync.device, uid: save.sync.uid }, caseMode: save.caseMode, slow: save.slow, strict: save.strict, pron: save.pron, outfit: save.outfit, notes: save.notes, dogName: save.dogName, player: save.player, gameName: save.gameName, letters: save.letters }; /* nastavení rodiče včetně výslovnosti zůstává */ replaceSave(Object.assign(defaults(), keep)); applyLetters(save.letters); persist(); updateRestore(); $('#resetConfirm').hidden = true; updateSettings(); });
+$('#btnResetYes').addEventListener('click', () => { try { localStorage.setItem(BACKUP_KEY, JSON.stringify(save)); } catch (e) {} const keep = { sync: { ...syncDefaults(), url: save.sync.url, device: save.sync.device, uid: save.sync.uid }, caseMode: save.caseMode, slow: save.slow, strict: save.strict, pron: save.pron, outfit: save.outfit, notes: save.notes, dogName: save.dogName, player: save.player, gameName: save.gameName, letters: save.letters, cursive: save.cursive }; /* nastavení rodiče včetně výslovnosti zůstává */ replaceSave(Object.assign(defaults(), keep)); applyLetters(save.letters, save.cursive); persist(); updateRestore(); $('#resetConfirm').hidden = true; updateSettings(); });
 
 /* výslovnost slabik: rodič poslechne varianty a vybere tu, která na jeho tabletu zní česky */
 const PRON_LABEL = { plain: 'obyčejně', split: 'rozděleně', letters: 's písmeny' };
@@ -190,7 +193,7 @@ $('#btnImportYes').addEventListener('click', () => {
   if (!pending) return;
   try { localStorage.setItem(BACKUP_KEY, JSON.stringify(save)); } catch (e) {}
   pending.sync = save.sync; // vložený postup z jiného zařízení nepřebere jeho adresu, název ani frontu
-  replaceSave(pending); applyLetters(save.letters); persist(); pending = null; updateRestore();
+  replaceSave(pending); applyLetters(save.letters, save.cursive); persist(); pending = null; updateRestore();
   $('#importConfirm').hidden = true; tt.hidden = true; msg.textContent = 'Postup je nahraný.';
   updateSettings();
 });

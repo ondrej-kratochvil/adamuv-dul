@@ -4,7 +4,7 @@ import { BASE_CONS, CONS_ORDER, E_CARON, HARD, MORE_WORDS, NO_SYLL, SOFT } from 
 import { CONS, LETTERS, SYLL, SYL_V, VOWELS } from '../content/letters';
 import { BASE_WORDS, WORDS } from '../content/words';
 import { PIC, PLURAL, PIC_WORDS } from '../content/pictures';
-import { SHAPE_NAMES, WRITING_ITEMS } from '../content/glyphs';
+import { CURSIVE_ORDER, SHAPE_NAMES, WRITING_ITEMS } from '../content/glyphs';
 
 const VOWEL_LETTERS = ['A', 'Á', 'E', 'É', 'I', 'Í', 'O', 'Ó', 'U', 'Ú', 'Ů', 'Y', 'Ý'];
 
@@ -37,7 +37,9 @@ export function syllablesFor(cons: string[]): string[] {
 
 const fill = (arr: string[], items: string[]) => { arr.splice(0, arr.length, ...items); };
 // přepočítá obsah hry podle zapnutých písmen
-export function applyLetters(enabled: string[]): void {
+// psací písmena (Písanka II): samohlásky vždy, souhlásky l, t, p, m, n, j jen zapnuté
+export const cursiveFor = (cons: string[]): string[] => CURSIVE_ORDER.filter(c => 'eiuůao'.includes(c) || cons.includes(c.toUpperCase())).map(c => 'c-' + c);
+export function applyLetters(enabled: string[], cursive = false): void {
   const cons = normalizeLetters(enabled), known = new Set(cons);
   fill(CONS, cons.filter(c => c !== 'Ě'));
   fill(LETTERS, [...VOWEL_LETTERS, ...(known.has('Ě') ? ['Ě'] : []), ...CONS]);
@@ -46,5 +48,5 @@ export function applyLetters(enabled: string[]): void {
   fill(PIC_WORDS, [...Object.keys(PIC), ...Object.keys(PLURAL)].filter(w => wordFits(w, known)));
   // psaní: tiskací písmena bez čárek (Á se píše jako A), CH se obtahuje jako C a H
   const write = ['A', 'E', 'I', 'O', 'U', 'Y', ...cons.filter(c => c !== 'CH')];
-  fill(WRITING_ITEMS, [...'0123456789', ...write, ...Object.keys(SHAPE_NAMES)]);
+  fill(WRITING_ITEMS, [...'0123456789', ...write, ...(cursive ? cursiveFor(cons) : []), ...Object.keys(SHAPE_NAMES)]);
 }

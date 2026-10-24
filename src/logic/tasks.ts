@@ -1,12 +1,13 @@
 // Generátory úkolů pro všechna patra. Čistá logika: dostanou stav (kola, statistiky, nedávné úkoly) a náhodu.
 import { LETTERS, PARTNER, SAME_SOUND, SAY_LETTER, SYLL, SYL_V, VOWELS, sylC, sylV, vFam } from '../content/letters';
-import { WORDS } from '../content/words';
-import { PIC_PART, PIC_WORDS } from '../content/pictures';
+import { NAMES, WORDS } from '../content/words';
+import { PIC, PIC_PART, PIC_WORDS } from '../content/pictures';
 import { SHAPE_NAMES } from '../content/glyphs';
 import { choiceCount, mastery, weight, type Stats } from './mastery';
 import { range, rnd, shuffle, weightedPick, type Rng } from './random';
 import { pronounce } from './pronounce';
-import { lettersOf } from './letters';
+import { lettersOf, wordFits } from './letters';
+import { OBJ, VERBS, WHO } from '../content/sentences';
 import { mathTop, CROSSING_READY, CROSSING_SHARE, WRITING_ALL, WRITING_EASY, WRITING_HARD, crossingReady, isCrossing, stageItems, stageOf } from './stages';
 export { CROSSING_READY, CROSSING_SHARE, WRITING_ALL, WRITING_EASY, WRITING_HARD, crossingReady, isCrossing };
 
@@ -16,7 +17,7 @@ export interface Ctx { rounds: Record<string, number>; stats: Stats; recent: str
 const stage = (level: string, ctx: Ctx) => stageOf(level, ctx.stats, ctx.stages);
 // úlohy otevřené v dosaženém stupni patra
 export const openItems = (level: string, ctx: Ctx): string[] => stageItems(level, stage(level, ctx));
-export interface Task { answer: string; choices: string[]; say: string; stat: string; key: string; task?: string; picture?: boolean; after?: string }
+export interface Task { answer: string; choices: string[]; say: string; stat: string; key: string; task?: string; picture?: boolean; after?: string; sentence?: string }
 
 // slabiky a slova pro hlas: viz logic/pronounce.ts (věta „Slabika so.“ výslovnost nespravila, proto pryč)
 export { pronounce };
@@ -163,8 +164,32 @@ export function genWords(ctx: Ctx): Task {
   return { answer: w, choices: shuffle([w, ...similarWords(w, WORDS, choiceCount(r) - 1, rng)], rng), say: pronounce(w, ctx.pron), stat: 'words:' + w, key: w };
 }
 // slovo jen napsané na ceduli, výběr obrázku; ve druhém stupni i množné číslo
+// věty (content/sentences.ts): jen z písmen, která dítě zná, a s obrázkem, který je mezi otevřenými
+export const SENTENCE_SHARE = .3, SENTENCE_FROM = 3;
+export interface Sentence { text: string; pic: string }
+export function sentences(known: Set<string>, pics: string[]): Sentence[] {
+  const out: Sentence[] = [];
+  for (const { v, objs } of VERBS) for (const pic of objs) {
+    if (!pics.includes(pic)) continue;
+    const o = OBJ[pic];
+    for (const who of WHO) if (who !== pic) out.push({ text: `${who} ${v} ${o}.`, pic });
+    if (v === 'MÁ') out.push({ text: `MÁME ${o}.`, pic });
+  }
+  return out.filter(x => x.text.slice(0, -1).split(' ').every(w => wordFits(w, known)));
+}
+// věta pro hlas: malými písmeny, jména a začátek velkým (jinak by hlas četl velká písmena jako zkratky)
+export const sentenceSay = (t: string): string => t.split(' ').map((w, i) => { const low = w.toLocaleLowerCase('cs'); return i === 0 || NAMES.includes(w.replace('.', '')) ? w[0] + low.slice(1) : low; }).join(' ');
+export function genSentence(ctx: Ctx): Task | null {
+  const rng = ctx.rng || Math.random, r = ctx.rounds.reading || 0;
+  const pics = openItems('reading', ctx).filter(w => PIC[w]);
+  const list = sentences(new Set(LETTERS), pics).filter(x => !ctx.recent.includes('v' + x.text));
+  if (list.length < 3 || pics.length < 2) return null;
+  const st = list[Math.floor(rng() * list.length)];
+  return { answer: st.pic, choices: shuffle([st.pic, ...similarWords(st.pic, pics, choiceCount(r) - 1, rng)], rng), say: 'Přečti větu.', task: st.text, sentence: st.text, stat: 'reading:' + st.text, key: 'v' + st.text, picture: true, after: sentenceSay(st.text) };
+}
 export function genReading(ctx: Ctx): Task {
   const rng = ctx.rng || Math.random, r = ctx.rounds.reading || 0;
+  if (!ctx.force && r >= SENTENCE_FROM && stage('reading', ctx) >= 1 && rng() < SENTENCE_SHARE) { const t = genSentence(ctx); if (t) return t; }
   const forced = ctx.force && PIC_WORDS.includes(ctx.force) ? ctx.force : '';
   const open = openItems('reading', ctx), pool = forced && !open.includes(forced) ? PIC_WORDS : open;
   const avoid = ctx.recent.slice(-3);
@@ -185,7 +210,9 @@ export function genWriting(ctx: Ctx): string {
   // váha z chyb nejvýš 2: když se cvik nedaří, má se vracet, ale ne pořád dokola
   return weightedPick(pool, c => Math.min(2, weight(ctx.stats, 'writing', c)), ctx.rng);
 }
-export const writingSay = (ch: string): string => SHAPE_NAMES[ch] ? `Obtáhni ${SHAPE_NAMES[ch]}.` : /\d/.test(ch) ? `Napiš číslo ${ch}.` : `Napiš písmeno ${SAY_LETTER[ch]}.`;
+// psací písmo: „Napiš psací el.“ (ů s kroužkem, ať se neplete s u)
+export const cursiveName = (k: string): string => { const c = k.slice(2); return c === 'ů' ? 'ů s kroužkem' : SAY_LETTER[c.toUpperCase()]; };
+export const writingSay = (ch: string): string => SHAPE_NAMES[ch] ? `Obtáhni ${SHAPE_NAMES[ch]}.` : /\d/.test(ch) ? `Napiš číslo ${ch}.` : ch.startsWith('c-') ? `Napiš psací ${cursiveName(ch)}.` : `Napiš písmeno ${SAY_LETTER[ch]}.`;
 
 /* ---------- procvičování ---------- */
 // úkol pro danou slabou úlohu (logic/practice.ts); kostky na výběr stejně jako v patře

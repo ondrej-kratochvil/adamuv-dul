@@ -6,11 +6,12 @@ import { syncDefaults, type SyncState } from '../logic/sync';
 import type { Quest } from '../logic/daily';
 import type { Player } from '../logic/player';
 
-export const SCHEMA = 8; // 1 = vše do verze hry 15 (bez čísla schématu), 2 = s číslem schématu a nejvyšším stavem vesnice,
+export const SCHEMA = 9; // 1 = vše do verze hry 15 (bez čísla schématu), 2 = s číslem schématu a nejvyšším stavem vesnice,
                         // 3 = doba řešení a záměny u úloh, procvičování, fronta pro tabulku Google (verze hry 27),
                         // 4 = převlékání rodiny (verze hry 28), 5 = název a značka zařízení pro tabulku (verze hry 39),
                         // 6 = ranní karta a dnešní úkol (verze hry 51), 7 = stupně obtížnosti podle zvládnutí (verze hry 52),
                         // 8 = hráč (Schoolcraft: Adam vestavěný, ostatní z nastavení) a písmena zapnutá rodičem (verze hry 53)
+                        // 9 = psací písmo v Psaní (verze hry 56)
 
 // pauses/pauseSecs: pauzy v kole (od verze 36); secs je doba bez pauz
 export interface LogEntry { t: number; d: string; level: string; clean: number; done: number; len: number; ok: boolean; quit: boolean; secs: number; rate?: number; pauses?: number; pauseSecs?: number; lost?: number }
@@ -38,6 +39,7 @@ export interface SaveState {
   gear: { held: string; stages: Record<string, number> } | null; // nástroje: co drží v ruce, nejvyšší materiál (content/tools.ts)
   daily: { d: string; quest: Quest | null; shown: boolean }; // dnešní úkol a jestli už byla ranní karta (logic/daily.ts)
   stages: Record<string, number>; // dosažené stupně obtížnosti v patrech (logic/stages.ts), nezavírají se
+  cursive: boolean;             // psací písmo v patře Psaní (content/glyphs.ts CURSIVE)
   letters: string[];            // souhlásky (a Ě) zapnuté rodičem, v pořadí slabikáře (logic/letters.ts)
   player: 'adam' | Player | null; // kdo hraje: vestavěný Adam, hráč nastavený rodičem, nebo zatím nikdo (úvodní nastavení)
   [k: string]: unknown;
@@ -67,6 +69,7 @@ export function defaults(): SaveState {
     stages: {},
     player: null,
     letters: ['M', 'L', 'S'],
+    cursive: false,
   };
 }
 
@@ -93,6 +96,8 @@ export function migrate(raw: unknown): SaveState {
   // Adam se od 24. 10. 2026 učí P (Ondřej); dřívější postup = samohlásky, M, L, S a nově P
   if (from < 8 && !Array.isArray(s.letters)) out.letters = ['M', 'L', 'S', 'P'];
   if (!Array.isArray(out.letters) || !out.letters.length) out.letters = ['M', 'L', 'S'];
+  // v8 -> v9 (až po určení hráče výše): psací písmo; Adam ho zapnuté má (Ondřej 24. 10. 2026: „Přidej psací písmo“), ostatní ho zapne rodič
+  if (from < 9 && typeof s.cursive !== 'boolean') out.cursive = out.player === 'adam';
   // v5 -> v6: dnešní úkol začíná prázdný (daily z výchozích hodnot přes NESTED), první karta přijde při spuštění
   // v4 -> v5: sync dostane device a uid z výchozích hodnot (NESTED), hra je doplní při startu (initDevice)
   // v3 -> v4: převlékání rodiny začíná prázdné

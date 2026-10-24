@@ -7,7 +7,7 @@ import { persist, save } from '../save/save.ts';
 import { pick, tex } from '../gfx/textures.js';
 import { speak } from '../audio/speech.js';
 import { audio, sfx, tone } from '../audio/sfx.js';
-import { GLYPHS, SHAPE_NAMES, spiralPath } from '../content/glyphs.ts';
+import { CURSIVE_LINES, GLYPHS, SHAPE_NAMES, spiralPath } from '../content/glyphs.ts';
 import { ctx } from '../game/ctx.js';
 import { genWriting as genWritingL, writingSay } from '../logic/tasks.ts';
 import { dogHappy, updateGems } from '../world/farm.js';
@@ -47,7 +47,7 @@ function drawTrace() {
   g.setTransform(1, 0, 0, 1, 0, 0); g.clearRect(0, 0, cv.width, cv.height); g.setTransform(sc, 0, 0, sc, 0, 0);
   g.lineCap = 'round'; g.lineJoin = 'round';
   // linky jako v sešitě
-  g.strokeStyle = '#c9d8ea'; g.lineWidth = 1.2; [15, 125].forEach(y => { g.beginPath(); g.moveTo(4, y); g.lineTo(96, y); g.stroke(); });
+  g.strokeStyle = '#c9d8ea'; g.lineWidth = 1.2; (G.TR.ch.startsWith('c-') ? CURSIVE_LINES : [15, 125]).forEach(y => { g.beginPath(); g.moveTo(4, y); g.lineTo(96, y); g.stroke(); });
   // dráha s okraji: tmavý lem, světlý vnitřek
   G.TR.strokes.forEach(st => { g.strokeStyle = '#8a6a44'; g.lineWidth = LANE + 3; g.stroke(new Path2D(st.d)); });
   G.TR.strokes.forEach(st => { g.strokeStyle = '#efe4c8'; g.lineWidth = LANE; g.stroke(new Path2D(st.d)); });

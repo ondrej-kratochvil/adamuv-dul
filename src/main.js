@@ -77,7 +77,7 @@ $('#btnEndHome').addEventListener('click', goHome);
 $('#cheer').addEventListener('click', () => { audio(); if ($('#cheer').dataset.say) speak($('#cheer').dataset.say); });
 
 loadFamily(); // rodina a kamarádi aktivního hráče (app/player.js)
-applyLetters(save.letters); // písmena, slabiky a slova podle toho, co rodič zapnul
+applyLetters(save.letters, save.cursive); // písmena, slabiky a slova podle toho, co rodič zapnul
 if (season() === 'winter' || season() === 'xmas') document.body.classList.add('winter');
 iconizeButtons();
 applyName();
