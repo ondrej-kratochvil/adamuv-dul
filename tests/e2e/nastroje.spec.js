@@ -24,3 +24,19 @@ test('materiál nástroje se dopočítá podle už zvládnutých úkolů hned po
   await page.getByRole('button', { name: 'Nástroje', exact: true }).click();
   await expect(page.getByRole('button', { name: 'kamenná lopata' })).not.toHaveClass(/locked/);
 });
+
+// Ondřej 24. 10. 2026: na mobilu byly nástroje moc malé (7 sloupců vedle sebe, kostička kolem 40 px)
+for (const width of [360, 412]) {
+  test(`nástroje na mobilu (${width} px) jsou dost velké na klepnutí`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 860 });
+    await openGame(page, { total: 3 });
+    await page.getByRole('button', { name: 'Šatník', exact: true }).click();
+    await page.getByRole('button', { name: 'Nástroje', exact: true }).click();
+    for (const c of await page.locator('.tool-cell').all()) {
+      const b = await c.boundingBox();
+      expect(b.width).toBeGreaterThanOrEqual(64);
+      expect(b.x + b.width).toBeLessThanOrEqual(width);
+    }
+    await page.locator('.ward-panel').screenshot({ path: `test-results/nastroje-${width}.png` });
+  });
+}

@@ -1,6 +1,13 @@
 {
-  "version": 53,
+  "version": 54,
   "changes": [
+    {
+      "version": 54,
+      "date": "2026-10-24",
+      "notes": [
+        "Nástroje v šatníku jsou na mobilu větší, tři vedle sebe."
+      ]
+    },
     {
       "version": 53,
       "date": "2026-10-24",

@@ -409,6 +409,11 @@ canvas.ench { animation: ench 1.8s ease-in-out infinite; }
 .tool-cell .lock { top: 2px; right: 2px; width: 14px; height: 14px; }
 .tool-cell.locked canvas { opacity: .5; }
 .tool-note { grid-column: 1 / -1; font-family: var(--f-read); font-size: 14px; margin: 6px 0 0; }
+@media (max-width: 699px) { /* mobil: název nástroje nad řádkem a materiály po třech, ať jdou trefit prstem (Ondřej 24. 10. 2026) */
+  .tool-row { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  .tool-row b { grid-column: 1 / -1; margin-top: 4px; }
+  .tool-cell { padding: 6px; }
+}
 /* patro Mluvení */
 .speech-panel { position: relative; flex: 1; min-height: 0; display: grid; place-items: center; align-content: center; gap: 10px; padding: 14px max(16px, env(safe-area-inset-right, 0px)) 18px max(16px, env(safe-area-inset-left, 0px)); text-align: center; }
 .sp-pic { font-size: clamp(90px, 22vh, 180px); line-height: 1; background: var(--plate); border: 6px solid var(--plate-edge); padding: 10px 24px; }
