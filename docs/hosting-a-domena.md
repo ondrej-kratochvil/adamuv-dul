@@ -210,6 +210,7 @@ Před registrací je stále nutné ověřit EUIPO a DPMA, případně USPTO, zej
 **Kontrolní ověření Digademy (Claude Code, 24. 10. 2026):**
 - Volné podle RDAP i DNS: `digademy.games` (registr Identity Digital) a také `digademy.com`, `.eu`, `.cz`, `.io`, `.app` (rdap.org a NS záznamy). Volná .com je u vymyšleného slova silný signál, že název nikdo nepoužívá.
 - Přesný výraz „Digademy“ vyhledávání nenašlo. Podobně znějící: DigiAcademy (digi-academy.org, kurzy digitálních dovedností pro dospělé), DigiCademy (digicademy.app, placené online kurzy WordPressu a aplikací, Indie), Eliademy (zaniklá e-learningová platforma). Jiný obor i cílová skupina, ale zvukově blízko; při kontrole známek prověřit i tyto podoby.
+- Forpsi 24. 10. 2026 (Ondřej, ceny za 1. rok bez DPH) potvrdil volné: digademy.cz 170 Kč, .com 295 Kč, .eu 109 Kč, .net 330 Kč, .org 360 Kč, .io 699 Kč, .de 300 Kč, .sk 265 Kč a další. Cenu obnovy u nich nabídka neukazuje (u .cz 199 Kč, .eu 169 Kč, .online 900 Kč). .games Forpsi nenabízí.
 - Doporučení ke koupi po prověření: `digademy.games` (hlavní adresa) a `digademy.com` (ochrana názvu, odkaz na .games), případně `digademy.eu`.
 
 Ve hře si každé dítě může dál zvolit vlastní název světa, například „Adamův důl“; veřejná značka a doména
