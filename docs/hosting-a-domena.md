@@ -181,6 +181,12 @@ Kolize byly hledány na veřejném webu, nikoli vyčerpávajícím způsobem v r
 | PixelSchool / BlockSchool | pravděpodobně volné | názvy jsou obecné a silně evokují Minecraft | slabé a obtížně chránitelné |
 | AlphaMine / LearnMine / MineLearn | pravděpodobně volné | `mine` může znamenat důl, těžit i „moje“; názvy jsou méně jednoznačné | spíše nedoporučeno |
 | SchoolMine | pravděpodobně volná | v angličtině může spojení znamenat také minu ve škole | nevhodné |
+| LittleMiner | pravděpodobně volná (.com i littleminers.com obsazené) | na Google Play hra Little Miner: Idle Tycoon (5minlab, 2024, pro všechny věky), Little Miner Tycoon (Egerter Software); podobně My Little Mine, Tiny Miners, Mini Mine | nevhodné: stejný název v obchodech s aplikacemi, popisné, nic o učení |
+| Adamine | pravděpodobně volná (.com obsazená, .eu .cz .io .app volné) | Adamine Group (klenoty, New York), figurka Adamine (Hardwitch Games), lék Adamine (amantadin, Egypt); jiné obory | nevhodné z jiného důvodu: Adamovo jméno ve veřejné značce (soukromí dítěte, pro spolužáky „Adamova hra“ v žebříčku) |
+| Pickademy | pravděpodobně volná (.com obsazená) | zvukově shodné s Picademy (vzdělávací program Raspberry Pi pro učitele); dětská vzdělávací aplikace Chickademy | slabé: záměna se známou vzdělávací značkou |
+| Pickaboo | pravděpodobně volná (.com obsazená) | Pickaboo.com, velký bangladéšský e-shop a aplikace | slabé: obsazená značka, hříčka s peekaboo česky nefunguje |
+| LetterPick, WordPick, PickWise, PickQuest, PickLearn | pravděpodobně volné (.com všude obsazené) | kolize nehledány | slabší, volná jen .games |
+| MineGame | **obsazená** (.com také; .eu a .cz volné) | obecné spojení; ve vyhledávání převažují hazardní hry „Mines“ o skutečné peníze a Hledání min | nevhodné: nechránitelné, kolize s hazardem, nic o učení |
 
 ### Použitelní kandidáti
 
@@ -192,6 +198,9 @@ Kolize byly hledány na veřejném webu, nikoli vyčerpávajícím způsobem v r
 | LearnDig | pravděpodobně volná | význam je zřejmý a obsah není omezený na písmena | v angličtině zní méně přirozeně a je popisné | použitelná záloha |
 | CleverCave | pravděpodobně volná | přátelské, široké a bez slova `mine`; dobře se pamatuje | `Clever` je ve vzdělávání silně obsazené slovo; existuje nesouvisející projekt CleverCaves | použitelná záloha |
 | DigLetters | pravděpodobně volná | popisuje písmena a kopání | nepřirozený anglický slovosled, omezení jen na písmena | horší než LetterDig |
+| Pickaxe Academy | pravděpodobně volná, **.com také volná** | žádná hra ani aplikace s tímto jménem; krumpáč srozumitelný dětem | dlouhé, dvouslovné a popisné (slabá ochrana známkou); krumpáč silně připomíná Minecraft (Pickaxe X na Robloxu, PickCrafter, LEGO Minecraft The Pickaxe Mine) | nejlepší z názvů s krumpáčem, slabší než Digademy |
+
+Názvy LittleMiner až Pickaxe Academy prověřil Claude Code 24. 10. 2026 stejným postupem (RDAP Identity Digital pro .games, rdap.org a NS pro ostatní, webové vyhledávání kolizí).
 
 Všechny názvy z obou tabulek, které jsou označené jako pravděpodobně volné, v době kontroly neměly DNS
 a autoritativní RDAP pro `.games` vracel 404. To není rezervace ani záruka dostupnosti.
@@ -263,3 +272,15 @@ mohou používat jednotný název Digademy.
 - [DigiAcademy](https://www.digi-academy.org/)
 - [DigiCademy](https://www.digicademy.app/)
 - [Eliademy (Wikipedie)](https://en.wikipedia.org/wiki/Eliademy)
+- [Little Miner: Idle Tycoon – Google Play](https://play.google.com/store/apps/details?id=com.fiveminlab.mining&hl=en_CA)
+- [Little Miner Tycoon – Amazon Appstore](https://www.amazon.ca/Egerter-Software-Little-Miner-Tycoon/dp/B07JJDNBKM)
+- [My Little Mine – Google Play](https://play.google.com/store/apps/details?id=com.s626.MyLittleMine&hl=en_US)
+- [Adamine Group](https://adaminegroup.com/)
+- [Adamine by Hardwitch Games – eBay](https://www.ebay.com/itm/387203276530)
+- [Adamine (amantadin)](http://egyptiandrugstore.com/index.php?route=product/product&product_id=2241)
+- [Picademy – Raspberry Pi](https://www.raspberrypi.org/blog/picademy-questions-answered/)
+- [Chickademy](https://mwm.ai/apps/chickademy/6771013115)
+- [Pickaboo.com – Wikipedie](https://en.wikipedia.org/wiki/Pickaboo.com)
+- [PickCrafter – Microsoft Store](https://microsoft.com/sr-cyrl-ba/p/pickcrafter-crafting-game/9pm8g2wwllm5)
+- [Mines – hazardní hra (příklad stránky)](https://fishlab.in/en-in/download-app/)
+- [Mine Mine – Simple Minesweeper](https://apps.apple.com/lc/app/mine-mine-simple-minesweeper/id6741587531)
