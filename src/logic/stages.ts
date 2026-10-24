@@ -85,6 +85,11 @@ function goodMath(stats: Stats, ok: (p: { a: number; op: string; b: number; top:
   }
   return n;
 }
+// první stupeň: nejdřív do 6 jako v Adamově Matematice 1 (ALTER, „Numerace, sčítání a odčítání do 6“; Ondřej 24. 10. 2026),
+// do 10 až po zvládnutí MATH_TO_10 příkladů do 6
+export const MATH_TO_10 = 8;
+export const MATH_7_10 = 5; // a do 20 až po zvládnutí aspoň 5 příkladů s čísly 7 až 10 (ať se do 10 nepřeskočí)
+export const mathTop = (stats: Stats, stage: number): number => stage >= 1 ? 20 : goodMath(stats, p => p.top <= 6) >= MATH_TO_10 ? 10 : 6;
 export const crossingReady = (stats: Stats): boolean => goodMath(stats, p => p.top > 10 && p.top <= 20 && !isCrossing(p.a, p.op, p.b)) >= CROSSING_READY;
 
 /* ---------- výpočet stupně ---------- */
@@ -92,7 +97,7 @@ export const share = (stats: Stats, level: string, items: string[]): number =>
   items.length ? items.filter(it => mastery(stats[level + ':' + it]) === 'good').length / items.length : 0;
 // stupeň jen podle zvládnutí (bez paměti)
 export function masteredStage(level: string, stats: Stats): number {
-  if (level === 'math') return crossingReady(stats) ? 2 : goodMath(stats, p => p.top <= 10) >= MATH_TO_20 ? 1 : 0;
+  if (level === 'math') return crossingReady(stats) ? 2 : goodMath(stats, p => p.top <= 10) >= MATH_TO_20 && goodMath(stats, p => p.top > 6 && p.top <= 10) >= MATH_7_10 ? 1 : 0;
   const st = STAGES[level]; if (!st) return 0;
   let k = 0;
   while (k < st.length - 1 && share(stats, level, st[k].items) >= STAGE_SHARE) k++;

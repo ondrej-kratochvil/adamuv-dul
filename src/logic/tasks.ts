@@ -6,7 +6,8 @@ import { SHAPE_NAMES } from '../content/glyphs';
 import { choiceCount, mastery, weight, type Stats } from './mastery';
 import { range, rnd, shuffle, weightedPick, type Rng } from './random';
 import { pronounce } from './pronounce';
-import { CROSSING_READY, CROSSING_SHARE, WRITING_ALL, WRITING_EASY, WRITING_HARD, crossingReady, isCrossing, stageItems, stageOf } from './stages';
+import { lettersOf } from './letters';
+import { mathTop, CROSSING_READY, CROSSING_SHARE, WRITING_ALL, WRITING_EASY, WRITING_HARD, crossingReady, isCrossing, stageItems, stageOf } from './stages';
 export { CROSSING_READY, CROSSING_SHARE, WRITING_ALL, WRITING_EASY, WRITING_HARD, crossingReady, isCrossing };
 
 // force = úloha daná předem (procvičování): generátor ji použije místo náhodného výběru
@@ -63,8 +64,20 @@ export function makeChoices(level: string, target: string, ctx: Ctx): string[] {
   for (const x of shuffle(pool.slice(), rng)) { if (chosen.length >= n) break; if (ok(x)) chosen.push(x); }
   return shuffle(chosen, rng);
 }
+// „Na jaké písmeno začíná slovo…?“ (jako v pracovním sešitě k Živé abecedě: rozliš hlásku na začátku slova),
+// v patře Písmena od 3. kola asi každý čtvrtý úkol; slovo jen ze zapnutých písmen, počáteční písmeno z otevřeného stupně
+export const FIRST_SOUND_SHARE = .25, FIRST_SOUND_FROM = 2;
+export function genFirstSound(ctx: Ctx): Task | null {
+  const rng = ctx.rng || Math.random, open = openItems('letters', ctx);
+  const cands = WORDS.filter(w => open.includes(lettersOf(w)[0]) && !ctx.recent.includes('z' + w));
+  if (!cands.length) return null;
+  const w = cands[Math.floor(rng() * cands.length)], t = lettersOf(w)[0];
+  const said = pronounce(w, ctx.pron);
+  return { answer: t, choices: makeChoices('letters', t, ctx), say: `Na jaké písmeno začíná slovo ${said}?`, stat: 'letters:' + t, key: 'z' + w, after: `Ano, ${said} začíná na ${SAY_LETTER[t]}.` };
+}
 export function genLetters(level: string, ctx: Ctx): Task {
   const t = pickTarget(level, ctx);
+  if (level === 'letters' && !ctx.force && (ctx.rounds.letters || 0) >= FIRST_SOUND_FROM && (ctx.rng || Math.random)() < FIRST_SOUND_SHARE) { const fs = genFirstSound(ctx); if (fs) return fs; }
   return { answer: t, choices: makeChoices(level, t, ctx), say: sayText(level, t, ctx.pron), stat: level + ':' + t, key: t };
 }
 
@@ -92,8 +105,30 @@ export function genNumbers(ctx: Ctx): Task {
   return { answer: String(n), choices: pickChoices(n, near, pool, choiceCount(r), rng, must).map(String), say: String(n), stat: 'numbers:' + n, key: 'n' + n };
 }
 // příklady podle stupně (logic/stages.ts): do 10; do 20 bez přechodu; pak přechod přes desítku (menšina příkladů) a celé desítky do 100
+// jako v Adamově Matematice 1 (ALTER): „Porovnej“ (znaménka <, =, >) a „Doplň“ (2 + ? = 5); v prvních dvou stupních
+// asi každý pátý úkol jedno, každý pátý druhé
+export const COMPARE_SHARE = .2, MISSING_SHARE = .2;
+const CMP_WORD: Record<string, string> = { '<': 'je menší než', '=': 'se rovná', '>': 'je větší než' };
+export function genCompare(ctx: Ctx, top: number): Task {
+  const rng = ctx.rng || Math.random;
+  let x = 0, y = 0, tries = 0;
+  do { x = rnd(0, top, rng); y = rng() < .2 ? x : rnd(0, top, rng); } while (ctx.recent.includes(`c${x}-${y}`) && ++tries < 20);
+  const ans = x < y ? '<' : x > y ? '>' : '=';
+  return { answer: ans, choices: ['<', '=', '>'], say: `Porovnej: ${x} a ${y}. Které znaménko patří mezi ně?`, task: `${x} ? ${y}`, stat: `math:${x}${ans}${y}`, key: `c${x}-${y}`, after: `Ano, ${x} ${CMP_WORD[ans]} ${y}.` };
+}
+export function genMissing(ctx: Ctx, top: number): Task {
+  const rng = ctx.rng || Math.random, r = ctx.rounds.math || 0;
+  let a = 0, b = 0, s = 0, tries = 0;
+  do { s = rnd(2, top, rng); a = rnd(1, s - 1, rng); b = s - a; } while (ctx.recent.includes(`d${a}+${s}`) && ++tries < 20);
+  return { answer: String(b), choices: pickChoices(b, [b + 1, b - 1, s, a], range(0, top), choiceCount(r), rng).map(String), say: `${a} plus kolik je ${s}?`, task: `${a} + ? = ${s}`, stat: `math:${a}+?=${s}`, key: `d${a}+${s}`, after: `Ano, ${a} plus ${b} je ${s}.` };
+}
 export function genMath(ctx: Ctx): Task {
   const rng = ctx.rng || Math.random, r = ctx.rounds.math || 0, st = stage('math', ctx);
+  if (!ctx.force && st < 2) {
+    const top = mathTop(ctx.stats, st), v = rng();
+    if (v < COMPARE_SHARE) return genCompare(ctx, top);
+    if (v < COMPARE_SHARE + MISSING_SHARE) return genMissing(ctx, top);
+  }
   let a = 0, b = 0, op = '+', key = '', tens = false, tries = 0;
   const fm = ctx.force ? /^(\d+)([+-])(\d+)$/.exec(ctx.force) : null;
   if (fm) { a = +fm[1]; op = fm[2]; b = +fm[3]; key = ctx.force!; tens = a % 10 === 0 && b % 10 === 0 && Math.max(a, b, op === '+' ? a + b : a) > 20; }
@@ -103,7 +138,7 @@ export function genMath(ctx: Ctx): Task {
   tens = st >= 2 && !crossOk && rng() < .4;
   do {
     op = rng() < .5 ? '+' : '-';
-    const max = st < 1 ? 10 : 20;
+    const max = mathTop(ctx.stats, st);
     if (tens) { if (op === '+') { a = rnd(1, 9, rng) * 10; b = rnd(1, 10 - a / 10, rng) * 10; } else { a = rnd(2, 10, rng) * 10; b = rnd(1, a / 10 - 1, rng) * 10; } }
     else if (op === '+') { a = rnd(0, max - 1, rng); b = rnd(0, max - a, rng); }
     else { a = rnd(1, max, rng); b = rnd(0, a, rng); }
@@ -111,7 +146,7 @@ export function genMath(ctx: Ctx): Task {
   } while ((ctx.recent.includes(key) || ((a === 0 || b === 0) && rng() < .8) || (!tens && isCrossing(a, op, b) !== crossOk && tries < 35)) && ++tries < 40);
   }
   const ans = op === '+' ? a + b : a - b, step = tens ? 10 : 1;
-  const pool = tens ? range(0, 100, 10) : range(0, Math.max(st < 1 ? 10 : 20, a, ans));
+  const pool = tens ? range(0, 100, 10) : range(0, Math.max(mathTop(ctx.stats, st), a, ans));
   const near = [ans + step, ans - step, ans + 2 * step, ans - 2 * step, op === '+' ? a - b : a + b];
   return { answer: String(ans), choices: pickChoices(ans, near, pool, choiceCount(r), rng).map(String), say: `Kolik je ${a} ${op === '+' ? 'plus' : 'mínus'} ${b}?`, task: `${a} ${op === '+' ? '+' : '−'} ${b} = ?`, stat: 'math:' + key, key };
 }

@@ -1,6 +1,14 @@
 {
-  "version": 54,
+  "version": 55,
   "changes": [
+    {
+      "version": 55,
+      "date": "2026-10-24",
+      "notes": [
+        "Ve hře jsou slova ze tvého slabikáře: Ola, Pepa, Jula, máme, topí, jetel a další.",
+        "V Písmenech se hra občas zeptá, na jaké písmeno začíná slovo. V Počtech porovnáváš čísla zobáčkem a doplňuješ chybějící číslo, jako v sešitě."
+      ]
+    },
     {
       "version": 54,
       "date": "2026-10-24",

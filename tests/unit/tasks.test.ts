@@ -46,11 +46,13 @@ describe('počty', () => {
   it.each(stagesOf('math'))('stupeň %i: výsledek sedí a není záporný, do 10, do 20, pak i desítky', st => {
     for (const r of ROUNDS) for (let s = 1; s <= 200; s++) {
       const t = genMath(ctxFor('math', r, s, st));
+      if (/^[cd]/.test(t.key)) continue; // porovnávání a doplňování mají vlastní test
       checkTask(t, choiceCount(r));
       const [, a, op, b] = t.task!.match(/^(\d+) ([+−]) (\d+) = \?$/)!;
       expect(Number(t.answer)).toBe(op === '+' ? +a + +b : +a - +b);
       for (const c of t.choices) expect(Number(c)).toBeGreaterThanOrEqual(0);
-      if (st < 2) expect(Math.max(+a, +b, Number(t.answer))).toBeLessThanOrEqual(st < 1 ? 10 : 20);
+      // bez zvládnutých příkladů do 6 jen do 6 (logic/stages.ts mathTop)
+      if (st < 2) expect(Math.max(+a, +b, Number(t.answer))).toBeLessThanOrEqual(st < 1 ? 6 : 20);
     }
   });
 });
@@ -101,9 +103,37 @@ describe('přechod přes desítku (Ondřej 20. 10. 2026)', () => {
   it('do 20 bez přechodu, dokud Adam nezvládne 10 příkladů v druhé desítce', () => {
     for (let s = 1; s <= 600; s++) {
       const t = genMath({ rounds: { math: 5 }, stats: {}, recent: [], rng: seeded(s), stages: { math: 1 } });
-      const m = /^(\d+)([+-])(\d+)$/.exec(t.stat.slice(5))!;
+      const m = /^(\d+)([+-])(\d+)$/.exec(t.stat.slice(5));
+      if (!m) continue; // porovnávání a doplňování
       expect(isCrossing(+m[1], m[2], +m[3]), t.stat).toBe(false);
     }
+  });
+  it('porovnávání a doplňování (jako v Matematice 1 ALTER): správná odpověď, čísla do 6 na začátku', () => {
+    let cmp = 0, miss = 0;
+    for (let s = 1; s <= 400; s++) {
+      const t = genMath({ rounds: { math: 5 }, stats: {}, recent: [], rng: seeded(s) });
+      if (t.key.startsWith('c')) {
+        cmp++;
+        const [, x, y] = t.task!.match(/^(\d+) \? (\d+)$/)!;
+        expect(t.answer).toBe(+x < +y ? '<' : +x > +y ? '>' : '=');
+        expect([...t.choices].sort()).toEqual(['<', '=', '>']);
+        expect(Math.max(+x, +y)).toBeLessThanOrEqual(6);
+      } else if (t.key.startsWith('d')) {
+        miss++;
+        const [, a, sum] = t.task!.match(/^(\d+) \+ \? = (\d+)$/)!;
+        expect(+a + Number(t.answer)).toBe(+sum);
+        expect(t.choices).toContain(t.answer);
+        expect(+sum).toBeLessThanOrEqual(6);
+      }
+    }
+    expect(cmp).toBeGreaterThan(40); expect(miss).toBeGreaterThan(40);
+  });
+  it('po zvládnutí 8 příkladů do 6 příklady do 10', () => {
+    const stats: Stats = {};
+    ['1+1', '2+1', '3+2', '4+1', '5-2', '6-3', '3+3', '4-2'].forEach(k => { stats['math:' + k] = { ok: 3, miss: 0, n: 3 }; });
+    let big = 0;
+    for (let s = 1; s <= 300; s++) { const t = genMath({ rounds: { math: 5 }, stats, recent: [], rng: seeded(s) }); const m = /^(\d+)([+-])(\d+)$/.exec(t.stat.slice(5)); if (m && Math.max(+m[1], +m[3], +m[1] + +m[3]) > 6) big++; }
+    expect(big).toBeGreaterThan(20);
   });
   it('potom přechod jen u menšiny příkladů', () => {
     const stats: Stats = {};

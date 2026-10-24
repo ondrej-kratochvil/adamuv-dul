@@ -14,7 +14,9 @@ describe('písmena zapnutá rodičem', () => {
     applyLetters(['M', 'L', 'S']);
     expect(LETTERS.length).toBe(16);
     expect(SYLL.length).toBe(30);
-    expect(WORDS).toEqual(BASE_WORDS);
+    expect(WORDS).toEqual(expect.arrayContaining(BASE_WORDS)); // + slova z učebnic jen z M, L, S
+    expect(WORDS).toEqual(expect.arrayContaining(['MÁME', 'OLA', 'MUSÍ']));
+    expect(WORDS).not.toContain('PES');
     expect(WRITING_ITEMS).toEqual([...'0123456789', ...'AEIOUYMLS', 'vlnka', 'cikcak', 'kopecky', 'smycka', 'spirala']);
   });
   it('s P přibudou písmeno, slabiky, slova a psaní; slova jen ze známých písmen', () => {
@@ -56,5 +58,26 @@ describe('písmena zapnutá rodičem', () => {
   it('obrázky v Čtení jen ze známých písmen', () => {
     applyLetters(['M', 'L', 'S']);
     for (const w of PIC_WORDS) expect(wordFits(w, new Set(['M', 'L', 'S'])), w).toBe(true);
+  });
+});
+
+import { genFirstSound, genLetters } from '../../src/logic/tasks';
+import { seeded } from '../../src/logic/random';
+describe('Na jaké písmeno začíná slovo (jako v pracovním sešitě k Živé abecedě)', () => {
+  it('odpověď je první písmeno slova a je mezi kostkami; slovo jen ze zapnutých písmen', () => {
+    applyLetters(['M', 'L', 'S', 'P']);
+    for (let s = 1; s <= 200; s++) {
+      const t = genFirstSound({ rounds: { letters: 5 }, stats: {}, recent: [], rng: seeded(s), stages: { letters: 3 } })!;
+      const w = t.key.slice(1);
+      expect(WORDS).toContain(w);
+      expect(lettersOf(w)[0]).toBe(t.answer);
+      expect(t.choices).toContain(t.answer);
+      expect(t.say).toMatch(/^Na jaké písmeno začíná slovo /);
+    }
+  });
+  it('v prvních dvou kolech se neobjevuje, potom asi ve čtvrtině úkolů', () => {
+    const n = (rounds: number) => Array.from({ length: 400 }, (_, s) => genLetters('letters', { rounds: { letters: rounds }, stats: {}, recent: [], rng: seeded(s + 1), stages: { letters: 3 } })).filter(t => t.key.startsWith('z')).length;
+    expect(n(0)).toBe(0);
+    expect(n(5)).toBeGreaterThan(60); expect(n(5)).toBeLessThan(140);
   });
 });

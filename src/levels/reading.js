@@ -21,11 +21,13 @@ function picCanvas(word) {
   return c;
 }
 function genWords() { return T.genWords(ctx()); }
+// písmena: poslech písmene, občas „Na jaké písmeno začíná slovo…?“ (logic/tasks.ts genFirstSound)
+function genLettersL() { return T.genLetters('letters', ctx()); }
 // slovo na ceduli se ukazuje velkým nebo malým písmem podle nastavení
 function genReading() { const t = T.genReading(ctx()); return { ...t, task: partLabel(t.answer, display(t.answer)) }; }
 
 const LEVELS = {
-  letters: { name: 'Písmena', tex: 'dirt', items: LETTERS, sample: ['A', 'm'], intro: 'Poslouchej a kopej do správného písmenka.' },
+  letters: { name: 'Písmena', tex: 'dirt', items: LETTERS, gen: genLettersL, sample: ['A', 'm'], intro: 'Poslouchej a kopej do správného písmenka.' },
   syllables: { name: 'Slabiky', tex: 'stone', items: SYLL, sample: ['MA', 'lo'], small: true, intro: 'Poslouchej a kopej do správné slabiky.' },
   words: { name: 'Slova', tex: 'ironOre', gen: genWords, sample: ['MÁMA'], small: true, intro: 'Poslouchej slovo a kopej do správné kostky.' },
   reading: { name: 'Čtení', tex: 'diamondOre', gen: genReading, picture: true, sample: ['OSA'], small: true, intro: 'Přečti slovo na ceduli a kopni do správného obrázku.' },

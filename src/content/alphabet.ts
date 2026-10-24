@@ -1,6 +1,7 @@
 // Celá abeceda pro Schoolcraft (Ondřej 24. 10. 2026: „Adam se už učí P… připravit další písmenka dopředu a budeme mu je
 // zapínat“). Samohlásky jsou zapnuté vždy, souhlásky a Ě zapíná rodič v nastavení (karta Hra).
-// Pořadí podle běžných slabikářů pro 1. třídu (M, L, S, P, T, J, N, V, D…); každá škola jde trochu jinak, proto volba rodiče.
+// Pořadí podle běžných slabikářů pro 1. třídu; Adamova řada ALTER (Živá abeceda): A O E U I, dlouhé, M, L, S, P, T, J, pak Y ve slabikách
+// (LY, PY, SY, MY, TY). Dál podle běžných slabikářů (N, V, D…); každá škola jde trochu jinak, proto volba rodiče.
 export const CONS_ORDER: string[] = ['M', 'L', 'S', 'P', 'T', 'J', 'N', 'V', 'D', 'Ě', 'Z', 'K', 'R', 'Ř', 'B', 'C', 'Č', 'Š', 'Ž', 'H', 'CH', 'F', 'G', 'Ď', 'Ť', 'Ň', 'X', 'W', 'Q'];
 export const BASE_CONS: string[] = ['M', 'L', 'S']; // co uměl Adam do verze 51 (výchozí pro nového hráče)
 
@@ -18,6 +19,12 @@ export const NO_SYLL = new Set(['Ě', 'W', 'Q', 'X']); // samostatné slabiky z 
 
 // Slova pro patro Slova a kartičky. Hra bere jen ta, která jdou složit ze zapnutých písmen (logic/letters.ts).
 export const MORE_WORDS: string[] = [
+  // z Adamových učebnic ALTER (Živá abeceda, Slabikář, pracovní sešit, kartičky; Ondřej 24. 10. 2026)
+  'MÁME', 'MÁMO', 'MÁMU', 'MAMI', 'EMU', 'OLA', 'OLU', 'ELU', 'MELE', 'LÁME', 'MILÁ', 'MÁLO', 'MÍSU', 'SOLÍ', 'SÍLU', 'SAM', 'UMÍ', 'MUSÍ', 'SELE', 'MÍLA', 'LILI', 'MÁM', 'SAMI', 'LASO', 'SEM',
+  'PEPO', 'PUSU', 'MAPU', 'PASE', 'PEPU', 'PÁLÍ', 'PÍPÁ', 'LEPÍ', 'LUPU',
+  'TÁTO', 'OTO', 'OTA', 'OTU', 'TETU', 'TULÍ', 'TOPÍ', 'METE', 'MOTÁ', 'TEPLO', 'MOTÝL', 'LOPATY', 'TÁTY', 'PYTEL', 'LÉTÁ',
+  'JÍME', 'JÍ', 'JÁSÁ', 'JULA', 'SEJE', 'JETEL', 'JEL', 'JELITO', 'MYJE', 'PIJE', 'LIJE', 'JELI', 'MŮJ', 'JAS',
+  'SYPE', 'MAPY', 'LÍPY', 'LOSY', 'SAMY', 'JÁMY', 'MY', 'TY',
   // P
   'PES', 'PSI', 'PÁS', 'SUP', 'PUSA', 'PILA', 'LÍPA', 'LUPA', 'MAPA', 'POLE', 'PLES', 'POPEL', 'PÍSMO', 'SLEPÝ', 'PEPA',
   // T
@@ -63,7 +70,7 @@ export const MORE_WORDS: string[] = [
   // X
   'TAXI', 'BOX', 'TEXT', 'XYLOFON',
 ];
-export const MORE_NAMES: string[] = ['PEPA', 'TOM', 'BOB'];
+export const MORE_NAMES: string[] = ['PEPA', 'PEPO', 'PEPU', 'TOM', 'BOB', 'OLA', 'OLU', 'ELU', 'EMU', 'SAM', 'MÍLA', 'LILI', 'OTO', 'OTA', 'OTU', 'JULA'];
 
 // tahy tiskacích písmen pro patro Psaní (rámeček 100 × 140 jako u ostatních; háček nad písmenem)
 const CARON = 'M36 1 L50 11 L64 1';
