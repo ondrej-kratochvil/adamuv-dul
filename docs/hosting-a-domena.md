@@ -207,6 +207,11 @@ Digademy je širší než LetterDig a výrazně svébytnější než názvy s `s
 Před registrací je stále nutné ověřit EUIPO a DPMA, případně USPTO, zejména třídy 9 (software) a 41
 (vzdělávání a online hry), a zkontrolovat obchody s aplikacemi a sociální sítě. Toto není právní stanovisko.
 
+**Kontrolní ověření Digademy (Claude Code, 24. 10. 2026):**
+- Volné podle RDAP i DNS: `digademy.games` (registr Identity Digital) a také `digademy.com`, `.eu`, `.cz`, `.io`, `.app` (rdap.org a NS záznamy). Volná .com je u vymyšleného slova silný signál, že název nikdo nepoužívá.
+- Přesný výraz „Digademy“ vyhledávání nenašlo. Podobně znějící: DigiAcademy (digi-academy.org, kurzy digitálních dovedností pro dospělé), DigiCademy (digicademy.app, placené online kurzy WordPressu a aplikací, Indie), Eliademy (zaniklá e-learningová platforma). Jiný obor i cílová skupina, ale zvukově blízko; při kontrole známek prověřit i tyto podoby.
+- Doporučení ke koupi po prověření: `digademy.games` (hlavní adresa) a `digademy.com` (ochrana názvu, odkaz na .games), případně `digademy.eu`.
+
 Ve hře si každé dítě může dál zvolit vlastní název světa, například „Adamův důl“; veřejná značka a doména
 mohou používat jednotný název Digademy.
 
@@ -254,3 +259,6 @@ mohou používat jednotný název Digademy.
 - [Danki Code – brazilský kurz Mineschool](https://cursos.dankicode.com/curso-mods-minecraft)
 - [WordMine 2](https://www.reallyenglish.com/wordmine-2)
 - [ABCDig – italský vzdělávací projekt](https://www.comprensivocentallo.edu.it/scheda-progetto/abcdig-competenze-informatiche-di-base-digcomp-2-2/)
+- [DigiAcademy](https://www.digi-academy.org/)
+- [DigiCademy](https://www.digicademy.app/)
+- [Eliademy (Wikipedie)](https://en.wikipedia.org/wiki/Eliademy)
