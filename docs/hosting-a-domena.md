@@ -7,6 +7,7 @@
 > - Hosting: Cloudflare (Workers se statickými soubory + databáze D1).
 > - Doména: schoolcraft.games (podle registru a DNS volná, ověřit u registrátora).
 > - Registrátor: varianta A Dynadot (předplacený kredit + API), varianta B Cloudflare Registrar (karta, API v betě).
+> - Postup krok za krokem: [navod-registrator-a-hosting.md](navod-registrator-a-hosting.md)
 > - Cíl: Ondřej jen založí účty, dobije kredit a vytvoří API klíče; všechno ostatní dělá Claude Code přes API a příkazovou řádku.
 
 ## Zadání
