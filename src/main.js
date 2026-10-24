@@ -23,6 +23,7 @@ import { applyName, checkVersion, gameName, openNames, renderVersion } from './a
 import { iconizeButtons } from './ui/icons.js';
 import { flushRate, openStats } from './app/stats.js';
 import { goHome, pauseRound, resumeRound, startRound } from './game/round.js';
+import { updateStages } from './game/ctx.js';
 import { flushSync, initDevice } from './app/sync.js';
 import { initProfiles } from './app/profiles.js';
 import { clearFamily } from './world/dressup.js';
@@ -85,6 +86,7 @@ checkEnchants(); // očarování za už zvládnuté úkoly
 checkVersion(); // nová verze na serveru? (při startu a při návratu do hry)
 initProfiles();
 initDevice();
+updateStages(); persist(); // stupně obtížnosti ze zvládnutých úloh (u staršího postupu poprvé, bez oznámení)
 flushSync(); // co čeká na odeslání do tabulky Google (třeba z doby bez internetu)
 addEventListener('online', () => flushSync());
 document.addEventListener('visibilitychange', () => { if (document.hidden) { pauseRound(true); flushRate(); } else { checkVersion(); flushSync(); } }); // odchod z aplikace = pauza

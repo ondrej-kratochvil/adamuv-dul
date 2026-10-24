@@ -1,0 +1,204 @@
+{
+ "caseMode": "both",
+ "slow": false,
+ "strict": "normal",
+ "total": 27,
+ "rounds": {
+  "letters": 9,
+  "syllables": 6,
+  "words": 4,
+  "numbers": 18,
+  "math": 2,
+  "writing": 2,
+  "reading": 1,
+  "speech": 0
+ },
+ "stats": {
+  "letters:A": {
+   "ok": 5,
+   "miss": 0,
+   "n": 5
+  },
+  "letters:M": {
+   "ok": 4,
+   "miss": 0,
+   "n": 4
+  },
+  "letters:Ů": {
+   "ok": 1,
+   "miss": 2,
+   "n": 4,
+   "bad": 3
+  },
+  "syllables:MA": {
+   "ok": 3,
+   "miss": 0,
+   "n": 3
+  },
+  "words:LES": {
+   "ok": 3,
+   "miss": 0,
+   "n": 3
+  },
+  "math:3+4": {
+   "ok": 3,
+   "miss": 0,
+   "n": 3
+  },
+  "writing:2": {
+   "ok": 3,
+   "miss": 0,
+   "n": 3
+  },
+  "numbers:0": {
+   "ok": 4,
+   "miss": 0,
+   "n": 4
+  },
+  "numbers:1": {
+   "ok": 4,
+   "miss": 0,
+   "n": 4
+  },
+  "numbers:2": {
+   "ok": 4,
+   "miss": 0,
+   "n": 4
+  },
+  "numbers:3": {
+   "ok": 4,
+   "miss": 0,
+   "n": 4
+  },
+  "numbers:4": {
+   "ok": 4,
+   "miss": 0,
+   "n": 4
+  },
+  "numbers:5": {
+   "ok": 4,
+   "miss": 0,
+   "n": 4
+  },
+  "numbers:6": {
+   "ok": 4,
+   "miss": 0,
+   "n": 4
+  },
+  "numbers:7": {
+   "ok": 4,
+   "miss": 0,
+   "n": 4
+  },
+  "numbers:8": {
+   "ok": 4,
+   "miss": 0,
+   "n": 4
+  },
+  "numbers:9": {
+   "ok": 4,
+   "miss": 0,
+   "n": 4
+  },
+  "numbers:10": {
+   "ok": 4,
+   "miss": 0,
+   "n": 4
+  },
+  "numbers:63": {
+   "ok": 1,
+   "miss": 0,
+   "n": 1
+  }
+ },
+ "log": [
+  {
+   "t": 1792400000000,
+   "d": "2026-10-18",
+   "level": "letters",
+   "clean": 7,
+   "done": 8,
+   "len": 8,
+   "ok": true,
+   "quit": false,
+   "secs": 140,
+   "rate": 9
+  }
+ ],
+ "ench": [
+  "pick:Efektivita:1",
+  "pick:Štěstí:1",
+  "hat:Ochrana:1"
+ ],
+ "emeralds": 83,
+ "notes": [
+  {
+   "who": "ondra",
+   "text": "Adame, jsem na tebe pyšný!",
+   "done": false,
+   "t": 1792400000000
+  }
+ ],
+ "dogName": "Lola",
+ "gifts": {
+  "narozeniny": 2026
+ },
+ "bday": 0,
+ "lastCheer": "iva",
+ "village": {
+  "letters": 3,
+  "syllables": 1
+ },
+ "obsidian": 6,
+ "netherMine": false,
+ "cards": [
+  "LES"
+ ],
+ "weeks": {},
+ "babies": [],
+ "eyes": 2,
+ "dragon": 0,
+ "seenVersion": 15,
+ "gameName": "Adamcraft",
+ "dog": {
+  "collar": "zlaty",
+  "owned": [
+   "cerveny",
+   "zlaty"
+  ],
+  "coat": "strakaty"
+ },
+ "decor": [
+  "slunecnice"
+ ],
+ "streak": {
+  "count": 3,
+  "best": 5,
+  "last": "2026-10-18",
+  "totem": 1,
+  "days": [
+   "2026-10-16",
+   "2026-10-17",
+   "2026-10-18"
+  ]
+ },
+ "outfit": {
+  "shirt": "kimono",
+  "pants": "kimono",
+  "shoes": "sede",
+  "hat": "zelezna",
+  "enchant": "ano"
+ },
+ "schema": 6,
+ "daily": {
+  "d": "2026-10-23",
+  "quest": {
+   "kind": "rounds",
+   "level": "numbers",
+   "need": 2,
+   "got": 1,
+   "done": false
+  },
+  "shown": true
+ }
+}

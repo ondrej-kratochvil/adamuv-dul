@@ -92,7 +92,7 @@ describe('schéma 6 (verze hry 51): ranní karta a dnešní úkol', () => {
   it('starší postup dostane prázdný dnešní úkol (karta přijde při spuštění), nic jiného se nezmění', () => {
     const s = migrate({ schema: 5, total: 30, emeralds: 77, rounds: { speech: 2 } });
     expect(s.daily).toEqual({ d: '', quest: null, shown: false });
-    expect(s).toMatchObject({ total: 30, emeralds: 77, schema: 6 });
+    expect(s).toMatchObject({ total: 30, emeralds: 77, schema: SCHEMA });
   });
   it('rozehraný dnešní úkol se při převodu neztratí', () => {
     const daily = { d: '2026-10-22', quest: { kind: 'rounds', level: 'speech', need: 2, got: 1, done: false }, shown: true };
@@ -100,3 +100,16 @@ describe('schéma 6 (verze hry 51): ranní karta a dnešní úkol', () => {
   });
 });
 
+
+describe('schéma 7 (verze hry 52): stupně obtížnosti podle zvládnutí', () => {
+  it('postup ve schématu 6 (18 kol Čísel, zvládnutá čísla do 10): nic se neztratí, přibudou prázdné stupně', () => {
+    const old = fixture('save-v6');
+    const s = migrate(old);
+    for (const k of Object.keys(old)) if (k !== 'schema') kept(s[k], old[k], k);
+    expect(s.stages).toEqual({});
+    expect(s.schema).toBe(7);
+  });
+  it('dosažené stupně se při převodu neztratí', () => {
+    expect(migrate({ schema: 7, total: 3, rounds: {}, stages: { numbers: 2, letters: 1 } }).stages).toEqual({ numbers: 2, letters: 1 });
+  });
+});

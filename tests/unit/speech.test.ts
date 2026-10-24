@@ -31,7 +31,7 @@ describe('Mluvení', () => {
       expect(t.say.toLocaleLowerCase('cs')).toContain(t.answer.toLocaleLowerCase('cs'));
       const other = t.choices.find(c => c !== t.answer)!;
       expect(t.say.toLocaleLowerCase('cs')).not.toContain(other.toLocaleLowerCase('cs'));
-      if (r < 2) expect(t.choices.sort()).toEqual(['L', 'R']);
+      if (r < 1) expect(t.choices.sort()).toEqual(['L', 'R']);
     }
   });
   it('vyslovování jen slova s cvičenými hláskami', () => {

@@ -1,6 +1,14 @@
 {
-  "version": 51,
+  "version": 52,
   "changes": [
+    {
+      "version": 52,
+      "date": "2026-10-24",
+      "notes": [
+        "Hra teď přidává nová písmena, slabiky, čísla a slova, až když zvládneš ta předchozí.",
+        "Když se otevře něco nového, hra ti to po kole řekne."
+      ]
+    },
     {
       "version": 51,
       "date": "2026-10-22",

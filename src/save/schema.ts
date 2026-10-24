@@ -5,10 +5,10 @@ import type { Streak } from '../logic/streak';
 import { syncDefaults, type SyncState } from '../logic/sync';
 import type { Quest } from '../logic/daily';
 
-export const SCHEMA = 6; // 1 = vše do verze hry 15 (bez čísla schématu), 2 = s číslem schématu a nejvyšším stavem vesnice,
+export const SCHEMA = 7; // 1 = vše do verze hry 15 (bez čísla schématu), 2 = s číslem schématu a nejvyšším stavem vesnice,
                         // 3 = doba řešení a záměny u úloh, procvičování, fronta pro tabulku Google (verze hry 27),
                         // 4 = převlékání rodiny (verze hry 28), 5 = název a značka zařízení pro tabulku (verze hry 39),
-                        // 6 = ranní karta a dnešní úkol (verze hry 51)
+                        // 6 = ranní karta a dnešní úkol (verze hry 51), 7 = stupně obtížnosti podle zvládnutí (verze hry 52)
 
 // pauses/pauseSecs: pauzy v kole (od verze 36); secs je doba bez pauz
 export interface LogEntry { t: number; d: string; level: string; clean: number; done: number; len: number; ok: boolean; quit: boolean; secs: number; rate?: number; pauses?: number; pauseSecs?: number; lost?: number }
@@ -35,6 +35,7 @@ export interface SaveState {
   famOwned: string[];           // koupené kousky na převlékání
   gear: { held: string; stages: Record<string, number> } | null; // nástroje: co drží v ruce, nejvyšší materiál (content/tools.ts)
   daily: { d: string; quest: Quest | null; shown: boolean }; // dnešní úkol a jestli už byla ranní karta (logic/daily.ts)
+  stages: Record<string, number>; // dosažené stupně obtížnosti v patrech (logic/stages.ts), nezavírají se
   [k: string]: unknown;
 }
 
@@ -59,11 +60,12 @@ export function defaults(): SaveState {
     famOwned: [],
     gear: null,
     daily: { d: '', quest: null, shown: false },
+    stages: {},
   };
 }
 
 const isObj = (x: unknown): x is Record<string, unknown> => !!x && typeof x === 'object' && !Array.isArray(x);
-const NESTED = ['rounds', 'outfit', 'dog', 'gifts', 'streak', 'build', 'pron', 'momSaid', 'sync', 'famWear', 'daily'] as const;
+const NESTED = ['rounds', 'outfit', 'dog', 'gifts', 'streak', 'build', 'pron', 'momSaid', 'sync', 'famWear', 'daily', 'stages'] as const;
 
 // převede jakákoli starší data na aktuální tvar; nic, co Adam získal, nezahodí
 export function migrate(raw: unknown): SaveState {
@@ -78,6 +80,8 @@ export function migrate(raw: unknown): SaveState {
   if (!Array.isArray(out.streak.days)) out.streak.days = [];
   if (!Array.isArray(out.sync.queue)) out.sync.queue = [];
   if (typeof out.practice !== 'number') out.practice = 0;
+  // v6 -> v7: stupně obtížnosti začínají prázdné (stages přes NESTED); hra je hned dopočítá ze zvládnutých úloh,
+  //          dřívější odemykání podle počtu kol se nepřebírá (Ondřej 24. 10. 2026: postup podle toho, co Adam umí)
   // v5 -> v6: dnešní úkol začíná prázdný (daily z výchozích hodnot přes NESTED), první karta přijde při spuštění
   // v4 -> v5: sync dostane device a uid z výchozích hodnot (NESTED), hra je doplní při startu (initDevice)
   // v3 -> v4: převlékání rodiny začíná prázdné

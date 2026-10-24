@@ -18,6 +18,7 @@ import { audio, sfx } from '../audio/sfx.js';
 import { layoutTrace, setupTrace, writingSay } from '../levels/writing.js';
 import { LEVELS, choiceCount, display, makeChoices, picCanvas, pickTarget, sayText } from '../levels/reading.js';
 import { blockEl, renderHome, show } from '../ui/screens.js';
+import { updateStages } from './ctx.js';
 import { FARM_STAGES, FARM_START, PERFECT_BONUS, bark, dogHappy, drawFarm, farmStage, fitCanvas, gemWord, mountDog, spr, sprIcon, updateGems } from '../world/farm.js';
 import { dayWord, registerDay } from '../rewards/streak.js';
 import { cheerFor, dogName } from '../world/family.js';
@@ -271,7 +272,7 @@ function endRound() {
     // nepovedené kolo se nepočítá: nic neroste, nic se neodemyká, obtížnost se nezvedá (smaragdy za kostky bez chyby zůstanou)
     title.textContent = 'Skoro!'; title.classList.add('fail');
     $('#endLine').textContent = `Bez chyby: ${G.R.clean} z ${G.R.len}. ${grows}, když jich bude aspoň ${need}.`;
-    np.hidden = true; no.hidden = true; $('#newNether').hidden = true; $('#newBaby').hidden = true; $('#newPrerov').hidden = true;
+    np.hidden = true; no.hidden = true; $('#newNether').hidden = true; $('#newBaby').hidden = true; $('#newPrerov').hidden = true; $('#newStage').hidden = true;
     setBtn($('#btnAgain'), 'retry', 'Zkusit znovu');
     showEndPlace(building ? 'house' : 'farm');
     const got = G.R.clean, R_len = G.R.len;
@@ -293,6 +294,11 @@ function endRound() {
   const questBonus = questAfterRound(level, true, perfect); // dnešní úkol (world/daily.js)
   if (day || questBonus) showGems(day ? day.bonus : 0, questBonus);
   const questTalk = questBonus ? ` Splnil jsi dnešní úkol! Bonus ${questBonus} ${gemWord(questBonus)}.` : '';
+  // nový stupeň obtížnosti (podle zvládnutých úloh, logic/stages.ts): oznámit, co se otevřelo
+  const opened = updateStages(), ns = $('#newStage');
+  const stageTalk = opened.length ? ` Novinka! ${opened.map(o => `V patře ${LEVELS[o.lv] ? LEVELS[o.lv].name : ''} teď budou i ${o.news}`).join('. ')}.` : '';
+  if (opened.length) { ns.hidden = false; ns.innerHTML = ''; ns.appendChild(sprIcon('emerald')); ns.insertAdjacentHTML('beforeend', `<span>${opened.map(o => `${LEVELS[o.lv] ? LEVELS[o.lv].name : ''}: nově ${o.news}`).join('. ')}!</span>`); }
+  else ns.hidden = true;
   const pn = $('#newPrerov'); let prerovTalk = '';
   const newPlaces = day ? PREROV.filter(x => day.prevBest < x.at && day.count >= x.at) : [];
   if (newPlaces.length) { pn.hidden = false; pn.innerHTML = ''; pn.appendChild(signCanvas('A')); pn.insertAdjacentHTML('beforeend', `<span>V Přerově přibylo: ${newPlaces.map(x => x.name).join(', ')}!</span>`); prerovTalk = ` Hraješ ${day.count} dní v řadě, a tak v Přerově přibylo: ${newPlaces.map(x => x.name).join(' a ')}!`; }
@@ -337,7 +343,7 @@ function endRound() {
   // pokrok na domě nebo farmě říct nahlas (Ondřej 19. 10. 2026), po hotové farmě už ne
   const grewTalk = st <= FARM_START + FARM_STAGES.length ? ' ' + grew : '';
   const rot = rotate(level);
-  speak((perfect ? 'Bez jediné chyby! ' : '') + cheer + lostTalk + grewTalk + (newTier ? ` Máš nový ${after.name} krumpáč!` : '') + story + questTalk + dayTalk + netherTalk + babyTalk + prerovTalk + toolTalk + enchTalk + vilTalk + cardTalk + (fresh.length ? ` V šatníku máš ${fresh.map(([, it]) => it.name).join(' a ')}.` : '') + rot);
+  speak((perfect ? 'Bez jediné chyby! ' : '') + cheer + lostTalk + grewTalk + (newTier ? ` Máš nový ${after.name} krumpáč!` : '') + story + questTalk + dayTalk + netherTalk + babyTalk + prerovTalk + toolTalk + stageTalk + enchTalk + vilTalk + cardTalk + (fresh.length ? ` V šatníku máš ${fresh.map(([, it]) => it.name).join(' a ')}.` : '') + rot);
   $('#btnAgain').focus({ preventScroll: true });
 }
 // Pauza (Ondřej 20. 10. 2026): zadání se schová, čas stojí; v deníku a tabulce se pauza odliší od odchodu z kola

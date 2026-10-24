@@ -8,6 +8,7 @@ import { audio, sfx, tone } from '../audio/sfx.js';
 import { recordResult } from '../logic/mastery.ts';
 import { BLOW_LEVEL, BLOW_NEED_MS, genGym, genHear, genSay, rms, roundPlan } from '../logic/speech.ts';
 import { SOUNDS } from '../content/speech.ts';
+import { stageOf } from '../logic/stages.ts';
 import { dogHappy, updateGems } from '../world/farm.js';
 import { luckBonus } from '../rewards/enchant.js';
 import { mineTex } from '../world/nether.js';
@@ -15,9 +16,10 @@ import { curLevel } from '../world/finale.js';
 import { PRAISE, logTask, nextTask } from '../game/round.js';
 import { setBtn } from '../ui/icons.js';
 
+const speechStage = () => stageOf('speech', save.stats, save.stages); // dvojice hlásek podle zvládnutí
 const kindNow = () => { if (!G.R.plan) G.R.plan = roundPlan(save.rounds.speech || 0); return G.R.plan[G.R.i]; };
 // sluch: kostky s hláskou (písmeno + obrázek); hlas řekne slovo
-function genSpeechHear() { const t = genHear(save.rounds.speech || 0, save.stats, G.R.recent); return { ...t, task: 'Co slyšíš ve slově?' }; }
+function genSpeechHear() { const t = genHear(speechStage(), save.stats, G.R.recent); return { ...t, task: 'Co slyšíš ve slově?' }; }
 function soundLabel(id) { return `${SOUNDS[id].letter}${SOUNDS[id].icon}`; } // funkce, ne konstanta: LEVELS ji potřebuje hned při načtení (kruhové importy)
 const soundSay = id => SOUNDS[id].hint;
 
@@ -34,7 +36,7 @@ function speechActivity() {
   $('#blocks').hidden = true; $('#trace').hidden = true; $('#task').hidden = true;
   const p = $('#speechPanel'); p.hidden = false; p.innerHTML = '';
   if (kind === 'say') {
-    const w = genSay(save.rounds.speech || 0, G.R.recent); G.R.recent.push(w.w);
+    const w = genSay(speechStage(), G.R.recent); G.R.recent.push(w.w);
     G.R.say = `Řekni nahlas: ${w.w}.`; G.R.statKey = 'say:' + w.w;
     p.innerHTML = `<div class="sp-pic">${w.pic}</div><div class="sp-word">${w.w}</div><p class="sp-note">Rodič poslouchá a klepne:</p><div class="actions"></div>`;
     const a = p.querySelector('.actions');

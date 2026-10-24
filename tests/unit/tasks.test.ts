@@ -1,13 +1,16 @@
 // Generátory úkolů: tisíce náhodných úkolů v každé fázi obtížnosti.
 import { describe, expect, it } from 'vitest';
-import { conflict, genLetters, genMath, genNumbers, genReading, genWords, genWriting, WRITING_EASY, WRITING_HARD, WRITING_HARD_FROM, writingPool, crossingReady, isCrossing, type Ctx, type Task } from '../../src/logic/tasks';
+import { conflict, genLetters, genMath, genNumbers, genReading, genWords, genWriting, WRITING_EASY, WRITING_HARD, crossingReady, isCrossing, type Ctx, type Task } from '../../src/logic/tasks';
+import { STAGES } from '../../src/logic/stages';
 import { choiceCount } from '../../src/logic/mastery';
 import type { Stats } from '../../src/logic/mastery';
 import { seeded } from '../../src/logic/random';
 import { GLYPHS } from '../../src/content/glyphs';
 
-const STAGES = [0, 2, 4, 6, 9];
-const ctxFor = (level: string, rounds: number, seed: number): Ctx => ({ rounds: { [level]: rounds }, stats: {}, recent: [], rng: seeded(seed) });
+// stupeň obtížnosti (logic/stages.ts) se dává rovnou, kola řídí jen počet kostek
+const ROUNDS = [0, 2, 9];
+const ctxFor = (level: string, rounds: number, seed: number, stage = 0): Ctx => ({ rounds: { [level]: rounds }, stats: {}, recent: [], rng: seeded(seed), stages: { [level]: stage } });
+const stagesOf = (level: string) => STAGES[level].map((_, i) => i);
 
 function checkTask(t: Task, n: number) {
   expect(t.choices).toContain(t.answer);
@@ -17,20 +20,22 @@ function checkTask(t: Task, n: number) {
 }
 
 describe.each(['letters', 'syllables'])('patro %s', level => {
-  it.each(STAGES)('kolo %i: správná odpověď vždy mezi kostkami, nic znějícího stejně', r => {
-    for (let s = 1; s <= 400; s++) {
-      const t = genLetters(level, ctxFor(level, r, s));
+  it.each(stagesOf(level))('stupeň %i: správná odpověď vždy mezi kostkami, nic znějícího stejně, jen otevřené úlohy', st => {
+    const open = STAGES[level][st].items;
+    for (const r of ROUNDS) for (let s = 1; s <= 200; s++) {
+      const t = genLetters(level, ctxFor(level, r, s, st));
       checkTask(t, choiceCount(r));
+      for (const c of t.choices) expect(open, c).toContain(c);
       for (const a of t.choices) for (const b of t.choices) if (a !== b) expect(conflict(level, a, b)).toBe(false);
     }
   });
 });
 
 describe('čísla', () => {
-  it.each(STAGES)('kolo %i', r => {
-    const max = r < 3 ? 10 : r < 7 ? 20 : 100;
-    for (let s = 1; s <= 400; s++) {
-      const t = genNumbers(ctxFor('numbers', r, s));
+  it.each(stagesOf('numbers'))('stupeň %i: do 10, 20, 50, 100', st => {
+    const max = [10, 20, 50, 100][st];
+    for (const r of ROUNDS) for (let s = 1; s <= 200; s++) {
+      const t = genNumbers(ctxFor('numbers', r, s, st));
       checkTask(t, choiceCount(r));
       for (const c of t.choices) { const n = Number(c); expect(Number.isInteger(n) && n >= 0 && n <= max).toBe(true); }
     }
@@ -38,32 +43,32 @@ describe('čísla', () => {
 });
 
 describe('počty', () => {
-  it.each(STAGES)('kolo %i: výsledek sedí a není záporný', r => {
-    for (let s = 1; s <= 400; s++) {
-      const t = genMath(ctxFor('math', r, s));
+  it.each(stagesOf('math'))('stupeň %i: výsledek sedí a není záporný, do 10, do 20, pak i desítky', st => {
+    for (const r of ROUNDS) for (let s = 1; s <= 200; s++) {
+      const t = genMath(ctxFor('math', r, s, st));
       checkTask(t, choiceCount(r));
       const [, a, op, b] = t.task!.match(/^(\d+) ([+−]) (\d+) = \?$/)!;
       expect(Number(t.answer)).toBe(op === '+' ? +a + +b : +a - +b);
       for (const c of t.choices) expect(Number(c)).toBeGreaterThanOrEqual(0);
-      if (r < 7) expect(Math.max(+a, +b, Number(t.answer))).toBeLessThanOrEqual(r < 3 ? 10 : 20);
+      if (st < 2) expect(Math.max(+a, +b, Number(t.answer))).toBeLessThanOrEqual(st < 1 ? 10 : 20);
     }
   });
 });
 
 describe('slova a čtení', () => {
-  it.each(STAGES)('slova, kolo %i: délka slova podle obtížnosti', r => {
-    const maxLen = r < 3 ? 3 : r < 6 ? 4 : 9;
-    for (let s = 1; s <= 300; s++) { const t = genWords(ctxFor('words', r, s)); checkTask(t, choiceCount(r)); expect(t.answer.length).toBeLessThanOrEqual(maxLen); }
+  it.each(stagesOf('words'))('slova, stupeň %i: délka slova podle stupně', st => {
+    const maxLen = [3, 4, 9][st];
+    for (const r of ROUNDS) for (let s = 1; s <= 200; s++) { const t = genWords(ctxFor('words', r, s, st)); checkTask(t, choiceCount(r)); expect(t.answer.length).toBeLessThanOrEqual(maxLen); }
   });
-  it.each(STAGES)('čtení, kolo %i: množné číslo až od 3. kola', r => {
-    for (let s = 1; s <= 300; s++) {
-      const t = genReading(ctxFor('reading', r, s));
+  it.each(stagesOf('reading'))('čtení, stupeň %i: množné číslo až ve druhém stupni', st => {
+    for (const r of ROUNDS) for (let s = 1; s <= 200; s++) {
+      const t = genReading(ctxFor('reading', r, s, st));
       checkTask(t, choiceCount(r));
-      if (r < 3) for (const c of t.choices) expect(['OSY', 'ÚLY', 'LAMY', 'MÍSY']).not.toContain(c);
+      if (st < 1) for (const c of t.choices) expect(['OSY', 'ÚLY', 'LAMY', 'MÍSY']).not.toContain(c);
     }
   });
   it('nedávné úkoly se neopakují', () => {
-    for (let s = 1; s <= 200; s++) expect(genWords({ rounds: { words: 9 }, stats: {}, recent: ['LES', 'LOS', 'OSA', 'SŮL'], rng: seeded(s) }).answer).not.toMatch(/^(LES|LOS|OSA|SŮL)$/);
+    for (let s = 1; s <= 200; s++) expect(genWords({ rounds: { words: 9 }, stats: {}, recent: ['LES', 'LOS', 'OSA', 'SŮL'], rng: seeded(s), stages: { words: 2 } }).answer).not.toMatch(/^(LES|LOS|OSA|SŮL)$/);
   });
 });
 
@@ -74,17 +79,16 @@ describe('psaní', () => {
     expect([...seen].every(x => WRITING_EASY.includes(x))).toBe(true);
     expect(seen.has('spirala')).toBe(false);
   });
-  it('smyčka a spirála až od 8. povedeného kola (smyčka Adamovi nešla, 20. 10. 2026)', () => {
-    for (let r = 0; r < WRITING_HARD_FROM; r++) for (const h of WRITING_HARD) expect(writingPool(r)).not.toContain(h);
-    for (const h of WRITING_HARD) expect(writingPool(WRITING_HARD_FROM)).toContain(h);
-    expect(writingPool(3)).toContain('A');
+  it('smyčka a spirála až v posledním stupni (smyčka Adamovi nešla, 20. 10. 2026)', () => {
+    for (const h of WRITING_HARD) { expect(STAGES.writing[0].items).not.toContain(h); expect(STAGES.writing[1].items).not.toContain(h); expect(STAGES.writing[2].items).toContain(h); }
+    expect(STAGES.writing[1].items).toContain('A');
   });
   it('každý úkol psaní má tahy', () => {
-    for (let s = 1; s <= 500; s++) expect(GLYPHS[genWriting(ctxFor('writing', 9, s))]?.length).toBeGreaterThan(0);
+    for (let s = 1; s <= 500; s++) expect(GLYPHS[genWriting(ctxFor('writing', 9, s, 2))]?.length).toBeGreaterThan(0);
   });
   it('cvik s chybami se vrací nanejvýš dvakrát častěji', () => {
     let spir = 0; const N = 4000;
-    for (let s = 1; s <= N; s++) if (genWriting({ rounds: { writing: 9 }, stats: { 'writing:spirala': { ok: 0, miss: 20 } }, recent: [], rng: seeded(s) }) === 'spirala') spir++;
+    for (let s = 1; s <= N; s++) if (genWriting({ rounds: { writing: 9 }, stats: { 'writing:spirala': { ok: 0, miss: 20 } }, recent: [], rng: seeded(s), stages: { writing: 2 } }) === 'spirala') spir++;
     expect(spir / N).toBeLessThan(0.1); // 28 úkolů, dvojnásobná váha ≈ 7 %
   });
 });
@@ -96,7 +100,7 @@ describe('přechod přes desítku (Ondřej 20. 10. 2026)', () => {
   });
   it('do 20 bez přechodu, dokud Adam nezvládne 10 příkladů v druhé desítce', () => {
     for (let s = 1; s <= 600; s++) {
-      const t = genMath({ rounds: { math: 5 }, stats: {}, recent: [], rng: seeded(s) });
+      const t = genMath({ rounds: { math: 5 }, stats: {}, recent: [], rng: seeded(s), stages: { math: 1 } });
       const m = /^(\d+)([+-])(\d+)$/.exec(t.stat.slice(5))!;
       expect(isCrossing(+m[1], m[2], +m[3]), t.stat).toBe(false);
     }
