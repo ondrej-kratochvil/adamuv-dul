@@ -16,7 +16,7 @@ concurrency:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04 # ubuntu-latest = Ubuntu 26 od 19. 10. 2026, Playwright 1.56 na něm Chromium nemá
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -48,7 +48,7 @@ jobs:
   deploy:
     needs: test
     if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04 # ubuntu-latest = Ubuntu 26 od 19. 10. 2026, Playwright 1.56 na něm Chromium nemá
     permissions:
       pages: write
       id-token: write
