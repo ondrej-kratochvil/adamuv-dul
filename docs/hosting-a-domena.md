@@ -1,11 +1,12 @@
-# Schoolcraft: hosting a doména (návrh k ověření)
+# Hosting a doména hry (pracovně Schoolcraft, návrh názvu Mineschool)
 
 > **Co:** výběr hostingu a registrátora domény pro hru Schoolcraft (dříve Adamův důl).
 > **Stav:** technicky ověřeno druhým modelem, název čeká na právní prověření a rozhodnutí Ondřeje.
 > **Stav k:** 24. 10. 2026
 > **Souhrn:**
 > - Hosting: Cloudflare (Workers se statickými soubory + databáze D1).
-> - Koncovka `.games` je vhodná; konkrétní název Schoolcraft zatím nedoporučen kvůli možné kolizi.
+> - Koncovka `.games` je vhodná; název Schoolcraft nedoporučen kvůli kolizi (stejně Educraft, Learncraft, Minedraft).
+> - Nový návrh názvu: **Mineschool** (mineschool.games + mineschool.eu volné), čeká na prověření ochranných známek.
 > - Registrátor: Cloudflare Registrar je nejlepší varianta s kartou; Dynadot jen pokud je nutný předplacený kredit.
 > - Postup krok za krokem: [navod-registrator-a-hosting.md](navod-registrator-a-hosting.md)
 > - Cíl: Ondřej založí účty, nastaví platbu a vytvoří API klíče; běžnou správu dělá Claude Code přes API a příkazovou řádku.
@@ -160,9 +161,36 @@ Pokud má hra používat běžné účty s e-mailem, obnovou hesla nebo sociáln
 rozhodnutím vhodné porovnat Cloudflare se Supabase v konkrétním regionu EU, který poskytuje hotovou autentizaci.
 Pro jednoduché pozvánky nebo rodičem spravované profily zůstává Cloudflare jednodušší.
 
+## Výběr názvu (24. 10. 2026)
+
+Po zjištění kolize u Schoolcraftu prověřil Claude Code další názvy. Dostupnost domén: `.games` přímo v registru
+Identity Digital (`rdap.identitydigital.services`; kontrolní dotaz na známou epic.games vrátil 200, tedy endpoint
+funguje), ostatní koncovky přes rdap.org a záznamy NS. Kolize: vyhledávání na webu, ne v registrech ochranných
+známek. Nic z toho není právní stanovisko.
+
+| Název | .games | Další domény | Zjištěné kolize | Hodnocení |
+|---|---|---|---|---|
+| Schoolcraft | volná | .com, .eu obsazené; .cz volná | SchoolCraft GmbH (Německo, software pro výuku na ZŠ, známka od 2013); Schoolcraft College (USA, známka ve třídě 41) | nevhodné, viz nezávislé ověření |
+| Educraft | volná | .com, .cz obsazené; .eu, .io mají nameservery | Educraft (Litva): vzdělávací platforma na Minecraftu pro 2. až 8. třídu; EduCraft (robotika a programování), EduCraft Consulting, Ideal Educraft (Indie) | nevhodné: přímý konkurent v EU |
+| Learncraft | volná | .com, .cz obsazené; .io má nameservery; .eu bez nameserverů | LearnCraft na Google Play (INFINITY ADVANCE SL, Španělsko: vzdělávací testy a hry pro školáky); learncraft.lol (vzdělávací aplikace); A Square LearnCraft, LearnCraft Innovations | nevhodné: stejný obor v EU |
+| Minedraft | volná | .com obsazená; .cz, .io bez nameserverů | jiná firma nehledána | nevhodné: od Minecraftu se liší jedním písmenem, riziko záměny s ochrannou známkou Microsoftu (Minecraft, Minecraft Education) |
+| **Mineschool** | **volná** | .com obsazená; **.eu, .cz, .io bez nameserverů** | jen fanouškovský modpack „Mine School“ na CurseForge (40 stažení) a uživatelský projekt na Tynkeru; firma ani aplikace nenalezena | **nejlepší kandidát**: „mine“ je běžné slovo (důl), Microsoft má známku na „Minecraft“, ne na „mine“; připomíná Minecraft Education, ale nenapodobuje; obsahově sedí („škola v dole“, navazuje na Adamův důl) |
+| LetterDig, DigLetters, WordMiner, WordMine, ABCdig, PixelSchool, BlockSchool, AlphaMine, LearnMine, MineLearn, SchoolMine, DigAndLearn | všechny volné | neověřováno | neověřováno | záložní kandidáti bez „-craft“ |
+
+Poznatek: názvy typu „něco-craft“ jsou ve vzdělávání obsazené opakovaně, protože se spojení s Minecraftem nabízí.
+Bezpečnější je vlastní název, který Minecraft připomene, ale nenapodobí.
+
+**Návrh: Mineschool** (odhad rizika malé až střední). Před nákupem ověřit:
+1. EUIPO a DPMA (případně USPTO): slovo „Mineschool“ ve třídách 9 (software) a 41 (vzdělávání a hry).
+2. Obchody s aplikacemi (Google Play, App Store) a sociální sítě, jestli název mezitím někdo nepoužívá.
+3. Hra nesmí používat slovo Minecraft ani jeho grafiku (už nepoužívá).
+
+Pokud prověření projde: registrovat **mineschool.games** a k ní **mineschool.eu** (ochrana názvu v EU).
+Ve hře si každé dítě dál volí vlastní název (Adam: „Adamův důl“); značka platí pro doménu a úvodní stránku.
+
 ## Co bude potřeba od Ondřeje (po rozhodnutí)
 
-1. Nechat prověřit název, nebo vybrat jiný název s koncovkou `.games`.
+1. Nechat prověřit název Mineschool (kapitola Výběr názvu), nebo vybrat jiný název s koncovkou `.games`.
 2. Vybrat variantu A, nebo B.
 3. Údaje vlastníka domény (jméno, adresa, e-mail) pro registr; ve WHOIS skryté.
 4. API klíč registrátora a token Cloudflare (Workers, D1, DNS) uložit do proměnných prostředí, ne do chatu ani do repa.
@@ -189,3 +217,14 @@ Pro jednoduché pozvánky nebo rodičem spravované profily zůstává Cloudflar
 - [SchoolCraft GmbH](https://www.st-johann.de/de/schafffig-innovativ/Unternehmen-A-Z/Unternehmen?id=1045&item=company&view=publish)
 - [Supabase: dostupné regiony](https://supabase.com/docs/guides/platform/regions)
 - [Evropská komise: ochrana údajů dětí](https://commission.europa.eu/law/law-topic/data-protection/rules-business-and-organisations/legal-grounds-processing-data/are-there-any-specific-safeguards-data-about-children_en)
+- [Educraft – World Summit Awards](https://wsa-global.org/winner/educraft/)
+- [EduCraft (educraft.ai)](https://educraft.ai/)
+- [EduCraft Consulting](https://theeducraft.com/about-us/)
+- [LearnCraft – Google Play](https://play.google.com/store/apps/details?id=com.eduquest.app&hl=en-US)
+- [LearnCraft (learncraft.lol)](https://learncraft.lol/)
+- [A Square LearnCraft LLP](https://in.linkedin.com/company/a2learncraft)
+- [LearnCraft Innovations](https://www.learncraftinnovations.com/)
+- [Minecraft Education – ochranná známka Microsoftu](https://uspto.report/TM/97867602)
+- [ConductAtlas: Minecraft Usage Guidelines – implied endorsement](https://conductatlas.com/platform/minecraft/minecraft-usage-guidelines/no-implied-endorsement-restriction/)
+- [Mine School – modpack na CurseForge](https://www.curseforge.com/minecraft/modpacks/mine-school)
+- [Mine School – projekt na Tynkeru](https://www.tynker.com/community/projects/play/mine-school/5bedd6cdc762c139a437f087/)
