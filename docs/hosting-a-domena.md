@@ -1,12 +1,12 @@
-# Hosting a doména hry (pracovně Schoolcraft, návrh názvu Mineschool)
+# Hosting, doména a název hry (pracovní název Adamův důl)
 
-> **Co:** výběr hostingu a registrátora domény pro hru Schoolcraft (dříve Adamův důl).
+> **Co:** výběr hostingu, registrátora domény a veřejného názvu hry Adamův důl.
 > **Stav:** technicky ověřeno druhým modelem, název čeká na právní prověření a rozhodnutí Ondřeje.
 > **Stav k:** 24. 10. 2026
 > **Souhrn:**
 > - Hosting: Cloudflare (Workers se statickými soubory + databáze D1).
-> - Koncovka `.games` je vhodná; název Schoolcraft nedoporučen kvůli kolizi (stejně Educraft, Learncraft, Minedraft).
-> - Nový návrh názvu: **Mineschool** (mineschool.games + mineschool.eu volné), čeká na prověření ochranných známek.
+> - Koncovka `.games` je vhodná; názvy Schoolcraft, Educraft, Learncraft, Minedraft, Mineschool a WordMine nedoporučeny kvůli kolizím.
+> - Nejsilnější nový kandidát: **Digademy** (`digademy.games` podle DNS a RDAP pravděpodobně volná).
 > - Registrátor: Cloudflare Registrar je nejlepší varianta s kartou; Dynadot jen pokud je nutný předplacený kredit.
 > - Postup krok za krokem: [navod-registrator-a-hosting.md](navod-registrator-a-hosting.md)
 > - Cíl: Ondřej založí účty, nastaví platbu a vytvoří API klíče; běžnou správu dělá Claude Code přes API a příkazovou řádku.
@@ -163,34 +163,56 @@ Pro jednoduché pozvánky nebo rodičem spravované profily zůstává Cloudflar
 
 ## Výběr názvu (24. 10. 2026)
 
-Po zjištění kolize u Schoolcraftu prověřil Claude Code další názvy. Dostupnost domén: `.games` přímo v registru
-Identity Digital (`rdap.identitydigital.services`; kontrolní dotaz na známou epic.games vrátil 200, tedy endpoint
-funguje), ostatní koncovky přes rdap.org a záznamy NS. Kolize: vyhledávání na webu, ne v registrech ochranných
-známek. Nic z toho není právní stanovisko.
+Po zjištění kolize u Schoolcraftu byly prověřeny další názvy. Dostupnost `.games` byla kontrolována přímo
+v autoritativním RDAP registru Identity Digital a přes DNS. RDAP 404 a neexistující DNS znamenají, že doména
+pravděpodobně není registrovaná; definitivní dostupnost a případnou prémiovou cenu potvrdí až registrátor.
+Kolize byly hledány na veřejném webu, nikoli vyčerpávajícím způsobem v registrech ochranných známek.
 
-| Název | .games | Další domény | Zjištěné kolize | Hodnocení |
+### Vyřazené názvy
+
+| Název | Stav `.games` | Zjištění | Hodnocení |
+|---|---|---|---|
+| Schoolcraft | pravděpodobně volná | SchoolCraft GmbH v Německu vyvíjí software pro základní školy; Schoolcraft College v USA; doložená značka `schoolcraft` z roku 2013 | nevhodné: totožný název a velmi blízký obor |
+| Educraft | pravděpodobně volná | vzdělávací platforma na Minecraftu v Litvě a další vzdělávací projekty | nevhodné: přímá kolize v EU |
+| Learncraft | pravděpodobně volná | vzdělávací hry a aplikace pro školáky, mimo jiné španělská aplikace na Google Play | nevhodné: stejný obor v EU |
+| Minedraft | pravděpodobně volná | od názvu Minecraft se liší jediným písmenem | nevhodné: vysoké riziko záměny |
+| MineSchool | pravděpodobně volná | aktivní francouzská služba `mineschool.net` nabízí dětem od 5 let výuku Minecraftu a programování; stejné označení používá také brazilský kurz modifikací Minecraftu | nevhodné: přesný název, děti, vzdělávání a přímá vazba na Minecraft |
+| WordMine / WordMiner | pravděpodobně volné | existuje vzdělávací produkt WordMine 2 pro výuku slovní zásoby a další aplikace Wordmine X | nevhodné: přímá kolize ve vzdělávání |
+| PixelSchool / BlockSchool | pravděpodobně volné | názvy jsou obecné a silně evokují Minecraft | slabé a obtížně chránitelné |
+| AlphaMine / LearnMine / MineLearn | pravděpodobně volné | `mine` může znamenat důl, těžit i „moje“; názvy jsou méně jednoznačné | spíše nedoporučeno |
+| SchoolMine | pravděpodobně volná | v angličtině může spojení znamenat také minu ve škole | nevhodné |
+
+### Použitelní kandidáti
+
+| Název | Stav `.games` | Výhody | Nevýhody a kolize | Hodnocení |
 |---|---|---|---|---|
-| Schoolcraft | volná | .com, .eu obsazené; .cz volná | SchoolCraft GmbH (Německo, software pro výuku na ZŠ, známka od 2013); Schoolcraft College (USA, známka ve třídě 41) | nevhodné, viz nezávislé ověření |
-| Educraft | volná | .com, .cz obsazené; .eu, .io mají nameservery | Educraft (Litva): vzdělávací platforma na Minecraftu pro 2. až 8. třídu; EduCraft (robotika a programování), EduCraft Consulting, Ideal Educraft (Indie) | nevhodné: přímý konkurent v EU |
-| Learncraft | volná | .com, .cz obsazené; .io má nameservery; .eu bez nameserverů | LearnCraft na Google Play (INFINITY ADVANCE SL, Španělsko: vzdělávací testy a hry pro školáky); learncraft.lol (vzdělávací aplikace); A Square LearnCraft, LearnCraft Innovations | nevhodné: stejný obor v EU |
-| Minedraft | volná | .com obsazená; .cz, .io bez nameserverů | jiná firma nehledána | nevhodné: od Minecraftu se liší jedním písmenem, riziko záměny s ochrannou známkou Microsoftu (Minecraft, Minecraft Education) |
-| **Mineschool** | **volná** | .com obsazená; **.eu, .cz, .io bez nameserverů** | jen fanouškovský modpack „Mine School“ na CurseForge (40 stažení) a uživatelský projekt na Tynkeru; firma ani aplikace nenalezena | **nejlepší kandidát**: „mine“ je běžné slovo (důl), Microsoft má známku na „Minecraft“, ne na „mine“; připomíná Minecraft Education, ale nenapodobuje; obsahově sedí („škola v dole“, navazuje na Adamův důl) |
-| LetterDig, DigLetters, WordMiner, WordMine, ABCdig, PixelSchool, BlockSchool, AlphaMine, LearnMine, MineLearn, SchoolMine, DigAndLearn | všechny volné | neověřováno | neověřováno | záložní kandidáti bez „-craft“ |
+| **Digademy** | pravděpodobně volná | vymyšlené spojení `dig + academy`, zahrne písmena, slova, počty, psaní i mluvení; zapamatovatelné a svébytné | předběžné webové hledání nenašlo stejnojmennou vzdělávací hru; nutná kontrola známek | **nejlepší kandidát** |
+| LetterDig | pravděpodobně volná | výrazné, snadno vysvětlitelné, předběžně bez přímé kolize | omezuje značku na písmena, přestože hra obsahuje více oblastí | nejlepší z původního seznamu, pokud by hra zůstala hlavně čtenářská |
+| ABCDig | pravděpodobně volná | krátké a srozumitelné rodičům | ABC naznačuje jen písmena; existuje italský vzdělávací projekt ABCDig a název se používá jako technologická zkratka | použitelné, ale slabší |
+| LearnDig | pravděpodobně volná | význam je zřejmý a obsah není omezený na písmena | v angličtině zní méně přirozeně a je popisné | použitelná záloha |
+| CleverCave | pravděpodobně volná | přátelské, široké a bez slova `mine`; dobře se pamatuje | `Clever` je ve vzdělávání silně obsazené slovo; existuje nesouvisející projekt CleverCaves | použitelná záloha |
+| DigLetters | pravděpodobně volná | popisuje písmena a kopání | nepřirozený anglický slovosled, omezení jen na písmena | horší než LetterDig |
 
-Poznatek: názvy typu „něco-craft“ jsou ve vzdělávání obsazené opakovaně, protože se spojení s Minecraftem nabízí.
-Bezpečnější je vlastní název, který Minecraft připomene, ale nenapodobí.
+Všechny názvy z obou tabulek, které jsou označené jako pravděpodobně volné, v době kontroly neměly DNS
+a autoritativní RDAP pro `.games` vracel 404. To není rezervace ani záruka dostupnosti.
 
-**Návrh: Mineschool** (odhad rizika malé až střední). Před nákupem ověřit:
-1. EUIPO a DPMA (případně USPTO): slovo „Mineschool“ ve třídách 9 (software) a 41 (vzdělávání a hry).
-2. Obchody s aplikacemi (Google Play, App Store) a sociální sítě, jestli název mezitím někdo nepoužívá.
-3. Hra nesmí používat slovo Minecraft ani jeho grafiku (už nepoužívá).
+### Doporučení názvu
 
-Pokud prověření projde: registrovat **mineschool.games** a k ní **mineschool.eu** (ochrana názvu v EU).
-Ve hře si každé dítě dál volí vlastní název (Adam: „Adamův důl“); značka platí pro doménu a úvodní stránku.
+**První volba: Digademy**, například s mottem:
+
+- anglicky: `Learn. Dig. Build.`
+- česky: `Uč se. Kopej. Stavěj.`
+
+Digademy je širší než LetterDig a výrazně svébytnější než názvy s `school`, `craft`, `block` nebo `mine`.
+Před registrací je stále nutné ověřit EUIPO a DPMA, případně USPTO, zejména třídy 9 (software) a 41
+(vzdělávání a online hry), a zkontrolovat obchody s aplikacemi a sociální sítě. Toto není právní stanovisko.
+
+Ve hře si každé dítě může dál zvolit vlastní název světa, například „Adamův důl“; veřejná značka a doména
+mohou používat jednotný název Digademy.
 
 ## Co bude potřeba od Ondřeje (po rozhodnutí)
 
-1. Nechat prověřit název Mineschool (kapitola Výběr názvu), nebo vybrat jiný název s koncovkou `.games`.
+1. Rozhodnout o názvu; aktuální doporučení je Digademy. Před registrací prověřit ochranné známky.
 2. Vybrat variantu A, nebo B.
 3. Údaje vlastníka domény (jméno, adresa, e-mail) pro registr; ve WHOIS skryté.
 4. API klíč registrátora a token Cloudflare (Workers, D1, DNS) uložit do proměnných prostředí, ne do chatu ani do repa.
@@ -228,3 +250,7 @@ Ve hře si každé dítě dál volí vlastní název (Adam: „Adamův důl“);
 - [ConductAtlas: Minecraft Usage Guidelines – implied endorsement](https://conductatlas.com/platform/minecraft/minecraft-usage-guidelines/no-implied-endorsement-restriction/)
 - [Mine School – modpack na CurseForge](https://www.curseforge.com/minecraft/modpacks/mine-school)
 - [Mine School – projekt na Tynkeru](https://www.tynker.com/community/projects/play/mine-school/5bedd6cdc762c139a437f087/)
+- [Mineschool – francouzská výuka Minecraftu pro děti](https://mineschool.net/)
+- [Danki Code – brazilský kurz Mineschool](https://cursos.dankicode.com/curso-mods-minecraft)
+- [WordMine 2](https://www.reallyenglish.com/wordmine-2)
+- [ABCDig – italský vzdělávací projekt](https://www.comprensivocentallo.edu.it/scheda-progetto/abcdig-competenze-informatiche-di-base-digcomp-2-2/)
