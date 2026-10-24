@@ -1,5 +1,6 @@
 // Ranní karta a dnešní úkol (logic/daily.ts). Karta přijde při prvním otevření dne: po spuštění, po návratu
 // z pozadí, po rozsvícení displeje nebo když půlnoc přejde při otevřené hře. Hlásí ten, kdo dnes fandí.
+import { voc } from '../app/player.js';
 import { G } from '../core/state.js';
 import { $ } from '../core/dom.js';
 import { persist, save } from '../save/save.ts';
@@ -24,7 +25,7 @@ function ensureDaily() {
   }
   return save.daily;
 }
-function dayPeople() { const h = holiday(); return h ? (h.all ? FAMILY : [fam(h.who)]) : [todaysFan()]; }
+function dayPeople() { const h = holiday(); return h ? (h.all && FAMILY.length ? FAMILY : [fam(h.who)]) : [todaysFan()]; }
 // texty karty: co je vidět a co se řekne
 function dayTexts() {
   const now = new Date(), d = ensureDaily(), q = d.quest, h = holiday();
@@ -39,7 +40,7 @@ function dayTexts() {
     names: [state ? `Státní svátek: ${state}.` : '', names ? `Svátek má ${names}.` : '', h ? h.text : ''].filter(Boolean).join(' '),
     task: `${task}.`,
   };
-  const say = `${who} říká: ${greeting(now)}, Adame! Dnes je ${dateSay(now)}.` + (state ? ` Je státní svátek, ${state}.` : '') + (names ? ` Svátek má ${names}.` : '') + (h ? ' ' + h.text : '')
+  const say = `${who} říká: ${greeting(now)}, ${voc()}! Dnes je ${dateSay(now)}.` + (state ? ` Je státní svátek, ${state}.` : '') + (names ? ` Svátek má ${names}.` : '') + (h ? ' ' + h.text : '')
     + (q.done ? ' Dnešní úkol už máš splněný.' : ` Dnešní úkol: ${task}. Za splnění dostaneš ${DAILY_BONUS} ${gemWord(DAILY_BONUS)}.`);
   return { people, who, show, say, q };
 }
@@ -47,7 +48,7 @@ function openDay() {
   const t = dayTexts();
   const w = $('#dayWho'); w.innerHTML = '';
   const fc = document.createElement('div'); fc.className = 'faces' + (t.people.length > 2 ? ' many' : ''); t.people.forEach(p => fc.appendChild(famCanvas(p))); w.appendChild(fc);
-  const b = document.createElement('div'); b.className = 'bubble'; b.innerHTML = `<b>${t.people.length > 1 ? 'celá rodina' : t.people[0].name}</b>`; b.append(`${greeting(new Date())}, Adame!`); w.appendChild(b);
+  const b = document.createElement('div'); b.className = 'bubble'; b.innerHTML = `<b>${t.people.length > 1 ? 'celá rodina' : t.people[0].name}</b>`; b.append(`${greeting(new Date())}, ${voc()}!`); w.appendChild(b);
   $('#dayTitle').textContent = t.show.title;
   $('#dayNames').textContent = t.show.names; $('#dayNames').hidden = !t.show.names;
   const dq = $('#dayQuest'); dq.innerHTML = ''; dq.appendChild(sprIcon('emerald'));
@@ -64,7 +65,7 @@ function checkNewDay() {
   if (!isNewDay(save.daily) && save.daily.shown) { document.body.dataset.dayChecked = '1'; return; }
   whenVersionKnown().then(() => {
     document.body.dataset.dayChecked = '1'; // pro testy: rozhodnuto, jestli karta přijde
-    if (G.R || $('#home').hidden || !$('#dayOverlay').hidden || updatePending()) return;
+    if (G.R || $('#home').hidden || !$('#dayOverlay').hidden || !$('#setupOverlay').hidden || updatePending()) return;
     ensureDaily();
     if (!save.daily.shown) { openDay(); renderQuest(); }
   });

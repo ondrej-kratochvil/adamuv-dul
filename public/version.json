@@ -1,6 +1,14 @@
 {
-  "version": 52,
+  "version": 53,
   "changes": [
+    {
+      "version": 53,
+      "date": "2026-10-24",
+      "notes": [
+        "Nové písmeno P! Přibyly slabiky PA, PE, PI… a slova jako PES, MAPA, LUPA nebo PILA, i s obrázky.",
+        "Písmeno P si můžeš obtahovat i v patře Psaní."
+      ]
+    },
     {
       "version": 52,
       "date": "2026-10-24",

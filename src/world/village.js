@@ -1,4 +1,5 @@
 // Vesnice: každé patro staví svou budovu podle zvládnutých úkolů
+import { gx, voc } from '../app/player.js';
 import { G } from '../core/state.js';
 import { $ } from '../core/dom.js';
 import { persist, save } from '../save/save.ts';
@@ -98,7 +99,7 @@ function openVillage() {
     const el = document.createElement('button'); el.className = 'bld'; el.setAttribute('aria-label', b.name);
     const cv = document.createElement('canvas'); cv.className = 'px'; drawBuildingCard(cv, b); el.appendChild(cv);
     el.insertAdjacentHTML('beforeend', `<b>${b.name[0].toUpperCase() + b.name.slice(1)}</b><span>${LEVELS[b.lv].name}: ${got} z ${all}</span><span class="bar"><i style="width:${Math.round(got / all * 100)}%"></i></span>`);
-    el.addEventListener('click', () => { audio(); speak(st >= 8 ? `Ahoj Adame! Já jsem ${b.who} a teď bydlím ${b.in}. Díky, že jsi postavil ${b.name}!` : `${b.name[0].toUpperCase() + b.name.slice(1)}. Zvládnuto ${got} z ${all} ${b.what}. Až zvládneš všechno, nastěhuje se sem ${b.who}.`); });
+    el.addEventListener('click', () => { audio(); speak(st >= 8 ? `Ahoj ${voc()}! Já jsem ${b.who} a teď bydlím ${b.in}. Díky, že jsi ${gx('postavil', 'postavila')} ${b.name}!` : `${b.name[0].toUpperCase() + b.name.slice(1)}. Zvládnuto ${got} z ${all} ${b.what}. Až zvládneš všechno, nastěhuje se sem ${b.who}.`); });
     grid.appendChild(el);
   });
 }

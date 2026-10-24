@@ -35,6 +35,10 @@ test('nový profil od začátku a jeho smazání', async ({ page }) => {
   await page.waitForLoadState('load');
   await expect(page.locator('#profileBadge')).toHaveText('Profil: Víťa');
   expect(await page.evaluate(() => window.__adam.save.total)).toBe(0);
+  // nový profil od začátku = nový hráč: hra se zeptá na jméno (předvyplněné z profilu)
+  await expect(page.locator('#setupName')).toHaveValue('Víťa');
+  await page.locator('#btnSetupGo').click();
+  expect(await page.evaluate(() => window.__adam.save.player.voc)).toBe('Víťo');
   await openSettings(page, 'profiles');
   const row = page.locator('#profileList .profile-row').filter({ hasText: 'Víťa' });
   await row.getByRole('button', { name: 'Smazat' }).click();

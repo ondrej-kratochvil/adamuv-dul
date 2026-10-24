@@ -4,11 +4,13 @@ import type { Stats } from '../logic/mastery';
 import type { Streak } from '../logic/streak';
 import { syncDefaults, type SyncState } from '../logic/sync';
 import type { Quest } from '../logic/daily';
+import type { Player } from '../logic/player';
 
-export const SCHEMA = 7; // 1 = vše do verze hry 15 (bez čísla schématu), 2 = s číslem schématu a nejvyšším stavem vesnice,
+export const SCHEMA = 8; // 1 = vše do verze hry 15 (bez čísla schématu), 2 = s číslem schématu a nejvyšším stavem vesnice,
                         // 3 = doba řešení a záměny u úloh, procvičování, fronta pro tabulku Google (verze hry 27),
                         // 4 = převlékání rodiny (verze hry 28), 5 = název a značka zařízení pro tabulku (verze hry 39),
-                        // 6 = ranní karta a dnešní úkol (verze hry 51), 7 = stupně obtížnosti podle zvládnutí (verze hry 52)
+                        // 6 = ranní karta a dnešní úkol (verze hry 51), 7 = stupně obtížnosti podle zvládnutí (verze hry 52),
+                        // 8 = hráč (Schoolcraft: Adam vestavěný, ostatní z nastavení) a písmena zapnutá rodičem (verze hry 53)
 
 // pauses/pauseSecs: pauzy v kole (od verze 36); secs je doba bez pauz
 export interface LogEntry { t: number; d: string; level: string; clean: number; done: number; len: number; ok: boolean; quit: boolean; secs: number; rate?: number; pauses?: number; pauseSecs?: number; lost?: number }
@@ -36,6 +38,8 @@ export interface SaveState {
   gear: { held: string; stages: Record<string, number> } | null; // nástroje: co drží v ruce, nejvyšší materiál (content/tools.ts)
   daily: { d: string; quest: Quest | null; shown: boolean }; // dnešní úkol a jestli už byla ranní karta (logic/daily.ts)
   stages: Record<string, number>; // dosažené stupně obtížnosti v patrech (logic/stages.ts), nezavírají se
+  letters: string[];            // souhlásky (a Ě) zapnuté rodičem, v pořadí slabikáře (logic/letters.ts)
+  player: 'adam' | Player | null; // kdo hraje: vestavěný Adam, hráč nastavený rodičem, nebo zatím nikdo (úvodní nastavení)
   [k: string]: unknown;
 }
 
@@ -46,7 +50,7 @@ export function defaults(): SaveState {
     rounds: { letters: 0, syllables: 0, words: 0, numbers: 0, math: 0, writing: 0, reading: 0, speech: 0 },
     stats: {}, log: [], ench: [], emeralds: 0, notes: [], dogName: '', gifts: {}, bday: 0, lastCheer: '',
     village: null, obsidian: null, netherMine: false, cards: null, weeks: null, babies: null, eyes: 0, dragon: 0,
-    seenVersion: 0, gameName: 'Adamův důl',
+    seenVersion: 0, gameName: 'Schoolcraft',
     dog: { collar: 'cerveny', owned: ['cerveny'], coat: 'bily' }, decor: [],
     streak: { count: 0, best: 0, last: '', totem: 0, days: [] },
     outfit: { shirt: 'oranzove', pants: 'modre', shoes: 'sede', hat: 'nic', enchant: 'ne' },
@@ -61,6 +65,8 @@ export function defaults(): SaveState {
     gear: null,
     daily: { d: '', quest: null, shown: false },
     stages: {},
+    player: null,
+    letters: ['M', 'L', 'S'],
   };
 }
 
@@ -82,6 +88,11 @@ export function migrate(raw: unknown): SaveState {
   if (typeof out.practice !== 'number') out.practice = 0;
   // v6 -> v7: stupně obtížnosti začínají prázdné (stages přes NESTED); hra je hned dopočítá ze zvládnutých úloh,
   //          dřívější odemykání podle počtu kol se nepřebírá (Ondřej 24. 10. 2026: postup podle toho, co Adam umí)
+  // v7 -> v8: všechno do verze 52 hrál Adam (i testovací profily byly kopie jeho postupu)
+  if (from < 8 && !s.player) { out.player = 'adam'; if (!s.gameName) out.gameName = 'Adamův důl'; }
+  // Adam se od 24. 10. 2026 učí P (Ondřej); dřívější postup = samohlásky, M, L, S a nově P
+  if (from < 8 && !Array.isArray(s.letters)) out.letters = ['M', 'L', 'S', 'P'];
+  if (!Array.isArray(out.letters) || !out.letters.length) out.letters = ['M', 'L', 'S'];
   // v5 -> v6: dnešní úkol začíná prázdný (daily z výchozích hodnot přes NESTED), první karta přijde při spuštění
   // v4 -> v5: sync dostane device a uid z výchozích hodnot (NESTED), hra je doplní při startu (initDevice)
   // v3 -> v4: převlékání rodiny začíná prázdné

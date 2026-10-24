@@ -1,4 +1,5 @@
 // Pravidla, která musí platit pro obsah a odměny i po každém budoucím rozšíření hry.
+import { MORE_WORDS } from '../../src/content/alphabet';
 import { describe, expect, it } from 'vitest';
 import { LETTERS, SAY_LETTER, SYLL } from '../../src/content/letters';
 import { NAMES, WORDS } from '../../src/content/words';
@@ -17,7 +18,7 @@ describe('obsah', () => {
   });
   it('slova se neopakují, jména jsou mezi slovy', () => {
     expect(new Set(WORDS).size).toBe(WORDS.length);
-    for (const n of NAMES) expect(WORDS).toContain(n);
+    for (const n of NAMES) expect([...WORDS, ...MORE_WORDS]).toContain(n); // jména z dalších písmen (PEPA, TOM) jsou v content/alphabet.ts
   });
   it('každé písmeno umí hlas říct', () => {
     for (const l of LETTERS) expect(SAY_LETTER[l]).toBeTruthy();

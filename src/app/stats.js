@@ -6,7 +6,8 @@ import { speak } from '../audio/speech.js';
 import { audio, tone } from '../audio/sfx.js';
 import { LETTERS, SYLL } from '../content/letters.ts';
 import { range } from '../levels/math.js';
-import { GLYPHS, SHAPE_NAMES } from '../levels/writing.js';
+import { SHAPE_NAMES } from '../levels/writing.js';
+import { WRITING_ITEMS } from '../content/glyphs.ts';
 import { WORDS } from '../content/words.ts';
 import { LEVELS, PIC_WORDS } from '../levels/reading.js';
 import { show } from '../ui/screens.js';
@@ -54,7 +55,7 @@ function levelItems(key) {
   if (key === 'syllables') return SYLL;
   if (key === 'words') return WORDS;
   if (key === 'reading') return PIC_WORDS;
-  if (key === 'writing') return Object.keys(GLYPHS);
+  if (key === 'writing') return WRITING_ITEMS;
   if (key === 'numbers') return range(0, 20).map(String);
   return Object.keys(save.stats).filter(k => k.startsWith(key + ':')).map(k => k.slice(key.length + 1));
 }

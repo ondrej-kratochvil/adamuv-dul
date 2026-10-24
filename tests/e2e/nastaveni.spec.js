@@ -2,12 +2,12 @@
 import { test, expect } from '@playwright/test';
 import { openGame, openSettings } from './helpers.js';
 
-const TABS = { game: '#segCase', voice: '#pronList', family: '#noteText', progress: '#btnStats', profiles: '#profileName', sync: '#syncUrl' };
+const TABS = { player: '#plName', game: '#segCase', voice: '#pronList', family: '#noteText', progress: '#btnStats', profiles: '#profileName', sync: '#syncUrl' };
 
 test('nastavení má karty, ukazuje vždy jen jednu a pamatuje si poslední', async ({ page }) => {
   await openGame(page, { total: 3, seenVersion: 999 });
   await openSettings(page);
-  await expect(page.locator('.set-tabs [role="tab"]')).toHaveCount(6);
+  await expect(page.locator('.set-tabs [role="tab"]')).toHaveCount(7);
   await expect(page.locator('.set-tabs [data-tab="game"]')).toHaveAttribute('aria-selected', 'true');
   for (const [tab, el] of Object.entries(TABS)) {
     await page.locator(`.set-tabs [data-tab="${tab}"]`).click();

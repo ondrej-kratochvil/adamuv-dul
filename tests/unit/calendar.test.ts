@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { dayNum, dayStr, easterMonday, holidayOn, seasonOf, weekKey } from '../../src/logic/calendar';
+import { ADAM } from '../../src/content/player-adam';
 
 describe('kalendář', () => {
   it('den jako text v místním čase', () => {
@@ -19,11 +20,11 @@ describe('kalendář', () => {
     expect(easterMonday(2030)).toBe('2030-04-22');
   });
   it('svátky a rodinná výročí', () => {
-    expect(holidayOn(new Date(2027, 5, 17))?.id).toBe('narozeniny');
-    expect(holidayOn(new Date(2026, 11, 24))?.gift).toBe(20);
-    expect(holidayOn(new Date(2027, 5, 4))?.who).toBe('david');
-    expect(holidayOn(new Date(2026, 3, 6))?.id).toBe('velikonoce');
-    expect(holidayOn(new Date(2026, 9, 19))).toBeNull();
+    expect(holidayOn(new Date(2027, 5, 17), ADAM)?.id).toBe('narozeniny');
+    expect(holidayOn(new Date(2026, 11, 24), ADAM)?.gift).toBe(20);
+    expect(holidayOn(new Date(2027, 5, 4), ADAM)?.who).toBe('david');
+    expect(holidayOn(new Date(2026, 3, 6), ADAM)?.id).toBe('velikonoce');
+    expect(holidayOn(new Date(2026, 9, 19), ADAM)).toBeNull();
   });
   it('roční období', () => {
     expect(seasonOf(new Date(2026, 9, 19))).toBe('autumn');

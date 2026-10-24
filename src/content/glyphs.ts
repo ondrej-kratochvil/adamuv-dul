@@ -1,3 +1,4 @@
+import { CARON_OF, CARON_STROKE, MORE_GLYPHS } from './alphabet';
 // Tahy pro patro Psaní: číslice, tiskací písmena a uvolňovací cviky v rámečku 100 × 140 (SVG cesty).
 // tahy číslic v rámečku 100 × 140, jak se píšou ve škole (pořadí a směr tahů)
 // Archimédova spirála: střed, počáteční poloměr, rozestup závitů, počet půlotáček
@@ -35,4 +36,9 @@ Object.assign(GLYPHS, {
   smycka: ['M6 114 C34 114 74 98 74 58 A24 24 0 1 0 26 58 C26 98 66 114 94 114'],
   spirala: [spiralPath(50, 72, 5, 24, 3.2)],
 });
+// další písmena (content/alphabet.ts), písmena s háčkem = základní písmeno + háček
+Object.assign(GLYPHS, MORE_GLYPHS);
+for (const [ch, base] of Object.entries(CARON_OF)) GLYPHS[ch] = [...GLYPHS[base], CARON_STROKE];
 export const SHAPE_NAMES: Record<string, string> = { vlnka: 'vlnku', cikcak: 'cikcak', kopecky: 'kopečky', smycka: 'smyčku', spirala: 'spirálu' };
+// co se v Psaní obtahuje: číslice, zapnutá písmena a cviky (přepočítá logic/letters.ts applyLetters)
+export const WRITING_ITEMS: string[] = [...'0123456789', ...'AEIOUYMLS', ...Object.keys(SHAPE_NAMES)];

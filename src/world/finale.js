@@ -1,4 +1,5 @@
 // Finále: End a Ender drak
+import { gx, player, voc } from '../app/player.js';
 import { G } from '../core/state.js';
 import { $, REDUCED } from '../core/dom.js';
 import { persist, save } from '../save/save.ts';
@@ -39,7 +40,7 @@ function openEnder() {
   show('ender'); drawEnder($('#enderBig')); fitCanvas($('#enderBig'));
   const n = eyesHave(), { pts, max } = masteryPoints();
   const cap = n < EYES ? `Oči Enderu: ${n} z ${EYES}. Přibývají, jak zvládáš úkoly (zvládnuto ${pts} z ${max}). Když budou všechna, otevře se portál a čeká tě Ender drak.`
-    : save.dragon ? `Ender drak je poražený! Vyhrál jsi ${save.dragon}×. Můžeš bojovat znovu.` : 'Portál do Endu je otevřený! Ender drak čeká. Každá správná odpověď je šíp.';
+    : save.dragon ? `Ender drak je poražený! ${gx('Vyhrál', 'Vyhrála')} jsi ${save.dragon}×. Můžeš bojovat znovu.` : 'Portál do Endu je otevřený! Ender drak čeká. Každá správná odpověď je šíp.';
   $('#enderCap').textContent = cap;
   $('#btnFight').hidden = n < EYES;
   speak(cap + (n >= EYES ? ' Boj začneš zeleným tlačítkem s mečem, je na něm napsáno Bojovat s drakem.' : ''));
@@ -74,11 +75,11 @@ function bossVictory() {
   const g = cv.getContext('2d'), r = rng(21);
   for (let k = 0; k < 7; k++) { const cx = 30 + r() * (cv.width - 60), cy = 20 + r() * 80, col = pick(r, ['#ff5a5a', '#f6cf45', '#5ad0ff', '#9b5de5', '#6bd96b']); g.fillStyle = col; for (let i = 0; i < 12; i++) { const an = i / 12 * Math.PI * 2; for (let dd = 4; dd <= 14; dd += 5) g.fillRect(Math.round(cx + Math.cos(an) * dd), Math.round(cy + Math.sin(an) * dd), 2, 2); } }
   const vc = $('#victoryCheer'); vc.innerHTML = ''; const faces = document.createElement('div'); faces.className = 'faces many'; FAMILY.forEach(p => faces.appendChild(famCanvas(p))); vc.appendChild(faces);
-  const bb = document.createElement('div'); bb.className = 'bubble'; bb.innerHTML = '<b>celá rodina</b>'; bb.append('Adame, jsi hrdina! Jsme na tebe moc pyšní!'); vc.appendChild(bb);
-  const line = first ? `Za vítězství dostáváš dračí hlavu do šatníku, dračí vejce na farmu a ${BOSS_BONUS} smaragdů!` : `Draka jsi porazil už ${save.dragon}×!`;
+  const bb = document.createElement('div'); bb.className = 'bubble'; bb.innerHTML = '<b>celá rodina</b>'; bb.append(`${voc()}, jsi ${gx('hrdina', 'hrdinka')}! Jsme na tebe moc pyšní!`); vc.appendChild(bb);
+  const line = first ? `Za vítězství dostáváš dračí hlavu do šatníku, dračí vejce na farmu a ${BOSS_BONUS} smaragdů!` : `Draka jsi ${gx('porazil', 'porazila')} už ${save.dragon}×!`;
   $('#victoryLine').textContent = line;
   $('#victoryOverlay').hidden = false;
-  speak(`${gameName()}. Adam porazil Ender draka! Celá rodina říká: Adame, jsi hrdina! Jsme na tebe moc pyšní! ${line} Domů se vrátíš zeleným tlačítkem s domečkem.`);
+  speak(`${gameName()}. ${player().name || 'Hráč'} ${gx('porazil', 'porazila')} Ender draka! Celá rodina říká: ${voc()}, jsi ${gx('hrdina', 'hrdinka')}! Jsme na tebe moc pyšní! ${line} Domů se vrátíš zeleným tlačítkem s domečkem.`);
 }
 function startBoss() { audio(); startRound('boss'); }
 

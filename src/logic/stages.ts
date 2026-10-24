@@ -4,7 +4,8 @@
 import { WORDS } from '../content/words';
 import { PIC, PIC_WORDS } from '../content/pictures';
 import { PAIRS, SOUNDS, SPEECH_WORDS } from '../content/speech';
-import { SHAPE_NAMES } from '../content/glyphs';
+import { WRITING_ITEMS } from '../content/glyphs';
+import { CONS, LETTERS, SYLL } from '../content/letters';
 import { mastery, type Stats } from './mastery';
 import { fitsPair } from './speech';
 import { range } from './random';
@@ -14,7 +15,7 @@ export const STAGE_SHARE = .7;
 // psaní: nejdřív číslice 1 až 5, I, L, O a snadné cviky; smyčka a spirála až nakonec (smyčka Adamovi 19. 10. 2026 nešla)
 export const WRITING_EASY = ['1', '2', '3', '4', '5', 'I', 'L', 'O', 'vlnka', 'cikcak', 'kopecky'];
 export const WRITING_HARD = ['smycka', 'spirala'];
-export const WRITING_ALL = [...'0123456789', ...'AEIOUYMLS', ...Object.keys(SHAPE_NAMES)];
+export const WRITING_ALL = WRITING_ITEMS; // číslice, zapnutá písmena a cviky (logic/letters.ts applyLetters)
 
 const lettersOf = (s: string) => s.split(' ');
 const syll = (cons: string[], vowels: string) => cons.flatMap(c => vowels.split(' ').map(v => c + v));
@@ -29,12 +30,13 @@ export const STAGES: Record<string, Stage[]> = {
     { items: lettersOf('A E I O U'), name: '' },
     { items: lettersOf('A E I O U Á É Í Ó Ú'), name: 'dlouhá písmena Á, É, Í, Ó, Ú' },
     { items: lettersOf('A E I O U Á É Í Ó Ú Y Ý Ů'), name: 'písmena Y, dlouhé Ý a Ů s kroužkem' },
-    { items: lettersOf('A Á E É I Í O Ó U Ú Ů Y Ý M L S'), name: 'písmena M, L a S' },
+    // poslední stupeň = všechna písmena zapnutá rodičem (Schoolcraft; Adam: M, L, S a P)
+    { get items() { return LETTERS; }, get name() { return `písmena ${CONS.join(', ')}`; } },
   ],
   syllables: [
     { items: syll(['M'], 'A E I O U'), name: '' },
     { items: syll(['M', 'L', 'S'], 'A E I O U'), name: 'slabiky s L a S' },
-    { items: syll(['M', 'L', 'S'], 'A Á E É I Í O U Y Ý'), name: 'dlouhé slabiky a slabiky s Y' },
+    { get items() { return SYLL; }, name: 'dlouhé slabiky a slabiky s Y' }, // všechny slabiky ze zapnutých písmen
   ],
   numbers: [
     { items: upTo(10), name: '' },
@@ -48,13 +50,13 @@ export const STAGES: Record<string, Stage[]> = {
     { items: WORDS, name: 'dlouhá slova' },
   ],
   reading: [
-    { items: Object.keys(PIC), name: '' },
-    { items: PIC_WORDS, name: 'slova, kde je víc věcí, třeba lamy' },
+    { get items() { return PIC_WORDS.filter(w => PIC[w]); }, name: '' }, // jen slova ze zapnutých písmen
+    { get items() { return PIC_WORDS; }, name: 'slova, kde je víc věcí, třeba lamy' },
   ],
   writing: [
     { items: WRITING_EASY, name: '' },
-    { items: WRITING_ALL.filter(c => !WRITING_HARD.includes(c)), name: 'všechny číslice a písmena' },
-    { items: WRITING_ALL, name: 'smyčka a spirála' },
+    { get items() { return WRITING_ALL.filter(c => !WRITING_HARD.includes(c)); }, name: 'všechny číslice a písmena' },
+    { get items() { return WRITING_ALL; }, name: 'smyčka a spirála' },
   ],
   speech: PAIRS.map((p, i) => ({ items: speechWords(PAIRS.slice(0, i + 1)), name: i ? `hlásky ${p.join(' a ')} (${SOUNDS[p[0]].hint}, ${SOUNDS[p[1]].hint})` : '' })),
   math: [
@@ -101,7 +103,14 @@ export function stageOf(level: string, stats: Stats, reached: Record<string, num
   const last = (STAGES[level] || [{}]).length - 1;
   return Math.min(last, Math.max(reached[level] || 0, masteredStage(level, stats)));
 }
-export const stageItems = (level: string, stage: number): string[] => STAGES[level][stage].items;
+// jen úlohy ze zapnutých písmen (rodič mohl vypnout třeba M); když ze stupně nic nezbude, celý zapnutý obsah
+const LIVE: Record<string, () => string[]> = { letters: () => LETTERS, syllables: () => SYLL, words: () => WORDS, reading: () => PIC_WORDS, writing: () => WRITING_ALL };
+export function stageItems(level: string, stage: number): string[] {
+  const items = STAGES[level][stage].items, live = LIVE[level];
+  if (!live) return items;
+  const all = live(), ok = items.filter(it => all.includes(it));
+  return ok.length ? ok : all;
+}
 // co se nově otevřelo mezi dvěma stupni (věta pro Adama), prázdné = nic
 export function stageNews(level: string, from: number, to: number): string {
   const st = STAGES[level]; if (!st || to <= from) return '';

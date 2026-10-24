@@ -1,4 +1,5 @@
 // Herní kolo
+import { gx, player, voc } from '../app/player.js';
 import { G } from '../core/state.js';
 import { QUICK_WRONG_MS, recordResult } from '../logic/mastery.ts';
 import { BUILD_UNLOCK, addBlocks } from '../logic/build.ts';
@@ -35,7 +36,6 @@ import { flushRate, logRound } from '../app/stats.js';
 import { updateHint } from '../ui/hint.js';
 import { levelName, queueRows } from '../app/sync.js';
 import { restingLevel, suggestLevel } from '../logic/rotation.ts';
-import { YOUTUBER_LINES, YT_SHARE } from '../content/youtuber-lines.ts';
 import { pickLine, remember } from '../logic/family.ts';
 
 const ROUND_LEN = 8;
@@ -155,10 +155,12 @@ function logTask(ms, wrong, quick) {
   const [lv, ...rest] = G.R.statKey.split(':');
   queueRows([{ Druh: 'úloha', Patro: levelName(lv), Úloha: rest.join(':'), Napoprvé: G.R.firstTry ? 'ano' : 'ne', Sekundy: Math.round(ms / 100) / 10, Záměny: wrong.join(', '), Tipy: quick, Kolo: levelName(G.R.level) }]);
 }
-// občas po kole věta o youtuberech, které Adam sleduje (content/youtuber-lines.ts); neopakuje nedávné
+// občas po kole věta o youtuberech, které hráč sleduje (Adam: content/youtuber-lines.ts); neopakuje nedávné
 function ytLine(ok) {
-  if (Math.random() >= YT_SHARE) return '';
-  const line = pickLine(ok ? YOUTUBER_LINES.ok : YOUTUBER_LINES.fail, [], save.recentLines || []);
+  const yl = player().fanLines;
+  if (!yl || Math.random() >= yl.share) return '';
+  const line = pickLine(ok ? yl.ok : yl.fail, [], save.recentLines || []);
+  if (!line) return '';
   save.recentLines = remember(save.recentLines || [], line); persist();
   return ' ' + line;
 }
@@ -254,7 +256,7 @@ function endRound() {
   const enchTalk = newEnch.length ? ` Máš nové očarování: ${newEnch.map(e => `${pieceName(e.pc)}, ${e.name} ${e.lvl}`).join(' a ')}.` : '';
   const eg = $('#endGems');
   const lostR = G.R.lost || 0;
-  const lostTalk = lostR ? ` Za chyby jsi ztratil ${lostR} ${gemWord(lostR)}.` : '';
+  const lostTalk = lostR ? ` Za chyby jsi ${gx('ztratil', 'ztratila')} ${lostR} ${gemWord(lostR)}.` : '';
   const showGems = (bonus = 0, quest = 0) => {
     const extra = [perfect ? `${PERFECT_BONUS} za kolo bez chyby` : '', bonus ? `${bonus} za řadu dní` : '', quest ? `${quest} za dnešní úkol` : ''].filter(Boolean).join(', ');
     eg.innerHTML = ''; eg.appendChild(sprIcon('emerald'));
@@ -281,19 +283,19 @@ function endRound() {
     $('#endOverlay').hidden = false;
     sfx.nope();
     const enc = cheerFor(false) + ytLine(false);
-    speak(`Tentokrát ${grewNot}. Bez chyby jsi měl ${got} z ${R_len}, potřebuješ aspoň ${need}. ${enc}${lostTalk}${enchTalk}${vilTalk}${cardTalk}${rotate(level)}`);
+    speak(`Tentokrát ${grewNot}. Bez chyby jsi ${gx('měl', 'měla')} ${got} z ${R_len}, potřebuješ aspoň ${need}. ${enc}${lostTalk}${enchTalk}${vilTalk}${cardTalk}${rotate(level)}`);
     $('#btnAgain').focus({ preventScroll: true });
     return;
   }
   logRound(true);
-  title.textContent = 'Výborně, Adame!'; title.classList.remove('fail');
+  title.textContent = `Výborně, ${voc()}!`; title.classList.remove('fail');
   setBtn($('#btnAgain'), 'next', 'Další kolo');
   const before = tierOf(save.total);
   save.total++; if (level in save.rounds) save.rounds[level]++; else if (level === 'practice') save.practice = (save.practice || 0) + 1; persist();
   const day = registerDay();
   const questBonus = questAfterRound(level, true, perfect); // dnešní úkol (world/daily.js)
   if (day || questBonus) showGems(day ? day.bonus : 0, questBonus);
-  const questTalk = questBonus ? ` Splnil jsi dnešní úkol! Bonus ${questBonus} ${gemWord(questBonus)}.` : '';
+  const questTalk = questBonus ? ` ${gx('Splnil', 'Splnila')} jsi dnešní úkol! Bonus ${questBonus} ${gemWord(questBonus)}.` : '';
   // nový stupeň obtížnosti (podle zvládnutých úloh, logic/stages.ts): oznámit, co se otevřelo
   const opened = updateStages(), ns = $('#newStage');
   const stageTalk = opened.length ? ` Novinka! ${opened.map(o => `V patře ${LEVELS[o.lv] ? LEVELS[o.lv].name : ''} teď budou i ${o.news}`).join('. ')}.` : '';
@@ -304,7 +306,7 @@ function endRound() {
   if (newPlaces.length) { pn.hidden = false; pn.innerHTML = ''; pn.appendChild(signCanvas('A')); pn.insertAdjacentHTML('beforeend', `<span>V Přerově přibylo: ${newPlaces.map(x => x.name).join(', ')}!</span>`); prerovTalk = ` Hraješ ${day.count} dní v řadě, a tak v Přerově přibylo: ${newPlaces.map(x => x.name).join(' a ')}!`; }
   else pn.hidden = true;
   const nb = $('#newBaby'); let babyTalk = '';
-  if (day && day.baby) { nb.hidden = false; nb.innerHTML = ''; const bc = babyCanvas(day.baby); bc.style.width = '48px'; bc.style.height = '40px'; nb.appendChild(bc); nb.insertAdjacentHTML('beforeend', `<span>Tento týden jsi hrál ${BABY_DAYS} dny. Na farmě se narodilo ${day.baby.name}!</span>`); babyTalk = ` Tento týden jsi hrál už ${BABY_DAYS} dny, a tak se na farmě narodilo ${day.baby.name}!`; }
+  if (day && day.baby) { nb.hidden = false; nb.innerHTML = ''; const bc = babyCanvas(day.baby); bc.style.width = '48px'; bc.style.height = '40px'; nb.appendChild(bc); nb.insertAdjacentHTML('beforeend', `<span>Tento týden jsi ${gx('hrál', 'hrála')} ${BABY_DAYS} dny. Na farmě se narodilo ${day.baby.name}!</span>`); babyTalk = ` Tento týden jsi ${gx('hrál', 'hrála')} už ${BABY_DAYS} dny, a tak se na farmě narodilo ${day.baby.name}!`; }
   else nb.hidden = true;
   const nn = $('#newNether'); let netherTalk = '';
   if (day) {
@@ -337,7 +339,7 @@ function endRound() {
   if (st === FARM_START + 1) bark();
   const dn = dogName();
   const story = st === FARM_START ? ' Dům je hotový! Příště začneš stavět farmu. Stavění je otevřené.' : st === FARM_START + 1 ? ` Přiběhl k tobě pejsek${dn ? ' ' + dn : ''}! Je tvůj a bude s tebou kopat. Na úvodní obrazovce na něj klepni a vyber mu jméno a barvu.` : st === FARM_START + FARM_STAGES.length ? ' Farma je hotová!' : '';
-  const milestone = st === FARM_START ? 'Dostavěl jsi dům, gratulujeme!' : st === FARM_START + FARM_STAGES.length ? 'Farma je hotová, jsme na tebe moc pyšní!' : (day && day.count === 7) ? 'Sedm dní v řadě, to je výkon!' : (day && day.count > 0 && day.count % 30 === 0) ? `${day.count} dní v řadě! Jsme na tebe pyšní.` : '';
+  const milestone = st === FARM_START ? `${gx('Dostavěl', 'Dostavěla')} jsi dům, gratulujeme!` : st === FARM_START + FARM_STAGES.length ? 'Farma je hotová, jsme na tebe moc pyšní!' : (day && day.count === 7) ? 'Sedm dní v řadě, to je výkon!' : (day && day.count > 0 && day.count % 30 === 0) ? `${day.count} dní v řadě! Jsme na tebe pyšní.` : '';
   const cheer = cheerFor(true, milestone) + ytLine(true);
   const dayTalk = day ? (day.usedTotem ? ` Totem zachránil tvou řadu!` : '') + (day.count > 1 ? ` Hraješ ${day.count} ${dayWord(day.count)} v řadě, bonus ${day.bonus} ${gemWord(day.bonus)}.` : ` Dnešní den se počítá do řady, bonus ${day.bonus} ${gemWord(day.bonus)}.`) : '';
   // pokrok na domě nebo farmě říct nahlas (Ondřej 19. 10. 2026), po hotové farmě už ne

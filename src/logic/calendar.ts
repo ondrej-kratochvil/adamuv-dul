@@ -1,3 +1,4 @@
+import { g, personalDayOn, type Player } from './player';
 // Kalendář: dny jako text RRRR-MM-DD v místním čase tabletu, české svátky a roční období.
 export const pad2 = (n: number): string => String(n).padStart(2, '0');
 export const dayStr = (d: Date = new Date()): string => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
@@ -23,16 +24,16 @@ export function easterMonday(y: number): string {
 
 export interface Holiday { id: string; text: string; all?: boolean; who?: string; gift?: number }
 
-// české svátky a rodinná výročí (Adam *17. 6. 2020, David *4. 6. 2023)
-export function holidayOn(date: Date): Holiday | null {
-  const ds = dayStr(date), md = ds.slice(5);
-  if (md === '06-17') return { id: 'narozeniny', all: true, gift: 20, text: 'Všechno nejlepší k narozeninám, Adame!' };
-  if (md === '12-24') return { id: 'vanoce', all: true, gift: 20, text: 'Veselé Vánoce, Adame! A dnes máš i svátek, protože Adam a Eva slaví na Štědrý den.' };
-  if (md === '12-05') return { id: 'mikulas', all: true, gift: 5, text: 'Dnes večer chodí Mikuláš, čert a anděl! Byl jsi hodný, tak dostáváš smaragdy.' };
-  if (md === '06-01') return { id: 'den-deti', all: true, gift: 10, text: 'Šťastný Den dětí, Adame!' };
-  if (md === '01-01') return { id: 'novy-rok', all: true, gift: 5, text: 'Šťastný nový rok, Adame!' };
-  if (md === '06-04') return { id: 'david-narozeniny', who: 'david', text: 'Dnes má narozeniny brácha Davídek! Popřej mu všechno nejlepší.' };
-  if (md === '12-30') return { id: 'david-svatek', who: 'david', text: 'Dnes má svátek brácha Davídek! Popřej mu.' };
+// české svátky a výročí hráče a jeho rodiny (logic/player.ts; Adam *17. 6. 2020, David *4. 6. 2023)
+export function holidayOn(date: Date, p: Player): Holiday | null {
+  const ds = dayStr(date), md = ds.slice(5), v = p.voc || g(p, 'kamaráde', 'kamarádko');
+  if (p.birthday === md) return personalDayOn(p, md);
+  if (md === '12-24') return { id: 'vanoce', all: true, gift: 20, text: `Veselé Vánoce, ${v}!` + (p.nameday === '12-24' ? ' A dnes máš i svátek, protože Adam a Eva slaví na Štědrý den.' : '') };
+  if (md === '12-05') return { id: 'mikulas', all: true, gift: 5, text: `Dnes večer chodí Mikuláš, čert a anděl! ${g(p, 'Byl jsi hodný', 'Byla jsi hodná')}, tak dostáváš smaragdy.` };
+  if (md === '06-01') return { id: 'den-deti', all: true, gift: 10, text: `Šťastný Den dětí, ${v}!` };
+  if (md === '01-01') return { id: 'novy-rok', all: true, gift: 5, text: `Šťastný nový rok, ${v}!` };
+  const own = personalDayOn(p, md);
+  if (own) return own;
   if (ds === easterMonday(date.getFullYear())) return { id: 'velikonoce', all: true, gift: 5, text: 'Veselé Velikonoce! Hody, hody, doprovody, dejte vejce malovaný.' };
   return null;
 }

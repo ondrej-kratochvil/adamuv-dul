@@ -353,6 +353,22 @@
   </div>
 </div>
 
+<!-- PRVNÍ SPUŠTĚNÍ: kdo hraje (ui/setup.js) -->
+<div class="overlay" id="setupOverlay" hidden>
+  <div class="panel setup" role="dialog" aria-labelledby="setupTitle">
+    <h2 id="setupTitle">Vítejte ve hře Schoolcraft</h2>
+    <p>Hra učí písmena, slabiky, čtení, čísla a psaní. Za každý zvládnutý úkol si dítě staví dům, farmu a vesnici. Nejdřív řekněte, kdo bude hrát.</p>
+    <form id="setupForm">
+      <label class="lbl-small" for="setupName">Jméno dítěte</label>
+      <input id="setupName" type="text" maxlength="30" autocomplete="off" required placeholder="třeba Ema nebo Jakub">
+      <div class="seg" id="setupGender"><button class="gbtn" type="button" data-g="m" aria-pressed="true">kluk</button><button class="gbtn" type="button" data-g="f" aria-pressed="false">holka</button></div>
+      <p class="lbl-small" id="setupVoc"></p>
+      <div class="actions"><button class="gbtn go" id="btnSetupGo" type="submit" data-icon="next">Začít hrát</button></div>
+    </form>
+    <p class="lbl-small">Rodinu, která bude dítěti fandit, a další nastavení najdete později pod ozubeným kolem (pro rodiče).</p>
+  </div>
+</div>
+
 <!-- RANNÍ KARTA: den, svátek, dnešní úkol (world/daily.js) -->
 <div class="overlay" id="dayOverlay" hidden>
   <div class="panel day-card" role="dialog" aria-labelledby="dayTitle">
@@ -386,6 +402,7 @@
   <div class="panel set" role="dialog" aria-labelledby="setTitle">
     <h2 id="setTitle">Pro rodiče</h2>
     <div class="set-tabs" role="tablist" aria-label="Části nastavení">
+      <button class="gbtn" role="tab" data-tab="player">Hráč</button>
       <button class="gbtn" role="tab" data-tab="game">Hra</button>
       <button class="gbtn" role="tab" data-tab="voice">Hlas</button>
       <button class="gbtn" role="tab" data-tab="family">Rodina</button>
@@ -394,7 +411,57 @@
       <button class="gbtn" role="tab" data-tab="sync">Tabulka</button>
     </div>
 
+    <div class="set-tab player-set" role="tabpanel" data-tab="player">
+    <h3>Kdo hraje</h3>
+    <p id="plBuiltin" hidden>Adam je vestavěný hráč: rodinu a hlášky má ze souboru hry. Když tu něco změníte, vznikne vlastní kopie a další úpravy hlášek ze hry už k ní nedojdou.</p>
+    <label class="lbl-small" for="plName">Jméno</label>
+    <input id="plName" type="text" maxlength="30" autocomplete="off" placeholder="Adam">
+    <div class="seg" id="plGender"><button class="gbtn" data-g="m">kluk</button><button class="gbtn" data-g="f">holka</button></div>
+    <label class="lbl-small" for="plVoc">Jak ho hra oslovuje (5. pád)</label>
+    <input id="plVoc" type="text" maxlength="30" autocomplete="off" placeholder="Adame">
+    <label class="lbl-small" for="plPoss">Čí je hra (pro název, třeba Adamův důl)</label>
+    <input id="plPoss" type="text" maxlength="30" autocomplete="off" placeholder="Adamův">
+    <div class="pl-dates">
+      <label class="lbl-small">Narozeniny <input id="plBirthday" type="date"></label>
+      <label class="lbl-small">Svátek <input id="plNameday" type="date"></label>
+    </div>
+    <p class="lbl-small">Rok se nepoužívá, hra hlídá jen den a měsíc. Svátek se podle jména doplní sám, když ho kalendář zná.</p>
+    <h3>Rodina</h3>
+    <p>Kdo hráči fandí. Každý může mít vlastní pochvaly; bez nich říká společné věty.</p>
+    <div class="fam-list" id="plFamily"></div>
+    <div class="seg"><button class="gbtn" id="btnFamAdd">Přidat člena rodiny</button></div>
+    <div class="fam-edit" id="famEdit" hidden>
+      <div class="fam-edit-top"><span id="feFace"></span>
+        <div><label class="lbl-small" for="feName">Kdo (třeba máma Pája, děda Bob)</label><input id="feName" type="text" maxlength="40" autocomplete="off">
+        <label class="lbl-small" for="feGen">Od koho je vzkaz (2. pád: mámy Páji, dědy Boba)</label><input id="feGen" type="text" maxlength="40" autocomplete="off"></div></div>
+      <div class="fe-checks">
+        <label><input type="checkbox" id="feF"> žena</label>
+        <label><input type="checkbox" id="feMom"> máma (připomíná jídlo, školu, spaní)</label>
+        <label><input type="checkbox" id="feLong"> dlouhé vlasy</label>
+        <label><input type="checkbox" id="feGlasses"> brýle</label>
+        <label><input type="checkbox" id="feBeard"> vousy</label>
+        <label><input type="checkbox" id="feBald"> pleš</label>
+        <label><input type="checkbox" id="feKid"> dítě</label>
+      </div>
+      <div class="fe-colors"><label class="lbl-small">Vlasy <input id="feHair" type="color"></label><label class="lbl-small">Tričko <input id="feTop" type="color"></label><label class="lbl-small">Narozeniny <input id="feBirthday" type="date"></label></div>
+      <label class="lbl-small" for="feHello">Pozdrav na úvodní obrazovce</label><input id="feHello" type="text" maxlength="200" autocomplete="off" placeholder="Ahoj Adame, tady máma. Zahraj si!">
+      <label class="lbl-small" for="feCheers">Pochvaly po povedeném kole (každá na řádek)</label><textarea id="feCheers" rows="3"></textarea>
+      <label class="lbl-small" for="feEnc">Povzbuzení po nepovedeném kole (každé na řádek)</label><textarea id="feEnc" rows="2"></textarea>
+      <div class="seg"><button class="gbtn go" id="btnFeSave">Uložit</button><button class="gbtn" id="btnFeCancel">Zrušit</button><button class="gbtn" id="btnFeDel" style="background:#a8341c">Smazat</button></div>
+    </div>
+    <h3>Soubor hráče</h3>
+    <p>Hráče (jméno, rodinu a hlášky) jde zkopírovat jako text a vložit na jiném zařízení, třeba připravit hru pro bratrance. Postup se tím nemění.</p>
+    <div class="seg"><button class="gbtn" id="btnPlExport">Zkopírovat hráče</button><button class="gbtn" id="btnPlImport">Vložit hráče</button></div>
+    <textarea class="copy-out" id="plText" hidden></textarea>
+    <p id="plMsg" role="status"></p>
+    </div>
+
     <div class="set-tab" role="tabpanel" data-tab="game">
+
+    <h3>Písmena, která už zná</h3>
+    <p>Samohlásky jsou zapnuté vždy. Zapněte souhlásky, které se dítě ve škole už naučilo. Hra z nich skládá slabiky, slova i psaní. Pořadí je jako v běžných slabikářích, zapnout jde jakékoli.</p>
+    <div class="letter-toggles" id="letterToggles"></div>
+    <p class="lbl-small" id="lettersInfo"></p>
 
     <h3>Písmo na kostkách</h3>
     <div class="seg" id="segCase">
@@ -404,7 +471,7 @@
     </div>
 
     <h3>Přísnost</h3>
-    <p>Za chybu se krumpáč na 2 sekundy zasekne. Kolo se počítá, jen když má Adam dost úkolů bez chyby: z 8 kostek, v psaní z 5 tahů.</p>
+    <p>Za chybu se krumpáč na 2 sekundy zasekne. Kolo se počítá, jen když má hráč dost úkolů bez chyby: z 8 kostek, v psaní z 5 tahů.</p>
     <div class="seg" id="segStrict">
       <button class="gbtn" data-strict="mild" id="strictMild">mírná (4 z 8, 3 z 5)</button>
       <button class="gbtn" data-strict="normal" id="strictNormal">střední (5 z 8, 4 z 5)</button>
@@ -435,13 +502,13 @@
 
     <div class="set-tab family-notes" role="tabpanel" data-tab="family">
       <h3>Vzkazy od rodiny</h3>
-      <p>Vzkaz se Adamovi přečte nahlas po nejbližším povedeném kole, i s obrázkem toho, kdo ho poslal.</p>
+      <p>Vzkaz se hráči přečte nahlas po nejbližším povedeném kole, i s obrázkem toho, kdo ho poslal.</p>
       <div class="seg" id="noteWho"></div>
-      <textarea id="noteText" rows="2" placeholder="Např. Adame, jsem na tebe pyšný, v sobotu jdeme na karate!"></textarea>
+      <textarea id="noteText" rows="2" placeholder="Např. jsem na tebe pyšný, v sobotu jdeme na karate!"></textarea>
       <button class="gbtn go" id="btnNoteAdd">Uložit vzkaz</button>
       <ul class="note-list" id="noteList"></ul>
       <h3>Jméno psa</h3>
-      <p>Jak se jmenuje pejsek, který k Adamovi přiběhne na farmě (může vymyslet Adam).</p>
+      <p>Jak se jmenuje pejsek, který k hráči přiběhne na farmě (může ho vymyslet sám).</p>
       <input id="dogName" type="text" maxlength="20" placeholder="Pejsek">
     </div>
 
@@ -465,7 +532,7 @@
     </div>
     <p id="transferMsg" role="status"></p>
     <div class="confirm" id="resetConfirm" hidden>
-      <p style="margin:0">Smaže se všechno, co Adam získal: dům, farma, vesnice, smaragdy, pes, oblečení z odměn, očarování, Nether, Přerov, kartičky, řada dní i statistiky. Zůstane jen nastavení a vzkazy. Poslední stav se uloží jako záloha v tabletu.</p>
+      <p style="margin:0">Smaže se všechno, co hráč získal: dům, farma, vesnice, smaragdy, pes, oblečení z odměn, očarování, Nether, Přerov, kartičky, řada dní i statistiky. Zůstane jen nastavení a vzkazy. Poslední stav se uloží jako záloha v tabletu.</p>
       <button class="gbtn" id="btnResetYes" style="background:#a8341c">Ano, smazat</button>
       <button class="gbtn" id="btnResetNo">Nechat</button>
     </div>
@@ -473,7 +540,7 @@
 
     <div class="set-tab" role="tabpanel" data-tab="profiles">
     <h3>Profily hráčů</h3>
-    <p>Každý profil má svůj postup i statistiky. Na testování nebo pro kamaráda založte nový profil. Do tabulky Google posílá jen profil, který má v nastavení adresu (nový ji nemá). Hlas zatím oslovuje každého „Adame“.</p>
+    <p>Každý profil má svůj postup i statistiky. Na testování nebo pro kamaráda založte nový profil. Do tabulky Google posílá jen profil, který má v nastavení adresu (nový ji nemá). Každý profil má svého hráče (jméno, oslovení, rodinu) v kartě Hráč.</p>
     <div class="profile-list" id="profileList"></div>
     <input id="profileName" type="text" maxlength="24" placeholder="Jméno profilu, třeba Test nebo Víťa" autocomplete="off">
     <label class="lbl-small"><input type="checkbox" id="profileCopy"> <span id="profileCopyLbl">kopie postupu</span> (jinak od začátku)</label>

@@ -1,4 +1,5 @@
 // Obrazovky
+import { gx } from '../app/player.js';
 import { G } from '../core/state.js';
 import { $ } from '../core/dom.js';
 import { persist, save } from '../save/save.ts';
@@ -71,7 +72,7 @@ function renderHome() {
     btn.insertAdjacentHTML('beforeend', `<span class="lvl-name">${L.name}</span><span class="lvl-bar" aria-hidden="true"><i style="width:${pct}%"></i></span><span class="lvl-sub">${p.got} z ${p.all}</span>`);
     // patro, které si po 3 kolech za sebou dává pauzu: tlačítko řekne, co hrát místo něj (logic/rotation.ts)
     if (key === resting) { btn.classList.add('resting'); btn.insertAdjacentHTML('beforeend', '<span class="lvl-rest">odpočívá</span>'); }
-    btn.addEventListener('click', () => { audio(); if (key === resting) { sfx.nope(); const sug = LEVELS[suggestLevel(save.log, Object.keys(LEVELS), key)].name; speak(`Patro ${L.name} si teď dává pauzu, hrál jsi ho třikrát za sebou. Zahraj si jiné patro, třeba ${sug}. Pak se sem můžeš vrátit.`); return; } startRound(key); });
+    btn.addEventListener('click', () => { audio(); if (key === resting) { sfx.nope(); const sug = LEVELS[suggestLevel(save.log, Object.keys(LEVELS), key)].name; speak(`Patro ${L.name} si teď dává pauzu, ${gx('hrál', 'hrála')} jsi ho třikrát za sebou. Zahraj si jiné patro, třeba ${sug}. Pak se sem můžeš vrátit.`); return; } startRound(key); });
     tiles.appendChild(btn);
   });
   // Procvičit: kolo z úloh, které Adamovi nejdou (levels/practice.js); dokud žádné nejsou, je zamčené
@@ -81,7 +82,7 @@ function renderHome() {
   pblk.querySelector('.plate').innerHTML = TARGET_SVG;
   pb.appendChild(pblk);
   pb.insertAdjacentHTML('beforeend', (ready ? '' : LOCK_SVG) + '<span class="lvl-name">Procvičit</span>');
-  pb.addEventListener('click', () => { audio(); if (ready) startRound('practice'); else { sfx.nope(); speak('Procvičování se otevře, až budou úkoly, které ti ještě nejdou. Teď ti jde všechno, co jsi zkusil!'); } });
+  pb.addEventListener('click', () => { audio(); if (ready) startRound('practice'); else { sfx.nope(); speak(`Procvičování se otevře, až budou úkoly, které ti ještě nejdou. Teď ti jde všechno, co jsi ${gx('zkusil', 'zkusila')}!`); } });
   tiles.appendChild(pb);
   [].forEach(([name, t, s]) => { // zamčená patra „brzy“ (teď žádná)
     const btn = document.createElement('button'); btn.className = 'lvl'; btn.disabled = true;
@@ -105,14 +106,16 @@ function renderHome() {
   sb.addEventListener('click', openShop);
   tiles.appendChild(sb);
   // Rodina: převlékání portrétů (world/dressup.js); na dlaždici babička Iva, nebo kdo má něco na sobě
+  if (FAMILY.length) { // bez rodiny (nový hráč, rodič ji ještě nenastavil) dlaždice není
   const fb = document.createElement('button'); fb.className = 'lvl family'; fb.setAttribute('aria-label', 'Rodina');
   const fblk = blockEl('planks', '', false); fblk.tabIndex = -1; fblk.setAttribute('aria-hidden', 'true');
-  const dressed = FAMILY.find(p => save.famWear && save.famWear[p.id]) || FAMILY.find(p => p.id === 'iva');
+  const dressed = FAMILY.find(p => save.famWear && save.famWear[p.id]) || (FAMILY.find(p => p.id === 'iva') || FAMILY[0]);
   const fpl = fblk.querySelector('.plate'); fpl.innerHTML = ''; fpl.appendChild(famCanvas(dressed));
   fb.appendChild(fblk);
   fb.insertAdjacentHTML('beforeend', '<span class="lvl-name">Rodina</span>');
   fb.addEventListener('click', () => { audio(); openFamily(); });
   tiles.appendChild(fb);
+  }
   const ab = document.createElement('button'); ab.className = 'lvl'; ab.setAttribute('aria-label', 'Sbírka');
   const ablk = blockEl('planks', '', false); ablk.tabIndex = -1; ablk.setAttribute('aria-hidden', 'true');
   const ap = ablk.querySelector('.plate'); ap.innerHTML = ''; ap.appendChild(picCanvas('LES'));

@@ -1,4 +1,4 @@
-// Název hry, který si vybral Adam
+// Název hry, který si vybral hráč (Adam: Adamův důl)
 import { changesBetween, versionLabel } from '../logic/version.ts';
 import { G } from '../core/state.js';
 import { $ } from '../core/dom.js';
@@ -8,10 +8,17 @@ import { audio, tone } from '../audio/sfx.js';
 import { renderHome } from '../ui/screens.js';
 import { APP_VERSION } from './version.js';
 import { setBtn } from '../ui/icons.js';
+import { player } from './player.js';
 
 // nadpis a nabídka jsou v čitelném písmu (Andika), takže háčky a kroužky nevadí
-const GAME_NAMES = ['Adamův důl', 'Adamcraft', 'Adamovo království', 'Adamova farma', 'Adamův hrad', 'Adamův svět'];
-const gameName = () => GAME_NAMES.includes(save.gameName) ? save.gameName : GAME_NAMES[0];
+// názvy podle jména hráče (Adam: Adamův důl, Adamcraft, Adamovo království…), Schoolcraft na konci, ať Adamovi zůstanou čísla
+function gameNames() {
+  const p = player();
+  if (!p.name) return ['Schoolcraft'];
+  const stem = /ův$/.test(p.poss) ? p.poss.slice(0, -2) + 'ov' : p.poss; // Adamův → Adamov-o, Emin → Emin-o
+  return [`${p.poss} důl`, `${p.name}craft`, `${stem}o království`, `${stem}a farma`, `${p.poss} hrad`, `${p.poss} svět`, 'Schoolcraft'];
+}
+const gameName = () => gameNames().includes(save.gameName) ? save.gameName : 'Schoolcraft';
 function applyName() {
   const n = gameName(), t = $('#gameTitle');
   t.textContent = n; document.title = n;
@@ -20,12 +27,13 @@ function applyName() {
 function openNames() {
   audio(); renderNames(); $('#nameOverlay').hidden = false;
   // názvy s čísly: Adam si zapamatuje číslo a klepne na něj, i když název nepřečte
-  speak('Jak se má hra jmenovat? ' + GAME_NAMES.map((n, i) => `Číslo ${i + 1}: ${n}.`).join(' ') + ' Klepni na číslo, které se ti líbí.');
+  speak('Jak se má hra jmenovat? ' + gameNames().map((n, i) => `Číslo ${i + 1}: ${n}.`).join(' ') + ' Klepni na číslo, které se ti líbí.');
 }
 function renderNames() {
   const list = $('#nameList'); list.innerHTML = '';
-  GAME_NAMES.forEach(n => {
-    const i = GAME_NAMES.indexOf(n) + 1;
+  const names = gameNames();
+  names.forEach(n => {
+    const i = names.indexOf(n) + 1;
     const b = document.createElement('button'); b.className = 'gbtn'; b.innerHTML = `<span class="num">${i}</span><span>${n}</span>`; b.setAttribute('aria-label', `${i}: ${n}`); b.setAttribute('aria-pressed', String(gameName() === n));
     b.addEventListener('click', () => { save.gameName = n; persist(); applyName(); renderNames(); tone(880, 0, .08, 'square', .05); tone(1320, .07, .1, 'square', .05); speak(`Číslo ${i}: ${n}`); });
     list.appendChild(b);
@@ -94,4 +102,4 @@ function renderVersion() {
   setBtn(b, 'tag', `<span class="ver-long">${versionLabel(APP_VERSION).replace(/\d+$/, '')}</span><span class="ver-short">v</span>${APP_VERSION}`); // na mobilu jen „v47“
   b.onclick = () => { audio(); speak(`Hra má číslo verze ${APP_VERSION}.` + (serverVersion && serverVersion.version > APP_VERSION ? ` Na internetu už čeká verze ${serverVersion.version}.` : '')); };
 }
-export { updatePending, whenVersionKnown, renderVersion, GAME_NAMES, applyName, checkVersion, gameName, notesSince, openNames, renderNames, renderUpdate, serverVersion, updateSpoken };
+export { updatePending, whenVersionKnown, renderVersion, gameNames, applyName, checkVersion, gameName, notesSince, openNames, renderNames, renderUpdate, serverVersion, updateSpoken };

@@ -16,9 +16,15 @@ export const PIC: Record<string, (R: Painter) => void> = {
   LAMA: R => { const W = '#efe4c8'; R(2, 8, 9, 4, W); R(2, 12, 2, 4, W); R(9, 12, 2, 4, W); R(9, 2, 3, 7, W); R(10, 1, 4, 3, W); R(10, 0, 1, 1, W); R(12, 0, 1, 1, W); R(12, 2, 1, 1, '#111111'); R(4, 8, 4, 2, '#c62f2f'); R(4, 10, 4, 1, '#2f7fd1'); R(1, 8, 1, 2, W); },
   SLÁMA: R => { R(1, 3, 14, 12, '#d8b84a'); [3, 6, 9, 12].forEach(x => R(x, 3, 1, 12, '#b8962a')); R(1, 6, 14, 1, '#8a2a17'); R(1, 11, 14, 1, '#8a2a17'); R(1, 3, 14, 1, '#ead27a'); },
   MÁMA: R => { const S = '#d9a066'; R(5, 0, 6, 2, '#6b3a1a'); R(6, 1, 4, 4, S); R(5, 2, 1, 5, '#6b3a1a'); R(10, 2, 1, 5, '#6b3a1a'); R(7, 2, 1, 1, '#2f5ea8'); R(9, 2, 1, 1, '#2f5ea8'); R(7, 4, 2, 1, '#c0392b'); R(4, 5, 8, 7, '#c84a8a'); R(3, 6, 1, 5, S); R(12, 6, 1, 5, S); R(3, 11, 10, 1, '#a83a72'); R(6, 12, 1, 3, S); R(9, 12, 1, 3, S); R(5, 15, 2, 1, '#333333'); R(9, 15, 2, 1, '#333333'); },
+  // slova s P (Schoolcraft 24. 10. 2026); obrázek se ukáže, až rodič P zapne
+  PES: R => { const B = '#a0703c', D = '#7a5228'; R(3, 7, 9, 4, B); R(3, 11, 2, 4, D); R(9, 11, 2, 4, D); R(11, 4, 4, 4, B); R(11, 3, 2, 3, D); R(13, 5, 1, 1, '#111111'); R(15, 6, 1, 1, '#111111'); R(1, 5, 2, 2, B); R(2, 6, 1, 2, B); R(5, 8, 3, 2, '#c08a52'); },
+  PILA: R => { R(1, 5, 11, 4, '#c9c9c9'); R(1, 5, 11, 1, '#ececec'); for (let x = 1; x < 12; x += 2) R(x, 9, 1, 1, '#8a8a8a'); R(12, 3, 3, 8, '#8a5a2a'); R(13, 5, 1, 4, '#5a3a1a'); },
+  LUPA: R => { const K = '#333333'; R(3, 3, 8, 7, '#cfe9f7'); R(3, 2, 8, 1, K); R(3, 10, 8, 1, K); R(2, 3, 1, 7, K); R(11, 3, 1, 7, K); R(4, 4, 2, 2, '#ffffff'); R(11, 10, 2, 2, '#8a5a2a'); R(12, 11, 2, 2, '#8a5a2a'); R(13, 12, 2, 2, '#8a5a2a'); R(14, 13, 2, 2, '#6b4424'); },
+  MAPA: R => { R(1, 3, 14, 10, '#f2e4b0'); R(5, 3, 1, 10, '#d8c890'); R(10, 3, 1, 10, '#d8c890'); R(2, 5, 3, 4, '#7cc242'); R(6, 8, 3, 3, '#7cc242'); R(11, 4, 1, 6, '#3d7fd1'); const X = '#c0392b'; R(12, 9, 1, 1, X); R(14, 9, 1, 1, X); R(13, 10, 1, 1, X); R(12, 11, 1, 1, X); R(14, 11, 1, 1, X); },
 };
 export const PLURAL: Record<string, string> = { OSY: 'OSA', ÚLY: 'ÚL', LAMY: 'LAMA', MÍSY: 'MÍSA' };
-export const PIC_WORDS: string[] = [...Object.keys(PIC), ...Object.keys(PLURAL)];
+// výchozí jen slova ze samohlásek a M, L, S; podle zapnutých písmen je přepočítá logic/letters.ts applyLetters
+export const PIC_WORDS: string[] = [...Object.keys(PIC), ...Object.keys(PLURAL)].filter(w => /^[AÁEÉIÍOÓUÚŮYÝMLS]+$/.test(w));
 
 // Slova, která jsou jen částí názvu na obrázku (Ondřej, 19. 10. 2026): na obrázku je vosa, ale čte se OSA;
 // na obrázku je sumec, ale čte se SUM. Tečky ukazují, kde kus slova chybí: jedna tečka za každé chybějící písmeno

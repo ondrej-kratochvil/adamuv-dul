@@ -3,7 +3,7 @@
 import { LETTERS, SYLL } from '../content/letters';
 import { WORDS } from '../content/words';
 import { PIC_WORDS } from '../content/pictures';
-import { GLYPHS } from '../content/glyphs';
+import { WRITING_ITEMS } from '../content/glyphs';
 import { range } from './random';
 import { SPEECH_ITEMS } from './speech';
 
@@ -54,7 +54,7 @@ export const NUMBERS_BASE: string[] = [...range(0, 20), ...range(30, 100, 10)].m
 const isBigNumber = (k: string) => { const n = Number(k); return n > 20 && n < 100 && n % 10 !== 0; };
 
 export const MASTERY_SETS = (): Record<string, string[]> => ({
-  letters: LETTERS, syllables: SYLL, words: WORDS, reading: PIC_WORDS, writing: Object.keys(GLYPHS), numbers: NUMBERS_BASE,
+  letters: LETTERS, syllables: SYLL, words: WORDS, reading: PIC_WORDS, writing: WRITING_ITEMS, numbers: NUMBERS_BASE,
   speech: SPEECH_ITEMS(), // jen sluch (co slyší ve slově); vyslovování hodnotí rodič a do odměn se nepočítá
 });
 

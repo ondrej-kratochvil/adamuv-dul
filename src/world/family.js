@@ -6,42 +6,23 @@ import { speak } from '../audio/speech.js';
 import { audio } from '../audio/sfx.js';
 import { gemWord, updateGems } from './farm.js';
 import { dayNum, dayStr, easterMonday, holidayOn } from '../logic/calendar.ts';
-import { EARLY_BIRD, FAMILY_LINES, MOM_OPEN } from '../content/family-lines.ts';
+import { player, voc, gx } from '../app/player.js';
 import { earlyBird, helloFor, momReminder, pickLine, remember } from '../logic/family.ts';
 import { wornItems } from '../logic/family-wear.ts';
 import { wearById } from '../content/family-wear.ts';
 
-const FAMILY = [
-  // barvy vlasů podle Ondřeje (19. 10. 2026); děda Marek téměř holohlavý (Ondřej), krátké vousy podle fotek; babičky krátké vlasy
-  // podle fotek (Ondřej 20. 10. 2026: „ano, uprav je“), Iva po bradu, Jindra kratší; dřív drdol jen pro odlišení od dědů
-  { id: 'paja', name: 'máma Pája', gen: 'mámy Páji', f: true, hair: '#e2c06c', long: true, top: '#c84a8a' },
-  { id: 'ondra', name: 'táta Ondra', gen: 'táty Ondry', f: false, hair: '#a07a52', grey: '#c4bcb2', top: '#2f6fb0' },
-  { id: 'jindra', name: 'babička Jindra', gen: 'babičky Jindry', f: true, hair: '#4a2a14', bob: 6, top: '#7d4bc2' },
-  { id: 'bob', name: 'děda Bob', gen: 'dědy Boba', f: false, hair: '#cfcfcf', top: '#7a5230' },
-  { id: 'iva', name: 'babička Iva', gen: 'babičky Ivy', f: true, hair: '#e2c06c', bob: 9, top: '#3f9b3a' },
-  { id: 'marek', name: 'děda Marek', gen: 'dědy Marka', f: false, hair: '#dcc274', top: '#c0392b', bald: true, beard: '#c9a26a' }, // téměř holohlavý, zbytek vlasů blond
-  { id: 'david', name: 'brácha Davídek', gen: 'bráchy Davídka', f: false, hair: '#ecd27e', top: '#e0b324', small: true },
-  // rodina Pájina bratra (Ondřej 20. 10. 2026): barvy vlasů z jeho odpovědí, brýle u Terky a vousy u Vaška podle jeho fotek;
-  // délku vlasů Terky Ondřej neuvedl, má stejný střih jako máma
-  { id: 'vasek', name: 'strejda Vašek', gen: 'strejdy Vaška', f: false, hair: '#4a2a14', top: '#2a4f8a', beard: true, own: true },
-  { id: 'terka', name: 'teta Terka', gen: 'tety Terky', f: true, hair: '#4a2a14', long: true, glasses: true, top: '#d86a9a', own: true },
-  // bratranec Víťa: stejně starý jako Adam, taky 1. třída. Noví příbuzní (own) říkají jen své odsouhlasené věty
-  // (Ondřej 20. 10. 2026, docs/hlasky-navrh-2.md), ne společné typu „To je můj šikovný kluk!“
-  { id: 'vita', name: 'bratranec Víťa', gen: 'bratrance Víti', f: false, hair: '#a07a52', top: '#3f9b3a', kid: true, own: true },
-  // praděda Ruda (Ivin táta), Šárka (Markova žena) a její syn Tomáš (18): oslovení podle Ondřeje, podoba podle jeho fotek 20. 10. 2026.
-  { id: 'ruda', name: 'praděda Ruda', gen: 'pradědy Rudy', f: false, hair: '#ececec', top: '#5a6e8a', own: true },
-  { id: 'sarka', name: 'Šárka', gen: 'Šárky', f: true, hair: '#5a3418', long: true, top: '#f2f2f2', own: true },
-  // prababička Marcelka (Markova máma): krátké tmavě hnědé vlasy a brýle podle Ondřejovy fotky 20. 10. 2026, hlášky odsouhlasené
-  { id: 'marcelka', name: 'prababička Marcelka', gen: 'prababičky Marcelky', f: true, hair: '#3a2414', bob: 6, glasses: true, top: '#9ad8c8', own: true },
-  { id: 'tomas', name: 'Tomáš', gen: 'Tomáše', f: false, hair: '#a07a52', buzz: true, top: '#f2f2f2', own: true },
-];
-// kamarádi ze třídy: jen vzkazy, bez podoby ve hře (dokud ji neřekne Ondřej), místo obličeje obálka
-const FRIENDS = [
-  { id: 'tom', name: 'kamarád Tom', gen: 'kamaráda Toma', friend: true },
-  { id: 'meda', name: 'kamarád Méďa', gen: 'kamaráda Médi', friend: true },
-];
-const SENDERS = [...FAMILY, ...FRIENDS];
-const fam = id => SENDERS.find(p => p.id === id) || FAMILY[1];
+// rodina a kamarádi aktivního hráče (app/player.js); pole se plní při startu a po úpravě hráče v nastavení
+const FAMILY = [], FRIENDS = [], SENDERS = [], FANS = [];
+function loadFamily() {
+  const p = player();
+  FAMILY.splice(0, FAMILY.length, ...p.family);
+  FRIENDS.splice(0, FRIENDS.length, ...p.friends);
+  SENDERS.splice(0, SENDERS.length, ...FAMILY, ...FRIENDS);
+  FANS.splice(0, FANS.length, ...FAMILY.filter(x => !x.quiet)); // kdo fandí
+}
+// bez rodiny fandí hra sama (pejsek s bublinou by mluvil, to ne): „Schoolcraft“ s obličejem hráče
+const GAME_FAN = { id: 'hra', name: 'hra', gen: 'hry', f: true, hair: '#4a2a14', top: '#3f9b3a', kid: true };
+const fam = id => SENDERS.find(p => p.id === id) || FAMILY[0] || GAME_FAN;
 const g2 = (p, f, m) => p.f ? f : m;
 function famCanvas(p) {
   if (p.friend) { // obálka s dopisem
@@ -69,29 +50,28 @@ function famCanvas(p) {
   return c;
 }
 const CHEERS = [
-  p => `Adame, jsem na tebe ${g2(p, 'pyšná', 'pyšný')}!`,
-  p => 'To je můj šikovný kluk!',
-  p => 'Ty už čteš jako velký školák!',
-  p => `Mám z tebe velkou radost, Adame!`,
-  p => 'Adame, ty jsi jednička!',
+  p => `${voc()}, jsem na tebe ${g2(p, 'pyšná', 'pyšný')}!`,
+  p => gx('To je můj šikovný kluk!', 'To je moje šikovná holka!'),
+  p => gx('Ty už čteš jako velký školák!', 'Ty už čteš jako velká školačka!'),
+  p => `Mám z tebe velkou radost, ${voc()}!`,
+  p => `${voc()}, ty jsi jednička!`,
   p => `Tohle bych líp ${g2(p, 'nezvládla', 'nezvládl')} ani já!`,
-  p => 'Jen tak dál, Adame! Fandím ti.',
+  p => `Jen tak dál, ${voc()}! Fandím ti.`,
   p => 'Paráda! Až se uvidíme, dáme si plácnutí!',
-  p => 'Jsi nejlepší horník v celém Přerově!',
+  p => gx('Jsi nejlepší horník široko daleko!', 'Jsi nejlepší hornice široko daleko!'),
 ];
 const ENCOURAGE = [
-  p => 'Nevadí, Adame. Zkus to znovu, fandím ti!',
+  p => `Nevadí, ${voc()}. Zkus to znovu, fandím ti!`,
   p => 'Chybami se člověk učí. Příště to dáš!',
   p => 'Pomalu a pozorně, a půjde to. Věřím ti!',
   p => `I ${g2(p, 'já jsem se to musela', 'já jsem se to musel')} učit. Zkus to ještě jednou!`,
 ];
-const FANS = FAMILY.filter(p => !p.quiet); // kdo fandí (člen bez odsouhlasených hlášek má quiet)
-function pickPerson() { const opts = FANS.filter(p => p.id !== save.lastCheer); const p = pick(Math.random, opts); save.lastCheer = p.id; return p; }
+function pickPerson() { if (!FANS.length) return GAME_FAN; const opts = FANS.filter(p => p.id !== save.lastCheer); const p = pick(Math.random, opts.length ? opts : FANS); save.lastCheer = p.id; return p; }
 // kdo dnes fandí: každý den někdo jiný, podle data
-function todaysFan() { const n = dayNum(dayStr()); return FANS[((n % FANS.length) + FANS.length) % FANS.length]; }
+function todaysFan() { if (!FANS.length) return GAME_FAN; const n = dayNum(dayStr()); return FANS[((n % FANS.length) + FANS.length) % FANS.length]; }
 // české svátky a rodinná výročí (logic/calendar.ts); dárek smaragdů jednou za rok
-function holiday() { return holidayOn(new Date()); }
-const isBirthday = () => dayStr().slice(5) === '06-17'; // Adam má narozeniny 17. 6.
+function holiday() { return holidayOn(new Date(), player()); }
+const isBirthday = () => dayStr().slice(5) === player().birthday;
 function showCheer(people, text) {
   const el = $('#cheer'); el.innerHTML = '';
   const faces = document.createElement('div'); faces.className = 'faces' + (people.length > 2 ? ' many' : ''); people.forEach(p => faces.appendChild(famCanvas(p))); el.appendChild(faces);
@@ -106,19 +86,20 @@ function cheerFor(ok, milestone) {
   if (ok) {
     const note = save.notes.find(n => !n.done);
     if (note) { const p = fam(note.who); note.done = true; persist(); showCheer([p], note.text); return `Vzkaz od ${p.gen}: ${note.text}`; }
-    if (milestone) { showCheer(FAMILY, milestone); return `Celá rodina ti gratuluje! ${milestone}`; }
+    if (milestone) { showCheer(FAMILY.length ? FAMILY : [GAME_FAN], milestone); return `Celá rodina ti gratuluje! ${milestone}`; }
   }
   // máma se stará: jídlo, škola, spaní a dlouhé hraní mají přednost (každá připomínka jednou za den)
   const today = dayStr();
   if (!save.momSaid || save.momSaid.d !== today) save.momSaid = { d: today, ids: [] };
   const played = save.log.filter(e => e.d === today).reduce((a, e) => a + e.secs, 0);
-  const mom = momReminder(new Date(), played, save.momSaid.ids);
+  const P = player(), momP = FAMILY.find(x => x.role === 'mom');
+  const mom = P.mom && momP ? momReminder(new Date(), played, save.momSaid.ids, P.mom) : null;
   let p, line;
-  if (mom) { p = fam('paja'); line = `${ok ? MOM_OPEN.ok : MOM_OPEN.fail} ${mom.text}`; save.momSaid.ids.push(mom.id); save.lastCheer = 'paja'; }
-  else if (earlyBird(new Date(), save.momSaid.ids)) { p = fam(EARLY_BIRD.who); line = ok ? EARLY_BIRD.ok : EARLY_BIRD.fail; save.momSaid.ids.push('ranni'); save.lastCheer = p.id; }
+  if (mom) { p = momP; line = `${ok ? P.mom.open.ok : P.mom.open.fail} ${mom.text}`; save.momSaid.ids.push(mom.id); save.lastCheer = momP.id; }
+  else if (P.earlyBird && FAMILY.some(x => x.id === P.earlyBird.who) && earlyBird(new Date(), save.momSaid.ids, P.earlyBird.until)) { const EARLY_BIRD = P.earlyBird; p = fam(EARLY_BIRD.who); line = ok ? EARLY_BIRD.ok : EARLY_BIRD.fail; save.momSaid.ids.push('ranni'); save.lastCheer = p.id; }
   else {
     p = pickPerson();
-    const own = FAMILY_LINES[p.id] || { cheers: [], enc: [] };
+    const own = p.lines || { cheers: [], enc: [] };
     line = pickLine(ok ? own.cheers : own.enc, p.own ? [] : (ok ? CHEERS : ENCOURAGE).map(f => f(p)), save.recentLines || []);
   }
   save.recentLines = remember(save.recentLines || [], line);
@@ -131,9 +112,9 @@ function renderFan(wrap) {
   if (h && h.gift && save.gifts[h.id] !== year) { save.gifts[h.id] = year; save.emeralds += h.gift; gift = h.gift; persist(); updateGems(); }
   const b = document.createElement('button'); b.className = 'fan';
   const faces = document.createElement('div'); faces.className = 'cheer'; faces.style.margin = 0;
-  const people = h ? (h.all ? FAMILY : [fam(h.who)]) : [todaysFan()];
+  const people = h ? (h.all && FAMILY.length ? FAMILY : [fam(h.who)]) : [todaysFan()];
   const fc = document.createElement('div'); fc.className = 'faces' + (people.length > 2 ? ' many' : ''); people.forEach(p => fc.appendChild(famCanvas(p))); faces.appendChild(fc);
-  const text = h ? h.text + (gift ? ` Dárek od nás: ${gift} ${gemWord(gift)}.` : '') : ((FAMILY_LINES[people[0].id] ? helloFor(FAMILY_LINES[people[0].id], new Date()) : '') || `Dneska ti fandí ${people[0].name}. Ahoj Adame, zahraj si!`);
+  const text = h ? h.text + (gift ? ` Dárek od nás: ${gift} ${gemWord(gift)}.` : '') : ((people[0].lines ? helloFor(people[0].lines, new Date()) : '') || (people[0] === GAME_FAN ? `Ahoj ${voc()}! Zahraj si, ať ti roste dům.` : `Dneska ti fandí ${people[0].name}. Ahoj ${voc()}, zahraj si!`));
   const bb = document.createElement('div'); bb.className = 'bubble'; bb.innerHTML = `<b>${people.length > 1 ? 'celá rodina' : people[0].name}</b>`; bb.append(text); faces.appendChild(bb);
   b.appendChild(faces); b.setAttribute('aria-label', text);
   b.addEventListener('click', () => { audio(); speak(text); });
@@ -141,12 +122,13 @@ function renderFan(wrap) {
 }
 const dogName = () => (save.dogName || '').trim();
 function renderNotes() {
+  if (!SENDERS.some(p => p.id === noteWho)) noteWho = (FAMILY.find(p => p.role !== 'mom') || SENDERS[0] || { id: '' }).id; // výchozí: táta (první, kdo není máma)
   const who = $('#noteWho'); who.innerHTML = '';
   SENDERS.forEach(p => { const b = document.createElement('button'); b.className = 'gbtn'; b.textContent = p.name; b.dataset.who = p.id; b.setAttribute('aria-pressed', String(noteWho === p.id)); b.addEventListener('click', () => { noteWho = p.id; renderNotes(); }); who.appendChild(b); });
   const list = $('#noteList'); list.innerHTML = '';
   save.notes.filter(n => !n.done).forEach(n => { const li = document.createElement('li'); li.textContent = `${fam(n.who).name}: ${n.text} `; const x = document.createElement('button'); x.textContent = 'smazat'; x.addEventListener('click', () => { save.notes.splice(save.notes.indexOf(n), 1); persist(); renderNotes(); }); li.appendChild(x); list.appendChild(li); });
   $('#dogName').value = save.dogName || '';
 }
-let noteWho = 'ondra';
+let noteWho = ''; // komu patří nový vzkaz (první člen rodiny, když nikdo nevybraný)
 
-export { FANS, FRIENDS, SENDERS, CHEERS, ENCOURAGE, FAMILY, cheerFor, dogName, easterMonday, fam, famCanvas, g2, holiday, isBirthday, noteWho, pickPerson, renderFan, renderNotes, showCheer, todaysFan };
+export { GAME_FAN, loadFamily, FANS, FRIENDS, SENDERS, CHEERS, ENCOURAGE, FAMILY, cheerFor, dogName, easterMonday, fam, famCanvas, g2, holiday, isBirthday, noteWho, pickPerson, renderFan, renderNotes, showCheer, todaysFan };

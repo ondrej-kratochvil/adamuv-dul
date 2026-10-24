@@ -26,7 +26,7 @@ describe('stupně obtížnosti', () => {
     expect(last('syllables')).toEqual([...SYLL].sort());
     expect(last('words')).toEqual([...WORDS].sort());
     expect(last('reading')).toEqual([...PIC_WORDS].sort());
-    expect(last('writing')).toEqual(Object.keys(GLYPHS).sort());
+    expect(last('writing')).toEqual([...MASTERY_SETS().writing].sort()); // jen zapnutá písmena (GLYPHS má celou abecedu)
     expect(last('speech')).toEqual([...MASTERY_SETS().speech].sort());
     for (const n of MASTERY_SETS().numbers) expect(last('numbers')).toContain(n);
   });

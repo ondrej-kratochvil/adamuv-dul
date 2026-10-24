@@ -1,5 +1,6 @@
 // Výběr hlášek rodiny: vlastní věty častěji než společné, stejná věta nejdřív po pěti jiných, máma připomíná podle času.
-import { EARLY_BIRD, MOM_PLAY_LIMIT_MIN, MOM_PLAY_TEXT, MOM_SLOTS, MORNING_UNTIL, type Lines } from '../content/family-lines';
+import { MORNING_UNTIL, type Lines } from '../content/family-lines';
+import type { Player } from './player';
 import { pad2 } from './calendar';
 import type { Rng } from './random';
 
@@ -23,17 +24,17 @@ const hhmm = (d: Date) => `${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
 const isWeekend = (d: Date) => d.getDay() === 0 || d.getDay() === 6;
 
 // připomínka mámy pro tuto chvíli, která dnes ještě nezazněla (null = žádná)
-export function momReminder(now: Date, playedTodaySecs: number, saidToday: readonly string[]): { id: string; text: string } | null {
+export function momReminder(now: Date, playedTodaySecs: number, saidToday: readonly string[], mom: NonNullable<Player['mom']>): { id: string; text: string } | null {
   const t = hhmm(now), we = isWeekend(now);
-  for (const s of MOM_SLOTS) {
+  for (const s of mom.slots) {
     if ((s.weekday && we) || (s.weekend && !we)) continue;
     if (t >= s.from && t <= s.to && !saidToday.includes(s.id)) return { id: s.id, text: s.text };
   }
-  if (playedTodaySecs >= MOM_PLAY_LIMIT_MIN * 60 && !saidToday.includes('dlouho')) return { id: 'dlouho', text: MOM_PLAY_TEXT };
+  if (mom.playText && playedTodaySecs >= mom.playLimitMin * 60 && !saidToday.includes('dlouho')) return { id: 'dlouho', text: mom.playText };
   return null;
 }
 
 // ranní ptáče: před 7:30 a dnes ještě ne
-export const earlyBird = (now: Date, saidToday: readonly string[]): boolean => hhmm(now) < EARLY_BIRD.until && !saidToday.includes('ranni');
+export const earlyBird = (now: Date, saidToday: readonly string[], until: string): boolean => hhmm(now) < until && !saidToday.includes('ranni');
 // pozdrav na úvodní obrazovce: ráno ranní, když ho člověk má
 export const helloFor = (l: Lines, now: Date): string => (hhmm(now) < MORNING_UNTIL && l.helloMorning) || l.hello;

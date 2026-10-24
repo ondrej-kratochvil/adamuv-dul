@@ -1,4 +1,5 @@
 // Řada dní
+import { gx } from '../app/player.js';
 import { $ } from '../core/dom.js';
 import { persist, save } from '../save/save.ts';
 import { OUTFIT, outfitIcon } from '../gfx/player.js';
@@ -52,7 +53,7 @@ function openStreak() {
   line(outfitIcon('hat', crown), st.best >= crown.streak ? 'Královskou korunu už máš v šatníku.' : `Za ${crown.streak} dní v řadě dostaneš královskou korunu.`);
   const wd = (save.weeks || {})[weekKey(dayStr())] || 0, nextBaby = BABIES[(save.babies || []).length];
   if (nextBaby) { const bc = babyCanvas(nextBaby); line(bc, wd >= BABY_DAYS ? 'Tento týden už mládě máš. Další týden můžeš mít další.' : `Tento týden máš ${wd} z ${BABY_DAYS} dní. Pak se na farmě narodí ${nextBaby.name}.`); }
-  line(sprIcon('totem'), st.totem > 0 ? (n.saved ? 'Včera jsi nehrál, ale totem tvou řadu zachrání, když dnes zahraješ.' : 'Máš totem. Když jeden den vynecháš, řada nespadne.') : `Totem z obchodu (${TOTEM_PRICE} smaragdů) zachrání řadu, když jeden den vynecháš.`);
+  line(sprIcon('totem'), st.totem > 0 ? (n.saved ? `Včera jsi ${gx('nehrál', 'nehrála')}, ale totem tvou řadu zachrání, když dnes zahraješ.` : 'Máš totem. Když jeden den vynecháš, řada nespadne.') : `Totem z obchodu (${TOTEM_PRICE} smaragdů) zachrání řadu, když jeden den vynecháš.`);
   if (st.best) line(null, `Nejdelší řada: ${st.best} ${dayWord(st.best)}.`);
   $('#streakOverlay').hidden = false;
   speak(n.count ? `Hraješ ${n.count} ${dayWord(n.count)} v řadě.` + (n.today ? ' Přijď zase zítra!' : ' Dnes si ještě zahraj, ať řada nespadne.') : 'Zahraj si každý den a postav si řadu.');

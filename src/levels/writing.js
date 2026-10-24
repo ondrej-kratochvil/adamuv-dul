@@ -1,4 +1,5 @@
 // Psaní: obtahování prstem
+import { gx } from '../app/player.js';
 import { G } from '../core/state.js';
 import { recordResult } from '../logic/mastery.ts';
 import { $ } from '../core/dom.js';
@@ -101,7 +102,7 @@ function traceUp() { if (!G.TR) return; G.TR.down = false; G.TR.trail = []; draw
 function traceSlip() {
   G.TR.down = false; G.TR.pi = 0; G.TR.trail = [];
   G.R.firstTry = false; sfx.nope(); retrigger($('#trace'), 'slip');
-  speak(penalize() + 'Vyjel jsi z dráhy. Zkus to znovu od zelené tečky.');
+  speak(penalize() + gx('Vyjel', 'Vyjela') + ' jsi z dráhy. Zkus to znovu od zelené tečky.');
   drawTrace();
 }
 function finishTrace() {

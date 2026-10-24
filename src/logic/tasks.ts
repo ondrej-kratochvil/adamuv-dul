@@ -1,5 +1,5 @@
 // Generátory úkolů pro všechna patra. Čistá logika: dostanou stav (kola, statistiky, nedávné úkoly) a náhodu.
-import { LETTERS, PARTNER, SAME_SOUND, SAY_LETTER, SYLL, SYL_V, VOWELS, vFam } from '../content/letters';
+import { LETTERS, PARTNER, SAME_SOUND, SAY_LETTER, SYLL, SYL_V, VOWELS, sylC, sylV, vFam } from '../content/letters';
 import { WORDS } from '../content/words';
 import { PIC_PART, PIC_WORDS } from '../content/pictures';
 import { SHAPE_NAMES } from '../content/glyphs';
@@ -35,16 +35,16 @@ export const sayText = (level: string, it: string, pron: Record<string, string> 
 // dvě kostky, které znějí stejně (I a Y, Ú a Ů), nesmí být v jednom úkolu
 export function conflict(level: string, a: string, b: string): boolean {
   if (level === 'letters') return (SAME_SOUND[a] || a) === (SAME_SOUND[b] || b);
-  const fa = vFam(a[1]), fb = vFam(b[1]);
-  return a[0] === b[0] && !!fa && !!fb && fa !== fb;
+  const fa = vFam(sylV(a)), fb = vFam(sylV(b));
+  return sylC(a) === sylC(b) && !!fa && !!fb && fa !== fb;
 }
 export function partnerOf(level: string, it: string): string | null {
   if (level === 'letters') return PARTNER[it] || null;
-  const p = PARTNER[it[1]]; return p && SYL_V.includes(p) ? it[0] + p : null;
+  const p = PARTNER[sylV(it)]; return p && SYL_V.includes(p) ? sylC(it) + p : null;
 }
 export function similar(level: string, a: string, b: string): boolean {
   if (level === 'letters') return VOWELS.has(a) === VOWELS.has(b);
-  return a[0] === b[0] || a[1] === b[1];
+  return sylC(a) === sylC(b) || sylV(a) === sylV(b);
 }
 export function pickTarget(level: string, ctx: Ctx): string {
   if (ctx.force && ITEMS[level].includes(ctx.force)) return ctx.force;

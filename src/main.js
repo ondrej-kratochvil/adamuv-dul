@@ -12,7 +12,7 @@ import { openHouse, openWardrobe, paintTextures, renderHome } from './ui/screens
 import { openDog, openFarm, openShop, sprIcon } from './world/farm.js';
 import { fitBuild, tapPlot } from './world/build.js';
 import { openStreak } from './rewards/streak.js';
-import { noteWho, renderNotes } from './world/family.js';
+import { loadFamily, noteWho, renderNotes } from './world/family.js';
 import { checkEnchants } from './rewards/enchant.js';
 import { checkVillage } from './world/village.js';
 import { openNether } from './world/nether.js';
@@ -28,6 +28,10 @@ import { flushSync, initDevice } from './app/sync.js';
 import { initProfiles } from './app/profiles.js';
 import { clearFamily } from './world/dressup.js';
 import { initDay } from './world/daily.js';
+import { applyLetters } from './logic/letters.ts';
+import { initSetup, needsSetup, openSetup } from './ui/setup.js';
+import { profile } from './save/save.ts';
+import { MAIN_ID } from './logic/profiles.ts';
 
 $('#btnBack').addEventListener('click', goHome);
 $('#btnPause').addEventListener('click', () => pauseRound());
@@ -72,6 +76,8 @@ $('#btnEndHouse').addEventListener('click', () => { $('#endOverlay').hidden = tr
 $('#btnEndHome').addEventListener('click', goHome);
 $('#cheer').addEventListener('click', () => { audio(); if ($('#cheer').dataset.say) speak($('#cheer').dataset.say); });
 
+loadFamily(); // rodina a kamarádi aktivního hráče (app/player.js)
+applyLetters(save.letters); // písmena, slabiky a slova podle toho, co rodič zapnul
 if (season() === 'winter' || season() === 'xmas') document.body.classList.add('winter');
 iconizeButtons();
 applyName();
@@ -92,6 +98,7 @@ addEventListener('online', () => flushSync());
 document.addEventListener('visibilitychange', () => { if (document.hidden) { pauseRound(true); flushRate(); } else { checkVersion(); flushSync(); } }); // odchod z aplikace = pauza
 paintTextures();
 renderHome();
+initSetup(); if (needsSetup()) openSetup(profile.id !== MAIN_ID ? profile.name : ''); // nová hra: kdo hraje
 initDay(); // ranní karta při prvním otevření dne
 // ikona na ploše a hraní bez internetu
 if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => {});

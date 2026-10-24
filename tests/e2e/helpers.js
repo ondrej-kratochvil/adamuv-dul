@@ -14,8 +14,10 @@ export async function mockSpeech(page) {
   });
 }
 
-// Otevře hru s daným uloženým stavem (null = čistá hra). Ranní kartu (world/daily.js) zavře, když day není true.
-export async function openGame(page, state = null, { day = false } = {}) {
+// Otevře hru s daným uloženým stavem (null = čistá hra s Adamem; fresh = úplně nová hra bez hráče).
+// Ranní kartu (world/daily.js) zavře, když day není true.
+export async function openGame(page, state = null, { day = false, fresh = false } = {}) {
+  if (!state && !fresh) state = { player: 'adam', gameName: 'Adamův důl' };
   await mockSpeech(page);
   // testy nezávislé na internetu: písma z Google se nestahují (hra má náhradní písma)
   await page.route(/fonts\.(googleapis|gstatic)\.com/, r => r.abort());

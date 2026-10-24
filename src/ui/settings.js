@@ -1,4 +1,5 @@
 // Nastavení
+import { voc } from '../app/player.js';
 import { $ } from '../core/dom.js';
 import { BACKUP_KEY, defaults, persist, profile, save, replaceSave } from '../save/save.ts';
 import { exportText, importText } from '../save/schema.ts';
@@ -16,6 +17,11 @@ import { backfillCount, backfillLog, flushSync } from '../app/sync.js';
 import { renderProfiles } from '../app/profiles.js';
 import { MAIN_ID } from '../logic/profiles.ts';
 import { renameDevice, syncDefaults, validSyncUrl } from '../logic/sync.ts';
+import { initPlayerSet, renderPlayerSet } from './player-settings.js';
+import { CONS_ORDER } from '../content/alphabet.ts';
+import { applyLetters, normalizeLetters } from '../logic/letters.ts';
+import { SYLL } from '../content/letters.ts';
+import { WORDS } from '../content/words.ts';
 
 // karta Hlas upozorní, když chybí český hlas (návod je až uvnitř karty)
 function voiceTabWarn() { const t = $('.set-tabs [data-tab="voice"]'); if (t) t.classList.toggle('warn', !$('#voiceHelp').hidden); }
@@ -35,6 +41,24 @@ function updateSettings() {
   const st = Math.min(12, save.total);
   $('#progressInfo').textContent = `Odehraná kola: písmena ${save.rounds.letters}, slabiky ${save.rounds.syllables}, slova ${save.rounds.words}, čtení ${save.rounds.reading}, čísla ${save.rounds.numbers}, počty ${save.rounds.math}, psaní ${save.rounds.writing}, mluvení ${save.rounds.speech || 0}. Dům: ${st} z 12 dílů. Farma: ${farmStage()} z ${FARM_STAGES.length}. Smaragdy: ${save.emeralds}. Řada: ${streakNow().count} (nejdelší ${save.streak.best}). Krumpáč: ${tierOf(save.total).name}. Očarování: ${save.ench.length} z ${ENCH_ORDER.length} (zvládnuto ${masteryPoints().pts} z ${masteryPoints().max} úkolů).`;
   updateVoiceInfo();
+  renderPlayerSet();
+  renderLetters();
+}
+// písmena zapnutá rodičem (logic/letters.ts)
+function renderLetters() {
+  const box = $('#letterToggles'); box.innerHTML = '';
+  CONS_ORDER.forEach(c => {
+    const b = document.createElement('button'); b.className = 'gbtn'; b.type = 'button'; b.textContent = c; b.dataset.letter = c;
+    b.setAttribute('aria-pressed', String(save.letters.includes(c)));
+    b.addEventListener('click', () => {
+      const on = save.letters.includes(c);
+      if (on && save.letters.length === 1) return; // aspoň jedna souhláska
+      save.letters = normalizeLetters(on ? save.letters.filter(x => x !== c) : [...save.letters, c]);
+      applyLetters(save.letters); persist(); renderLetters();
+    });
+    box.appendChild(b);
+  });
+  $('#lettersInfo').textContent = `Zapnuto: ${save.letters.join(', ')}. Ve hře je teď ${SYLL.length} slabik a ${WORDS.length} slov.`;
 }
 // Nastavení je pro rodiče: otevře se po vyřešení příkladu pro dospělého (logic/gate.ts)
 let gate = null;
@@ -55,6 +79,7 @@ function openGate() {
   speak('Tohle je nastavení pro rodiče.');
 }
 $('#btnSettings').addEventListener('click', openGate);
+initPlayerSet();
 $('#gateForm').addEventListener('submit', e => {
   e.preventDefault();
   if (gate && gateOk(gate, $('#gateInput').value)) { $('#gateOverlay').hidden = true; gate = null; openSettings(); return; }
@@ -68,7 +93,7 @@ document.querySelectorAll('#segCase [data-case]').forEach(b => b.addEventListene
 document.querySelectorAll('#segStrict [data-strict]').forEach(b => b.addEventListener('click', () => { save.strict = b.dataset.strict; persist(); updateSettings(); }));
 $('#rateNormal').addEventListener('click', () => { save.slow = false; persist(); updateSettings(); });
 $('#rateSlow').addEventListener('click', () => { save.slow = true; persist(); updateSettings(); });
-$('#btnTestVoice').addEventListener('click', () => { loadVoices(); speak('Ahoj Adame! Tady je hra. ' + ['MA', 'MÉ', 'SO', 'LY'].map(s => pronounceAs(s, save.pron?.[s] || defaultMode(s))).join('. ') + '.'); setTimeout(loadVoices, 800); });
+$('#btnTestVoice').addEventListener('click', () => { loadVoices(); speak(`Ahoj ${voc()}! Tady je hra. ` + ['MA', 'MÉ', 'SO', 'LY'].map(s => pronounceAs(s, save.pron?.[s] || defaultMode(s))).join('. ') + '.'); setTimeout(loadVoices, 800); });
 $('#btnReset').addEventListener('click', () => { $('#resetConfirm').hidden = false; });
 // tabulka Google (app/sync.js, návod docs/google-tabulka.md)
 const fmtWhen = t => { const d = new Date(t); return `${d.getDate()}. ${d.getMonth() + 1}. ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`; };
@@ -102,7 +127,7 @@ async function syncNow() {
 $('#btnSyncNow').addEventListener('click', syncNow);
 $('#syncDevice').addEventListener('change', e => { const v = e.target.value.trim(); if (v) { renameDevice(save.sync, v.slice(0, 40)); persist(); updateSync('Název uložen. Nové záznamy půjdou do tabulky s tímhle názvem.'); } });
 $('#btnResetNo').addEventListener('click', () => { $('#resetConfirm').hidden = true; });
-$('#btnResetYes').addEventListener('click', () => { try { localStorage.setItem(BACKUP_KEY, JSON.stringify(save)); } catch (e) {} const keep = { sync: { ...syncDefaults(), url: save.sync.url, device: save.sync.device, uid: save.sync.uid }, caseMode: save.caseMode, slow: save.slow, strict: save.strict, pron: save.pron, outfit: save.outfit, notes: save.notes, dogName: save.dogName }; /* nastavení rodiče včetně výslovnosti zůstává */ replaceSave(Object.assign(defaults(), keep)); persist(); updateRestore(); $('#resetConfirm').hidden = true; updateSettings(); });
+$('#btnResetYes').addEventListener('click', () => { try { localStorage.setItem(BACKUP_KEY, JSON.stringify(save)); } catch (e) {} const keep = { sync: { ...syncDefaults(), url: save.sync.url, device: save.sync.device, uid: save.sync.uid }, caseMode: save.caseMode, slow: save.slow, strict: save.strict, pron: save.pron, outfit: save.outfit, notes: save.notes, dogName: save.dogName, player: save.player, gameName: save.gameName, letters: save.letters }; /* nastavení rodiče včetně výslovnosti zůstává */ replaceSave(Object.assign(defaults(), keep)); applyLetters(save.letters); persist(); updateRestore(); $('#resetConfirm').hidden = true; updateSettings(); });
 
 /* výslovnost slabik: rodič poslechne varianty a vybere tu, která na jeho tabletu zní česky */
 const PRON_LABEL = { plain: 'obyčejně', split: 'rozděleně', letters: 's písmeny' };
@@ -165,7 +190,7 @@ $('#btnImportYes').addEventListener('click', () => {
   if (!pending) return;
   try { localStorage.setItem(BACKUP_KEY, JSON.stringify(save)); } catch (e) {}
   pending.sync = save.sync; // vložený postup z jiného zařízení nepřebere jeho adresu, název ani frontu
-  replaceSave(pending); persist(); pending = null; updateRestore();
+  replaceSave(pending); applyLetters(save.letters); persist(); pending = null; updateRestore();
   $('#importConfirm').hidden = true; tt.hidden = true; msg.textContent = 'Postup je nahraný.';
   updateSettings();
 });

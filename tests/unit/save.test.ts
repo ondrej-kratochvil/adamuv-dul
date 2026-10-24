@@ -107,9 +107,28 @@ describe('schéma 7 (verze hry 52): stupně obtížnosti podle zvládnutí', () 
     const s = migrate(old);
     for (const k of Object.keys(old)) if (k !== 'schema') kept(s[k], old[k], k);
     expect(s.stages).toEqual({});
-    expect(s.schema).toBe(7);
+    expect(s.schema).toBe(SCHEMA);
   });
   it('dosažené stupně se při převodu neztratí', () => {
     expect(migrate({ schema: 7, total: 3, rounds: {}, stages: { numbers: 2, letters: 1 } }).stages).toEqual({ numbers: 2, letters: 1 });
+  });
+});
+
+describe('schéma 8 (Schoolcraft, verze hry 53): hráč a písmena', () => {
+  it('starší postup je Adamův: vestavěný hráč a jeho název hry', () => {
+    const s = migrate({ schema: 7, total: 40, rounds: {} });
+    expect(s.player).toBe('adam');
+    expect(s.gameName).toBe('Adamův důl');
+  });
+  it('vybraný název hry se nezmění', () => {
+    expect(migrate({ schema: 7, total: 1, rounds: {}, gameName: 'Adamcraft' }).gameName).toBe('Adamcraft');
+  });
+  it('nová hra zatím nemá hráče (úvodní nastavení) a jmenuje se Schoolcraft', () => {
+    expect(defaults().player).toBeNull();
+    expect(defaults().gameName).toBe('Schoolcraft');
+  });
+  it('postup jiného hráče si hráče ponechá', () => {
+    const vita = { v: 1, name: 'Víťa', voc: 'Víťo', poss: 'Víťův', gender: 'm', family: [], friends: [] };
+    expect(migrate({ schema: 8, total: 2, rounds: {}, player: vita }).player).toEqual(vita);
   });
 });
