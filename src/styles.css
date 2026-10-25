@@ -431,7 +431,7 @@ canvas.ench { animation: ench 1.8s ease-in-out infinite; }
 /* dnešní úkol na úvodní obrazovce a ranní karta (world/daily.js) */
 .quest { grid-column: 1 / -1; justify-self: center; width: min(640px, 100%); display: flex; align-items: center; gap: 10px; background: #e3f7e6; border: 3px solid #161616; padding: 8px 12px; font-family: var(--f-read); font-size: 18px; text-align: left; color: #161616; }
 .quest canvas { width: 28px; height: 28px; flex: none; }
-.quest.done { background: #fff7d1; }
+.quest.done { background: #fff7d1; width: auto; } /* splněný úkol je krátký text: rámeček jen na šířku obsahu (Ondřej 25. 10. 2026) */
 .day-card h2 { margin: 10px 0 4px; }
 .day-card p { font-family: var(--f-read); font-size: 19px; line-height: 1.35; margin: 6px 0; }
 .day-card .day-quest { display: flex; align-items: center; gap: 10px; background: #e3f7e6; border: 3px solid #161616; padding: 8px 10px; }
@@ -565,6 +565,7 @@ canvas.ench { animation: ench 1.8s ease-in-out infinite; }
 .home-info > * { grid-column: auto; justify-self: stretch; width: auto; max-width: none; margin: 0; }
 .home-info .fan .bubble { font-size: 16px; }
 .home-info .quest { font-size: 16px; height: 100%; }
+.home-info .quest.done { justify-self: center; width: auto; height: auto; }
 .day-card h2 { font-family: var(--f-read); font-weight: 700; font-size: 26px; letter-spacing: 0; }
 /* hlavička (Ondřej 25. 10. 2026): v užším okně postavička vlezla pod odznaky verze → titulek o řádek níž */
 @media (min-width: 600px) { .home-sky .title-row { margin-top: 56px; } }

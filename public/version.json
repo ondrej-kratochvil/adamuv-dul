@@ -1,6 +1,13 @@
 {
-  "version": 62,
+  "version": 63,
   "changes": [
+    {
+      "version": 63,
+      "date": "2026-10-25",
+      "notes": [
+        "Splněný dnešní úkol má na úvodní obrazovce menší rámeček."
+      ]
+    },
     {
       "version": 62,
       "date": "2026-10-25",
