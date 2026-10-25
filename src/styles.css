@@ -566,3 +566,11 @@ canvas.ench { animation: ench 1.8s ease-in-out infinite; }
 .home-info .fan .bubble { font-size: 16px; }
 .home-info .quest { font-size: 16px; height: 100%; }
 .day-card h2 { font-family: var(--f-read); font-weight: 700; font-size: 26px; letter-spacing: 0; }
+/* hlavička (Ondřej 25. 10. 2026): v užším okně postavička vlezla pod odznaky verze → titulek o řádek níž */
+@media (min-width: 600px) { .home-sky .title-row { margin-top: 56px; } }
+/* široká obrazovka: pozdrav a dnešní úkol pod sebou vedle názvu hry, hlavička je nižší */
+@media (min-width: 1300px) {
+  .home-sky > .inner { display: flex; align-items: flex-end; justify-content: center; gap: 28px; }
+  .home-sky .title-row { flex: none; }
+  .home-info { grid-template-columns: 1fr; width: min(560px, 34vw); margin: 0 0 18px; gap: 8px; }
+}
