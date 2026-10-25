@@ -1,6 +1,13 @@
 {
-  "version": 57,
+  "version": 58,
   "changes": [
+    {
+      "version": 58,
+      "date": "2026-10-25",
+      "notes": [
+        "Opravy: cvik v Mluvení se po pauze nedokončí sám a tlačítko Foukl jsem je u mlýna hned. Když se splete věta, hra řekne, ať ji přečteš znovu."
+      ]
+    },
     {
       "version": 57,
       "date": "2026-10-25",

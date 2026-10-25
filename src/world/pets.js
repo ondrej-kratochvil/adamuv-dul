@@ -35,7 +35,8 @@ function renderPets(list) {
       audio();
       if (open) { sfx.sparkle(); speak(petSay(pet)); return; }
       const left = questsLeft(i, done); sfx.nope();
-      speak(`Tohle zvířátko se odemkne, až splníš ještě ${left} ${left === 1 ? 'dnešní úkol' : left <= 4 ? 'dnešní úkoly' : 'dnešních úkolů'}.`);
+      // ve dnech, ne v úkolech (review 25. 10. 2026: „ještě 11 dnešních úkolů“ znělo jako jedenáct úkolů dnes)
+      speak(left === 1 ? 'Tohle zvířátko přijde, až splníš dnešní úkol.' : `Tohle zvířátko přijde za ${left} ${left <= 4 ? 'dny' : 'dní'}, když každý den splníš dnešní úkol.`);
     });
     list.appendChild(b);
   });

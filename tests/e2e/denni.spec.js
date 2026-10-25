@@ -93,5 +93,5 @@ test('zvířátka: v Rodině zamčená; splněný dnešní úkol odemkne první 
   await page.locator('#famItems .pet-item').first().click();
   await expect.poll(() => page.evaluate(() => window.__said.at(-1))).toContain('Sunny, had, užovka červená');
   await page.locator('#famItems .pet-item.locked').first().click();
-  await expect.poll(() => page.evaluate(() => window.__said.at(-1))).toContain('až splníš ještě 1 dnešní úkol');
+  await expect.poll(() => page.evaluate(() => window.__said.at(-1))).toContain('přijde, až splníš dnešní úkol');
 });

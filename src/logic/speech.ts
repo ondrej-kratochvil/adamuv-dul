@@ -32,7 +32,7 @@ export function genSay(stage: number, recent: string[], rng: Rng = Math.random):
 export const genGym = (rng: Rng = Math.random) => EXERCISES[Math.floor(rng() * EXERCISES.length)];
 
 // foukání: průměrná hlasitost z mikrofonu (0 až 1) a kolik času nad prahem je potřeba
-export const BLOW_LEVEL = 0.08, BLOW_NEED_MS = 2000;
+export const BLOW_LEVEL = 0.12, BLOW_NEED_MS = 2000;
 export function rms(samples: ArrayLike<number>): number {
   let s = 0; for (let i = 0; i < samples.length; i++) s += samples[i] * samples[i];
   return Math.sqrt(s / Math.max(1, samples.length));

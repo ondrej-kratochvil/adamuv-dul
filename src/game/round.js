@@ -83,12 +83,12 @@ function nextTask() {
   $('#trace').hidden = true; $('#blocks').hidden = false;
   if (L.gen) {
     const t = L.gen();
-    target = t.answer; G.R.choices = t.choices; G.R.say = t.say; G.R.statKey = t.stat; G.R.recent.push(t.key); G.R.after = t.after || ''; G.R.picture = !!t.picture;
+    target = t.answer; G.R.choices = t.choices; G.R.say = t.say; G.R.statKey = t.stat; G.R.recent.push(t.key); G.R.after = t.after || ''; G.R.picture = !!t.picture; G.R.sentence = !!t.sentence;
     $('#task').hidden = !t.task; if (t.task) $('#task').innerHTML = `<span>${t.task}</span>`;
   } else {
     target = pickTarget(level, G.R.recent.slice(-2));
     G.R.recent.push(target);
-    G.R.choices = makeChoices(level, target, choiceCount(level)); G.R.say = sayText(level, target); G.R.statKey = level + ':' + target; G.R.after = ''; G.R.picture = false;
+    G.R.choices = makeChoices(level, target, choiceCount(level)); G.R.say = sayText(level, target); G.R.statKey = level + ':' + target; G.R.after = ''; G.R.picture = false; G.R.sentence = false;
     $('#task').hidden = true;
   }
   G.R.target = target;
@@ -138,7 +138,7 @@ function tapBlock(it, el) {
     $('#blocks').classList.add('stuck'); retrigger($('#hudPick'), 'stuck');
     if (G.R.wrongs >= 2) G.R.els[G.R.choices.indexOf(G.R.target)].classList.add('glow');
     const t = G.R.target;
-    setTimeout(() => { if (G.R && G.R.target === t && !G.R.busy) speak(pen + (G.R.picture ? 'Chyba, krumpáč se zasekl. Přečti slovo ještě jednou, písmenko po písmenku.' : (/^math:/.test(G.R.statKey) ? 'Chyba, krumpáč se zasekl. Zkus to znovu: ' : 'Chyba, krumpáč se zasekl. Poslouchej: ') + G.R.say)); }, 300);
+    setTimeout(() => { if (G.R && G.R.target === t && !G.R.busy) speak(pen + (G.R.sentence ? 'Chyba, krumpáč se zasekl. Přečti větu ještě jednou, slovo po slově.' : G.R.picture ? 'Chyba, krumpáč se zasekl. Přečti slovo ještě jednou, písmenko po písmenku.' : (/^math:/.test(G.R.statKey) ? 'Chyba, krumpáč se zasekl. Zkus to znovu: ' : 'Chyba, krumpáč se zasekl. Poslouchej: ') + G.R.say)); }, 300);
     setTimeout(() => { if (G.R && G.R.target === t) { G.R.stuck = false; $('#blocks').classList.remove('stuck'); $('#hudPick').classList.remove('stuck'); } }, stuckMs());
     return;
   }

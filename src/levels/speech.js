@@ -1,9 +1,10 @@
 // Patro Mluvení: sluch na kostkách, ostatní úkoly v panelu (vyslovit s rodičem, cvik, foukání). Logika v logic/speech.ts.
+import { gx } from '../app/player.js';
 import { G } from '../core/state.js';
 import { $ } from '../core/dom.js';
 import { persist, save } from '../save/save.ts';
 import { pick, tex } from '../gfx/textures.js';
-import { speak } from '../audio/speech.js';
+import { speak, synth } from '../audio/speech.js';
 import { audio, sfx, tone } from '../audio/sfx.js';
 import { recordResult } from '../logic/mastery.ts';
 import { BLOW_LEVEL, BLOW_NEED_MS, genGym, genHear, genSay, rms, roundPlan } from '../logic/speech.ts';
@@ -48,8 +49,9 @@ function speechActivity() {
   if (kind === 'gym') {
     const e = genGym(); G.R.say = e.text; G.R.statKey = 'exercise:gym'; // do deníku úloh (logTask), do zvládnutí ne
     p.innerHTML = `<div class="sp-pic">${e.icon}</div><p class="sp-text">${e.text}</p><div class="sp-bar"><i></i></div>`;
-    const bar = p.querySelector('.sp-bar i'), t0 = Date.now(), DUR = 5000;
-    const tick = () => { if (!G.R || $('#speechPanel').hidden) return; if (G.R.paused) return requestAnimationFrame(tick); const f = Math.min(1, (Date.now() - t0) / DUR); bar.style.width = f * 100 + '%'; if (f < 1) requestAnimationFrame(tick); else finishSpeech(true, false, tok); };
+    // čas cviku běží jen mimo pauzu (review 25. 10. 2026: po pauze byl pásek hotový a cvik se počítal)
+    const bar = p.querySelector('.sp-bar i'), DUR = 5000; let el = 0, last = 0;
+    const tick = () => { if (!G.R || $('#speechPanel').hidden) return; const now = Date.now(); if (!G.R.paused && last) el += now - last; last = now; const f = Math.min(1, el / DUR); bar.style.width = f * 100 + '%'; if (f < 1) requestAnimationFrame(tick); else finishSpeech(true, false, tok); };
     setTimeout(() => requestAnimationFrame(tick), 1500); // nejdřív zazní zadání
   }
   if (kind === 'blow') {
@@ -57,15 +59,17 @@ function speechActivity() {
     p.innerHTML = `<div class="sp-pic sp-mill" id="spMill">🌀</div><p class="sp-text">Foukej a roztoč mlýn!</p><div class="sp-bar"><i></i></div><div class="actions"></div>`;
     const bar = p.querySelector('.sp-bar i'), mill = p.querySelector('#spMill'), a = p.querySelector('.actions');
     let done = 0, last = Date.now(), angle = 0;
-    const fallback = () => { // bez mikrofonu: fouknutí potvrdí rodič
-      a.innerHTML = ''; const b = document.createElement('button'); b.className = 'gbtn go'; setBtn(b, 'check', 'Foukl jsem!'); b.addEventListener('click', () => { audio(); finishSpeech(true, false, tok); }); a.appendChild(b);
+    // tlačítko je tam od začátku (review 25. 10. 2026: než rodič povolí mikrofon, nebylo na co klepnout)
+    { const b = document.createElement('button'); b.className = 'gbtn go'; setBtn(b, 'check', gx('Foukl jsem!', 'Foukla jsem!')); b.addEventListener('click', () => { audio(); stopMic(); finishSpeech(true, false, tok); }); a.appendChild(b); }
+    const fallback = () => { // bez mikrofonu: fouknutí potvrdí rodič tlačítkem
       p.querySelector('.sp-text').textContent = 'Foukej, jak nejdéle vydržíš. Pak klepni na tlačítko.';
     };
     const loop = () => {
       if (!G.R || $('#speechPanel').hidden || !mic) return;
       const now = Date.now(), dt = now - last; last = now;
       mic.an.getFloatTimeDomainData(mic.buf); const lvl = rms(mic.buf);
-      if (lvl > BLOW_LEVEL && !G.R.paused) { done += dt; angle += dt * Math.min(3, lvl * 20); }
+      // hlas hry z reproduktoru se nepočítá (mlýn by roztočila hra sama)
+      if (lvl > BLOW_LEVEL && !G.R.paused && !(synth && synth.speaking)) { done += dt; angle += dt * Math.min(3, lvl * 20); }
       mill.style.transform = `rotate(${angle}deg)`; bar.style.width = Math.min(100, done / BLOW_NEED_MS * 100) + '%';
       if (done >= BLOW_NEED_MS) { stopMic(); finishSpeech(true, false, tok); return; }
       requestAnimationFrame(loop);
