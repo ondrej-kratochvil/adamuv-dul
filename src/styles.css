@@ -565,3 +565,4 @@ canvas.ench { animation: ench 1.8s ease-in-out infinite; }
 .home-info > * { grid-column: auto; justify-self: stretch; width: auto; max-width: none; margin: 0; }
 .home-info .fan .bubble { font-size: 16px; }
 .home-info .quest { font-size: 16px; height: 100%; }
+.day-card h2 { font-family: var(--f-read); font-weight: 700; font-size: 26px; letter-spacing: 0; }

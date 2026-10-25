@@ -54,7 +54,7 @@ function renderLetters() {
     b.setAttribute('aria-pressed', String(save.letters.includes(c)));
     b.addEventListener('click', () => {
       const on = save.letters.includes(c);
-      if (on && save.letters.length === 1) return; // aspoň jedna souhláska
+      if (on && save.letters.length === 1) { $('#lettersInfo').textContent = 'Aspoň jedna souhláska musí zůstat zapnutá. Nejdřív zapněte jinou a pak tuhle vypněte.'; return; }
       save.letters = normalizeLetters(on ? save.letters.filter(x => x !== c) : [...save.letters, c]);
       applyLetters(save.letters, save.cursive); persist(); renderLetters();
     });

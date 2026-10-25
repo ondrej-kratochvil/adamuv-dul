@@ -1,6 +1,13 @@
 {
-  "version": 60,
+  "version": 61,
   "changes": [
+    {
+      "version": 61,
+      "date": "2026-10-25",
+      "notes": [
+        "Datum na ranní kartě je čitelnější."
+      ]
+    },
     {
       "version": 60,
       "date": "2026-10-25",

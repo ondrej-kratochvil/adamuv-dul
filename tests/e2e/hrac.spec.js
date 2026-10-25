@@ -79,3 +79,17 @@ test('nová hra: písmena se vyberou hned při založení hráče (Vašek 25. 10
   await page.locator('#btnSetupGo').click();
   expect((await saved(page)).letters).toEqual(['M', 'L', 'S', 'P', 'T']);
 });
+
+test('úvodní nastavení: jde vypnout i M (poslední souhláska), začít jde až s nějakou (Ondřej 25. 10. 2026)', async ({ page }) => {
+  await openGame(page, null, { fresh: true });
+  await page.locator('#setupName').fill('Víťa');
+  for (const c of ['M', 'L', 'S']) await page.locator(`#setupLetters [data-letter="${c}"]`).click();
+  await expect(page.locator('#setupLetters [data-letter="M"]')).toHaveAttribute('aria-pressed', 'false');
+  await page.locator('#btnSetupGo').click();
+  await expect(page.locator('#setupOverlay')).toBeVisible();
+  await expect(page.locator('#setupVoc')).toContainText('aspoň jednu souhlásku');
+  await page.locator('#setupLetters [data-letter="P"]').click();
+  await page.locator('#btnSetupGo').click();
+  await expect(page.locator('#setupOverlay')).toBeHidden();
+  expect((await saved(page)).letters).toEqual(['P']);
+});

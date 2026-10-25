@@ -1,5 +1,6 @@
 // První spuštění (Schoolcraft): dokud nikdo nehraje, hra se zeptá na jméno a rod. Adam má hráče z dřívějška.
 import { $ } from '../core/dom.js';
+import { speak } from '../audio/speech.js';
 import { persist, save } from '../save/save.ts';
 import { blankPlayer, guessForms } from '../logic/player.ts';
 import { NAMEDAYS } from '../content/namedays.ts';
@@ -16,7 +17,7 @@ function renderLetters() {
   CONS_ORDER.forEach(c => {
     const b = document.createElement('button'); b.className = 'gbtn'; b.type = 'button'; b.textContent = c; b.dataset.letter = c;
     b.setAttribute('aria-pressed', String(letters.includes(c)));
-    b.addEventListener('click', () => { const on = letters.includes(c); if (on && letters.length === 1) return; letters = normalizeLetters(on ? letters.filter(x => x !== c) : [...letters, c]); renderLetters(); });
+    b.addEventListener('click', () => { const on = letters.includes(c); letters = CONS_ORDER.filter(x => x === c ? !on : letters.includes(x)); renderLetters(); });
     box.appendChild(b);
   });
 }
@@ -33,6 +34,7 @@ function initSetup() {
   $('#setupForm').addEventListener('submit', e => {
     e.preventDefault();
     const n = $('#setupName').value.trim(); if (!n) return;
+    if (!letters.length) { $('#setupVoc').textContent = 'Vyberte aspoň jednu souhlásku, kterou už zná (třeba M).'; speak('Vyberte aspoň jednu souhlásku.'); return; }
     const p = blankPlayer(n, gender);
     const low = n.toLocaleLowerCase('cs'), nd = Object.keys(NAMEDAYS).find(k => NAMEDAYS[k].toLocaleLowerCase('cs').split('|').includes(low));
     if (nd) p.nameday = nd;
