@@ -1,6 +1,15 @@
 {
-  "version": 63,
+  "version": 64,
   "changes": [
+    {
+      "version": 64,
+      "date": "2026-10-25",
+      "notes": [
+        "Smaragdy jsou doma vpravo nahoře v rámečku, stejně jako ve hře.",
+        "Panáček stojí ve hře na stejném místě jako na domovské obrazovce.",
+        "Nastavení zůstává nahoře a při přepínání karet neposkakuje."
+      ]
+    },
     {
       "version": 63,
       "date": "2026-10-25",

@@ -1,6 +1,6 @@
 // Rozložení na mobilu a tabletu: nic nepřetéká, tlačítka na konci kola jsou vidět.
 import { test, expect } from '@playwright/test';
-import { openGame, playRound } from './helpers.js';
+import { openGame, openSettings, playRound } from './helpers.js';
 
 const SIZES = { 'mobil na výšku': [412, 860], 'tablet na výšku': [800, 1110], 'tablet na šířku': [1280, 690] };
 for (const [name, [w, h]] of Object.entries(SIZES)) {
@@ -71,4 +71,23 @@ test('tablet: pozdrav a dnešní úkol vedle sebe v nebi, po posunutí dlaždic 
   expect(Math.abs(a.y - b.y)).toBeLessThan(40); // vedle sebe
   await page.locator('.home-ground').evaluate(e => e.scrollTo(0, 600));
   await expect(page.locator('#homeInfo #questStrip')).toBeInViewport();
+});
+
+test('panáček stojí ve hře tam, kde doma; smaragdy jsou doma vpravo jako ve hře; Nastavení je nahoře', async ({ page }) => {
+  for (const [w, h] of [[390, 844], [820, 1180]]) {
+    await page.setViewportSize({ width: w, height: h });
+    await openGame(page);
+    const hero = await page.locator('#heroPlayer').boundingBox(), gems = await page.locator('#homeGems').boundingBox();
+    expect(gems.x).toBeGreaterThan(w / 2);
+    await page.getByRole('button', { name: 'Písmena', exact: true }).first().click(); await expect(page.locator('#game')).toBeVisible();
+    const pl = await page.locator('#gamePlayer').boundingBox(), listen = await page.locator('#btnListen').boundingBox();
+    expect(Math.abs(pl.x - hero.x)).toBeLessThan(3); expect(Math.abs(pl.height - hero.height)).toBeLessThan(3);
+    expect(listen.x).toBeGreaterThan(pl.x + pl.width); // tlačítko poslechu nepřekrývá panáčka
+    await page.locator('#btnBack').click(); await expect(page.locator('#home')).toBeVisible();
+  }
+  await openSettings(page, 'game');
+  const top = (await page.locator('#setOverlay .panel').boundingBox()).y;
+  await page.locator('.set-tabs [data-tab="online"]').click();
+  expect((await page.locator('#setOverlay .panel').boundingBox()).y).toBe(top);
+  expect(top).toBeLessThan(40);
 });

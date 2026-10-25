@@ -195,7 +195,9 @@ button:focus-visible { outline: 4px solid var(--gold); outline-offset: 3px; }
 .ver-short { display: none; }
 @media (max-width: 599px) { /* mobil: hlavička na jeden řádek („v47 Ondra“) */
   .home-stats { flex-wrap: nowrap; gap: 6px; min-width: 0; }
-  .home-stats .gems { gap: 3px; }
+  .home-right { gap: 6px; }
+  .home-right .hud-gems { height: 46px; padding: 0 4px; gap: 2px; font-size: 18px; }
+  .home-right .hud-gems canvas { width: 22px; height: 22px; }
   .home-stats .streak { padding: 2px 6px 2px 3px; gap: 3px; }
   .home-top { gap: 6px; }
   .home-top #btnSettings { width: 46px; height: 46px; padding: 6px; }
@@ -574,4 +576,13 @@ canvas.ench { animation: ench 1.8s ease-in-out infinite; }
   .home-sky > .inner { display: flex; align-items: flex-end; justify-content: center; gap: 28px; }
   .home-sky .title-row { flex: none; }
   .home-info { grid-template-columns: 1fr; width: min(560px, 34vw); margin: 0 0 18px; gap: 8px; }
+}
+/* Nastavení u horního okraje: karty jsou různě vysoké a vycentrovaný dialog při přepínání skákal (Ondřej 25. 10. 2026) */
+#setOverlay { place-items: start center; }
+/* smaragdy doma vpravo v rámečku jako ve hře (Ondřej 25. 10. 2026) */
+.home-right { display: flex; align-items: center; gap: 12px; }
+#game .stage-row > .player { margin-left: var(--hero-x, 4%); height: var(--hero-h, clamp(72px, 15vh, 132px)); }
+@media (max-width: 599px) { /* mobil: panáček doma stojí víc vpravo, tlačítko poslechu se mu uhne doprava */
+  #game .stage-row { grid-template-columns: auto 1fr auto; }
+  #game .stage-row > .player { margin-right: calc(var(--hero-h, 72px) * .6); }
 }

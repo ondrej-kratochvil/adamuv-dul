@@ -33,7 +33,15 @@ import { FAMILY, famCanvas } from '../world/family.js';
 import { practiceReady } from '../levels/practice.js';
 import { restingLevel, suggestLevel } from '../logic/rotation.ts';
 
-function show(id) { ['home', 'game', 'house', 'wardrobe', 'farm', 'shop', 'stats', 'village', 'nether', 'album', 'prerov', 'ender', 'build', 'family', 'leaders'].forEach(s => { $('#' + s).hidden = s !== id; }); }
+// panáček ve hře stojí tam, kde byl doma (Ondřej 25. 10. 2026): poloha a výška se změří při odchodu z domovské obrazovky
+let heroSpot = null;
+function keepHeroSpot() { const r = $('#heroPlayer').getBoundingClientRect(); if (r.height) heroSpot = { x: r.left, h: r.height }; }
+function placeGamePlayer() {
+  if (!heroSpot) return;
+  const g = $('#game'), row = g.querySelector('.stage-row').getBoundingClientRect();
+  g.style.setProperty('--hero-x', Math.max(0, Math.round(heroSpot.x - row.left)) + 'px'); g.style.setProperty('--hero-h', Math.round(heroSpot.h) + 'px');
+}
+function show(id) { if (id === 'game' && !$('#home').hidden) keepHeroSpot(); ['home', 'game', 'house', 'wardrobe', 'farm', 'shop', 'stats', 'village', 'nether', 'album', 'prerov', 'ender', 'build', 'family', 'leaders'].forEach(s => { $('#' + s).hidden = s !== id; }); if (id === 'game') placeGamePlayer(); }
 function paintTextures(root = document) {
   root.querySelectorAll('[data-tex]').forEach(el => { el.style.backgroundImage = `url(${tex(el.dataset.tex, el.dataset.dark === '1')})`; });
 }
