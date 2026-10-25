@@ -57,3 +57,9 @@ export const PET_ART: Record<PetKind, (R: Painter, color?: string, stripes?: boo
     R(5, 10, 6, 4, '#f6eee0'); R(6, 8, 1, 1, EYE); R(9, 8, 1, 1, EYE); R(7, 9, 2, 1, '#e88a9a'); R(4, 14, 2, 1, '#e8b4b4'); R(10, 14, 2, 1, '#e8b4b4');
   },
 };
+
+// Převlékání zvířátek (Ondřej 25. 10. 2026): věci z obchodu jsou kreslené na lidský obličej (oči na řádku 6, střed x 8);
+// u zvířátka se posunou na jeho hlavu. null = převléct nejde (akvárium).
+export const WEAR_SHIFT: Record<PetKind, [number, number] | null> = {
+  snake: [4, -3], rabbit: [4, 1], mice: [6, -1], cat: [3, 0], dog: [3, 0], parrot: [1, -3], aquarium: null, hamster: [0, 2],
+};

@@ -1,24 +1,32 @@
 // Zvířátka rodiny: obrázky, kdo je má a sekce v obrazovce Rodina (logic/pets.ts, content/pets.ts)
 import { save } from '../save/save.ts';
 import { player } from '../app/player.js';
-import { PET_ART } from '../content/pets.ts';
-import { questsLeft } from '../logic/pets.ts';
+import { PET_ART, WEAR_SHIFT } from '../content/pets.ts';
+import { wornItems } from '../logic/family-wear.ts';
+import { wearById } from '../content/family-wear.ts';
+import { questsLeft, unlockedPets } from '../logic/pets.ts';
 import { fam } from './family.js';
 import { speak } from '../audio/speech.js';
 import { audio, sfx } from '../audio/sfx.js';
 import { LOCK_SVG } from '../ui/screens.js';
 
+// klíč zvířátka v save.famWear (aby se nepletl s lidmi)
+const petKey = pet => 'pet:' + pet.id;
+const canDress = pet => !!WEAR_SHIFT[pet.kind];
 function petCanvas(pet) {
   const c = document.createElement('canvas'); c.width = c.height = 16; c.className = 'px';
-  const g = c.getContext('2d');
-  PET_ART[pet.kind]((x, y, w, h, k) => { g.fillStyle = k; g.fillRect(x, y, w, h); }, pet.color, pet.stripes);
+  const g = c.getContext('2d'), R = (x, y, w, h, k) => { g.fillStyle = k; g.fillRect(x, y, w, h); };
+  PET_ART[pet.kind](R, pet.color, pet.stripes);
+  // věci, které Adam zvířátku nasadil, posunuté na jeho hlavu
+  const sh = WEAR_SHIFT[pet.kind];
+  if (sh && save.famWear) wornItems(save.famWear, petKey(pet)).forEach(id => wearById(id).paint((x, y, w, h, k) => R(x + sh[0], y + sh[1], w, h, k)));
   return c;
 }
 // „babičky Ivy“ / „u vás doma“ (zvířátka hráčovy domácnosti)
 function ownerText(pet) { return pet.owner === 'home' ? 'u vás doma' : fam(pet.owner).gen; }
 function petSay(pet) { return pet.owner === 'home' ? `${pet.name}, ${pet.what}. Bydlí u vás doma.` : `${pet.name}, ${pet.what}. Patří ${ownerText(pet)}.`; }
 // sekce Zvířátka nahoře v Rodině: odemčená s obrázkem a jménem, zamčená se zámkem
-function renderPets(list) {
+function renderPets(list, onPick) {
   const pets = player().pets || [];
   if (!pets.length) return;
   const done = save.questsDone || 0;
@@ -33,7 +41,7 @@ function renderPets(list) {
     if (!open) b.insertAdjacentHTML('beforeend', LOCK_SVG);
     b.addEventListener('click', () => {
       audio();
-      if (open) { sfx.sparkle(); speak(petSay(pet)); return; }
+      if (open) { sfx.sparkle(); if (onPick) onPick(petKey(pet)); speak(petSay(pet)); return; }
       const left = questsLeft(i, done); sfx.nope();
       // ve dnech, ne v úkolech (review 25. 10. 2026: „ještě 11 dnešních úkolů“ znělo jako jedenáct úkolů dnes)
       speak(left === 1 ? 'Tohle zvířátko přijde, až splníš dnešní úkol.' : `Tohle zvířátko přijde za ${left} ${left <= 4 ? 'dny' : 'dní'}, když každý den splníš dnešní úkol.`);
@@ -42,4 +50,16 @@ function renderPets(list) {
   });
 }
 
-export { ownerText, petCanvas, petSay, renderPets };
+// řada v Rodině: lidé a za každým jeho odemčená zvířátka (zvířátka domácnosti za tátou, jinak na začátku)
+function familyRow(family) {
+  const pets = unlockedPets(player(), save.questsDone || 0), out = [];
+  const homeAfter = family.some(p => p.id === 'ondra') ? 'ondra' : null;
+  if (!homeAfter) pets.filter(x => x.owner === 'home').forEach(pet => out.push({ key: petKey(pet), pet }));
+  family.forEach(p => {
+    out.push({ key: p.id, person: p });
+    pets.filter(x => x.owner === p.id || (p.id === homeAfter && x.owner === 'home')).forEach(pet => out.push({ key: petKey(pet), pet }));
+  });
+  return out;
+}
+
+export { canDress, familyRow, ownerText, petCanvas, petKey, petSay, renderPets };

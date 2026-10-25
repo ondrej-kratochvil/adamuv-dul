@@ -95,3 +95,20 @@ test('zvířátka: v Rodině zamčená; splněný dnešní úkol odemkne první 
   await page.locator('#famItems .pet-item.locked').first().click();
   await expect.poll(() => page.evaluate(() => window.__said.at(-1))).toContain('přijde, až splníš dnešní úkol');
 });
+
+test('zvířátka v řadě rodiny za majitelem; Adam převleče Mourka a stejná čepice pro babičku je další kus', async ({ page }) => {
+  await openGame(page, { total: 3, seenVersion: 999, questsDone: 5, emeralds: 30 });
+  await page.getByRole('button', { name: 'Rodina', exact: true }).click();
+  const names = await page.locator('#famPeople .fam-pick').evaluateAll(els => els.map(e => e.getAttribute('aria-label')));
+  expect(names.slice(names.indexOf('táta Ondra'), names.indexOf('táta Ondra') + 4)).toEqual(['táta Ondra', 'Sunny', 'Žofinka', 'bílé myšky']);
+  expect(names.slice(names.indexOf('babička Iva'), names.indexOf('babička Iva') + 3)).toEqual(['babička Iva', 'Mourek', 'Argo']);
+  expect(names).not.toContain('Karel'); // ještě zamčený
+  await page.getByRole('button', { name: 'Mourek', exact: true }).first().click();
+  await expect(page.locator('#famName')).toContainText('Mourek');
+  const cap = page.getByRole('button', { name: 'čepice s bambulí', exact: true });
+  await cap.click(); await cap.click();
+  expect((await saved(page)).famWear).toEqual({ 'pet:mourek': { head: 'cepice' } });
+  await page.getByRole('button', { name: 'babička Iva', exact: true }).click();
+  await cap.click();
+  await expect.poll(() => page.evaluate(() => window.__said.at(-1))).toContain('už někdo nosí');
+});

@@ -540,3 +540,4 @@ canvas.ench { animation: ench 1.8s ease-in-out infinite; }
 .letter-toggles { display: grid; grid-template-columns: repeat(auto-fill, minmax(44px, 1fr)); gap: 6px; margin: 6px 0; }
 .letter-toggles .gbtn { font-size: 18px; padding: 6px 0; font-family: var(--f-read); }
 .letter-toggles .gbtn[aria-pressed="true"] { background: var(--go); }
+.fam-pick.fam-pet canvas { background: #e3f7e6; } /* zvířátka v řadě rodiny */

@@ -11,6 +11,7 @@ import { SLOT_NAMES, WEAR, wearById } from '../content/family-wear.ts';
 import { ownedCount, toggleWear, wearAction, wears, wornCount } from '../logic/family-wear.ts';
 import { rareLeft } from '../logic/rewards.ts';
 import { masteryPoints } from '../rewards/enchant.js';
+import { canDress, familyRow, petCanvas, petSay } from './pets.js';
 import { renderPets } from './pets.js';
 
 let who = 'iva', armed = null;
@@ -28,20 +29,24 @@ function openFamily() {
   armed = null; show('family'); renderFamily();
   speak('Rodina. Vyber, koho chceš převléct, a klepni na věc. Věci se kupují za smaragdy.');
 }
+// řada v Rodině: lidé a za nimi jejich odemčená zvířátka (world/pets.js familyRow); vybraný člen nebo zvířátko
+const pic = e => e.person ? famCanvas(e.person) : petCanvas(e.pet);
+const nameOf = e => e.person ? e.person.name : e.pet.name;
+function current() { const row = familyRow(FAMILY); return { row, e: row.find(x => x.key === who) || row.find(x => x.key === 'iva') || row[0] }; }
 function renderFamily() {
   updateGems();
-  const p = FAMILY.find(x => x.id === who) || FAMILY[0];
-  const big = $('#famBig'); big.innerHTML = ''; big.appendChild(famCanvas(p));
-  $('#famName').textContent = p.name;
+  const { row, e } = current(); who = e.key;
+  const big = $('#famBig'); big.innerHTML = ''; big.appendChild(pic(e));
+  $('#famName').textContent = e.person ? e.person.name : `${e.pet.name} (${e.pet.what.split(',')[0]})`;
   const people = $('#famPeople'); people.innerHTML = '';
-  FAMILY.forEach(x => {
-    const b = document.createElement('button'); b.className = 'fam-pick'; b.setAttribute('aria-label', x.name); b.setAttribute('aria-pressed', String(x.id === who));
-    b.appendChild(famCanvas(x));
-    b.addEventListener('click', () => { audio(); who = x.id; armed = null; renderFamily(); speak(cap(x.name) + '.'); });
+  row.forEach(x => {
+    const b = document.createElement('button'); b.className = 'fam-pick' + (x.pet ? ' fam-pet' : ''); b.setAttribute('aria-label', nameOf(x)); b.setAttribute('aria-pressed', String(x.key === who));
+    b.appendChild(pic(x));
+    b.addEventListener('click', () => { audio(); who = x.key; armed = null; renderFamily(); speak(x.person ? cap(x.person.name) + '.' : petSay(x.pet)); });
     people.appendChild(b);
   });
   const list = $('#famItems'); list.innerHTML = '';
-  renderPets(list); // zvířátka rodiny (world/pets.js)
+  renderPets(list, key => { who = key; armed = null; renderFamily(); }); // zvířátka rodiny (world/pets.js); klepnutí zvířátko vybere
   const { pts, max } = masteryPoints(), worn = save.famWear[who] || {};
   Object.entries(SLOT_NAMES).forEach(([slot, title]) => {
     list.insertAdjacentHTML('beforeend', `<h3 class="shop-h">${title}</h3>`);
@@ -68,8 +73,10 @@ function renderFamily() {
 // Víc lidí může mít stejnou věc, jen když je koupená víckrát (Ondřej 25. 10. 2026); sundaná věc jde dát komukoli jinému.
 function tapWear(w, left) {
   audio();
-  const p = FAMILY.find(x => x.id === who);
-  const act = wearAction(save.famWear, save.famOwned, who, w.id, FAMILY.length);
+  const { row, e } = current(), p = { name: nameOf(e) };
+  if (e.pet && !canDress(e.pet)) { sfx.nope(); speak(`${cap(e.pet.name)} jsou v akváriu, ty se převléct nedají.`); return; }
+  // počet kusů: nejvýš tolik, kolik je v rodině lidí a zvířátek, která jde převléct
+  const act = wearAction(save.famWear, save.famOwned, who, w.id, row.filter(x => x.person || canDress(x.pet)).length);
   if (act === 'off' || act === 'on') {
     armed = null;
     const on = toggleWear(save.famWear, who, w.id); persist(); renderFamily();
@@ -88,7 +95,7 @@ function tapWear(w, left) {
 }
 function clearFamily() {
   audio(); delete save.famWear[who]; persist(); renderFamily();
-  const p = FAMILY.find(x => x.id === who); speak(`${cap(p.name)} je zase normální.`);
+  const { e } = current(); speak(`${cap(nameOf(e))} je zase normální.`);
 }
 
 export { clearFamily, openFamily, renderFamily, tapWear, wearById };
