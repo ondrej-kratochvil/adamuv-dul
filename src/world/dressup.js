@@ -73,14 +73,15 @@ function renderFamily() {
 // Víc lidí může mít stejnou věc, jen když je koupená víckrát (Ondřej 25. 10. 2026); sundaná věc jde dát komukoli jinému.
 function tapWear(w, left) {
   audio();
-  const { row, e } = current(), p = { name: nameOf(e) };
+  const { row, e } = current(), p = { name: nameOf(e), plural: !!(e.pet && e.pet.plural) };
+  const ma = p.plural ? 'mají' : 'má';
   if (e.pet && !canDress(e.pet)) { sfx.nope(); speak(`${cap(e.pet.name)} jsou v akváriu, ty se převléct nedají.`); return; }
   // počet kusů: nejvýš tolik, kolik je v rodině lidí a zvířátek, která jde převléct
   const act = wearAction(save.famWear, save.famOwned, who, w.id, row.filter(x => x.person || canDress(x.pet)).length);
   if (act === 'off' || act === 'on') {
     armed = null;
     const on = toggleWear(save.famWear, who, w.id); persist(); renderFamily();
-    if (on) { sfx.sparkle(); speak(`${cap(p.name)} má teď ${w.acc}!`); } else speak(`${cap(p.name)} už nemá ${w.acc}. Můžeš to dát někomu jinému.`);
+    if (on) { sfx.sparkle(); speak(`${cap(p.name)} ${ma} teď ${w.acc}!`); } else speak(`${cap(p.name)} ${p.plural ? 'už nemají' : 'už nemá'} ${w.acc}. Můžeš to dát někomu jinému.`);
     return;
   }
   if (act === 'max') { sfx.nope(); speak(`${cap(w.name)} už má každý z rodiny.`); return; }
@@ -91,11 +92,11 @@ function tapWear(w, left) {
   if (armed !== w.id) { armed = w.id; renderFamily(); speak(`${intro} ${w.price} ${gemWord(w.price)}. Klepni ještě jednou a koupíš.`); return; }
   save.emeralds -= w.price; save.famOwned.push(w.id); armed = null;
   toggleWear(save.famWear, who, w.id); persist(); renderFamily(); sfx.fanfare();
-  speak(more ? `Koupeno! ${cap(p.name)} má teď ${w.acc}. Teď máš ${n + 1} ${n + 1 <= 4 ? 'kusy' : 'kusů'}.` : `Koupeno! ${cap(p.name)} má teď ${w.acc}. Koupenou věc můžeš dát komukoli.`);
+  speak(more ? `Koupeno! ${cap(p.name)} ${ma} teď ${w.acc}. Teď máš ${n + 1} ${n + 1 <= 4 ? 'kusy' : 'kusů'}.` : `Koupeno! ${cap(p.name)} ${ma} teď ${w.acc}. Koupenou věc můžeš dát komukoli.`);
 }
 function clearFamily() {
   audio(); delete save.famWear[who]; persist(); renderFamily();
-  const { e } = current(); speak(`${cap(nameOf(e))} je zase normální.`);
+  const { e } = current(); speak(`${cap(nameOf(e))} ${e.pet && e.pet.plural ? 'jsou zase normální' : 'je zase normální'}.`);
 }
 
 export { clearFamily, openFamily, renderFamily, tapWear, wearById };

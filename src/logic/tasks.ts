@@ -160,8 +160,11 @@ function similarWords(w: string, pool: string[], k: number, rng: Rng): string[] 
 export function genWords(ctx: Ctx): Task {
   const rng = ctx.rng || Math.random, r = ctx.rounds.words || 0;
   const avoid = ctx.recent.slice(-4);
-  const w = ctx.force && WORDS.includes(ctx.force) ? ctx.force : weightedPick(openItems('words', ctx).filter(x => !avoid.includes(x)), x => weight(ctx.stats, 'words', x), rng);
-  return { answer: w, choices: shuffle([w, ...similarWords(w, WORDS, choiceCount(r) - 1, rng)], rng), say: pronounce(w, ctx.pron), stat: 'words:' + w, key: w };
+  const open = openItems('words', ctx);
+  const w = ctx.force && WORDS.includes(ctx.force) ? ctx.force : weightedPick(open.filter(x => !avoid.includes(x)), x => weight(ctx.stats, 'words', x), rng);
+  // špatné kostky jen z otevřeného stupně jako ve Čtení (review 25. 10. 2026: vedle SUM leželo SUMA z pozdějšího stupně)
+  const pool = open.includes(w) && open.length >= choiceCount(r) ? open : WORDS;
+  return { answer: w, choices: shuffle([w, ...similarWords(w, pool, choiceCount(r) - 1, rng)], rng), say: pronounce(w, ctx.pron), stat: 'words:' + w, key: w };
 }
 // slovo jen napsané na ceduli, výběr obrázku; ve druhém stupni i množné číslo
 // věty (content/sentences.ts): jen z písmen, která dítě zná, a s obrázkem, který je mezi otevřenými

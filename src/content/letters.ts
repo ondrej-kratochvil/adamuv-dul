@@ -8,7 +8,8 @@ export const SAY_LETTER: Record<string, string> = { A: 'a', Á: 'á', E: 'e', É
 export const PARTNER: Record<string, string> = { A: 'Á', Á: 'A', E: 'É', É: 'E', I: 'Í', Í: 'I', O: 'Ó', Ó: 'O', U: 'Ú', Ú: 'U', Ů: 'U', Y: 'Ý', Ý: 'Y' };
 export const SAME_SOUND: Record<string, string> = { Y: 'I', Ý: 'Í', Ů: 'Ú' };
 export const CONS: string[] = ['M', 'L', 'S'];
-export const SYL_V: string[] = ['A', 'Á', 'E', 'É', 'I', 'Í', 'O', 'U', 'Y', 'Ý'];
+// samohlásky ve slabikách: Ó a Ů (MÓ, MŮ) od review 25. 10. 2026; Ú po souhlásce ne, píše se jen na začátku slova (uvnitř je ů)
+export const SYL_V: string[] = ['A', 'Á', 'E', 'É', 'I', 'Í', 'O', 'Ó', 'U', 'Ů', 'Y', 'Ý'];
 export const SYLL: string[] = CONS.flatMap(c => SYL_V.map(v => c + v));
 // slabika ze dvou částí: souhláska (i CH) a samohláska
 export const sylC = (s: string): string => s.startsWith('CH') ? 'CH' : s[0];

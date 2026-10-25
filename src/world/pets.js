@@ -1,7 +1,7 @@
 // Zvířátka rodiny: obrázky, kdo je má a sekce v obrazovce Rodina (logic/pets.ts, content/pets.ts)
 import { save } from '../save/save.ts';
 import { player } from '../app/player.js';
-import { PET_ART, WEAR_SHIFT } from '../content/pets.ts';
+import { PET_ART, WEAR_SHIFT, shiftWear } from '../content/pets.ts';
 import { wornItems } from '../logic/family-wear.ts';
 import { wearById } from '../content/family-wear.ts';
 import { questsLeft, unlockedPets } from '../logic/pets.ts';
@@ -18,13 +18,13 @@ function petCanvas(pet) {
   const g = c.getContext('2d'), R = (x, y, w, h, k) => { g.fillStyle = k; g.fillRect(x, y, w, h); };
   PET_ART[pet.kind](R, pet.color, pet.stripes);
   // věci, které Adam zvířátku nasadil, posunuté na jeho hlavu
-  const sh = WEAR_SHIFT[pet.kind];
-  if (sh && save.famWear) wornItems(save.famWear, petKey(pet)).forEach(id => wearById(id).paint((x, y, w, h, k) => R(x + sh[0], y + sh[1], w, h, k)));
+  if (WEAR_SHIFT[pet.kind] && save.famWear) wornItems(save.famWear, petKey(pet)).forEach(id => shiftWear(wearById(id).paint, pet.kind, R));
   return c;
 }
 // „babičky Ivy“ / „u vás doma“ (zvířátka hráčovy domácnosti)
 function ownerText(pet) { return pet.owner === 'home' ? 'u vás doma' : fam(pet.owner).gen; }
-function petSay(pet) { return pet.owner === 'home' ? `${pet.name}, ${pet.what}. Bydlí u vás doma.` : `${pet.name}, ${pet.what}. Patří ${ownerText(pet)}.`; }
+// „Je to zvířátko babičky Ivy“ (2. pád, ten v datech rodiny je; review 25. 10. 2026: „Patří babičky Ivy“ byl špatný pád)
+function petSay(pet) { const cap = pet.name[0].toUpperCase() + pet.name.slice(1); return pet.owner === 'home' ? `${cap}, ${pet.what}. Bydlí u vás doma.` : `${cap}, ${pet.what}. ${pet.plural ? 'Jsou to zvířátka' : 'Je to zvířátko'} ${ownerText(pet)}.`; }
 // sekce Zvířátka nahoře v Rodině: odemčená s obrázkem a jménem, zamčená se zámkem
 function renderPets(list, onPick) {
   const pets = player().pets || [];

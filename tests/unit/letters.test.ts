@@ -13,7 +13,9 @@ describe('písmena zapnutá rodičem', () => {
   it('výchozí M, L, S dá stejný obsah jako dřív', () => {
     applyLetters(['M', 'L', 'S']);
     expect(LETTERS.length).toBe(16);
-    expect(SYLL.length).toBe(30);
+    expect(SYLL.length).toBe(36); // M, L, S × 12 samohlásek (i Ó a Ů, bez Ú)
+    expect(SYLL).toEqual(expect.arrayContaining(['MÓ', 'MŮ', 'SŮ']));
+    expect(SYLL).not.toContain('MÚ');
     expect(WORDS).toEqual(expect.arrayContaining(BASE_WORDS)); // + slova z učebnic jen z M, L, S
     expect(WORDS).toEqual(expect.arrayContaining(['MÁME', 'OLA', 'MUSÍ']));
     expect(WORDS).not.toContain('PES');

@@ -59,7 +59,17 @@ export const PET_ART: Record<PetKind, (R: Painter, color?: string, stripes?: boo
 };
 
 // Převlékání zvířátek (Ondřej 25. 10. 2026): věci z obchodu jsou kreslené na lidský obličej (oči na řádku 6, střed x 8);
-// u zvířátka se posunou na jeho hlavu. null = převléct nejde (akvárium).
+// u zvířátka se posunou na jeho hlavu. null = převléct nejde (akvárium). Co by vyjelo nad obrázek, se posune dolů
+// (review 25. 10. 2026: klobouk na Sunnym a Karlovi zmizel nad plátnem), viz shiftWear.
 export const WEAR_SHIFT: Record<PetKind, [number, number] | null> = {
   snake: [4, -3], rabbit: [4, 1], mice: [6, -1], cat: [3, 0], dog: [3, 0], parrot: [1, -3], aquarium: null, hamster: [0, 2],
 };
+
+// posun věci na hlavu zvířátka; když by kus věci vyjel nad horní okraj, celá věc se posune dolů, ať je vidět
+export function shiftWear(paint: (R: Painter) => void, kind: PetKind, R: Painter): void {
+  const sh = WEAR_SHIFT[kind]; if (!sh) return;
+  const rects: [number, number, number, number, string][] = [];
+  paint((x, y, w, h, c) => rects.push([x + sh[0], y + sh[1], w, h, c]));
+  const top = Math.min(...rects.map(r => r[1])), down = top < 0 ? -top : 0;
+  rects.forEach(([x, y, w, h, c]) => R(x, y + down, w, h, c));
+}

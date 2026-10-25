@@ -57,7 +57,7 @@ async function traceCurrent(page) {
     const t = window.__adam.TR, r = window.__adam.R;
     if (!t || !r || r.busy || !t.strokes[t.si]) return null;
     const c = document.querySelector('#traceCanvas').getBoundingClientRect();
-    return { pts: t.strokes[t.si].pts, k: t.k, x: c.left, y: c.top };
+    return { pts: t.strokes[t.si].pts.slice(t.pi), k: t.k, x: c.left, y: c.top }; // od zelené tečky (po vyjetí z dráhy se pokračuje)
   });
   if (!st) return;
   const P = st.pts.map(([x, y]) => [st.x + x * st.k, st.y + y * st.k]);

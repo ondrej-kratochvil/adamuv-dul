@@ -112,3 +112,24 @@ test('zvířátka v řadě rodiny za majitelem; Adam převleče Mourka a stejná
   await cap.click();
   await expect.poll(() => page.evaluate(() => window.__said.at(-1))).toContain('už někdo nosí');
 });
+
+test('věta o zvířátku ve správném pádě; myšky v množném čísle (review 25. 10. 2026)', async ({ page }) => {
+  await openGame(page, { total: 3, seenVersion: 999, questsDone: 4, emeralds: 20 });
+  await page.getByRole('button', { name: 'Rodina', exact: true }).click();
+  await page.getByRole('button', { name: 'Mourek', exact: true }).first().click();
+  await expect.poll(() => page.evaluate(() => window.__said.at(-1))).toContain('Je to zvířátko babičky Ivy.');
+  await page.getByRole('button', { name: 'bílé myšky', exact: true }).first().click();
+  const cap = page.getByRole('button', { name: 'čepice s bambulí', exact: true });
+  await cap.click(); await cap.click();
+  await expect.poll(() => page.evaluate(() => window.__said.at(-1))).toContain('Bílé myšky mají teď čepici');
+});
+
+test('dnešní úkol nespustí patro, které si dává pauzu (review 25. 10. 2026)', async ({ page }) => {
+  await page.clock.setFixedTime(new Date('2026-10-25T15:00:00+02:00'));
+  const quest = { kind: 'rounds', level: 'letters', need: 2, got: 0, done: false };
+  const log = [1, 2, 3].map(i => ({ t: Date.now() - i * 60000, d: '2026-10-25', level: 'letters', clean: 8, done: 8, len: 8, ok: true, quit: false, secs: 40 }));
+  await openGame(page, { total: 3, seenVersion: 999, log, daily: { d: '2026-10-25', quest, shown: false } }, { day: true });
+  await page.locator('#btnDayGo').click();
+  await expect.poll(() => page.evaluate(() => window.__said.at(-1))).toContain('si teď dává pauzu');
+  await expect(page.locator('#game')).toBeHidden();
+});

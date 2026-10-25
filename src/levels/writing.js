@@ -98,11 +98,12 @@ function traceStep(q) {
   return true;
 }
 function traceUp() { if (!G.TR) return; G.TR.down = false; G.TR.trail = []; drawTrace(); }
-// prst ujel z čáry: tah se začíná znovu a úkol už není bez chyby
+// prst ujel z čáry: úkol už není bez chyby, ale hotová část tahu zůstane a pokračuje se od zelené tečky
+// (review 25. 10. 2026: zahodit celý tah bylo u psacího e nebo smyčky na šestileté prsty moc přísné)
 function traceSlip() {
-  G.TR.down = false; G.TR.pi = 0; G.TR.trail = [];
+  G.TR.down = false; G.TR.trail = [];
   G.R.firstTry = false; sfx.nope(); retrigger($('#trace'), 'slip');
-  speak(penalize() + gx('Vyjel', 'Vyjela') + ' jsi z dráhy. Zkus to znovu od zelené tečky.');
+  speak(penalize() + gx('Vyjel', 'Vyjela') + ' jsi z dráhy. Pokračuj od zelené tečky.');
   drawTrace();
 }
 function finishTrace() {

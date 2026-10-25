@@ -14,7 +14,7 @@ export interface Person extends Look {
   role?: 'mom';     // máma připomíná jídlo, školu a spaní
 }
 // zvířátko: čí je (id člena rodiny, nebo 'home' = doma u hráče), co je zač a jak vypadá (content/pets.ts)
-export interface Pet { id: string; name: string; what: string; kind: PetKind; owner: string; color?: string; stripes?: boolean }
+export interface Pet { id: string; name: string; what: string; kind: PetKind; owner: string; color?: string; stripes?: boolean; plural?: boolean } // plural: myšky, skaláry (mají, jsou)
 export interface Friend { id: string; name: string; gen: string; friend: true }
 export interface MomSlot { id: string; from: string; to: string; text: string; weekday?: boolean; weekend?: boolean }
 export interface Player {
@@ -86,7 +86,7 @@ export function normalizePlayer(raw: unknown): Player | null {
     .map(p => ({ id: str(p.id, 24), name: str(p.name, 40), gen: str(p.gen, 40) || str(p.name, 40), friend: true as const }));
   const out: Player = { v: 1, name: str(raw.name, 30).trim(), voc: str(raw.voc, 30).trim() || forms.voc, poss: str(raw.poss, 30).trim() || forms.poss, gender, family, friends };
   const pets: Pet[] = (Array.isArray(raw.pets) ? raw.pets : []).filter(isObj).filter(p => str(p.id, 24) && str(p.name, 30) && PET_KINDS.includes(p.kind as PetKind)).slice(0, 30)
-    .map(p => ({ id: str(p.id, 24), name: str(p.name, 30), what: str(p.what, 60), kind: p.kind as PetKind, owner: str(p.owner, 24) || 'home', ...(COLOR.test(str(p.color)) ? { color: str(p.color) } : {}), ...(p.stripes ? { stripes: true } : {}) }));
+    .map(p => ({ id: str(p.id, 24), name: str(p.name, 30), what: str(p.what, 60), kind: p.kind as PetKind, owner: str(p.owner, 24) || 'home', ...(COLOR.test(str(p.color)) ? { color: str(p.color) } : {}), ...(p.stripes ? { stripes: true } : {}), ...(p.plural ? { plural: true } : {}) }));
   if (pets.length) out.pets = pets;
   if (md(raw.birthday)) out.birthday = md(raw.birthday);
   if (md(raw.nameday)) out.nameday = md(raw.nameday);

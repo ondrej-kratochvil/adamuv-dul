@@ -1,11 +1,11 @@
 // Ranní karta a dnešní úkol (logic/daily.ts). Karta přijde při prvním otevření dne: po spuštění, po návratu
 // z pozadí, po rozsvícení displeje nebo když půlnoc přejde při otevřené hře. Hlásí ten, kdo dnes fandí.
-import { voc } from '../app/player.js';
+import { gx, player, voc } from '../app/player.js';
 import { G } from '../core/state.js';
 import { $ } from '../core/dom.js';
 import { persist, save } from '../save/save.ts';
 import { speak } from '../audio/speech.js';
-import { audio } from '../audio/sfx.js';
+import { audio, sfx } from '../audio/sfx.js';
 import { dayStr } from '../logic/calendar.ts';
 import { DAILY_BONUS, dateSay, dateShow, greeting, isNewDay, nameDay, pickQuest, questStep, questText, stateHoliday } from '../logic/daily.ts';
 import { LEVELS } from '../levels/reading.js';
@@ -14,8 +14,8 @@ import { startRound } from '../game/round.js';
 import { FAMILY, fam, famCanvas, holiday, todaysFan } from './family.js';
 import { gemWord, sprIcon, updateGems } from './farm.js';
 import { setBtn } from '../ui/icons.js';
+import { restingLevel, suggestLevel } from '../logic/rotation.ts';
 import { petForQuest } from '../logic/pets.ts';
-import { player } from '../app/player.js';
 import { checkVersion, updatePending, whenVersionKnown } from '../app/name.js';
 
 function levelName(lv) { return lv === 'practice' ? 'Procvičit' : (LEVELS[lv] || {}).name || lv; }
@@ -90,9 +90,22 @@ function questAfterRound(level, ok, perfect) {
   save.emeralds += DAILY_BONUS; save.questsDone = (save.questsDone || 0) + 1; persist(); updateGems('hudGems');
   return { bonus: DAILY_BONUS, pet: petForQuest(player(), save.questsDone) };
 }
+// spustit patro dnešního úkolu; patro, které si po třech kolech za sebou dává pauzu, se nespustí ani odsud
+// (review 25. 10. 2026: tlačítko na kartě obcházelo pauzu, kterou dlaždice na úvodní obrazovce drží)
+function questResting() { const lv = save.daily && save.daily.quest && save.daily.quest.level; return !!lv && lv in LEVELS && restingLevel(save.log, Object.keys(LEVELS)) === lv; }
+function startQuest() {
+  const lv = save.daily.quest.level;
+  if (questResting()) {
+    sfx.nope();
+    const sug = LEVELS[suggestLevel(save.log, Object.keys(LEVELS), lv)].name;
+    speak(`Patro ${levelName(lv)} si teď dává pauzu, ${gx('hrál', 'hrála')} jsi ho třikrát za sebou. Zahraj si jiné patro, třeba ${sug}. K dnešnímu úkolu se pak vrať.`);
+    return;
+  }
+  $('#dayOverlay').hidden = true; startRound(lv);
+}
 function initDay() {
   $('#btnDayLater').addEventListener('click', () => { audio(); G.speechId++; $('#dayOverlay').hidden = true; $('#dayOverlay').dispatchEvent(new Event('dayclosed')); });
-  $('#btnDayGo').addEventListener('click', () => { audio(); $('#dayOverlay').hidden = true; startRound(save.daily.quest.level); });
+  $('#btnDayGo').addEventListener('click', () => { audio(); startQuest(); });
   // klepnutí na kartu (mimo tlačítka) ji přečte znovu
   $('#dayOverlay').addEventListener('click', e => { if (e.target.closest('button')) return; audio(); speak($('#dayOverlay').dataset.say); });
   document.addEventListener('visibilitychange', () => { if (!document.hidden) checkNewDay(); });

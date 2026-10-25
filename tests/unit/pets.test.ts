@@ -60,3 +60,18 @@ describe('více kusů stejné věci v Rodině (Ondřej 25. 10. 2026)', () => {
     expect(wearAction(fw, ['x', 'x'], 'c', 'x', 2)).toBe('max');
   });
 });
+
+import { shiftWear, WEAR_SHIFT } from '../../src/content/pets';
+import { WEAR } from '../../src/content/family-wear';
+describe('věci na zvířátkách (review 25. 10. 2026)', () => {
+  it('žádná věc nevyjede nad obrázek, u žádného zvířátka', () => {
+    for (const kind of Object.keys(WEAR_SHIFT) as (keyof typeof WEAR_SHIFT)[]) {
+      if (!WEAR_SHIFT[kind]) continue;
+      for (const w of WEAR) {
+        const ys: number[] = [];
+        shiftWear(w.paint, kind, (x, y) => ys.push(y));
+        expect(Math.min(...ys), `${kind} ${w.id}`).toBeGreaterThanOrEqual(0);
+      }
+    }
+  });
+});
