@@ -1,6 +1,14 @@
 {
-  "version": 58,
+  "version": 59,
   "changes": [
+    {
+      "version": 59,
+      "date": "2026-10-25",
+      "notes": [
+        "Hra má novou adresu schoolcraft.games a tvůj postup se tam přenese sám.",
+        "Nový Žebříček: uvidíš, kolik bodů tento týden mají ostatní, jak jsou oblečení a co mají postavené. Body dostaneš za povedená kola a splněný dnešní úkol."
+      ]
+    },
     {
       "version": 58,
       "date": "2026-10-25",

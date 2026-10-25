@@ -64,11 +64,13 @@ const isMetal = it => !!(it.armor || it.metal || it.kind === 'helmet');
 const enchanted = () => outfitItem('enchant').id === 'ano';
 const unlocked = it => (!it.boss || (save.dragon || 0) >= it.boss) && (!it.at || save.total >= it.at) && (!it.streak || save.streak.best >= it.streak) && (!it.ench || save.ench.length >= it.ench);
 function outfitItem(cat) { const it = OUTFIT[cat].find(x => x.id === save.outfit[cat]); return it && unlocked(it) ? it : OUTFIT[cat][0]; }
-function playerCanvas() {
+// o = oblečení jiného hráče (žebříček): id kousků bez kontroly odemčení, bez třpytu očarování
+function playerCanvas(o) {
   const c = document.createElement('canvas'); c.width = 16; c.height = 32; c.className = 'body px';
   const g = c.getContext('2d');
-  const sh = outfitItem('shirt'), pa = outfitItem('pants'), so = outfitItem('shoes'), ha = outfitItem('hat');
-  const ench = enchanted();
+  const item = cat => o ? (OUTFIT[cat].find(x => x.id === o[cat]) || OUTFIT[cat][0]) : outfitItem(cat);
+  const sh = item('shirt'), pa = item('pants'), so = item('shoes'), ha = item('hat');
+  const ench = o ? false : enchanted();
   const gl = document.createElement('canvas'); gl.width = 16; gl.height = 32; gl.className = 'glint px';
   const gg = gl.getContext('2d'); gg.fillStyle = '#c58cff';
   let glow = false;

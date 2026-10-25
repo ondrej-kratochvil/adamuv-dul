@@ -120,3 +120,17 @@ aktualizaci a po ní novinky ukáže.
 - Obaly volané z jiných modulů psát jako `function`, ne `const x = () =>`: moduly se navzájem importují v kruhu
   a konstanta by při startu ještě neexistovala.
 - Před commitem `npm test` (typy, unit testy, prohlížeč). Push na `main` nasazuje: jen se zelenými testy.
+
+## Server a nasazení (Schoolcraft, 25. 10. 2026)
+
+- Hra běží na **https://schoolcraft.games** (Cloudflare Workers, `wrangler.jsonc`): statické soubory z `dist` a API
+  `worker/index.ts` (čistá logika `worker/logic.ts`, testy `tests/unit/worker.test.ts`). Databáze D1 `schoolcraft`
+  v EU, změny jako nové soubory ve `worker/migrations/` (nikdy neměnit už nasazený soubor).
+- Push na `main` nasazuje GitHub Pages (stará adresa, jen přestěhuje postup, `src/app/move.js`) i Cloudflare
+  (úloha `cloudflare` v `.github/workflows/test-a-nasazeni.yml`, tajné proměnné `CLOUDFLARE_API_TOKEN`
+  a `CLOUDFLARE_ACCOUNT_ID`). Funguje tedy i z cloudové session.
+- Lokálně: token je v uživatelské proměnné prostředí Windows `CLOUDFLARE_API_TOKEN` (hodnotu nikdy nevypisovat).
+  `npx wrangler dev --local` pro zkoušení API, `npx wrangler d1 migrations apply schoolcraft --local`.
+- Online ve hře: `src/app/cloud.js` (přihlášení zařízení kódem, záloha postupu, statistiky, žebříček), pravidla
+  v `src/logic/cloud.ts`. V testech je server zablokovaný (`tests/e2e/helpers.js`), testy online si ho napodobí.
+- Do žebříčku jde jen přezdívka, postavička, týdenní body a co je postavené; nikdy jméno rodiny, chyby ani statistiky.

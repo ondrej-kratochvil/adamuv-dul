@@ -1,0 +1,15 @@
+// Schoolcraft na Cloudflare: hra z dist a API (worker/index.ts), databáze D1 v EU, doména schoolcraft.games.
+// Nasazuje GitHub Actions (.github/workflows/test-a-nasazeni.yml) s tokenem v tajných proměnných repozitáře.
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "schoolcraft",
+  "main": "worker/index.ts",
+  "compatibility_date": "2026-10-01",
+  "account_id": "8d64b5a0fd7de947c22c910ce2fa3c09",
+  "assets": { "directory": "./dist", "binding": "ASSETS", "run_worker_first": ["/api/*"] },
+  "d1_databases": [
+    { "binding": "DB", "database_name": "schoolcraft", "database_id": "71f73b1a-866a-4dfa-9356-debaa1d9fd44", "migrations_dir": "worker/migrations" }
+  ],
+  "routes": [{ "pattern": "schoolcraft.games", "custom_domain": true }],
+  "observability": { "enabled": true }
+}

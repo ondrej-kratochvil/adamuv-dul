@@ -16,6 +16,8 @@ import { drawFarm, farmStage, fitCanvas, mountDog, openFarm, openShop, sprIcon, 
 import { renderStreakBtn } from '../rewards/streak.js';
 import { renderFan } from '../world/family.js';
 import { renderQuest } from '../world/daily.js';
+import { openLeaders } from '../world/leaders.js';
+const TROPHY_SVG = '<svg viewBox="0 0 16 16" class="px" aria-hidden="true" shape-rendering="crispEdges"><path fill="#f2c94c" d="M4 2h8v5h-1v1h-1v1H6V8H5V7H4z"/><path fill="#c9a020" d="M2 3h2v3H3V5H2zM12 3h2v2h-1v1h-1zM7 9h2v3H7z"/><path fill="#8a5a2e" d="M5 12h6v2H5z"/><path fill="#fff6b0" d="M6 3h1v3H6z"/></svg>';
 import { renderEnchBook } from '../rewards/enchant.js';
 import { drawVillageThumb, openVillage } from '../world/village.js';
 import { drawNether, openNether, portalLit } from '../world/nether.js';
@@ -31,7 +33,7 @@ import { FAMILY, famCanvas } from '../world/family.js';
 import { practiceReady } from '../levels/practice.js';
 import { restingLevel, suggestLevel } from '../logic/rotation.ts';
 
-function show(id) { ['home', 'game', 'house', 'wardrobe', 'farm', 'shop', 'stats', 'village', 'nether', 'album', 'prerov', 'ender', 'build', 'family'].forEach(s => { $('#' + s).hidden = s !== id; }); }
+function show(id) { ['home', 'game', 'house', 'wardrobe', 'farm', 'shop', 'stats', 'village', 'nether', 'album', 'prerov', 'ender', 'build', 'family', 'leaders'].forEach(s => { $('#' + s).hidden = s !== id; }); }
 function paintTextures(root = document) {
   root.querySelectorAll('[data-tex]').forEach(el => { el.style.backgroundImage = `url(${tex(el.dataset.tex, el.dataset.dark === '1')})`; });
 }
@@ -91,6 +93,13 @@ function renderHome() {
     btn.insertAdjacentHTML('beforeend', `${LOCK_SVG}<span class="lvl-name">${name}</span><span class="lvl-sub">brzy</span>`);
     tiles.appendChild(btn);
   });
+  // Žebříček (world/leaders.js): pohár na dlaždici
+  const lb = document.createElement('button'); lb.className = 'lvl'; lb.setAttribute('aria-label', 'Žebříček');
+  const lblk = blockEl('planks', '', false); lblk.tabIndex = -1; lblk.setAttribute('aria-hidden', 'true');
+  lblk.querySelector('.plate').innerHTML = TROPHY_SVG;
+  lb.appendChild(lblk); lb.insertAdjacentHTML('beforeend', '<span class="lvl-name">Žebříček</span>');
+  lb.addEventListener('click', openLeaders);
+  tiles.appendChild(lb);
   const wb = document.createElement('button'); wb.className = 'lvl'; wb.setAttribute('aria-label', 'Šatník');
   const wblk = blockEl('planks', '', false); wblk.tabIndex = -1; wblk.setAttribute('aria-hidden', 'true');
   const plate = wblk.querySelector('.plate'); plate.innerHTML = ''; plate.appendChild(outfitIcon('shirt', outfitItem('shirt')));

@@ -4,6 +4,7 @@ import { MAIN_ID } from '../logic/profiles.ts';
 import { BATCH, acknowledge, enqueue, ensureDevice, localStamp, validSyncUrl } from '../logic/sync.ts';
 import { LEVEL_KEYS, levelProgress, masteryPoints } from '../logic/mastery.ts';
 import { LEVELS } from '../levels/reading.js';
+import { queueCloud, syncCloud } from './cloud.js';
 
 function levelName(key) { return LEVELS[key] ? LEVELS[key].name : key === 'practice' ? 'Procvičování' : key === 'boss' ? 'Ender drak' : key === 'say' ? 'Mluvení (vyslovit)' : key === 'exercise' ? 'Mluvení (cvik)' : key; }
 // jiný profil než Adamův se v tabulce odliší sloupcem Profil a vlastním listem Stav
@@ -12,9 +13,11 @@ const stateName = () => profile.id !== MAIN_ID ? `${save.sync.device} (${profile
 // přidá řádky do fronty (každý s časem) a zkusí je hned poslat
 function queueRows(rows) {
   const now = Date.now();
-  enqueue(save.sync, rows.map(r => ({ Čas: localStamp(now), ...profileCol(), ...r })), now);
+  const stamped = rows.map(r => ({ Čas: localStamp(now), ...profileCol(), ...r }));
+  enqueue(save.sync, stamped, now);
+  queueCloud(stamped); // i do databáze Schoolcraft (app/cloud.js)
   persist();
-  flushSync();
+  flushSync(); syncCloud(); // na server nejvýš jednou za 30 s
 }
 // list „Stav“ v tabulce: kolik má Adam zvládnuto v každém patře (přepisuje se při každém odeslání)
 function stateRows() {

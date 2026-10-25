@@ -25,6 +25,8 @@ import { flushRate, openStats } from './app/stats.js';
 import { goHome, pauseRound, resumeRound, startRound } from './game/round.js';
 import { updateStages } from './game/ctx.js';
 import { flushSync, initDevice } from './app/sync.js';
+import { syncCloud } from './app/cloud.js';
+import { moveIn, moveOut } from './app/move.js';
 import { initProfiles } from './app/profiles.js';
 import { clearFamily } from './world/dressup.js';
 import { initDay } from './world/daily.js';
@@ -51,6 +53,7 @@ $('#btnVictoryHome').addEventListener('click', () => { G.speechId++; if (synth) 
 $('#btnNetherMine').addEventListener('click', () => { audio(); save.netherMine = !save.netherMine; persist(); openNether(); speak(save.netherMine ? 'Teď kopeš v Netheru.' : 'Teď kopeš doma v dole.'); });
 $('#btnShopBack').addEventListener('click', goHome);
 $('#btnFamBack').addEventListener('click', goHome);
+$('#btnLeadBack').addEventListener('click', goHome);
 $('#btnFamClear').addEventListener('click', clearFamily);
 $('#btnStreak').addEventListener('click', openStreak);
 $('#btnStats').addEventListener('click', openStats);
@@ -93,9 +96,10 @@ checkVersion(); // nová verze na serveru? (při startu a při návratu do hry)
 initProfiles();
 initDevice();
 updateStages(); persist(); // stupně obtížnosti ze zvládnutých úloh (u staršího postupu poprvé, bez oznámení)
-flushSync(); // co čeká na odeslání do tabulky Google (třeba z doby bez internetu)
+moveIn().then(m => { if (!m) moveOut(); }); // přestěhování z GitHub Pages na schoolcraft.games (app/move.js)
+flushSync(); syncCloud(true); // co čeká na odeslání do tabulky Google a na server Schoolcraft (třeba z doby bez internetu)
 addEventListener('online', () => flushSync());
-document.addEventListener('visibilitychange', () => { if (document.hidden) { pauseRound(true); flushRate(); } else { checkVersion(); flushSync(); } }); // odchod z aplikace = pauza
+document.addEventListener('visibilitychange', () => { if (document.hidden) { pauseRound(true); flushRate(); syncCloud(true); } else { checkVersion(); flushSync(); } }); // odchod z aplikace = pauza
 paintTextures();
 renderHome();
 initSetup(); if (needsSetup()) openSetup(profile.id !== MAIN_ID ? profile.name : ''); // nová hra: kdo hraje

@@ -21,6 +21,8 @@ export async function openGame(page, state = null, { day = false, fresh = false 
   await mockSpeech(page);
   // testy nezávislé na internetu: písma z Google se nestahují (hra má náhradní písma)
   await page.route(/fonts\.(googleapis|gstatic)\.com/, r => r.abort());
+  // server Schoolcraft v testech není (testy, které ho potřebují, si ho napodobí vlastním page.route)
+  await page.route(/schoolcraft\.games\/api\//, r => r.abort());
   const errors = [];
   page.on('pageerror', e => errors.push(e.message));
   await page.addInitScript(([key, st]) => {

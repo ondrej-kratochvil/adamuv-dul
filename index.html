@@ -213,6 +213,20 @@
   </section>
 
   <!-- SBÍRKA KARTIČEK -->
+  <section class="screen" id="leaders" hidden>
+    <div class="sky" style="flex:1; display:flex; flex-direction:column; min-height:0;">
+      <div class="cloud c1"></div>
+      <div class="inner hud">
+        <button class="gbtn icon" id="btnLeadBack" aria-label="Zpět domů"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h3v3h-3v3h-3v4h3v3h3v3h-3v-3h-3v-3H8v-4h3V7h3V4z"/></svg></button>
+        <div class="ward-title">Žebříček</div>
+        <div style="width:56px"></div>
+      </div>
+      <div class="inner" style="flex:1; min-height:0; display:flex;">
+        <div class="panel shop-panel lead-panel" style="flex:1"><p class="lead-info" id="leadInfo"></p><ol class="lead-list" id="leadList"></ol></div>
+      </div>
+    </div>
+  </section>
+
   <section class="screen" id="album" hidden>
     <div class="sky" style="flex:1; display:flex; flex-direction:column; min-height:0;">
       <div class="cloud c1"></div>
@@ -410,6 +424,7 @@
       <button class="gbtn" role="tab" data-tab="progress">Postup</button>
       <button class="gbtn" role="tab" data-tab="profiles">Profily</button>
       <button class="gbtn" role="tab" data-tab="sync">Tabulka</button>
+      <button class="gbtn" role="tab" data-tab="online">Online</button>
     </div>
 
     <div class="set-tab player-set" role="tabpanel" data-tab="player">
@@ -549,6 +564,38 @@
     <input id="profileName" type="text" maxlength="24" placeholder="Jméno profilu, třeba Test nebo Víťa" autocomplete="off">
     <label class="lbl-small"><input type="checkbox" id="profileCopy"> <span id="profileCopyLbl">kopie postupu</span> (jinak od začátku)</label>
     <div class="seg"><button class="gbtn go" id="btnProfileNew">Vytvořit a přepnout</button></div>
+    </div>
+
+    <div class="set-tab online-set" role="tabpanel" data-tab="online">
+    <h3>Hrát online</h3>
+    <p>Hra posílá na server Schoolcraft zálohu postupu a statistiky úloh a ukazuje žebříček, kde se děti můžou porovnat (týdenní body, postavička, co mají postavené).</p>
+    <div class="seg"><button class="gbtn" type="button" id="btnCloudOn" aria-pressed="false">Online: vypnuto</button><button class="gbtn" type="button" id="btnCloudPub" aria-pressed="true">V žebříčku: ano</button></div>
+    <label class="lbl-small" for="cloudNick">Přezdívka v žebříčku (vidí ji ostatní hráči)</label>
+    <input id="cloudNick" type="text" maxlength="20" autocomplete="off">
+    <p class="lbl-small" id="cloudInfo" role="status"></p>
+    <h3>Přenos na jiné zařízení</h3>
+    <p>Kód hráče patří jen vám: kdo ho zná, může postup stáhnout. Na novém zařízení ho vložte a postup se stáhne ze serveru.</p>
+    <div class="seg"><button class="gbtn" type="button" id="btnCloudCode">Ukázat kód</button><button class="gbtn" type="button" id="btnCloudRestore">Vložit kód</button></div>
+    <textarea class="copy-out" id="cloudCode" hidden></textarea>
+    <div class="confirm" id="cloudRestoreConfirm" hidden>
+      <p style="margin:0">Nahradit postup v tomhle zařízení postupem ze serveru? Ten současný se uloží jako záloha v zařízení.</p>
+      <button class="gbtn" type="button" id="btnCloudRestoreYes" style="background:#a8341c">Ano, nahradit</button>
+      <button class="gbtn" type="button" id="btnCloudRestoreNo">Zrušit</button>
+    </div>
+    <h3>Co se ukládá a kdo to vidí</h3>
+    <ul class="privacy">
+      <li><b>Žebříček</b> (vidí všichni hráči): přezdívka, postavička s oblečením, body za týden a co má hráč postavené (dům, farma, vesnice, zvířátka). Jméno rodiny, chyby ani statistiky ne.</li>
+      <li><b>Server</b> (vidí jen správce hry): záloha postupu a statistiky úloh (patro, úloha, správně napoprvé, doba). Slouží k přenosu na jiné zařízení a ke zlepšování hry.</li>
+      <li><b>Kde:</b> Cloudflare, databáze v EU. Přihlášení je kódem v zařízení, žádný e-mail ani heslo.</li>
+      <li><b>Smazání:</b> tlačítkem níže zmizí přezdívka, záloha i statistiky ze serveru. Postup v zařízení zůstane.</li>
+      <li><b>Správce a kontakt:</b> Ondřej Kratochvíl, kratochvil.ondrej@gmail.com.</li>
+    </ul>
+    <div class="seg"><button class="gbtn" type="button" id="btnCloudDelete" style="background:#a8341c">Smazat ze serveru</button></div>
+    <div class="confirm" id="cloudDeleteConfirm" hidden>
+      <p style="margin:0">Opravdu smazat přezdívku, zálohu a statistiky ze serveru? Online hraní se vypne.</p>
+      <button class="gbtn" type="button" id="btnCloudDeleteYes" style="background:#a8341c">Ano, smazat</button>
+      <button class="gbtn" type="button" id="btnCloudDeleteNo">Nechat</button>
+    </div>
     </div>
 
     <div class="set-tab" role="tabpanel" data-tab="sync">

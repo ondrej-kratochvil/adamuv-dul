@@ -541,3 +541,21 @@ canvas.ench { animation: ench 1.8s ease-in-out infinite; }
 .letter-toggles .gbtn { font-size: 18px; padding: 6px 0; font-family: var(--f-read); }
 .letter-toggles .gbtn[aria-pressed="true"] { background: var(--go); }
 .fam-pick.fam-pet canvas { background: #e3f7e6; } /* zvířátka v řadě rodiny */
+/* žebříček (world/leaders.js) */
+.lead-panel { overflow: auto; }
+.lead-info { font-family: var(--f-read); font-size: 15px; margin: 0 0 8px; }
+.lead-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.lead-row { display: flex; align-items: center; gap: 10px; background: rgba(0,0,0,.06); border: 3px solid rgba(0,0,0,.35); padding: 6px 8px; cursor: pointer; }
+.lead-row.me { background: #fff7d1; border-color: #c9a020; }
+.lead-rank { font-size: 20px; min-width: 28px; text-align: right; }
+.lead-av { position: relative; width: 32px; height: 64px; flex: none; }
+.lead-av .body { width: 32px; height: 64px; }
+.lead-av .lead-pick { position: absolute; width: 24px; height: 24px; right: -12px; top: 22px; }
+.lead-main { flex: 1; min-width: 0; }
+.lead-top { display: flex; justify-content: space-between; gap: 8px; font-family: var(--f-read); font-size: 18px; font-weight: 700; }
+.lead-badges { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+.lead-badge { font-family: var(--f-read); font-size: 13px; background: #e8e8e8; border: 2px solid rgba(0,0,0,.25); padding: 1px 6px; }
+.lead-badge.more { background: #e3f7e6; border-color: #3f9b3a; font-weight: 700; }
+.online-set input[type=text] { width: 100%; font-family: var(--f-read); font-size: 16px; padding: 6px; border: 3px solid #161616; margin: 4px 0 8px; }
+.online-set .privacy { font-family: var(--f-read); font-size: 14px; line-height: 1.4; padding-left: 18px; }
+@media (min-width: 600px) { .set-tabs { grid-template-columns: repeat(8, 1fr); } }

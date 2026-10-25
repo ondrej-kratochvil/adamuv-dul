@@ -87,7 +87,7 @@ function renderQuest(wrap) {
 function questAfterRound(level, ok, perfect) {
   const d = ensureDaily();
   if (!questStep(d.quest, level, ok, perfect)) { persist(); return { bonus: 0, pet: null }; }
-  save.emeralds += DAILY_BONUS; save.questsDone = (save.questsDone || 0) + 1; persist(); updateGems('hudGems');
+  save.emeralds += DAILY_BONUS; save.questsDone = (save.questsDone || 0) + 1; (save.questLog || (save.questLog = [])).push(dayStr()); if (save.questLog.length > 400) save.questLog.splice(0, save.questLog.length - 400); persist(); updateGems('hudGems');
   return { bonus: DAILY_BONUS, pet: petForQuest(player(), save.questsDone) };
 }
 // spustit patro dnešního úkolu; patro, které si po třech kolech za sebou dává pauzu, se nespustí ani odsud

@@ -5,13 +5,15 @@ import type { Streak } from '../logic/streak';
 import { syncDefaults, type SyncState } from '../logic/sync';
 import type { Quest } from '../logic/daily';
 import type { Player } from '../logic/player';
+import { cloudDefaults, type Cloud } from '../logic/cloud';
 
-export const SCHEMA = 10; // 1 = vše do verze hry 15 (bez čísla schématu), 2 = s číslem schématu a nejvyšším stavem vesnice,
+export const SCHEMA = 11; // 1 = vše do verze hry 15 (bez čísla schématu), 2 = s číslem schématu a nejvyšším stavem vesnice,
                         // 3 = doba řešení a záměny u úloh, procvičování, fronta pro tabulku Google (verze hry 27),
                         // 4 = převlékání rodiny (verze hry 28), 5 = název a značka zařízení pro tabulku (verze hry 39),
                         // 6 = ranní karta a dnešní úkol (verze hry 51), 7 = stupně obtížnosti podle zvládnutí (verze hry 52),
                         // 8 = hráč (Schoolcraft: Adam vestavěný, ostatní z nastavení) a písmena zapnutá rodičem (verze hry 53)
-                        // 9 = psací písmo v Psaní (verze hry 56), 10 = počet splněných dnešních úkolů pro zvířátka (verze hry 57)
+                        // 9 = psací písmo v Psaní (verze hry 56), 10 = počet splněných dnešních úkolů pro zvířátka (verze hry 57),
+                        // 11 = Schoolcraft online: přihlášení k serveru, dny splněných úkolů pro týdenní body (verze hry 59)
 
 // pauses/pauseSecs: pauzy v kole (od verze 36); secs je doba bez pauz
 export interface LogEntry { t: number; d: string; level: string; clean: number; done: number; len: number; ok: boolean; quit: boolean; secs: number; rate?: number; pauses?: number; pauseSecs?: number; lost?: number }
@@ -39,6 +41,8 @@ export interface SaveState {
   gear: { held: string; stages: Record<string, number> } | null; // nástroje: co drží v ruce, nejvyšší materiál (content/tools.ts)
   daily: { d: string; quest: Quest | null; shown: boolean }; // dnešní úkol a jestli už byla ranní karta (logic/daily.ts)
   stages: Record<string, number>; // dosažené stupně obtížnosti v patrech (logic/stages.ts), nezavírají se
+  cloud: Cloud;                 // přihlášení k serveru schoolcraft.games, fronta statistik (logic/cloud.ts)
+  questLog: string[];           // dny splněných dnešních úkolů (týdenní body v žebříčku)
   questsDone: number;           // splněné dnešní úkoly; za každý se odemkne zvířátko (logic/pets.ts)
   cursive: boolean;             // psací písmo v patře Psaní (content/glyphs.ts CURSIVE)
   letters: string[];            // souhlásky (a Ě) zapnuté rodičem, v pořadí slabikáře (logic/letters.ts)
@@ -72,11 +76,13 @@ export function defaults(): SaveState {
     letters: ['M', 'L', 'S'],
     cursive: false,
     questsDone: 0,
+    cloud: cloudDefaults(),
+    questLog: [],
   };
 }
 
 const isObj = (x: unknown): x is Record<string, unknown> => !!x && typeof x === 'object' && !Array.isArray(x);
-const NESTED = ['rounds', 'outfit', 'dog', 'gifts', 'streak', 'build', 'pron', 'momSaid', 'sync', 'famWear', 'daily', 'stages'] as const;
+const NESTED = ['rounds', 'outfit', 'dog', 'gifts', 'streak', 'build', 'pron', 'momSaid', 'sync', 'famWear', 'daily', 'stages', 'cloud'] as const;
 
 // převede jakákoli starší data na aktuální tvar; nic, co Adam získal, nezahodí
 export function migrate(raw: unknown): SaveState {
@@ -98,6 +104,9 @@ export function migrate(raw: unknown): SaveState {
   // Adam se od 24. 10. 2026 učí P (Ondřej); dřívější postup = samohlásky, M, L, S a nově P
   if (from < 8 && !Array.isArray(s.letters)) out.letters = ['M', 'L', 'S', 'P'];
   if (!Array.isArray(out.letters) || !out.letters.length) out.letters = ['M', 'L', 'S'];
+  // v10 -> v11: online začíná nepřihlášené (cloud z výchozích hodnot přes NESTED), dny úkolů prázdné
+  if (!Array.isArray(out.cloud.queue)) out.cloud.queue = [];
+  if (!Array.isArray(out.questLog)) out.questLog = [];
   // v9 -> v10: zvířátka začínají zamčená (questsDone 0 z výchozích hodnot); dřívější splněné úkoly se nepočítají
   if (typeof out.questsDone !== 'number') out.questsDone = 0;
   // v8 -> v9 (až po určení hráče výše): psací písmo; Adam ho zapnuté má (Ondřej 24. 10. 2026: „Přidej psací písmo“), ostatní ho zapne rodič
