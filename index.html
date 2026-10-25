@@ -470,7 +470,7 @@
       <div class="seg"><button class="gbtn go" id="btnFeSave">Uložit</button><button class="gbtn" id="btnFeCancel">Zrušit</button><button class="gbtn" id="btnFeDel" style="background:#a8341c">Smazat</button></div>
     </div>
     <h3>Soubor hráče</h3>
-    <p>Hráče (jméno, rodinu a hlášky) jde zkopírovat jako text a vložit na jiném zařízení, třeba připravit hru pro bratrance. Postup se tím nemění.</p>
+    <p>Hráče (jméno, rodinu a hlášky) jde zkopírovat jako text a vložit na jiném zařízení, třeba připravit hru pro bratrance. Postup se tím nemění. Obě zařízení musí mít stejnou verzi hry (číslo vlevo nahoře).</p>
     <div class="seg"><button class="gbtn" id="btnPlExport">Zkopírovat hráče</button><button class="gbtn" id="btnPlImport">Vložit hráče</button></div>
     <textarea class="copy-out" id="plText" hidden></textarea>
     <p id="plMsg" role="status"></p>
@@ -544,8 +544,10 @@
       <button class="gbtn" id="btnRestoreYes" style="background:#a8341c">Ano, vrátit</button>
       <button class="gbtn" id="btnRestoreNo">Nechat</button>
     </div>
-    <h3>Přenos na jiný tablet</h3>
-    <p>Postup jde zkopírovat jako text (třeba poslat zprávou) a na jiném tabletu vložit. Vložení nahradí postup v tomhle tabletu, předchozí stav se uloží jako záloha.</p>
+    <h3>Přenos na jiné zařízení</h3>
+    <p><b>Doporučeno:</b> přes kód hráče. Na tomhle zařízení karta Online, Ukázat kód; na novém zařízení karta Online, Vložit kód. Přenese se postup i statistiky.</p>
+    <div class="seg"><button class="gbtn go" type="button" id="btnGoOnline">Otevřít kartu Online</button></div>
+    <p class="lbl-small">Bez internetu jde postup zkopírovat i jako text (třeba poslat zprávou) a vložit na druhém zařízení. Obě zařízení musí mít stejnou verzi hry (číslo vlevo nahoře). Vložení nahradí postup v tomhle zařízení, předchozí stav se uloží jako záloha.</p>
     <div class="seg"><button class="gbtn" id="btnExport">Zkopírovat postup</button><button class="gbtn" id="btnImport">Vložit postup</button></div>
     <textarea class="copy-out" id="transferText" hidden></textarea>
     <div class="confirm" id="importConfirm" hidden>

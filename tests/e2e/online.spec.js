@@ -77,3 +77,11 @@ test('přestěhování: nová adresa stáhne postup všech profilů podle kódů
   const vita = await page.evaluate(() => JSON.parse(localStorage.getItem('adamuv-dul-v1:pvita')));
   expect(vita).toMatchObject({ total: 2, cloud: { pub: false } });
 });
+
+test('karta Postup doporučí přenos přes kód hráče a tlačítko otevře kartu Online', async ({ page }) => {
+  await openGame(page, { total: 5, seenVersion: 999 });
+  await openSettings(page, 'progress');
+  await expect(page.locator('[data-tab="progress"].set-tab')).toContainText('Doporučeno');
+  await page.locator('#btnGoOnline').click();
+  await expect(page.locator('#cloudNick')).toBeVisible();
+});

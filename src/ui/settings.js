@@ -83,6 +83,7 @@ function openGate() {
   speak('Tohle je nastavení pro rodiče.');
 }
 $('#btnSettings').addEventListener('click', openGate);
+$('#btnGoOnline').addEventListener('click', () => showSetTab('online'));
 initPlayerSet();
 initOnline();
 $('#btnCursive').addEventListener('click', () => { save.cursive = !save.cursive; applyLetters(save.letters, save.cursive); persist(); renderLetters(); });

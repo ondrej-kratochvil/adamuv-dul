@@ -1,6 +1,13 @@
 {
-  "version": 61,
+  "version": 62,
   "changes": [
+    {
+      "version": 62,
+      "date": "2026-10-25",
+      "notes": [
+        "Pro rodiče: přenos na jiné zařízení je teď nejjednodušší přes kód hráče v kartě Online."
+      ]
+    },
     {
       "version": 61,
       "date": "2026-10-25",
