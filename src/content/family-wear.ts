@@ -33,5 +33,20 @@ export const WEAR: Wear[] = [
   { id: 'carodej', name: 'čarodějné vousy', acc: 'čarodějné vousy', slot: 'mouth', price: 15, paint: R => { R(5, 9, 6, 3, '#f4f4f4'); R(6, 12, 4, 2, '#f4f4f4'); R(7, 14, 2, 1, '#f4f4f4'); R(7, 9, 2, 1, '#9b4a3c'); } },
   { id: 'dudlik', name: 'dudlík', acc: 'dudlík', slot: 'mouth', price: 6, paint: R => { R(6, 9, 4, 1, '#2f7fd1'); R(7, 10, 2, 1, '#f2c94c'); } },
   { id: 'jazyk', name: 'vyplazený jazyk', acc: 'vyplazený jazyk', slot: 'mouth', price: 6, paint: R => { R(7, 9, 2, 1, '#9b4a3c'); R(7, 10, 2, 1, '#e86080'); } },
+  // další věci (Ondřej 25. 10. 2026: „Také můžeš přidat další předměty pro členy rodiny“)
+  { id: 'hasic', name: 'hasičská helma', acc: 'hasičskou helmu', slot: 'head', price: 12, paint: R => { R(3, 1, 10, 3, '#c62f2f'); R(2, 3, 12, 1, '#a01f1f'); R(7, 1, 2, 2, '#f2c94c'); } },
+  { id: 'ksiltovka', name: 'kšiltovka', acc: 'kšiltovku', slot: 'head', price: 8, paint: R => { R(4, 1, 8, 3, '#2f6fb0'); R(10, 3, 5, 1, '#24528f'); R(7, 1, 1, 1, '#f4f4f4'); } },
+  { id: 'carodejnice', name: 'čarodějnický klobouk', acc: 'čarodějnický klobouk', slot: 'head', price: 12, paint: R => { R(7, 0, 2, 1, '#5a2d82'); R(6, 1, 4, 1, '#6a3a9a'); R(5, 2, 6, 1, '#f2c94c'); R(2, 3, 12, 1, '#5a2d82'); } },
+  { id: 'sombrero', name: 'sombrero', acc: 'sombrero', slot: 'head', price: 12, paint: R => { R(5, 0, 6, 2, '#d8a23a'); R(5, 1, 6, 1, '#c62f2f'); R(1, 2, 14, 2, '#e8b84a'); } },
+  { id: 'venecek', name: 'věneček z kytiček', acc: 'věneček z kytiček', slot: 'head', price: 8, paint: R => { [[4, '#e8459a'], [5, '#3f9b3a'], [6, '#f2c94c'], [7, '#3f9b3a'], [8, '#2f7fd1'], [9, '#3f9b3a'], [10, '#e8459a'], [11, '#3f9b3a']].forEach(([x, c]) => R(x as number, 2, 1, 1, c as string)); } },
+  { id: 'parohy', name: 'sobí parohy', acc: 'sobí parohy', slot: 'head', price: 10, paint: R => { const B = '#8a5a2e'; R(4, 0, 1, 3, B); R(3, 0, 1, 1, B); R(5, 1, 1, 1, B); R(11, 0, 1, 3, B); R(12, 0, 1, 1, B); R(10, 1, 1, 1, B); } },
+  { id: 'svatozar', name: 'svatozář', acc: 'svatozář', slot: 'head', price: 30, need: .35, paint: R => { const G = '#f2c94c'; R(5, 0, 6, 1, G); R(4, 1, 1, 1, G); R(11, 1, 1, 1, G); R(5, 2, 6, 1, G); R(5, 1, 6, 1, '#fff6b0'); } },
+  { id: 'maska', name: 'maska superhrdiny', acc: 'masku superhrdiny', slot: 'eyes', price: 10, paint: R => { R(4, 5, 8, 3, '#161616'); R(3, 6, 1, 1, '#161616'); R(12, 6, 1, 1, '#161616'); R(6, 6, 1, 1, '#f4f4f4'); R(9, 6, 1, 1, '#f4f4f4'); } },
+  { id: 'brejle3d', name: '3D brýle', acc: '3D brýle', slot: 'eyes', price: 10, paint: R => { R(4, 5, 8, 1, '#f4f4f4'); R(4, 6, 3, 2, '#e02020'); R(9, 6, 3, 2, '#2f7fd1'); R(7, 6, 2, 1, '#f4f4f4'); } },
+  { id: 'monokl', name: 'monokl', acc: 'monokl', slot: 'eyes', price: 12, paint: R => { const G = '#c9a020'; R(8, 5, 3, 1, G); R(8, 7, 3, 1, G); R(8, 6, 1, 1, G); R(10, 6, 1, 1, G); R(10, 8, 1, 3, G); } },
+  { id: 'kocici', name: 'kočičí čumáček', acc: 'kočičí čumáček s vousky', slot: 'nose', price: 8, paint: R => { R(7, 7, 2, 1, '#e88a9a'); R(3, 8, 3, 1, '#2b2b2b'); R(10, 8, 3, 1, '#2b2b2b'); R(3, 7, 2, 1, '#2b2b2b'); R(11, 7, 2, 1, '#2b2b2b'); } },
+  { id: 'upir', name: 'upíří zuby', acc: 'upíří zuby', slot: 'mouth', price: 10, paint: R => { R(6, 9, 4, 1, '#7a2a1c'); R(6, 10, 1, 1, '#f4f4f4'); R(9, 10, 1, 1, '#f4f4f4'); } },
+  { id: 'lizatko', name: 'lízátko', acc: 'lízátko', slot: 'mouth', price: 6, paint: R => { R(9, 9, 3, 1, '#f4f4f4'); R(12, 7, 3, 3, '#e8459a'); R(13, 8, 1, 1, '#f4f4f4'); } },
+  { id: 'bublina', name: 'bublina ze žvýkačky', acc: 'bublinu ze žvýkačky', slot: 'mouth', price: 6, paint: R => { R(6, 9, 4, 3, '#f4a8d0'); R(5, 10, 1, 1, '#f4a8d0'); R(10, 10, 1, 1, '#f4a8d0'); R(7, 9, 1, 1, '#ffffff'); } },
 ];
 export const wearById = (id: string): Wear | undefined => WEAR.find(w => w.id === id);

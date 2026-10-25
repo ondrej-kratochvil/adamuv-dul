@@ -44,5 +44,20 @@ export const ADAM: Player = {
   ],
   mom: { slots: MOM_SLOTS, open: MOM_OPEN, playLimitMin: MOM_PLAY_LIMIT_MIN, playText: MOM_PLAY_TEXT },
   earlyBird: EARLY_BIRD,
+  // zvířátka (Ondřej 25. 10. 2026); odemykají se postupně za splněné dnešní úkoly v tomto pořadí.
+  // Barvy u Žofinky, Karla, Mazlíka, Shadowa, Harryho a Marva rodina zatím neřekla, obrázky mají provizorní barvy.
+  pets: [
+    { id: 'sunny', name: 'Sunny', what: 'had, užovka červená', kind: 'snake', owner: 'home' },
+    { id: 'zofinka', name: 'Žofinka', what: 'zakrslý králíček', kind: 'rabbit', owner: 'home' },
+    { id: 'mysky', name: 'bílé myšky', what: 'dvě bílé myšky, které musí utíkat před Sunnym', kind: 'mice', owner: 'home' },
+    { id: 'mourek', name: 'Mourek', what: 'mourovatý kocour', kind: 'cat', owner: 'iva', stripes: true },
+    { id: 'argo', name: 'Argo', what: 'pes, bernský salašnický', kind: 'dog', owner: 'iva' },
+    { id: 'karel', name: 'Karel', what: 'papoušek, kterého babička našla', kind: 'parrot', owner: 'iva' },
+    { id: 'skalary', name: 'skaláry', what: 'rybičky v akváriu s vodními rostlinami, děda je na ně odborník', kind: 'aquarium', owner: 'ruda' },
+    { id: 'mazlik', name: 'Mazlík', what: 'kocour', kind: 'cat', owner: 'sarka', color: '#c98a4a' },
+    { id: 'shadow', name: 'Shadow', what: 'kocour', kind: 'cat', owner: 'sarka', color: '#555a60' },
+    { id: 'harry', name: 'Harry', what: 'křeček, jako lump z filmu Sám doma', kind: 'hamster', owner: 'vita' },
+    { id: 'marv', name: 'Marv', what: 'křeček, jako lump z filmu Sám doma', kind: 'hamster', owner: 'vita', color: '#b98a5a' },
+  ],
   fanLines: { ok: YOUTUBER_LINES.ok, fail: YOUTUBER_LINES.fail, share: YT_SHARE },
 };

@@ -14,6 +14,8 @@ import { startRound } from '../game/round.js';
 import { FAMILY, fam, famCanvas, holiday, todaysFan } from './family.js';
 import { gemWord, sprIcon, updateGems } from './farm.js';
 import { setBtn } from '../ui/icons.js';
+import { petForQuest } from '../logic/pets.ts';
+import { player } from '../app/player.js';
 import { checkVersion, updatePending, whenVersionKnown } from '../app/name.js';
 
 function levelName(lv) { return lv === 'practice' ? 'Procvičit' : (LEVELS[lv] || {}).name || lv; }
@@ -81,12 +83,12 @@ function renderQuest(wrap) {
   el.addEventListener('click', () => { audio(); openDay(); });
   if (old) old.replaceWith(el); else if (wrap) wrap.appendChild(el);
 }
-// po povedeném kole: posun úkolu; vrací bonus (0, když se úkol nesplnil právě teď)
+// po povedeném kole: posun úkolu; vrací bonus (0, když se úkol nesplnil právě teď) a zvířátko, které tím přibylo
 function questAfterRound(level, ok, perfect) {
   const d = ensureDaily();
-  if (!questStep(d.quest, level, ok, perfect)) { persist(); return 0; }
-  save.emeralds += DAILY_BONUS; persist(); updateGems('hudGems');
-  return DAILY_BONUS;
+  if (!questStep(d.quest, level, ok, perfect)) { persist(); return { bonus: 0, pet: null }; }
+  save.emeralds += DAILY_BONUS; save.questsDone = (save.questsDone || 0) + 1; persist(); updateGems('hudGems');
+  return { bonus: DAILY_BONUS, pet: petForQuest(player(), save.questsDone) };
 }
 function initDay() {
   $('#btnDayLater').addEventListener('click', () => { audio(); G.speechId++; $('#dayOverlay').hidden = true; $('#dayOverlay').dispatchEvent(new Event('dayclosed')); });

@@ -2,6 +2,7 @@
 // Adam je vestavěný hráč (content/player-adam.ts), ostatní si rodič nastaví v aplikaci nebo naimportuje soubor hráče.
 // Soubor hráče je jen u rodiny (export a import jako postup), do repa nepatří.
 import type { Lines } from '../content/family-lines';
+import { PET_KINDS, type PetKind } from '../content/pets';
 
 // podoba v pixelové hře (world/family.js famCanvas)
 export interface Look { hair: string; top: string; long?: boolean; bob?: number; grey?: string; bald?: boolean; buzz?: boolean; beard?: boolean | string; glasses?: boolean; small?: boolean; kid?: boolean }
@@ -12,6 +13,8 @@ export interface Person extends Look {
   birthday?: string; nameday?: string; // MM-DD: hra připomene
   role?: 'mom';     // máma připomíná jídlo, školu a spaní
 }
+// zvířátko: čí je (id člena rodiny, nebo 'home' = doma u hráče), co je zač a jak vypadá (content/pets.ts)
+export interface Pet { id: string; name: string; what: string; kind: PetKind; owner: string; color?: string; stripes?: boolean }
 export interface Friend { id: string; name: string; gen: string; friend: true }
 export interface MomSlot { id: string; from: string; to: string; text: string; weekday?: boolean; weekend?: boolean }
 export interface Player {
@@ -24,6 +27,7 @@ export interface Player {
   nameday?: string;  // MM-DD
   family: Person[];
   friends: Friend[];
+  pets?: Pet[];      // odemykají se za splněné dnešní úkoly (logic/pets.ts)
   mom?: { slots: MomSlot[]; open: { ok: string; fail: string }; playLimitMin: number; playText: string };
   earlyBird?: { who: string; until: string; ok: string; fail: string };
   fanLines?: { ok: string[]; fail: string[]; share: number }; // věty o youtuberech a postavách z videí
@@ -81,6 +85,9 @@ export function normalizePlayer(raw: unknown): Player | null {
   const friends: Friend[] = (Array.isArray(raw.friends) ? raw.friends : []).filter(isObj).filter(p => str(p.id, 24) && str(p.name, 40)).slice(0, 30)
     .map(p => ({ id: str(p.id, 24), name: str(p.name, 40), gen: str(p.gen, 40) || str(p.name, 40), friend: true as const }));
   const out: Player = { v: 1, name: str(raw.name, 30).trim(), voc: str(raw.voc, 30).trim() || forms.voc, poss: str(raw.poss, 30).trim() || forms.poss, gender, family, friends };
+  const pets: Pet[] = (Array.isArray(raw.pets) ? raw.pets : []).filter(isObj).filter(p => str(p.id, 24) && str(p.name, 30) && PET_KINDS.includes(p.kind as PetKind)).slice(0, 30)
+    .map(p => ({ id: str(p.id, 24), name: str(p.name, 30), what: str(p.what, 60), kind: p.kind as PetKind, owner: str(p.owner, 24) || 'home', ...(COLOR.test(str(p.color)) ? { color: str(p.color) } : {}), ...(p.stripes ? { stripes: true } : {}) }));
+  if (pets.length) out.pets = pets;
   if (md(raw.birthday)) out.birthday = md(raw.birthday);
   if (md(raw.nameday)) out.nameday = md(raw.nameday);
   if (isObj(raw.mom) && Array.isArray(raw.mom.slots) && isObj(raw.mom.open)) {

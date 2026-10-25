@@ -74,3 +74,24 @@ test('čeká novější verze: karta se neukáže, dokud se hra neaktualizuje', 
   await page.waitForTimeout(500);
   await expect(page.locator('#dayOverlay')).toBeHidden();
 });
+
+test('zvířátka: v Rodině zamčená; splněný dnešní úkol odemkne první (had Sunny)', async ({ page }) => {
+  await page.clock.setFixedTime(new Date('2026-10-25T15:00:00+02:00'));
+  const quest = { kind: 'rounds', level: 'letters', need: 1, got: 0, done: false };
+  await openGame(page, { total: 3, seenVersion: 999, daily: { d: '2026-10-25', quest, shown: true } });
+  await page.getByRole('button', { name: 'Rodina', exact: true }).click();
+  await expect(page.locator('#famItems')).toContainText('Zvířátka (0 z 11)');
+  await expect(page.locator('#famItems .pet-item.locked')).toHaveCount(11);
+  await page.locator('#btnFamBack').click();
+  await playRound(page, 'Písmena');
+  await expect(page.locator('#newPet')).toContainText('Nové zvířátko v Rodině: Sunny!');
+  await expect.poll(() => page.evaluate(() => window.__said.join(' '))).toContain('A v Rodině přibylo zvířátko: Sunny, had, užovka červená. Bydlí u vás doma.');
+  expect((await saved(page)).questsDone).toBe(1);
+  await page.locator('#btnEndHome').click();
+  await page.getByRole('button', { name: 'Rodina', exact: true }).click();
+  await expect(page.locator('#famItems')).toContainText('Zvířátka (1 z 11)');
+  await page.locator('#famItems .pet-item').first().click();
+  await expect.poll(() => page.evaluate(() => window.__said.at(-1))).toContain('Sunny, had, užovka červená');
+  await page.locator('#famItems .pet-item.locked').first().click();
+  await expect.poll(() => page.evaluate(() => window.__said.at(-1))).toContain('až splníš ještě 1 dnešní úkol');
+});

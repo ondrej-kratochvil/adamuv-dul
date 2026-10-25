@@ -4,7 +4,7 @@ import { openGame, openSettings, saved } from './helpers.js';
 
 const said = page => page.evaluate(() => window.__said.join(' | '));
 
-test('Adam koupí čepici, dá ji babičce Ivě a pak ji dá i Víťovi', async ({ page }) => {
+test('Adam koupí čepici, dá ji babičce Ivě; Víťovi zároveň až po koupi druhé (Ondřej 25. 10. 2026)', async ({ page }) => {
   await openGame(page, { total: 5, emeralds: 30 });
   await page.getByRole('button', { name: 'Rodina', exact: true }).click();
   await expect(page.locator('#family')).toBeVisible();
@@ -17,12 +17,19 @@ test('Adam koupí čepici, dá ji babičce Ivě a pak ji dá i Víťovi', async 
   expect(s.emeralds).toBe(22);
   await expect.poll(() => said(page)).toContain('Babička Iva má teď čepici s bambulí');
   await page.getByRole('button', { name: 'bratranec Víťa', exact: true }).click();
+  await cap.click(); // jedinou čepici nosí babička: hra nabídne další kus
+  await expect.poll(() => said(page)).toContain('jedinou, kterou máš, už někdo nosí. Další stojí 8 smaragdů');
+  expect((await saved(page)).famWear).toEqual({ iva: { head: 'cepice' } });
   await cap.click();
   s = await saved(page);
+  expect(s.famOwned).toEqual(['cepice', 'cepice']);
   expect(s.famWear).toEqual({ iva: { head: 'cepice' }, vita: { head: 'cepice' } });
-  expect(s.emeralds).toBe(22); // koupená věc se neplatí znovu
+  expect(s.emeralds).toBe(14);
   await cap.click();
   expect((await saved(page)).famWear).toEqual({ iva: { head: 'cepice' } });
+  await cap.click(); // sundaná čepice jde zase nasadit bez placení
+  expect((await saved(page)).emeralds).toBe(14);
+  await cap.click();
   await expect.poll(() => said(page)).toContain('Bratranec Víťa už nemá čepici s bambulí');
   await page.screenshot({ path: 'test-results/rodina.png' });
 });
@@ -35,6 +42,18 @@ test('vzácná koruna je zamčená a drahá věc bez smaragdů nejde koupit', as
   await page.getByRole('button', { name: 'vikingská helma', exact: true }).click();
   await expect.poll(() => said(page)).toContain('stojí 15 smaragdů');
   expect((await saved(page)).famOwned).toEqual([]);
+});
+
+test('dřív rozdaná věc víckrát zůstane; po sundání je pro dalšího potřeba dokoupit', async ({ page }) => {
+  await openGame(page, { total: 5, emeralds: 3, famOwned: ['slunecni'], famWear: { iva: { eyes: 'slunecni' }, bob: { eyes: 'slunecni' } } });
+  await page.getByRole('button', { name: 'Rodina', exact: true }).click();
+  await page.getByRole('button', { name: 'děda Bob', exact: true }).click();
+  const gl = page.getByRole('button', { name: 'sluneční brýle', exact: true });
+  await gl.click(); // sundat Bobovi
+  expect((await saved(page)).famWear).toEqual({ iva: { eyes: 'slunecni' } });
+  await gl.click(); // zpátky už jen s dalším kusem
+  await expect.poll(() => said(page)).toContain('už někdo nosí. Další stojí 8 smaragdů');
+  expect((await saved(page)).famWear).toEqual({ iva: { eyes: 'slunecni' } });
 });
 
 test('převlečený portrét je vidět i na úvodní obrazovce a Sundat všechno ho vrátí', async ({ page }) => {

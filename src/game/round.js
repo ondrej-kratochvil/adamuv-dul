@@ -24,6 +24,7 @@ import { FARM_STAGES, FARM_START, PERFECT_BONUS, bark, dogHappy, drawFarm, farmS
 import { dayWord, registerDay } from '../rewards/streak.js';
 import { cheerFor, dogName } from '../world/family.js';
 import { questAfterRound } from '../world/daily.js';
+import { petCanvas, petSay } from '../world/pets.js';
 import { ROMAN, checkEnchants, enchLevel, luckBonus, pieceName } from '../rewards/enchant.js';
 import { BLD_STAGES, VILLAGE_BONUS, checkVillage, signCanvas } from '../world/village.js';
 import { NETHER_STAGES, PORTAL_NEED, mineTex } from '../world/nether.js';
@@ -274,7 +275,7 @@ function endRound() {
     // nepovedené kolo se nepočítá: nic neroste, nic se neodemyká, obtížnost se nezvedá (smaragdy za kostky bez chyby zůstanou)
     title.textContent = 'Skoro!'; title.classList.add('fail');
     $('#endLine').textContent = `Bez chyby: ${G.R.clean} z ${G.R.len}. ${grows}, když jich bude aspoň ${need}.`;
-    np.hidden = true; no.hidden = true; $('#newNether').hidden = true; $('#newBaby').hidden = true; $('#newPrerov').hidden = true; $('#newStage').hidden = true;
+    np.hidden = true; no.hidden = true; $('#newNether').hidden = true; $('#newBaby').hidden = true; $('#newPrerov').hidden = true; $('#newStage').hidden = true; $('#newPet').hidden = true;
     setBtn($('#btnAgain'), 'retry', 'Zkusit znovu');
     showEndPlace(building ? 'house' : 'farm');
     const got = G.R.clean, R_len = G.R.len;
@@ -293,9 +294,13 @@ function endRound() {
   const before = tierOf(save.total);
   save.total++; if (level in save.rounds) save.rounds[level]++; else if (level === 'practice') save.practice = (save.practice || 0) + 1; persist();
   const day = registerDay();
-  const questBonus = questAfterRound(level, true, perfect); // dnešní úkol (world/daily.js)
+  const { bonus: questBonus, pet } = questAfterRound(level, true, perfect); // dnešní úkol (world/daily.js)
   if (day || questBonus) showGems(day ? day.bonus : 0, questBonus);
-  const questTalk = questBonus ? ` ${gx('Splnil', 'Splnila')} jsi dnešní úkol! Bonus ${questBonus} ${gemWord(questBonus)}.` : '';
+  // za splněný úkol přibude zvířátko rodiny (logic/pets.ts)
+  const npet = $('#newPet');
+  if (pet) { npet.hidden = false; npet.innerHTML = ''; const pc = petCanvas(pet); pc.style.width = pc.style.height = '40px'; npet.appendChild(pc); npet.insertAdjacentHTML('beforeend', `<span>Nové zvířátko v Rodině: ${pet.name}!</span>`); }
+  else npet.hidden = true;
+  const questTalk = questBonus ? ` ${gx('Splnil', 'Splnila')} jsi dnešní úkol! Bonus ${questBonus} ${gemWord(questBonus)}.` + (pet ? ` A v Rodině přibylo zvířátko: ${petSay(pet)}` : '') : '';
   // nový stupeň obtížnosti (podle zvládnutých úloh, logic/stages.ts): oznámit, co se otevřelo
   const opened = updateStages(), ns = $('#newStage');
   const stageTalk = opened.length ? ` Novinka! ${opened.map(o => `V patře ${LEVELS[o.lv] ? LEVELS[o.lv].name : ''} teď budou i ${o.news}`).join('. ')}.` : '';

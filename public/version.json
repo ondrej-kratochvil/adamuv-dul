@@ -1,6 +1,14 @@
 {
-  "version": 56,
+  "version": 57,
   "changes": [
+    {
+      "version": 57,
+      "date": "2026-10-25",
+      "notes": [
+        "V Rodině jsou zvířátka: Sunny, Žofinka, Mourek, Argo a další. Za každý splněný dnešní úkol se jedno odemkne.",
+        "Stejnou věc může mít víc lidí z rodiny, jen když ji koupíš víckrát. A přibylo 14 nových věcí, třeba hasičská helma, upíří zuby nebo lízátko."
+      ]
+    },
     {
       "version": 56,
       "date": "2026-10-24",
