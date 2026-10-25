@@ -70,3 +70,12 @@ test('změna jména dopočítá oslovení; soubor hráče jde vložit na jiném 
   expect(s.player).toMatchObject({ name: 'Víťa', voc: 'Víťo' });
   expect(s.total).toBe(5); // postup zůstal
 });
+
+test('nová hra: písmena se vyberou hned při založení hráče (Vašek 25. 10. 2026)', async ({ page }) => {
+  await openGame(page, null, { fresh: true });
+  await page.locator('#setupName').fill('Víťa');
+  await page.locator('#setupLetters [data-letter="P"]').click();
+  await page.locator('#setupLetters [data-letter="T"]').click();
+  await page.locator('#btnSetupGo').click();
+  expect((await saved(page)).letters).toEqual(['M', 'L', 'S', 'P', 'T']);
+});

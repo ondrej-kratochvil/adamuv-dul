@@ -6,6 +6,7 @@ import { syncDefaults, type SyncState } from '../logic/sync';
 import type { Quest } from '../logic/daily';
 import type { Player } from '../logic/player';
 import { cloudDefaults, type Cloud } from '../logic/cloud';
+import { packText, unpackText } from '../logic/transfer';
 
 export const SCHEMA = 11; // 1 = vše do verze hry 15 (bez čísla schématu), 2 = s číslem schématu a nejvyšším stavem vesnice,
                         // 3 = doba řešení a záměny u úloh, procvičování, fronta pro tabulku Google (verze hry 27),
@@ -124,15 +125,11 @@ export function migrate(raw: unknown): SaveState {
 
 /* ---------- přenos postupu na jiné zařízení ---------- */
 const PREFIX = 'ADAMUV-DUL-POSTUP:';
-export const exportText = (s: SaveState): string => PREFIX + JSON.stringify(s);
-// vrátí převedený stav, nebo null, když text není postup z této hry
+// zakódovaně, ať text přežije messenger (logic/transfer.ts); bez přihlášení k serveru (to patří k zařízení)
+export const exportText = (s: SaveState): string => { const { cloud: _c, ...rest } = s; void _c; return packText(PREFIX, rest); };
+// vrátí převedený stav, nebo null, když text není postup z této hry (zakódovaný i starý čitelný tvar)
 export function importText(text: string): SaveState | null {
-  // e-mail dlouhý řádek zalomí (i uprostřed textu, třeba „Adamův důl“); konce řádků v JSON nejsou potřeba, nahradí je mezera
-  const t = text.replace(/\s*[\r\n]+\s*/g, ' ').trim();
-  const json = t.startsWith(PREFIX) ? t.slice(PREFIX.length) : t;
-  try {
-    const raw = JSON.parse(json);
-    if (!isObj(raw) || typeof raw.total !== 'number' || !isObj(raw.rounds)) return null;
-    return migrate(raw);
-  } catch { return null; }
+  const raw = unpackText(PREFIX, text);
+  if (!isObj(raw) || typeof raw.total !== 'number' || !isObj(raw.rounds)) return null;
+  return migrate(raw);
 }

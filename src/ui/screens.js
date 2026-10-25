@@ -59,8 +59,12 @@ function renderHome() {
   mountPlayer($('#heroPlayer'));
   const wrap = $('#levels'); wrap.innerHTML = '';
   renderUpdate(wrap);
-  renderFan(wrap);
-  renderQuest(wrap); // dnešní úkol (world/daily.js)
+  // na tabletu nahoru do nebe (neposouvá se s dlaždicemi), vedle sebe; na mobilu pod nebe jako dřív
+  const info = $('#homeInfo'), wide = matchMedia('(min-width: 700px)').matches;
+  info.innerHTML = ''; info.hidden = !wide;
+  const slot = wide ? info : wrap;
+  renderFan(slot);
+  renderQuest(slot); // dnešní úkol (world/daily.js)
   // dlaždice pater a dalších obrazovek; na velké obrazovce sloupec vlevo, místa (dům, farma…) vpravo
   const tiles = document.createElement('div'); tiles.className = 'tiles'; wrap.appendChild(tiles);
   const resting = restingLevel(save.log, Object.keys(LEVELS));

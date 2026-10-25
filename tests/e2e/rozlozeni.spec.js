@@ -61,3 +61,14 @@ test('tablet na výšku: náhledy míst stejně vysoké a nápis hned pod obráz
   expect(cards.filter(c => c.wide).length).toBe(2);
   await page.screenshot({ path: 'test-results/domu-tablet.png', fullPage: true });
 });
+
+test('tablet: pozdrav a dnešní úkol vedle sebe v nebi, po posunutí dlaždic pořád vidět (Ondřej 25. 10. 2026)', async ({ page }) => {
+  await page.setViewportSize({ width: 800, height: 1280 });
+  await openGame(page, { total: 30, seenVersion: 999 });
+  await expect(page.locator('#homeInfo .fan')).toBeVisible();
+  await expect(page.locator('#homeInfo #questStrip')).toBeVisible();
+  const [a, b] = await Promise.all([page.locator('#homeInfo .fan').boundingBox(), page.locator('#homeInfo #questStrip').boundingBox()]);
+  expect(Math.abs(a.y - b.y)).toBeLessThan(40); // vedle sebe
+  await page.locator('.home-ground').evaluate(e => e.scrollTo(0, 600));
+  await expect(page.locator('#homeInfo #questStrip')).toBeInViewport();
+});

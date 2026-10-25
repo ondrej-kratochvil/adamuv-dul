@@ -7,7 +7,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" href="icon-192.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
-<meta name="apple-mobile-web-app-title" content="Adamův důl">
+<meta name="apple-mobile-web-app-title" content="Schoolcraft">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);box-sizing:border-box;height:100%}*,*::before,*::after{box-sizing:border-box}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
@@ -40,6 +40,8 @@
           <div class="player hero" id="heroPlayer"></div>
           <h1 class="title" id="gameTitle" role="button" tabindex="0" aria-label="Vybrat název hry">Adamův důl</h1>
         </div>
+        <!-- tablet a počítač: pozdrav a dnešní úkol v nebi, které se neposouvá (Ondřej 25. 10. 2026) -->
+        <div class="home-info" id="homeInfo" hidden></div>
       </div>
       <div class="grass-strip px" data-tex="grass"></div>
     </div>
@@ -378,6 +380,8 @@
       <input id="setupName" type="text" maxlength="30" autocomplete="off" required placeholder="třeba Ema nebo Jakub">
       <div class="seg" id="setupGender"><button class="gbtn" type="button" data-g="m" aria-pressed="true">kluk</button><button class="gbtn" type="button" data-g="f" aria-pressed="false">holka</button></div>
       <p class="lbl-small" id="setupVoc"></p>
+      <label class="lbl-small">Která písmena už zná (samohlásky vždy, souhlásky klepnutím; jde změnit i později v nastavení)</label>
+      <div class="letter-toggles" id="setupLetters"></div>
       <div class="actions"><button class="gbtn go" id="btnSetupGo" type="submit" data-icon="next">Začít hrát</button></div>
     </form>
     <p class="lbl-small">Rodinu, která bude dítěti fandit, a další nastavení najdete později pod ozubeným kolem (pro rodiče).</p>

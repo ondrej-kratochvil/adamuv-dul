@@ -3,6 +3,7 @@
 // Soubor hráče je jen u rodiny (export a import jako postup), do repa nepatří.
 import type { Lines } from '../content/family-lines';
 import { PET_KINDS, type PetKind } from '../content/pets';
+import { packText, unpackText } from './transfer';
 
 // podoba v pixelové hře (world/family.js famCanvas)
 export interface Look { hair: string; top: string; long?: boolean; bob?: number; grey?: string; bald?: boolean; buzz?: boolean; beard?: boolean | string; glasses?: boolean; small?: boolean; kid?: boolean }
@@ -72,7 +73,7 @@ export function normalizePlayer(raw: unknown): Player | null {
   const forms = guessForms(str(raw.name, 30), gender);
   const lines = (l: unknown) => isObj(l) ? { cheers: strs(l.cheers), enc: strs(l.enc), hello: str(l.hello), ...(l.helloMorning ? { helloMorning: str(l.helloMorning) } : {}) } : undefined;
   const family: Person[] = (Array.isArray(raw.family) ? raw.family : []).filter(isObj).filter(p => str(p.id, 24) && str(p.name, 40)).slice(0, 30).map(p => ({
-    id: str(p.id, 24), name: str(p.name, 40), gen: str(p.gen, 40) || str(p.name, 40), f: !!p.f,
+    id: str(p.id, 24), name: str(p.name, 40), gen: str(p.gen, 40) || str(p.name, 40), f: !!p.f || p.role === 'mom', // máma je žena i v souboru, kde to rodič nezaškrtl (Víťova máma Terka, 25. 10. 2026)
     hair: COLOR.test(str(p.hair)) ? str(p.hair) : '#6b4a2a', top: COLOR.test(str(p.top)) ? str(p.top) : '#3f9b3a',
     ...(p.long ? { long: true } : {}), ...(typeof p.bob === 'number' ? { bob: Math.max(4, Math.min(10, p.bob)) } : {}),
     ...(COLOR.test(str(p.grey)) ? { grey: str(p.grey) } : {}), ...(p.bald ? { bald: true } : {}), ...(p.buzz ? { buzz: true } : {}),
@@ -100,11 +101,9 @@ export function normalizePlayer(raw: unknown): Player | null {
   return out;
 }
 
-export const exportPlayer = (p: Player): string => PLAYER_PREFIX + JSON.stringify(p);
-export function importPlayer(text: string): Player | null {
-  const t = text.replace(/\s*[\r\n]+\s*/g, ' ').trim();
-  try { return normalizePlayer(JSON.parse(t.startsWith(PLAYER_PREFIX) ? t.slice(PLAYER_PREFIX.length) : t)); } catch { return null; }
-}
+// zakódovaně, ať text přežije messenger (logic/transfer.ts); vloží se i starý čitelný tvar
+export const exportPlayer = (p: Player): string => packText(PLAYER_PREFIX, p);
+export const importPlayer = (text: string): Player | null => normalizePlayer(unpackText(PLAYER_PREFIX, text));
 
 // vlastní narozeniny a svátky rodiny (Adamovy Vánoce řeší kalendář zvlášť)
 export interface PersonalDay { id: string; who?: string; all?: boolean; gift?: number; text: string }

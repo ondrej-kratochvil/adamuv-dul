@@ -1,6 +1,14 @@
 {
-  "version": 59,
+  "version": 60,
   "changes": [
+    {
+      "version": 60,
+      "date": "2026-10-25",
+      "notes": [
+        "Na tabletu je pozdrav a dnešní úkol nahoře vedle sebe a nezmizí, když posuneš dlaždice.",
+        "Hru si můžeš nainstalovat jako aplikaci, pak bude přes celou obrazovku."
+      ]
+    },
     {
       "version": 59,
       "date": "2026-10-25",

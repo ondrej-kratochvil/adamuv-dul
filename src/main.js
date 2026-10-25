@@ -102,6 +102,9 @@ addEventListener('online', () => flushSync());
 document.addEventListener('visibilitychange', () => { if (document.hidden) { pauseRound(true); flushRate(); syncCloud(true); } else { checkVersion(); flushSync(); } }); // odchod z aplikace = pauza
 paintTextures();
 renderHome();
+// otočení tabletu: pozdrav a úkol se přesunou mezi nebe a dlaždice (ui/screens.js)
+let wasWide = matchMedia('(min-width: 700px)').matches;
+addEventListener('resize', () => { const w = matchMedia('(min-width: 700px)').matches; if (w !== wasWide && !$('#home').hidden) renderHome(); wasWide = w; });
 initSetup(); if (needsSetup()) openSetup(profile.id !== MAIN_ID ? profile.name : ''); // nová hra: kdo hraje
 initDay(); // ranní karta při prvním otevření dne
 // ikona na ploše a hraní bez internetu

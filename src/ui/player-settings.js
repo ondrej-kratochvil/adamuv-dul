@@ -19,6 +19,9 @@ function genWord(w) {
   if (/[aeiouyáéíóúůý]$/.test(low)) return w;
   return w + 'a';                                                                        // Bob → Boba
 }
+// ženský rod podle prvního slova (máma Pája, babička Iva…); rodič může zaškrtnout i ručně
+const FEMALE = ['máma', 'mamka', 'babička', 'babi', 'prababička', 'teta', 'sestra', 'ségra', 'sestřenice', 'kamarádka', 'paní'];
+const isFemaleName = name => FEMALE.includes(name.trim().split(/\s+/)[0].toLocaleLowerCase('cs'));
 const genGuess = name => name.trim().split(/\s+/).map(genWord).join(' ');
 // svátek podle kalendáře jmen (Adam → 24. 12.); přezdívky kalendář nezná
 function namedayOf(name) {
@@ -70,7 +73,7 @@ function openEditor(id) {
 // náhled obličeje podle zaškrtnutých políček
 function readEditor(base = {}) {
   const lines = s => s.split('\n').map(x => x.trim()).filter(Boolean).slice(0, 60);
-  const m = { ...base, name: $('#feName').value.trim(), gen: $('#feGen').value.trim() || genGuess($('#feName').value), f: $('#feF').checked, hair: $('#feHair').value, top: $('#feTop').value };
+  const m = { ...base, name: $('#feName').value.trim(), gen: $('#feGen').value.trim() || genGuess($('#feName').value), f: $('#feF').checked || $('#feMom').checked || isFemaleName($('#feName').value), hair: $('#feHair').value, top: $('#feTop').value };
   for (const [k, el] of [['long', '#feLong'], ['glasses', '#feGlasses'], ['bald', '#feBald'], ['kid', '#feKid']]) { if ($(el).checked) m[k] = true; else delete m[k]; }
   if ($('#feBeard').checked) m.beard = typeof base.beard === 'string' ? base.beard : true; else delete m.beard;
   if ($('#feMom').checked) m.role = 'mom'; else delete m.role;
@@ -104,6 +107,8 @@ function initPlayerSet() {
   }));
   $('#btnFamAdd').addEventListener('click', () => openEditor(''));
   ['#feF', '#feLong', '#feGlasses', '#feBeard', '#feBald', '#feKid', '#feHair', '#feTop'].forEach(id => $(id).addEventListener('input', facePreview));
+  $('#feMom').addEventListener('change', () => { if ($('#feMom').checked) { $('#feF').checked = true; facePreview(); } });
+  $('#feName').addEventListener('input', () => { if (isFemaleName($('#feName').value)) $('#feF').checked = true; });
   $('#feName').addEventListener('change', () => { if (!$('#feGen').value.trim() || editId === '') $('#feGen').value = genGuess($('#feName').value); });
   $('#btnFeCancel').addEventListener('click', () => { $('#famEdit').hidden = true; editId = null; });
   $('#btnFeSave').addEventListener('click', () => {
