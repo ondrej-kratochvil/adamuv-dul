@@ -69,7 +69,7 @@ test('přestěhování: nová adresa stáhne postup všech profilů podle kódů
   await page.goto('./?presun=1#presun=' + enc); // jiná adresa, ať se stránka opravdu načte (samotné # by byl skok na stránce)
   await page.waitForURL(u => !u.hash.includes('presun'));
   await expect(page.locator('#home')).toBeVisible();
-  await expect.poll(() => page.evaluate(() => window.__adam.save.total)).toBe(7);
+  await page.waitForFunction(() => window.__adam && window.__adam.save.total === 7); // po znovunačtení hra ještě chvíli startuje (na GitHubu rychleji než doma)
   const s = await saved(page);
   expect(s).toMatchObject({ emeralds: 42, player: 'adam', cloud: { id: ID, on: true, pub: true } });
   const reg = await page.evaluate(() => JSON.parse(localStorage.getItem('adamuv-dul-profily')));
