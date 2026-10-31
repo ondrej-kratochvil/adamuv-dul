@@ -36,6 +36,15 @@ export function sanitizeSummary(raw: unknown): Summary {
 }
 
 export const MAX_SAVE = 1_500_000; // znaků zálohy postupu
+// skupina v žebříčku: kód pozvánky 12 znaků 0-9a-f, název jako přezdívka (nejvýš 30 znaků)
+export const validGroupCode = (x: unknown): string | null => typeof x === 'string' && /^[0-9a-f]{12}$/.test(x.trim().toLowerCase()) ? x.trim().toLowerCase() : null;
+export function sanitizeGroupName(x: unknown): string {
+  const s = typeof x === 'string' ? x.replace(/[\u0000-\u001f\u007f<>]/g, '').replace(/\s+/g, ' ').trim().slice(0, 30) : '';
+  return s || 'Skupina';
+}
+// body za týden, které server uzná: povedená kola z došlých statistik + 3 za každý den s povedeným kolem (dnešní úkol),
+// nejvýš kolik hra hlásí (hra může podvádět jen do výše toho, co opravdu poslala jako odehraná kola)
+export const allowedPoints = (claimed: number, rounds: number, days: number): number => Math.max(0, Math.min(claimed, rounds + 3 * Math.min(7, days)));
 // uchovávání (31. 10. 2026): statistiky úloh 12 měsíců, hráč nepřihlášený 2 roky se smaže i se vším
 export const EVENTS_KEEP_MS = 365 * 864e5, PLAYER_KEEP_MS = 730 * 864e5;
 // které požadavky se počítají do přísnějšího limitu (zakládání): nový hráč, skupina, upozornění

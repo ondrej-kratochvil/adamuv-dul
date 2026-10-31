@@ -118,8 +118,8 @@ přidej i odměny, aby Adam nedošel na strop dřív, než dojde obsah.
 ## O hře a soukromí (Ondřej 31. 10. 2026)
 
 - Přehled pro rodiče (`#aboutOverlay`, `src/ui/about.js`), bez zámku: odkaz v úvodním nastavení nového hráče, dole na úvodní
-  obrazovce a na kartě Online. Určení hry, bezpečnost, co se kam ukládá (pravdivě: online je u nového hráče zapnuté, záloha
-  obsahuje údaje o hráči a rodině, písma z Google Fonts), smazání, správce a kontakt. Když se změní, co se ukládá nebo posílá,
+  obrazovce a na kartě Online. Určení hry, bezpečnost, co se kam ukládá (pravdivě: online jen se souhlasem rodiče, záloha
+  obsahuje údaje o hráči a rodině, žebříček jen ve skupině), smazání a uchovávání, správce a kontakt. Když se změní, co se ukládá nebo posílá,
   opravit tento text i kartu Online a `docs/prirucka.md`.
 
 ## Verze a novinky
@@ -171,6 +171,13 @@ aktualizaci a po ní novinky ukáže.
 - Online ve hře: `src/app/cloud.js` (přihlášení zařízení kódem, záloha postupu, statistiky, žebříček), pravidla
   v `src/logic/cloud.ts`. V testech je server zablokovaný (`tests/e2e/helpers.js`), testy online si ho napodobí.
 - Do žebříčku jde jen přezdívka, postavička, týdenní body a co je postavené; nikdy jméno rodiny, chyby ani statistiky.
+- **Online jen se souhlasem** (31. 10. 2026): `cloudDefaults().on = false`, zapíná se zaškrtnutím v úvodním nastavení (`#setupOnline`)
+  nebo na kartě Online. Starší postupy si nastavení nechávají.
+- **Skupiny** (migrace `0004_groups.sql`): žebříček (`/api/leaderboard`) a upozornění na předběhnutí jen mezi hráči jedné skupiny;
+  skupinu založí rodič (`POST /api/group`, kód pozvánky 12 znaků) nebo se připojí kódem (`PUT /api/group`). Kód skupiny
+  „Rodina“ pro dosavadní hráče vznikl v databázi (není v repu), rodič ho vidí na kartě Online.
+- **Body** v žebříčku server ořízne na poslaná povedená kola tohoto týdne + 3 za den (`allowedPoints`); hra proto posílá
+  statistiky před souhrnem (`syncCloud`). **Výměna kódu hráče**: `POST /api/me/secret` (karta Online, Vyměnit kód).
 - **Ranní upozornění** (web push, Ondřej 31. 10. 2026): rodič zapne na kartě Hra (`src/ui/push-settings.js`, `src/app/push.js`,
   pravidla `src/logic/push.ts`), hodina 5 až 9, výchozí 7. Server (`worker/push.ts`, tabulky `push_subs` a `config`
   v `worker/migrations/0002_push.sql`) každou celou hodinu (cron v `wrangler.jsonc`) pošle prázdnou zprávu zařízením

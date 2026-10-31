@@ -48,12 +48,13 @@ async function syncCloud(force = false) {
   busy = true;
   try {
     if (!c.id) { const r = await call('/api/players', { method: 'POST', body: JSON.stringify({ nick: nick(), public: isPublic() }) }); c.id = r.id; c.secret = r.secret; persist(); }
-    await call('/api/me', { method: 'PUT', headers: auth(), body: JSON.stringify({ nick: nick(), public: isPublic(), ...weekNow(), summary: summary(), save: backupOf(save) }) });
+    // nejdřív statistiky, pak souhrn: server uzná body jen za kola, která už dostal (worker allowedPoints)
     while (c.queue.length) {
       const batch = c.queue.slice(0, EVENTS_BATCH);
       await call('/api/events', { method: 'POST', headers: auth(), body: JSON.stringify({ rows: batch }) });
       c.queue.splice(0, batch.length);
     }
+    await call('/api/me', { method: 'PUT', headers: auth(), body: JSON.stringify({ nick: nick(), public: isPublic(), ...weekNow(), summary: summary(), save: backupOf(save) }) });
     c.last = Date.now(); c.error = ''; keep();
     return true;
   } catch (e) { c.error = String(e && e.message || e).slice(0, 200); keep(); return false; }
@@ -87,5 +88,12 @@ async function deleteCloud() {
   save.cloud = { ...save.cloud, id: '', secret: '', on: false, queue: [], last: 0, error: '' }; persist();
 }
 
+// skupina pro žebříček (worker: /api/group) a výměna kódu hráče (/api/me/secret)
+async function cloudMe() { return call('/api/me', { headers: auth() }); }
+async function createGroup(name) { return call('/api/group', { method: 'POST', headers: auth(), body: JSON.stringify({ name }) }); }
+async function joinGroup(code) { return call('/api/group', { method: 'PUT', headers: auth(), body: JSON.stringify({ code: code.trim().toLowerCase() }) }); }
+async function leaveGroup() { return call('/api/group', { method: 'DELETE', headers: auth() }); }
+async function rotateSecret() { const r = await call('/api/me/secret', { method: 'POST', headers: auth() }); save.cloud.secret = r.secret; persist(); return r; }
+export { cloudMe, createGroup, joinGroup, leaveGroup, rotateSecret };
 export { API, deleteCloud, leaderboard, queueCloud, restoreFromCode, summary, syncCloud };
 export const isMainProfile = () => profile.id === MAIN_ID;

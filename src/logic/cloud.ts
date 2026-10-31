@@ -4,7 +4,8 @@ import { dayNum } from './calendar';
 
 // on = posílat na server (záloha, statistiky), pub = být vidět v žebříčku (testovací profil se zálohuje, ale v žebříčku není)
 export interface Cloud { id: string; secret: string; on: boolean; pub: boolean; nick: string; last: number; queue: Record<string, unknown>[]; error: string }
-export const cloudDefaults = (): Cloud => ({ id: '', secret: '', on: true, pub: true, nick: '', last: 0, queue: [], error: '' });
+// online jen se souhlasem rodiče (31. 10. 2026): nový hráč začíná vypnutý, zapne se v úvodním nastavení nebo na kartě Online
+export const cloudDefaults = (): Cloud => ({ id: '', secret: '', on: false, pub: true, nick: '', last: 0, queue: [], error: '' });
 export const QUEUE_MAX = 2000, EVENTS_BATCH = 100, PUSH_EVERY_MS = 30000;
 
 // pondělí týdne podle místního času zařízení (stejně jako server, worker/logic.ts weekKey)

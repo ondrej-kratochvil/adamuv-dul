@@ -2,7 +2,7 @@
 
 > **Co:** jak hru nainstalovat, nastavit a používat; co dítě ve hře dělá a za co dostává odměny; řešení potíží
 > **Stav:** aktivní
-> **Stav k:** 31. 10. 2026 (hra verze 72)
+> **Stav k:** 31. 10. 2026 (hra verze 74)
 > **Souhrn:**
 > - Hra učí písmena, slabiky, čtení, čísla, počty, psaní a sluch pro výslovnost; za zvládnuté úkoly si dítě staví svůj svět.
 > - Hraje se na https://schoolcraft.games, nejlépe přidané na plochu tabletu jako aplikace; jde i bez internetu.
@@ -36,7 +36,8 @@ Hra se zeptá **Kdo bude hrát?**:
 
 - **jméno dítěte** (hra z něj odvodí oslovení, třeba Jakube, Emo; jde opravit v nastavení);
 - **kluk / holka** (podle toho hra skloňuje: „našel jsi“ / „našla jsi“);
-- **písmena, která už zná**: samohlásky jsou zapnuté vždy, souhlásky zapněte podle školy (výchozí M, L, S).
+- **písmena, která už zná**: samohlásky jsou zapnuté vždy, souhlásky zapněte podle školy (výchozí M, L, S);
+- **hrát online** (nezaškrtnuté): záloha na serveru a žebříček skupiny; jde zapnout i později na kartě Online.
 
 Hraje-li dítě už na jiném zařízení, klepněte na **Načíst QR kód hráče** a postup se stáhne (viz oddíl 8).
 
@@ -215,12 +216,16 @@ Upozornění, otisk prstu, vibrace a tabulka Google patří zařízení: na nov�
 
 ## 9. Online a žebříček
 
-Karta **Online** → **Online: zapnuto**:
+Online je u nového hráče vypnuté; zapnete ho v úvodním nastavení nebo na kartě **Online** → **Online: zapnuto**:
 
 - postup se zálohuje na server Schoolcraft (Cloudflare, data v EU);
 - statistiky úloh se ukládají i na server;
-- **žebříček**: děti se porovnávají podle týdenních bodů (1 za povedené kolo, 3 za dnešní úkol, od pondělí);
-  vidí přezdívku, postavičku a co kdo má postavené. **V žebříčku: ne** dítě ze žebříčku schová.
+- **žebříček je jen ve skupině** (rodina, třída): na kartě Online **Založit skupinu** a kód pozvánky pošlete ostatním rodičům,
+  nebo **Připojit kódem**. Bez skupiny vidí dítě v žebříčku jen sebe; cizí lidé se do skupiny bez kódu nedostanou.
+- body za týden: 1 za povedené kolo, 3 za dnešní úkol, od pondělí; server uzná jen kola, která opravdu dostal.
+  **V žebříčku: ne** dítě ze žebříčku schová.
+- **Vyměnit kód**: když kód hráče nebo QR viděl někdo cizí; starý přestane platit.
+- Statistiky se na serveru mažou po 12 měsících, hráč, který se 2 roky nepřipojí, se smaže celý.
 - Do žebříčku jde jen přezdívka, postavička, body a stavby; nikdy jméno rodiny, chyby ani statistiky.
 - **Smazat ze serveru** smaže hráče i statistiky na serveru (postup v zařízení zůstane).
 
@@ -258,9 +263,9 @@ Karta **Profily**: další hráč (sourozenec, kamarád) nebo testovací profil 
 Stejné informace má hra i v sobě: odkaz **O hře a soukromí** v úvodním nastavení nového hráče, dole na úvodní obrazovce
 a na kartě Online (bez zámku).
 
-- Online je u nového hráče zapnuté; vypnout jde na kartě Online. Záloha na serveru obsahuje i údaje o hráči a rodině
+- Online je u nového hráče vypnuté a zapíná ho rodič. Záloha na serveru obsahuje i údaje o hráči a rodině
   (jméno a narozeniny dítěte, jména a narozeniny rodiny, vzkazy).
-- Hra nepoužívá cookies ani reklamní a analytické nástroje; písma se načítají z Google Fonts.
+- Hra nepoužívá cookies ani reklamní a analytické nástroje a nic nenačítá od cizích služeb (ani písma).
 
 - Postup je v zařízení. Na server jde jen se zapnutým online: záloha, statistiky úloh a údaje pro žebříček (přezdívka,
   postavička, body, stavby).

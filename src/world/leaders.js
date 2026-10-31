@@ -41,7 +41,8 @@ async function openLeaders() {
   let data;
   try { data = await leaderboard(); } catch (e) { info.textContent = 'Žebříček teď nejde načíst. Zkus to, až bude internet.'; speak(info.textContent); return; }
   const mine = summary(), rows = data.players || [];
-  info.textContent = rows.length ? 'Body za tento týden: povedené kolo 1 bod, splněný dnešní úkol 3 body. V pondělí se začíná znovu.' : 'Zatím tu nikdo není.';
+  info.textContent = !data.group ? 'Žebříček je jen pro skupinu, třeba rodinu nebo třídu. Skupinu nastaví táta nebo máma v nastavení na kartě Online.'
+    : `Skupina ${data.group.name}. Body za tento týden: povedené kolo 1 bod, splněný dnešní úkol 3 body. V pondělí se začíná znovu.`;
   rows.forEach((r, i) => {
     const li = document.createElement('li'); li.className = 'lead-row' + (r.me ? ' me' : '');
     li.insertAdjacentHTML('beforeend', `<b class="lead-rank">${i + 1}.</b>`);
@@ -60,7 +61,7 @@ async function openLeaders() {
     list.appendChild(li);
   });
   const top = rows[0], me = rows.find(x => x.me);
-  speak(top ? `Žebříček tohoto týdne. Vede ${top.me ? 'ty' : top.nick} s ${withPoints(top.points)}.` + (me && !top.me ? ` Ty máš ${me.points} ${pointWord(me.points)}.` : '') : 'Žebříček je zatím prázdný.');
+  speak(!data.group ? info.textContent : top ? `Žebříček tohoto týdne. Vede ${top.me ? 'ty' : top.nick} s ${withPoints(top.points)}.` + (me && !top.me ? ` Ty máš ${me.points} ${pointWord(me.points)}.` : '') : 'Žebříček je zatím prázdný.');
 }
 
 export { badges, openLeaders };

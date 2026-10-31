@@ -1,7 +1,7 @@
 // Schoolcraft na Cloudflare Workers: hra (statické soubory z dist) a API pro postup, statistiky a žebříček.
 // Databáze D1 (binding DB) je v EU. Hráč se přihlašuje „id.tajemstvi“ (Authorization: Bearer …), v databázi je jen otisk tajemství.
 import { NEWS_MS, dueSubs, makeVapid, overtaken, pragueNow, rankText, rankTime, sendPush, validEndpoint, validHour, validKey, type RankRow, type Vapid } from './push';
-import { EVENTS_KEEP_MS, isNewThing, leaderboardRows, MAX_EVENTS, MAX_SAVE, ORIGINS, PLAYER_KEEP_MS, safeJson, sanitizeNick, sanitizeSummary, weekKey, type Row } from './logic';
+import { EVENTS_KEEP_MS, allowedPoints, sanitizeGroupName, validGroupCode, isNewThing, leaderboardRows, MAX_EVENTS, MAX_SAVE, ORIGINS, PLAYER_KEEP_MS, safeJson, sanitizeNick, sanitizeSummary, weekKey, type Row } from './logic';
 
 interface D1Result<T> { results: T[] }
 interface D1Stmt { bind(...v: unknown[]): D1Stmt; first<T>(): Promise<T | null>; all<T>(): Promise<D1Result<T>>; run(): Promise<unknown> }
@@ -75,10 +75,15 @@ async function api(req: Request, env: Env, path: string, ctx: Ctx): Promise<Resp
     await env.DB.prepare('DELETE FROM push_subs WHERE endpoint = ?').bind(endpoint).run();
     return json(req, { ok: true });
   }
+  // žebříček jen ve skupině (rodina, třída); bez skupiny jen já
   if (path === '/api/leaderboard' && req.method === 'GET') {
     const me = await auth(req, env), week = weekKey();
-    const r = await env.DB.prepare('SELECT id, nick, week, week_points, summary FROM players WHERE public = 1 OR id = ? ORDER BY (week = ?) DESC, week_points DESC, updated DESC LIMIT 100').bind(me || '', week).all<Row>();
-    return json(req, { week, players: leaderboardRows(r.results, week, me || '') });
+    if (!me) return json(req, { week, group: null, players: [] });
+    const g = await myGroup(env, me);
+    const r = g
+      ? await env.DB.prepare('SELECT id, nick, week, week_points, summary FROM players WHERE group_code = ? AND (public = 1 OR id = ?) ORDER BY (week = ?) DESC, week_points DESC, updated DESC LIMIT 100').bind(g.code, me, week).all<Row>()
+      : await env.DB.prepare('SELECT id, nick, week, week_points, summary FROM players WHERE id = ?').bind(me).all<Row>();
+    return json(req, { week, group: g ? { name: g.name } : null, players: leaderboardRows(r.results, week, me) });
   }
   const me = await auth(req, env);
   if (!me) return json(req, { error: 'auth' }, 401);
@@ -86,9 +91,15 @@ async function api(req: Request, env: Env, path: string, ctx: Ctx): Promise<Resp
   if (path === '/api/me' && req.method === 'PUT') {
     const b = await body(req, MAX_SAVE + 20000); if (!b) return json(req, { error: 'bad' }, 400);
     const week = typeof b.week === 'string' && /^\d{4}-\d\d-\d\d$/.test(b.week) ? b.week : weekKey();
-    const pts = typeof b.weekPoints === 'number' ? Math.max(0, Math.min(1000, Math.round(b.weekPoints))) : 0;
+    let pts = typeof b.weekPoints === 'number' ? Math.max(0, Math.min(1000, Math.round(b.weekPoints))) : 0;
     const save = b.save === undefined ? null : JSON.stringify(b.save);
     if (save && save.length > MAX_SAVE) return json(req, { error: 'save too big' }, 413);
+    // body: server uzná nejvýš tolik, kolik odpovídá poslaným povedeným kolům tohoto týdne (hra posílá statistiky před souhrnem)
+    if (week === weekKey()) {
+      const since = Date.parse(week + 'T00:00:00Z') - 2 * 3600_000; // pondělí 0:00 v Praze (s rezervou na letní čas)
+      const c = await env.DB.prepare(`SELECT COUNT(*) AS n, COUNT(DISTINCT date(ts / 1000, 'unixepoch')) AS d FROM events WHERE player_id = ? AND kind = 'kolo' AND ts >= ? AND json_extract(data, '$."Povedené"') = 'ano' AND json_extract(data, '$."Odešel"') = 'ne'`).bind(me, since).first<{ n: number; d: number }>();
+      pts = allowedPoints(pts, c ? c.n : 0, c ? c.d : 0);
+    }
     const old = await env.DB.prepare('SELECT week, week_points FROM players WHERE id = ?').bind(me).first<{ week: string; week_points: number }>();
     const nick = sanitizeNick(b.nick), pub = b.public === false ? 0 : 1;
     await env.DB.prepare(`UPDATE players SET nick = ?, public = ?, week = ?, week_points = ?, summary = ?, updated = ?${save ? ', save = ?, save_updated = ?' : ''} WHERE id = ?`)
@@ -96,6 +107,35 @@ async function api(req: Request, env: Env, path: string, ctx: Ctx): Promise<Resp
     // předběhl někoho v žebříčku? (jen veřejný hráč, tento týden)
     if (pub && week === weekKey()) ctx.waitUntil(rankNotify(env, me, nick, week, old && old.week === week ? old.week_points : 0, pts).catch(() => {}));
     return json(req, { ok: true });
+  }
+  // nastavení hráče pro kartu Online: skupina
+  if (path === '/api/me' && req.method === 'GET') {
+    const r = await env.DB.prepare('SELECT nick, public FROM players WHERE id = ?').bind(me).first<{ nick: string; public: number }>();
+    const g = await myGroup(env, me);
+    return json(req, { nick: r?.nick, public: r?.public === 1, group: g });
+  }
+  // skupina: založit (s kódem pozvánky), vstoupit kódem, opustit
+  if (path === '/api/group' && req.method === 'POST') {
+    const b = await body(req, 1000); const name = sanitizeGroupName(b && b.name), code = hex(crypto.getRandomValues(new Uint8Array(6)));
+    await env.DB.batch([env.DB.prepare('INSERT INTO groups (code, name, created) VALUES (?, ?, ?)').bind(code, name, now), env.DB.prepare('UPDATE players SET group_code = ? WHERE id = ?').bind(code, me)]);
+    return json(req, { code, name });
+  }
+  if (path === '/api/group' && req.method === 'PUT') {
+    const b = await body(req, 1000), code = validGroupCode(b && b.code);
+    const g = code ? await env.DB.prepare('SELECT code, name FROM groups WHERE code = ?').bind(code).first<{ code: string; name: string }>() : null;
+    if (!g) return json(req, { error: 'no group' }, 404);
+    await env.DB.prepare('UPDATE players SET group_code = ? WHERE id = ?').bind(g.code, me).run();
+    return json(req, g);
+  }
+  if (path === '/api/group' && req.method === 'DELETE') {
+    await env.DB.prepare("UPDATE players SET group_code = '' WHERE id = ?").bind(me).run();
+    return json(req, { ok: true });
+  }
+  // nový kód hráče (starý přestane platit, třeba když unikl)
+  if (path === '/api/me/secret' && req.method === 'POST') {
+    const secret = hex(crypto.getRandomValues(new Uint8Array(32)));
+    await env.DB.prepare('UPDATE players SET secret_hash = ? WHERE id = ?').bind(await sha(secret), me).run();
+    return json(req, { id: me, secret });
   }
   if (path === '/api/me/save' && req.method === 'GET') {
     const r = await env.DB.prepare('SELECT nick, save, save_updated FROM players WHERE id = ?').bind(me).first<{ nick: string; save: string | null; save_updated: number | null }>();
@@ -120,6 +160,10 @@ async function api(req: Request, env: Env, path: string, ctx: Ctx): Promise<Resp
   return json(req, { error: 'not found' }, 404);
 }
 
+// skupina hráče (kód a název), nebo null
+async function myGroup(env: Env, me: string): Promise<{ code: string; name: string } | null> {
+  return env.DB.prepare("SELECT g.code, g.name FROM players p JOIN groups g ON g.code = p.group_code WHERE p.id = ? AND p.group_code != ''").bind(me).first<{ code: string; name: string }>();
+}
 const MAX_SUBS = 20000; // pojistka proti zahlcení (zakládání hlídá i RL_NEW podle IP)
 // klíč serveru pro podpis upozornění: vytvoří se při prvním použití a zůstane v databázi (nikde jinde není)
 let vapidCache: Vapid | null = null;
@@ -134,7 +178,8 @@ async function vapid(env: Env): Promise<Vapid> {
 async function rankNotify(env: Env, me: string, nick: string, week: string, before: number, after: number): Promise<void> {
   if (after <= before) return;
   const now = pragueNow(); if (!rankTime(now.hour)) return;
-  const r = await env.DB.prepare('SELECT id, week, week_points, public FROM players WHERE week = ? AND public = 1 AND week_points >= ? AND week_points < ? AND id != ? LIMIT 50').bind(week, before, after, me).all<RankRow>();
+  const g = await myGroup(env, me); if (!g) return; // jen ve skupině: cizí hráč dětem nic poslat nemůže
+  const r = await env.DB.prepare('SELECT id, week, week_points, public FROM players WHERE group_code = ? AND week = ? AND public = 1 AND week_points >= ? AND week_points < ? AND id != ? LIMIT 50').bind(g.code, week, before, after, me).all<RankRow>();
   const ids = overtaken(r.results, me, week, before, after); if (!ids.length) return;
   const subs = await env.DB.prepare(`SELECT endpoint FROM push_subs WHERE rank = 1 AND rank_day != ? AND player_id IN (${ids.map(() => '?').join(',')})`).bind(now.day, ...ids).all<{ endpoint: string }>();
   if (!subs.results.length) return;

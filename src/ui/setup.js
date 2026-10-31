@@ -40,7 +40,7 @@ function initSetup() {
     const p = blankPlayer(n, gender);
     const low = n.toLocaleLowerCase('cs'), nd = Object.keys(NAMEDAYS).find(k => NAMEDAYS[k].toLocaleLowerCase('cs').split('|').includes(low));
     if (nd) p.nameday = nd;
-    save.player = p; save.letters = letters; applyLetters(save.letters, save.cursive); persist(); loadFamily(); applyName();
+    save.player = p; save.letters = letters; save.cloud.on = $('#setupOnline').checked; // online jen se souhlasem applyLetters(save.letters, save.cursive); persist(); loadFamily(); applyName();
     $('#setupOverlay').hidden = true; renderHome(); checkNewDay();
   });
 }

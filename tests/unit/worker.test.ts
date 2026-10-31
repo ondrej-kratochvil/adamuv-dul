@@ -66,3 +66,23 @@ describe('server: omezení a uchovávání (31. 10. 2026)', () => {
     expect(PLAYER_KEEP_MS).toBe(730 * 864e5);
   });
 });
+
+describe('server: skupiny a body (31. 10. 2026)', () => {
+  it('kód skupiny 12 znaků 0-9a-f (velká písmena a mezery se srovnají), název bez nebezpečných znaků', async () => {
+    const { validGroupCode, sanitizeGroupName } = await import('../../worker/logic');
+    expect(validGroupCode('a1b2c3d4e5f6')).toBe('a1b2c3d4e5f6');
+    expect(validGroupCode(' A1B2C3D4E5F6 ')).toBe('a1b2c3d4e5f6');
+    expect(validGroupCode('a1b2c3')).toBeNull();
+    expect(validGroupCode("a1b2c3d4e5f'")).toBeNull();
+    expect(sanitizeGroupName('1. A <b>')).toBe('1. A b');
+    expect(sanitizeGroupName('')).toBe('Skupina');
+    expect(sanitizeGroupName('x'.repeat(50))).toHaveLength(30);
+  });
+  it('body: nejvýš poslaná povedená kola + 3 za den (nejvýš 7 dní), nikdy víc, než hra hlásí', async () => {
+    const { allowedPoints } = await import('../../worker/logic');
+    expect(allowedPoints(1000, 10, 2)).toBe(16);
+    expect(allowedPoints(12, 10, 2)).toBe(12);
+    expect(allowedPoints(500, 100, 30)).toBe(121);
+    expect(allowedPoints(50, 0, 0)).toBe(0);
+  });
+});

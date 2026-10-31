@@ -18,7 +18,7 @@ import { renderProfiles } from '../app/profiles.js';
 import { MAIN_ID } from '../logic/profiles.ts';
 import { renameDevice, syncDefaults, validSyncUrl } from '../logic/sync.ts';
 import { initPlayerSet, renderPlayerSet } from './player-settings.js';
-import { initOnline, offerRestore, renderOnline } from './online-settings.js';
+import { initOnline, offerRestore, renderGroup, renderOnline } from './online-settings.js';
 import { initPushSettings, renderPush } from './push-settings.js';
 import { canVibrate, setVibration, storageProtected, vibrationOn } from '../app/device.js';
 import { localAvailable, passState, passSupport, registerPass, removePass, verifyPass } from '../app/passkey.js';
@@ -47,7 +47,7 @@ function updateSettings() {
   updateVoiceInfo();
   renderPlayerSet();
   renderLetters();
-  renderOnline(); renderPush(); renderDevice(); renderPass();
+  renderOnline(); renderGroup(); renderPush(); renderDevice(); renderPass();
 }
 // písmena zapnutá rodičem (logic/letters.ts)
 function renderLetters() {

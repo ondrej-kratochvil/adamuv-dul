@@ -2,7 +2,7 @@
 
 > **Co:** podrobný popis, jak je hra postavená: moduly, herní pravidla, uložený stav, server, upozornění, testy a nasazení
 > **Stav:** aktivní
-> **Stav k:** 31. 10. 2026 (hra verze 71, schéma uloženého stavu 12, databáze s migracemi 0001 až 0003)
+> **Stav k:** 31. 10. 2026 (hra verze 74, schéma uloženého stavu 12, databáze s migracemi 0001 až 0004)
 > **Souhrn:**
 > - Klientská hra (Vite, ES moduly, pravidla v TypeScriptu) běží jako PWA na https://schoolcraft.games, postup je v zařízení.
 > - Server je Cloudflare Worker s databází D1 v EU: záloha postupu, statistiky, žebříček a upozornění (web push).
@@ -315,7 +315,12 @@ CORS jen pro `ORIGINS` (`worker/logic.ts`).
 | GET | `/api/me/save` | ano | | `{ nick, save, updated }` |
 | POST | `/api/events` | ano | `{ rows }` (nejvýš 300) | `{ ok, n }` |
 | DELETE | `/api/me` | ano | | smaže hráče, statistiky i upozornění |
-| GET | `/api/leaderboard` | volitelně | | `{ week, players: [{ nick, points, summary, me }] }` (nejvýš 100) |
+| GET | `/api/me` | ano | | `{ nick, public, group: { code, name } \| null }` |
+| POST | `/api/group` | ano | `{ name }` | založí skupinu a vstoupí: `{ code, name }` |
+| PUT | `/api/group` | ano | `{ code }` | vstup kódem pozvánky; 404, když skupina není |
+| DELETE | `/api/group` | ano | | opustit skupinu |
+| POST | `/api/me/secret` | ano | | nový kód hráče `{ id, secret }`, starý přestane platit |
+| GET | `/api/leaderboard` | ano (bez přihlášení prázdný) | | `{ week, group, players: [{ nick, points, summary, me }] }`: jen hráči ze stejné skupiny, bez skupiny jen já |
 | GET | `/api/push/key` | ne | | `{ key }` (veřejný klíč VAPID) |
 | POST | `/api/push` | volitelně (propojí hráče) | `{ endpoint, keys, hour, rank }` | `{ ok }`; 503 při 5000 zařízeních |
 | DELETE | `/api/push` | ne | `{ endpoint }` | `{ ok }` |
@@ -331,8 +336,11 @@ Bez přihlášení vrací chráněné cesty 401, neznámé 404, chyba serveru 50
 | `events` | 0001 | `id`, `player_id`, `ts`, `kind`, `data` (řádky jako do tabulky Google) |
 | `push_subs` | 0002, 0003 | `endpoint`, `p256dh`, `auth`, `hour`, `player_id`, `created`, `last_day`, `fails`, `rank`, `rank_day`, `news`, `news_t` |
 | `config` | 0002 | `key`, `value` (klíč VAPID pod `vapid`) |
+| `groups` | 0004 | `code` (kód pozvánky, 12 znaků), `name`, `created`; `players.group_code` |
 
 Do žebříčku jde jen přezdívka, postavička, týdenní body a co je postavené (`sanitizeSummary`); nikdy jméno rodiny, chyby ani statistiky.
+Žebříček a upozornění na předběhnutí jsou jen ve **skupině** (rodina, třída), do které se vstupuje kódem pozvánky. Body server
+ořízne na poslaná povedená kola tohoto týdne + 3 za den (`allowedPoints`), proto hra posílá statistiky před souhrnem.
 Týdenní body (`weekPoints` v `src/logic/cloud.ts`): 1 za povedené kolo + 3 za splněný dnešní úkol, týden od pondělí.
 
 ### 6.4 Upozornění (web push)
@@ -355,6 +363,19 @@ Na staré adrese `ondrej-kratochvil.github.io/adamuv-dul/` hra zaregistruje vše
 `https://schoolcraft.games/#presun=…`. Nová adresa postupy stáhne (jen když tam ještě nic není) a uloží profily.
 
 ---
+
+### 6.6 Bezpečnost
+
+- **Online jen se souhlasem**: nový hráč má `cloud.on = false`; zapíná se v úvodním nastavení nebo na kartě Online.
+- **Omezení počtu požadavků** (`ratelimits` ve `wrangler.jsonc`): `RL_API` 60 za minutu na hráče (bez přihlášení na IP),
+  `RL_NEW` 6 za minutu podle IP na zakládání hráčů, skupin a upozornění (`isNewThing`); překročení = 429.
+- **Uchovávání** (`cleanup`, cron ve 3 h): statistiky úloh 12 měsíců, hráč nepřihlášený 2 roky se smaže i se vším.
+- **Hlavičky**: CSP v `index.html` vkládá `vite.config.js` při sestavení (skripty jen vlastní, připojení jen server a skript
+  tabulky Google); HSTS, `frame-ancestors 'none'`, `nosniff`, Referrer-Policy a Permissions-Policy v `public/_headers`;
+  API posílá `nosniff` a `no-store`. Písma jsou z balíčků `@fontsource`, nic se nenačítá od cizích služeb.
+- **Service worker** nedává do mezipaměti `/api/` ani cizí adresy.
+- **Výměna kódu hráče** (`POST /api/me/secret`) pro případ, že kód nebo QR viděl někdo cizí.
+- Test `tests/e2e/bezpecnost.spec.js` hlídá CSP při běžném hraní.
 
 ## 7. Funkce zařízení (PWA)
 

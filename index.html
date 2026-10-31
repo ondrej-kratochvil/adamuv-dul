@@ -417,6 +417,7 @@
       <p class="lbl-small" id="setupVoc"></p>
       <label class="lbl-small">Která písmena už zná (samohlásky vždy, souhlásky klepnutím; jde změnit i později v nastavení)</label>
       <div class="letter-toggles" id="setupLetters"></div>
+      <label class="lbl-small setup-online"><input type="checkbox" id="setupOnline"> Hrát online: zálohovat postup na server Schoolcraft (Cloudflare, EU) a ukázat hráče v žebříčku skupiny (rodina, třída). Jde zapnout i později na kartě Online.</label>
       <div class="actions"><button class="gbtn go" id="btnSetupGo" type="submit" data-icon="next">Začít hrát</button></div>
     </form>
     <p class="lbl-small">Hráč už hraje na jiném zařízení? <button class="gbtn" type="button" id="btnSetupCode">Načíst QR kód hráče</button></p>
@@ -443,13 +444,13 @@
     <ul>
       <li>Žádné reklamy a žádné nákupy za peníze. Smaragdy jsou jen herní.</li>
       <li>Nastavení je pro rodiče: otevře se po spočítání příkladu, který prvňák neumí, nebo otiskem prstu.</li>
-      <li>Děti si mezi sebou nepíšou. Se zapnutým online vidí v žebříčku přezdívky ostatních hráčů; přezdívky si hráči volí sami.</li>
+      <li>Děti si mezi sebou nepíšou. Žebříček a upozornění na předběhnutí jsou jen ve skupině, do které se vstupuje kódem pozvánky od rodiče (rodina, třída); cizí lidé ji nevidí.</li>
     </ul>
 
     <h3>Co se kam ukládá</h3>
     <ul>
       <li><b>V tomto zařízení:</b> postup, statistiky úloh a nastavení. Fotky z Pokladu a Moje obrázky zůstávají jen tady a nikam se neposílají.</li>
-      <li><b>Na server Schoolcraft</b> (jen se zapnutým online; u nového hráče je zapnuté, vypnout jde v nastavení na kartě Online): záloha celého postupu včetně údajů o hráči (jméno a oslovení dítěte, narozeniny a svátek, jména a narozeniny členů rodiny, vzkazy od rodiny), statistiky úloh (patro, úloha, správně napoprvé, doba) a pro žebříček přezdívka, postavička, týdenní body a co má hráč postavené. Zálohu a statistiky vidí jen správce hry; žebříček vidí ostatní hráči.</li>
+      <li><b>Na server Schoolcraft</b> (jen se zapnutým online, které zapíná rodič při založení hráče nebo na kartě Online): záloha celého postupu včetně údajů o hráči (jméno a oslovení dítěte, narozeniny a svátek, jména a narozeniny členů rodiny, vzkazy od rodiny), statistiky úloh (patro, úloha, správně napoprvé, doba) a pro žebříček přezdívka, postavička, týdenní body a co má hráč postavené. Zálohu a statistiky vidí jen správce hry; žebříček vidí jen hráči ze stejné skupiny.</li>
       <li><b>Upozornění</b> (jen když je rodič zapne): adresa zařízení u služby upozornění (Google, Apple) a zvolená hodina.</li>
       <li><b>Tabulka Google</b> (jen když ji rodič nastaví): výsledky kol a úloh do rodičovy vlastní tabulky.</li>
       <li><b>Kde:</b> server běží u Cloudflare, databáze je v EU. Přihlášení je tajným kódem v zařízení, žádný e-mail ani heslo.</li>
@@ -630,7 +631,7 @@
       <select id="pushHour"></select>
       <button class="gbtn" type="button" id="btnPushTest">Vyzkoušet hned</button>
     </div>
-    <p>Upozornění přes den (8 až 19 h, nejvýš jednou denně), když hráče někdo předběhne v žebříčku. Potřebuje zapnuté online a hráče v žebříčku.</p>
+    <p>Upozornění přes den (8 až 19 h, nejvýš jednou denně), když hráče předběhne někdo z jeho skupiny v žebříčku. Potřebuje zapnuté online a skupinu (karta Online).</p>
     <div class="seg"><button class="gbtn" type="button" id="btnPushRank" aria-pressed="false">Předběhnutí v žebříčku: vypnuto</button></div>
     <p id="pushInfo" role="status"></p>
     </div>
@@ -713,9 +714,16 @@
     <label class="lbl-small" for="cloudNick">Přezdívka v žebříčku (vidí ji ostatní hráči)</label>
     <input id="cloudNick" type="text" maxlength="20" autocomplete="off">
     <p class="lbl-small" id="cloudInfo" role="status"></p>
+    <h3>Skupina pro žebříček</h3>
+    <p>Žebříček a upozornění na předběhnutí jsou jen mezi hráči jedné skupiny (rodina, třída). Skupinu založte a kód pozvánky pošlete ostatním rodičům; cizí lidé se do ní bez kódu nedostanou.</p>
+    <p class="lbl-small" id="groupInfo" role="status"></p>
+    <div class="seg"><button class="gbtn" type="button" id="btnGroupNew">Založit skupinu</button><button class="gbtn" type="button" id="btnGroupJoin">Připojit kódem</button><button class="gbtn" type="button" id="btnGroupLeave" hidden>Opustit skupinu</button></div>
+    <input id="groupField" type="text" maxlength="30" autocomplete="off" hidden>
+    <div class="seg" id="groupGo" hidden><button class="gbtn go" type="button" id="btnGroupOk">Hotovo</button></div>
     <h3>Přenos na jiné zařízení</h3>
     <p>Kód hráče patří jen vám: kdo ho zná, může postup stáhnout. Na novém zařízení ho vložte a postup se stáhne ze serveru.</p>
-    <div class="seg"><button class="gbtn" type="button" id="btnCloudQr">QR kód</button><button class="gbtn" type="button" id="btnCloudScan">Načíst QR kód</button><button class="gbtn" type="button" id="btnCloudCode">Ukázat kód</button><button class="gbtn" type="button" id="btnCloudRestore">Vložit kód</button></div>
+    <div class="seg"><button class="gbtn" type="button" id="btnCloudQr">QR kód</button><button class="gbtn" type="button" id="btnCloudScan">Načíst QR kód</button><button class="gbtn" type="button" id="btnCloudCode">Ukázat kód</button><button class="gbtn" type="button" id="btnCloudRestore">Vložit kód</button><button class="gbtn" type="button" id="btnCloudRotate">Vyměnit kód</button></div>
+    <div class="confirm" id="cloudRotateConfirm" hidden><p style="margin:0">Vyměnit kód hráče? Starý kód i QR kód přestanou platit (třeba když je někdo cizí viděl). Na jiných zařízeních tohoto hráče pak bude potřeba nový kód.</p><button class="gbtn" type="button" id="btnCloudRotateYes" style="background:#a8341c">Ano, vyměnit</button><button class="gbtn" type="button" id="btnCloudRotateNo">Nechat</button></div>
     <div class="qr-box" id="cloudQrBox" hidden><canvas id="cloudQr" aria-label="QR kód hráče"></canvas><p class="lbl-small">Naskenujte fotoaparátem nového zařízení (otevře hru a nabídne stažení postupu), nebo ve hře tlačítkem Načíst QR kód.</p></div>
     <textarea class="copy-out" id="cloudCode" hidden></textarea>
     <div class="confirm" id="cloudRestoreConfirm" hidden>
@@ -725,7 +733,7 @@
     </div>
     <h3>Co se ukládá a kdo to vidí</h3>
     <ul class="privacy">
-      <li><b>Žebříček</b> (vidí všichni hráči): přezdívka, postavička s oblečením, body za týden a co má hráč postavené (dům, farma, vesnice, zvířátka). Jméno rodiny, chyby ani statistiky ne.</li>
+      <li><b>Žebříček</b> (vidí jen hráči ze stejné skupiny): přezdívka, postavička s oblečením, body za týden a co má hráč postavené (dům, farma, vesnice, zvířátka). Jméno rodiny, chyby ani statistiky ne.</li>
       <li><b>Server</b> (vidí jen správce hry): záloha celého postupu včetně údajů o hráči (jméno dítěte, narozeniny, jména a narozeniny rodiny, vzkazy) a statistiky úloh (patro, úloha, správně napoprvé, doba). Slouží k přenosu na jiné zařízení a ke zlepšování hry. <button class="linkbtn" type="button" id="btnOnlineAbout">Vše o soukromí</button></li>
       <li><b>Kde:</b> Cloudflare, databáze v EU. Přihlášení je kódem v zařízení, žádný e-mail ani heslo.</li>
       <li><b>Smazání:</b> tlačítkem níže zmizí přezdívka, záloha i statistiky ze serveru. Postup v zařízení zůstane.</li>
