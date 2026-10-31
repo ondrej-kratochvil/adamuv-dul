@@ -29,6 +29,8 @@ import { buildOpen, drawBuild, openBuild } from '../world/build.js';
 import { startRound } from '../game/round.js';
 import { levelProgress } from '../logic/mastery.ts';
 import { openFamily } from '../world/dressup.js';
+import { huntSub, openHunt } from '../world/hunt.js';
+import { iconSvg } from './icons.js';
 import { FAMILY, famCanvas } from '../world/family.js';
 import { practiceReady } from '../levels/practice.js';
 import { restingLevel, suggestLevel } from '../logic/rotation.ts';
@@ -41,7 +43,7 @@ function placeGamePlayer() {
   const g = $('#game'), row = g.querySelector('.stage-row').getBoundingClientRect();
   g.style.setProperty('--hero-x', Math.max(0, Math.round(heroSpot.x - row.left)) + 'px'); g.style.setProperty('--hero-h', Math.round(heroSpot.h) + 'px');
 }
-function show(id) { if (id === 'game' && !$('#home').hidden) keepHeroSpot(); ['home', 'game', 'house', 'wardrobe', 'farm', 'shop', 'stats', 'village', 'nether', 'album', 'prerov', 'ender', 'build', 'family', 'leaders'].forEach(s => { $('#' + s).hidden = s !== id; }); if (id === 'game') placeGamePlayer(); }
+function show(id) { if (id === 'game' && !$('#home').hidden) keepHeroSpot(); ['home', 'game', 'house', 'wardrobe', 'farm', 'shop', 'stats', 'village', 'nether', 'album', 'prerov', 'ender', 'build', 'family', 'leaders', 'hunt'].forEach(s => { $('#' + s).hidden = s !== id; }); if (id === 'game') placeGamePlayer(); }
 function paintTextures(root = document) {
   root.querySelectorAll('[data-tex]').forEach(el => { el.style.backgroundImage = `url(${tex(el.dataset.tex, el.dataset.dark === '1')})`; });
 }
@@ -137,6 +139,13 @@ function renderHome() {
   fb.addEventListener('click', () => { audio(); openFamily(); });
   tiles.appendChild(fb);
   }
+  // Poklad: hledání věcí na písmeno a vlastní obrázky s fotoaparátem (world/hunt.js)
+  const hb = document.createElement('button'); hb.className = 'lvl'; hb.setAttribute('aria-label', 'Poklad');
+  const hblk = blockEl('planks', '', false); hblk.tabIndex = -1; hblk.setAttribute('aria-hidden', 'true');
+  hblk.querySelector('.plate').innerHTML = iconSvg('camera');
+  hb.appendChild(hblk); hb.insertAdjacentHTML('beforeend', `<span class="lvl-name">Poklad</span><span class="lvl-sub">${huntSub()}</span>`);
+  hb.addEventListener('click', () => { audio(); openHunt(); });
+  tiles.appendChild(hb);
   const ab = document.createElement('button'); ab.className = 'lvl'; ab.setAttribute('aria-label', 'Sbírka');
   const ablk = blockEl('planks', '', false); ablk.tabIndex = -1; ablk.setAttribute('aria-hidden', 'true');
   const ap = ablk.querySelector('.plate'); ap.innerHTML = ''; ap.appendChild(picCanvas('LES'));

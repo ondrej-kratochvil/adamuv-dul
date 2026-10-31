@@ -1,6 +1,14 @@
 {
-  "version": 69,
+  "version": 70,
   "changes": [
+    {
+      "version": 70,
+      "date": "2026-10-31",
+      "notes": [
+        "Nová hra Poklad! Najdi doma věc, která začíná na písmeno, a vyfoť ji. Táta nebo máma potvrdí a dostaneš smaragdy.",
+        "V Pokladu si můžeš vyfotit i svoje obrázky."
+      ]
+    },
     {
       "version": 69,
       "date": "2026-10-31",

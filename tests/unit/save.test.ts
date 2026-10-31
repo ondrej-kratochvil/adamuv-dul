@@ -142,3 +142,17 @@ describe('schéma 9 (verze hry 56): psací písmo', () => {
     expect(defaults().cursive).toBe(false);
   });
 });
+
+describe('schéma 12 (verze hry 70): hledání pokladu s písmeny', () => {
+  it('postup ve schématu 11 (online, písmena, úkoly): nic se neztratí, přibude prázdné hledání pokladu', () => {
+    const old = fixture('save-v11');
+    const s = migrate(old);
+    for (const k of Object.keys(old)) if (k !== 'schema') kept(s[k], old[k], k);
+    expect(s.hunt).toEqual({ d: '', today: [], total: 0 });
+    expect(s.schema).toBe(12);
+  });
+  it('rozehrané hledání se při převodu neztratí, rozbitý seznam se opraví', () => {
+    expect(migrate({ schema: 12, total: 1, rounds: {}, hunt: { d: '2026-10-31', today: ['M'], total: 4 } }).hunt).toEqual({ d: '2026-10-31', today: ['M'], total: 4 });
+    expect(migrate({ schema: 12, total: 1, rounds: {}, hunt: { d: 'x', today: 'M', total: 1 } }).hunt.today).toEqual([]);
+  });
+});

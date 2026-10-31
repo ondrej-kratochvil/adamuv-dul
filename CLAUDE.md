@@ -100,6 +100,10 @@ přidej i odměny, aby Adam nedošel na strop dřív, než dojde obsah.
   ukáže QR s adresou `https://schoolcraft.games/#kod=…` (kód jen za #, na server ani do záznamů nejde) a načte ho fotoaparátem
   (BarcodeDetector, jinak jsQR). Hra otevřená z té adresy: nové zařízení stáhne hráče (`#codeOverlay`), jinde jen přes zámek
   pro rodiče (`openGateForCode`). Úvodní „Kdo bude hrát?“ má tlačítko Načíst QR kód hráče.
+- **Poklad** (`src/logic/hunt.ts`, `src/world/hunt.js`, dlaždice Poklad): „Najdi doma něco na M a vyfoť to“, rodič potvrdí
+  (hra fotku nehodnotí), 3 smaragdy za první nález písmene dnes, nejvýš 3 odměněné poklady denně (`save.hunt`, schéma 12).
+  Druhá karta Moje obrázky. Fotky jen v zařízení (IndexedDB `schoolcraft-fotky`, `src/app/photos.js`, po profilech),
+  nikdy na server ani do zálohy postupu.
 
 ## Verze a novinky
 

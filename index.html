@@ -232,6 +232,39 @@
     </div>
   </section>
 
+  <!-- POKLAD: hledání věcí na písmeno a vlastní obrázky, fotky jen v zařízení (world/hunt.js) -->
+  <section class="screen" id="hunt" hidden>
+    <div class="sky" style="flex:1; display:flex; flex-direction:column; min-height:0;">
+      <div class="cloud c1"></div>
+      <div class="inner hud">
+        <button class="gbtn icon" id="btnHuntBack" aria-label="Zpět domů"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h3v3h-3v3h-3v4h3v3h3v3h-3v-3h-3v-3H8v-4h3V7h3V4z"/></svg></button>
+        <div class="ward-title">Poklad</div>
+        <div style="width:56px"></div>
+      </div>
+      <div class="inner hunt" style="flex:1; min-height:0; overflow:auto; padding-block: 8px 16px;">
+        <div class="hunt-tabs seg"><button class="gbtn" type="button" id="btnHuntTabFind" aria-pressed="true">Poklad</button><button class="gbtn" type="button" id="btnHuntTabDraw" aria-pressed="false">Moje obrázky</button></div>
+        <div id="huntFind">
+          <div class="panel hunt-task">
+            <div class="hunt-letter" id="huntLetter"></div>
+            <p id="huntText"></p>
+            <div class="actions"><button class="gbtn go" type="button" id="btnHuntPhoto">Vyfotit</button><button class="gbtn" type="button" id="btnHuntOther">Jiné písmeno</button></div>
+          </div>
+          <div class="panel hunt-check" id="huntCheck" hidden>
+            <img id="huntPreview" alt="Vyfocený poklad">
+            <p>Pro rodiče: začíná to na <b id="huntCheckLetter"></b>?</p>
+            <div class="actions"><button class="gbtn go" type="button" id="btnHuntYes">Ano</button><button class="gbtn" type="button" id="btnHuntNo">Ještě ne</button></div>
+          </div>
+          <div class="photo-grid" id="huntGrid"></div>
+        </div>
+        <div id="huntDraw" hidden>
+          <p class="village-cap">Nakresli obrázek a vyfoť ho. Uloží se jen v tomhle zařízení.</p>
+          <div class="actions"><button class="gbtn go" type="button" id="btnDrawPhoto">Vyfotit obrázek</button></div>
+          <div class="photo-grid" id="drawGrid"></div>
+        </div>
+        <input type="file" id="huntFile" accept="image/*" capture="environment" hidden>
+      </div>
+    </div>
+  </section>
   <section class="screen" id="album" hidden>
     <div class="sky" style="flex:1; display:flex; flex-direction:column; min-height:0;">
       <div class="cloud c1"></div>
@@ -408,6 +441,14 @@
     <p>Na tohle zařízení se stáhne postup hráče ze serveru Schoolcraft.</p>
     <p class="lbl-small" id="codeMsg" role="status"></p>
     <div class="actions"><button class="gbtn go" type="button" id="btnCodeYes" data-icon="check">Stáhnout</button><button class="gbtn" type="button" id="btnCodeNo" data-icon="back">Zpět</button></div>
+  </div>
+</div>
+
+<div class="overlay" id="photoOverlay" hidden>
+  <div class="panel photo-view" role="dialog" aria-label="Fotka">
+    <img id="photoBig" alt="">
+    <p id="photoCap"></p>
+    <div class="actions"><button class="gbtn go" type="button" id="btnPhotoClose">Hotovo</button><button class="gbtn" type="button" id="btnPhotoDel">Smazat</button></div>
   </div>
 </div>
 

@@ -6,15 +6,17 @@ import { syncDefaults, type SyncState } from '../logic/sync';
 import type { Quest } from '../logic/daily';
 import type { Player } from '../logic/player';
 import { cloudDefaults, type Cloud } from '../logic/cloud';
+import { huntDefaults, type Hunt } from '../logic/hunt';
 import { packText, unpackText } from '../logic/transfer';
 
-export const SCHEMA = 11; // 1 = vše do verze hry 15 (bez čísla schématu), 2 = s číslem schématu a nejvyšším stavem vesnice,
+export const SCHEMA = 12; // 1 = vše do verze hry 15 (bez čísla schématu), 2 = s číslem schématu a nejvyšším stavem vesnice,
                         // 3 = doba řešení a záměny u úloh, procvičování, fronta pro tabulku Google (verze hry 27),
                         // 4 = převlékání rodiny (verze hry 28), 5 = název a značka zařízení pro tabulku (verze hry 39),
                         // 6 = ranní karta a dnešní úkol (verze hry 51), 7 = stupně obtížnosti podle zvládnutí (verze hry 52),
                         // 8 = hráč (Schoolcraft: Adam vestavěný, ostatní z nastavení) a písmena zapnutá rodičem (verze hry 53)
                         // 9 = psací písmo v Psaní (verze hry 56), 10 = počet splněných dnešních úkolů pro zvířátka (verze hry 57),
                         // 11 = Schoolcraft online: přihlášení k serveru, dny splněných úkolů pro týdenní body (verze hry 59)
+                        // 12 = hledání pokladu s písmeny (verze hry 70; fotky jen v zařízení, ne v uloženém stavu)
 
 // pauses/pauseSecs: pauzy v kole (od verze 36); secs je doba bez pauz
 export interface LogEntry { t: number; d: string; level: string; clean: number; done: number; len: number; ok: boolean; quit: boolean; secs: number; rate?: number; pauses?: number; pauseSecs?: number; lost?: number }
@@ -42,7 +44,8 @@ export interface SaveState {
   gear: { held: string; stages: Record<string, number> } | null; // nástroje: co drží v ruce, nejvyšší materiál (content/tools.ts)
   daily: { d: string; quest: Quest | null; shown: boolean }; // dnešní úkol a jestli už byla ranní karta (logic/daily.ts)
   stages: Record<string, number>; // dosažené stupně obtížnosti v patrech (logic/stages.ts), nezavírají se
-  cloud: Cloud;                 // přihlášení k serveru schoolcraft.games, fronta statistik (logic/cloud.ts)
+  cloud: Cloud;
+  hunt: Hunt;                   // hledání pokladu: dnes nalezená písmena a počet pokladů (logic/hunt.ts)                 // přihlášení k serveru schoolcraft.games, fronta statistik (logic/cloud.ts)
   questLog: string[];           // dny splněných dnešních úkolů (týdenní body v žebříčku)
   questsDone: number;           // splněné dnešní úkoly; za každý se odemkne zvířátko (logic/pets.ts)
   cursive: boolean;             // psací písmo v patře Psaní (content/glyphs.ts CURSIVE)
@@ -78,12 +81,13 @@ export function defaults(): SaveState {
     cursive: false,
     questsDone: 0,
     cloud: cloudDefaults(),
+    hunt: huntDefaults(),
     questLog: [],
   };
 }
 
 const isObj = (x: unknown): x is Record<string, unknown> => !!x && typeof x === 'object' && !Array.isArray(x);
-const NESTED = ['rounds', 'outfit', 'dog', 'gifts', 'streak', 'build', 'pron', 'momSaid', 'sync', 'famWear', 'daily', 'stages', 'cloud'] as const;
+const NESTED = ['rounds', 'outfit', 'dog', 'gifts', 'streak', 'build', 'pron', 'momSaid', 'sync', 'famWear', 'daily', 'stages', 'cloud', 'hunt'] as const;
 
 // převede jakákoli starší data na aktuální tvar; nic, co Adam získal, nezahodí
 export function migrate(raw: unknown): SaveState {
@@ -105,6 +109,7 @@ export function migrate(raw: unknown): SaveState {
   // Adam se od 24. 10. 2026 učí P (Ondřej); dřívější postup = samohlásky, M, L, S a nově P
   if (from < 8 && !Array.isArray(s.letters)) out.letters = ['M', 'L', 'S', 'P'];
   if (!Array.isArray(out.letters) || !out.letters.length) out.letters = ['M', 'L', 'S'];
+  // v11 -> v12: hledání pokladu začíná prázdné (hunt z výchozích hodnot přes NESTED)
   // v10 -> v11: online začíná nepřihlášené (cloud z výchozích hodnot přes NESTED), dny úkolů prázdné
   if (!Array.isArray(out.cloud.queue)) out.cloud.queue = [];
   if (!Array.isArray(out.questLog)) out.questLog = [];
@@ -118,6 +123,7 @@ export function migrate(raw: unknown): SaveState {
   if (!Array.isArray(out.famOwned)) out.famOwned = [];
   for (const k of ['log', 'ench', 'notes', 'decor', 'recentLines', 'famOwned'] as const) if (!Array.isArray(out[k])) (out as Record<string, unknown>)[k] = [];
   if (!isObj(out.stats)) out.stats = {};
+  if (!Array.isArray(out.hunt.today)) out.hunt.today = [];
   if (from > SCHEMA) out.schema = from; // novější data ze starší hry nesnižovat
   else out.schema = SCHEMA;
   return out;

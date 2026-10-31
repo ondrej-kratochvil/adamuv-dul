@@ -1,5 +1,6 @@
 // Ikony na tlačítkách (Adam ještě neumí přečíst všechno)
 const ICONS = {
+  camera: '<path d="M8 4h8v2h4v2h2v12H2V8h2V6h4V4z"/><path fill="#fff" d="M10 10h4v2h2v4h-2v2h-4v-2H8v-4h2v-2z"/>',
   share: '<path d="M11 2h2v2h2v2h2v2h-4v8h-2V8H7V6h2V4h2V2z"/><path d="M3 11h4v2H5v7h14v-7h-2v-2h4v11H3V11z"/>',
   next: '<path d="M6 4h3v2h2v2h2v2h2v4h-2v2h-2v2H9v2H6V4z"/><path d="M16 4h3v16h-3z"/>',
   retry: '<path d="M8 3h8v2h2v2h2v4h-3V8h-2V6H9v2H7v8h2v2h6v-2h2v-2h-2v-2h5v7h-2v2h-2v2H8v-2H6v-2H4V7h2V5h2V3z"/>',
