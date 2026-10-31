@@ -407,7 +407,11 @@
 <div class="overlay" id="gateOverlay" hidden>
   <div class="panel gate" role="dialog" aria-labelledby="gateTitle">
     <h2 id="gateTitle">Pro rodiče</h2>
-    <p>Nastavení otevřete, když spočítáte příklad.</p>
+    <p id="gateLead">Nastavení otevřete, když spočítáte příklad.</p>
+    <div class="actions gate-pass" id="gatePass" hidden>
+      <button class="gbtn go" type="button" id="btnGateLocal" data-icon="check">Otisk prstu</button>
+      <button class="gbtn" type="button" id="btnGatePhone" data-icon="check">Telefonem rodiče</button>
+    </div>
     <form id="gateForm" autocomplete="off">
       <label for="gateInput" class="gate-q">Kolik je <b id="gateQ"></b>?</label>
       <input id="gateInput" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="4">
@@ -504,6 +508,11 @@
       <button class="gbtn" data-strict="normal" id="strictNormal">střední (5 z 8, 4 z 5)</button>
       <button class="gbtn" data-strict="strict" id="strictHard">přísná (6 z 8, 5 z 5)</button>
     </div>
+
+    <h3>Vstup do nastavení otiskem prstu</h3>
+    <p>Místo příkladu jde nastavení otevřít otiskem prstu (nebo obličejem). <b>Na tomto zařízení</b> použije zámek tabletu: projde každý, kdo tablet umí odemknout. <b>Telefonem rodiče</b> tablet ukáže QR kód, naskenujete ho svým telefonem a potvrdíte otiskem (tablet i telefon potřebují zapnutý Bluetooth); dítě to neobejde. Příklad zůstává vždy jako záloha.</p>
+    <div class="seg"><button class="gbtn" type="button" id="btnPassLocal">Nastavit na tomto zařízení</button><button class="gbtn" type="button" id="btnPassPhone">Nastavit telefon rodiče</button><button class="gbtn" type="button" id="btnPassOff">Zrušit otisky</button></div>
+    <p id="passInfo" role="status"></p>
 
     <h3>Vibrace</h3>
     <p>Při chybě tablet krátce cvrnkne, po povedeném kole zabzučí (umí jen Android).</p>

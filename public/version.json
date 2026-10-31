@@ -1,6 +1,13 @@
 {
-  "version": 67,
+  "version": 68,
   "changes": [
+    {
+      "version": 68,
+      "date": "2026-10-31",
+      "notes": [
+        "Táta a máma teď můžou nastavení otevřít otiskem prstu."
+      ]
+    },
     {
       "version": 67,
       "date": "2026-10-31",

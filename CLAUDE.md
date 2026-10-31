@@ -93,6 +93,9 @@ přidej i odměny, aby Adam nedošel na strop dřív, než dojde obsah.
   (`renderQuest`, i service worker při ranním upozornění), Poslat obrázek u domu, farmy, Přerova a Netheru (`[data-share]`,
   `src/ui/share.js`, Web Share, jinak stažení). Zkratky na ikoně v manifestu (`?go=ukol`, `?go=procvicit`, `logic/shortcut.ts`).
   Rozpoznávání řeči ne (logopedie) a poloha ne (Ondřej 31. 10. 2026).
+- **Otisk prstu do nastavení** (WebAuthn, `src/logic/passkey.ts`, `src/app/passkey.js`, nastavuje se na kartě Hra): na zařízení
+  (vestavěný autentizátor, nabídne se hned po klepnutí na kolo) a telefonem rodiče přes QR kód (`hybrid`, Adam ho neobejde).
+  Ověřuje se v zařízení: výzva, typ a příznak UV. Příklad (`logic/gate.ts`) zůstává vždy jako záloha. Id klíčů v `schoolcraft-otisk`.
 
 ## Verze a novinky
 

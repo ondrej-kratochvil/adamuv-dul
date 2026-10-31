@@ -21,6 +21,7 @@ import { initPlayerSet, renderPlayerSet } from './player-settings.js';
 import { initOnline, renderOnline } from './online-settings.js';
 import { initPushSettings, renderPush } from './push-settings.js';
 import { canVibrate, setVibration, storageProtected, vibrationOn } from '../app/device.js';
+import { localAvailable, passState, passSupport, registerPass, removePass, verifyPass } from '../app/passkey.js';
 import { CONS_ORDER } from '../content/alphabet.ts';
 import { applyLetters, normalizeLetters } from '../logic/letters.ts';
 import { SYLL } from '../content/letters.ts';
@@ -46,7 +47,7 @@ function updateSettings() {
   updateVoiceInfo();
   renderPlayerSet();
   renderLetters();
-  renderOnline(); renderPush(); renderDevice();
+  renderOnline(); renderPush(); renderDevice(); renderPass();
 }
 // písmena zapnutá rodičem (logic/letters.ts)
 function renderLetters() {
@@ -81,9 +82,40 @@ function openSettings() { renderProfiles(); updateSettings(); renderNotes(); upd
 function openGate() {
   gate = makeGate();
   $('#gateQ').textContent = gate.text; $('#gateInput').value = ''; $('#gateMsg').textContent = '';
-  $('#gateOverlay').hidden = false; $('#gateInput').focus();
+  const ps = passState(), any = ps.local.length || ps.phone.length;
+  $('#gatePass').hidden = !any; $('#btnGateLocal').hidden = !ps.local.length; $('#btnGatePhone').hidden = !ps.phone.length;
+  $('#gateLead').textContent = any ? 'Nastavení otevřete otiskem prstu, nebo když spočítáte příklad.' : 'Nastavení otevřete, když spočítáte příklad.';
+  $('#gateOverlay').hidden = false;
   speak('Tohle je nastavení pro rodiče.');
+  if (ps.local.length) gatePass('local'); else $('#gateInput').focus(); // otisk na tomhle zařízení se nabídne hned (klepnutí na kolo je gesto)
 }
+// otisk prstu (app/passkey.js): povedené ověření otevře nastavení, jinak zůstává příklad
+let passBusy = false;
+async function gatePass(kind) {
+  if (passBusy) return; passBusy = true;
+  try {
+    if (await verifyPass(kind)) { $('#gateOverlay').hidden = true; gate = null; openSettings(); }
+    else $('#gateMsg').textContent = 'Ověření se nepovedlo. Zkuste to znovu, nebo spočítejte příklad.';
+  } finally { passBusy = false; }
+}
+$('#btnGateLocal').addEventListener('click', () => gatePass('local'));
+$('#btnGatePhone').addEventListener('click', () => gatePass('phone'));
+// nastavení otisků na kartě Hra
+const PASS_WHY = { nosupport: 'Tohle zařízení přihlášení otiskem z webu neumí.', cancel: 'Nastavení otisku bylo zrušené.', verify: 'Zařízení nepotvrdilo, že ověřilo otisk nebo PIN.' };
+async function renderPass(msg) {
+  const s = passState(), local = await localAvailable();
+  $('#btnPassLocal').hidden = !local; $('#btnPassPhone').hidden = !passSupport(); $('#btnPassOff').hidden = !(s.local.length || s.phone.length);
+  $('#passInfo').textContent = msg || (!passSupport() ? PASS_WHY.nosupport
+    : [s.local.length ? 'Otisk na tomto zařízení: nastavený.' : '', s.phone.length ? 'Telefon rodiče: nastavený.' : '', !s.local.length && !s.phone.length ? 'Zatím nenastaveno, nastavení se otevírá příkladem.' : '', !local ? 'Toto zařízení nemá otisk ani zámek obrazovky, jde jen telefon rodiče.' : ''].filter(Boolean).join(' '));
+}
+async function setupPass(kind) {
+  $('#passInfo').textContent = kind === 'phone' ? 'Naskenujte QR kód telefonem a potvrďte otiskem…' : 'Přiložte prst (nebo zadejte PIN zařízení)…';
+  try { await registerPass(kind); renderPass(kind === 'phone' ? 'Telefon rodiče je nastavený. Příště stačí naskenovat QR kód.' : 'Otisk je nastavený. Příště se nastavení otevře otiskem.'); }
+  catch (e) { renderPass(PASS_WHY[e && e.message] || (e && e.name === 'NotAllowedError' ? PASS_WHY.cancel : `Nepovedlo se: ${e && e.message || e}. U dětského účtu to může blokovat Family Link.`)); }
+}
+$('#btnPassLocal').addEventListener('click', () => setupPass('local'));
+$('#btnPassPhone').addEventListener('click', () => setupPass('phone'));
+$('#btnPassOff').addEventListener('click', () => { removePass('local'); removePass('phone'); renderPass('Otisky zrušené, nastavení se otevírá příkladem.'); });
 $('#btnSettings').addEventListener('click', openGate);
 $('#btnGoOnline').addEventListener('click', () => showSetTab('online'));
 initPlayerSet();
