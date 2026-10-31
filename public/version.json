@@ -1,6 +1,13 @@
 {
-  "version": 65,
+  "version": 66,
   "changes": [
+    {
+      "version": 66,
+      "date": "2026-10-31",
+      "notes": [
+        "Nahoře na mobilu je všechno stejně vysoké a jméno se vejde celé."
+      ]
+    },
     {
       "version": 65,
       "date": "2026-10-31",

@@ -206,6 +206,14 @@ button:focus-visible { outline: 4px solid var(--gold); outline-offset: 3px; }
   .ver-short { display: inline; }
   .home-stats .ver-badge { padding-inline: 3px 5px; }
   .profile-badge { min-width: 0; max-width: 32vw; overflow: hidden; white-space: nowrap; padding-inline: 6px; }
+  /* všechno v hlavičce stejně vysoké jako smaragdy a ozubené kolo (31. 10. 2026: řada dní byla nižší) */
+  .home-stats { align-self: stretch; }
+  .home-stats .streak, .home-stats .ver-badge { height: 46px; }
+  .home-stats > *, .home-right > * { flex-shrink: 0; }
+}
+@media (max-width: 400px) { /* úzký mobil: číslo verze bez ikonky, ať se jméno profilu vejde celé i s jiným písmem */
+  .home-stats .ver-badge svg { display: none; }
+  .home-stats .ver-badge { padding-inline: 5px; }
 }
 .streak { display: inline-flex; align-items: center; gap: 6px; background: rgba(0,0,0,.2); border: 3px solid rgba(0,0,0,.45); padding: 4px 10px 4px 6px; font-family: var(--f-read); font-weight: 700; font-size: 22px; color: var(--white); text-shadow: 2px 2px 0 #000; font-variant-numeric: tabular-nums; }
 .streak canvas { width: 34px; height: 34px; }
