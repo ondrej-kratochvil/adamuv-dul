@@ -50,6 +50,7 @@
     <div class="ground home-ground px" data-tex="dirt" data-dark="1">
       <div class="inner">
         <div class="levels" id="levels"></div>
+        <p class="home-foot"><button class="linkbtn" type="button" id="btnAbout">O hře a soukromí (pro rodiče)</button></p>
       </div>
     </div>
   </section>
@@ -423,6 +424,51 @@
     </form>
     <p class="lbl-small">Hráč už hraje na jiném zařízení? <button class="gbtn" type="button" id="btnSetupCode">Načíst QR kód hráče</button></p>
     <p class="lbl-small">Rodinu, která bude dítěti fandit, a další nastavení najdete později pod ozubeným kolem (pro rodiče).</p>
+    <p class="lbl-small"><button class="linkbtn" type="button" id="btnSetupAbout">O hře a soukromí: k čemu hra je a co se kam ukládá</button></p>
+  </div>
+</div>
+
+<!-- O HŘE: určení, soukromí, bezpečnost a kontakt pro rodiče (ui/about.js), dostupné bez zámku -->
+<div class="overlay" id="aboutOverlay" hidden>
+  <div class="panel about" role="dialog" aria-labelledby="aboutTitle">
+    <h2 id="aboutTitle">O hře Schoolcraft</h2>
+    <p class="lbl-small" id="aboutVersion"></p>
+
+    <h3>K čemu hra je</h3>
+    <ul>
+      <li>Výuková hra pro děti v 1. třídě (zhruba 6 až 7 let): písmena, slabiky, čtení, čísla, počty, psaní prstem a sluch pro výslovnost.</li>
+      <li>Obsah odpovídá běžným slabikářům a učebnicím (ALTER). Rodič zapíná písmena, která dítě zná ze školy; obtížnost se pak zvedá sama podle toho, co dítě opravdu zvládá.</li>
+      <li>Za zvládnuté úkoly si dítě staví dům, farmu a vesnici. Hra odměňuje pravidelnost a pokrok, ne dlouhé sezení.</li>
+      <li>Hra nenahrazuje školu ani logopedii. Výslovnost nehodnotí; patro Mluvení jen procvičuje sluch a vyslovení posoudí rodič.</li>
+    </ul>
+
+    <h3>Bezpečnost pro dítě</h3>
+    <ul>
+      <li>Žádné reklamy a žádné nákupy za peníze. Smaragdy jsou jen herní.</li>
+      <li>Nastavení je pro rodiče: otevře se po spočítání příkladu, který prvňák neumí, nebo otiskem prstu.</li>
+      <li>Děti si mezi sebou nepíšou. Se zapnutým online vidí v žebříčku přezdívky ostatních hráčů; přezdívky si hráči volí sami.</li>
+    </ul>
+
+    <h3>Co se kam ukládá</h3>
+    <ul>
+      <li><b>V tomto zařízení:</b> postup, statistiky úloh a nastavení. Fotky z Pokladu a Moje obrázky zůstávají jen tady a nikam se neposílají.</li>
+      <li><b>Na server Schoolcraft</b> (jen se zapnutým online; u nového hráče je zapnuté, vypnout jde v nastavení na kartě Online): záloha celého postupu včetně údajů o hráči (jméno a oslovení dítěte, narozeniny a svátek, jména a narozeniny členů rodiny, vzkazy od rodiny), statistiky úloh (patro, úloha, správně napoprvé, doba) a pro žebříček přezdívka, postavička, týdenní body a co má hráč postavené. Zálohu a statistiky vidí jen správce hry; žebříček vidí ostatní hráči.</li>
+      <li><b>Upozornění</b> (jen když je rodič zapne): adresa zařízení u služby upozornění (Google, Apple) a zvolená hodina.</li>
+      <li><b>Tabulka Google</b> (jen když ji rodič nastaví): výsledky kol a úloh do rodičovy vlastní tabulky.</li>
+      <li><b>Kde:</b> server běží u Cloudflare, databáze je v EU. Přihlášení je tajným kódem v zařízení, žádný e-mail ani heslo.</li>
+      <li><b>Bez sledování:</b> hra nepoužívá cookies, reklamní ani analytické nástroje. Písma se načítají z Google Fonts (Google přitom vidí adresu zařízení).</li>
+    </ul>
+
+    <h3>Smazání údajů</h3>
+    <ul>
+      <li>Ze serveru: nastavení → karta Online → Smazat ze serveru (smaže zálohu, statistiky i přezdívku).</li>
+      <li>Ze zařízení: nastavení → karta Postup → Začít od začátku, nebo odinstalovat aplikaci.</li>
+    </ul>
+
+    <h3>Správce a kontakt</h3>
+    <p>Ondřej Kratochvíl, kratochvil.ondrej@gmail.com. Podrobná příručka pro rodiče: <a href="https://github.com/ondrej-kratochvil/adamuv-dul/blob/main/docs/prirucka.md" target="_blank" rel="noopener">docs/prirucka.md</a>.</p>
+
+    <div class="actions"><button class="gbtn go" type="button" id="btnAboutClose" data-icon="check">Zavřít</button></div>
   </div>
 </div>
 
@@ -682,7 +728,7 @@
     <h3>Co se ukládá a kdo to vidí</h3>
     <ul class="privacy">
       <li><b>Žebříček</b> (vidí všichni hráči): přezdívka, postavička s oblečením, body za týden a co má hráč postavené (dům, farma, vesnice, zvířátka). Jméno rodiny, chyby ani statistiky ne.</li>
-      <li><b>Server</b> (vidí jen správce hry): záloha postupu a statistiky úloh (patro, úloha, správně napoprvé, doba). Slouží k přenosu na jiné zařízení a ke zlepšování hry.</li>
+      <li><b>Server</b> (vidí jen správce hry): záloha celého postupu včetně údajů o hráči (jméno dítěte, narozeniny, jména a narozeniny rodiny, vzkazy) a statistiky úloh (patro, úloha, správně napoprvé, doba). Slouží k přenosu na jiné zařízení a ke zlepšování hry. <button class="linkbtn" type="button" id="btnOnlineAbout">Vše o soukromí</button></li>
       <li><b>Kde:</b> Cloudflare, databáze v EU. Přihlášení je kódem v zařízení, žádný e-mail ani heslo.</li>
       <li><b>Smazání:</b> tlačítkem níže zmizí přezdívka, záloha i statistiky ze serveru. Postup v zařízení zůstane.</li>
       <li><b>Správce a kontakt:</b> Ondřej Kratochvíl, kratochvil.ondrej@gmail.com.</li>

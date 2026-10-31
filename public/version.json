@@ -1,6 +1,13 @@
 {
-  "version": 71,
+  "version": 72,
   "changes": [
+    {
+      "version": 72,
+      "date": "2026-10-31",
+      "notes": [
+        "Dole na úvodní obrazovce je pro tátu a mámu odkaz O hře a soukromí."
+      ]
+    },
     {
       "version": 71,
       "date": "2026-10-31",

@@ -2,7 +2,7 @@
 
 > **Co:** jak hru nainstalovat, nastavit a používat; co dítě ve hře dělá a za co dostává odměny; řešení potíží
 > **Stav:** aktivní
-> **Stav k:** 31. 10. 2026 (hra verze 71)
+> **Stav k:** 31. 10. 2026 (hra verze 72)
 > **Souhrn:**
 > - Hra učí písmena, slabiky, čtení, čísla, počty, psaní a sluch pro výslovnost; za zvládnuté úkoly si dítě staví svůj svět.
 > - Hraje se na https://schoolcraft.games, nejlépe přidané na plochu tabletu jako aplikace; jde i bez internetu.
@@ -254,6 +254,13 @@ Karta **Profily**: další hráč (sourozenec, kamarád) nebo testovací profil 
 ---
 
 ## 12. Soukromí
+
+Stejné informace má hra i v sobě: odkaz **O hře a soukromí** v úvodním nastavení nového hráče, dole na úvodní obrazovce
+a na kartě Online (bez zámku).
+
+- Online je u nového hráče zapnuté; vypnout jde na kartě Online. Záloha na serveru obsahuje i údaje o hráči a rodině
+  (jméno a narozeniny dítěte, jména a narozeniny rodiny, vzkazy).
+- Hra nepoužívá cookies ani reklamní a analytické nástroje; písma se načítají z Google Fonts.
 
 - Postup je v zařízení. Na server jde jen se zapnutým online: záloha, statistiky úloh a údaje pro žebříček (přezdívka,
   postavička, body, stavby).

@@ -613,3 +613,11 @@ canvas.ench { animation: ench 1.8s ease-in-out infinite; }
 .photo-letter { position: absolute; left: 4px; top: 4px; min-width: 28px; padding: 0 6px; background: #2e5a7f; color: #fff; font-family: var(--f-read); font-weight: 700; font-size: 20px; text-align: center; }
 .photo-view { display: grid; gap: 10px; justify-items: center; }
 .photo-view img { max-width: 100%; max-height: 60vh; border: 3px solid #161616; }
+/* O hře a soukromí (ui/about.js) a odkazy pro rodiče */
+.linkbtn { background: none; border: 0; padding: 4px 0; font: inherit; font-family: var(--f-read); color: inherit; text-decoration: underline; cursor: pointer; }
+.home-foot { text-align: center; margin: 18px 0 6px; }
+.home-foot .linkbtn { color: #e8dcc8; font-size: 15px; text-shadow: 1px 1px 0 #000; }
+.overlay .panel.about { width: min(640px, 100%); }
+.about ul { padding-left: 20px; margin: 0 0 8px; }
+.about li, .about p { font-family: var(--f-read); font-size: 16px; line-height: 1.45; margin: 0 0 6px; }
+.about h3 { margin: 16px 0 6px; font-size: 18px; }

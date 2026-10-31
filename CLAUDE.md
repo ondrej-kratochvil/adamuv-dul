@@ -105,6 +105,13 @@ přidej i odměny, aby Adam nedošel na strop dřív, než dojde obsah.
   Druhá karta Moje obrázky. Fotky jen v zařízení (IndexedDB `schoolcraft-fotky`, `src/app/photos.js`, po profilech),
   nikdy na server ani do zálohy postupu.
 
+## O hře a soukromí (Ondřej 31. 10. 2026)
+
+- Přehled pro rodiče (`#aboutOverlay`, `src/ui/about.js`), bez zámku: odkaz v úvodním nastavení nového hráče, dole na úvodní
+  obrazovce a na kartě Online. Určení hry, bezpečnost, co se kam ukládá (pravdivě: online je u nového hráče zapnuté, záloha
+  obsahuje údaje o hráči a rodině, písma z Google Fonts), smazání, správce a kontakt. Když se změní, co se ukládá nebo posílá,
+  opravit tento text i kartu Online a `docs/prirucka.md`.
+
 ## Verze a novinky
 
 Každá úprava, která jde na `main`, zvýší `APP_VERSION` v `src/app/version.js` a přidá do `version.json` záznam se stejným

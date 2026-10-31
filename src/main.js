@@ -39,6 +39,7 @@ import { practiceReady } from './levels/practice.js';
 import { codeFromText } from './logic/qr.ts';
 import { askCodeRestore, initQrUi } from './ui/qr-ui.js';
 import { initHunt } from './world/hunt.js';
+import { initAbout } from './ui/about.js';
 import { openGateForCode } from './ui/settings.js';
 import { applyLetters } from './logic/letters.ts';
 import { initSetup, needsSetup, openSetup } from './ui/setup.js';
@@ -118,7 +119,7 @@ renderHome();
 // otočení tabletu: pozdrav a úkol se přesunou mezi nebe a dlaždice (ui/screens.js)
 let wasWide = matchMedia('(min-width: 700px)').matches;
 addEventListener('resize', () => { const w = matchMedia('(min-width: 700px)').matches; if (w !== wasWide && !$('#home').hidden) renderHome(); wasWide = w; });
-initSetup(); initQrUi(); initHunt();
+initSetup(); initQrUi(); initHunt(); initAbout();
 // QR kód hráče naskenovaný fotoaparátem telefonu otevře hru s #kod=…: nové zařízení stáhne hráče, jinak přes zámek pro rodiče
 const qrCode = codeFromText(location.hash);
 if (qrCode) history.replaceState(null, '', location.pathname + location.search);
