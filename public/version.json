@@ -1,6 +1,14 @@
 {
-  "version": 76,
+  "version": 77,
   "changes": [
+    {
+      "version": 77,
+      "date": "2026-10-31",
+      "notes": [
+        "Slova začínají lehčeji: nejdřív krátká slova jako MÁ a EMA.",
+        "Slova, která se teprve učíš, mají snadnější kostky."
+      ]
+    },
     {
       "version": 76,
       "date": "2026-10-31",

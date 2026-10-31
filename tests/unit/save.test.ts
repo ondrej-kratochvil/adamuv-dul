@@ -149,10 +149,22 @@ describe('schéma 12 (verze hry 70): hledání pokladu s písmeny', () => {
     const s = migrate(old);
     for (const k of Object.keys(old)) if (k !== 'schema') kept(s[k], old[k], k);
     expect(s.hunt).toEqual({ d: '', today: [], total: 0 });
-    expect(s.schema).toBe(12);
+    expect(s.schema).toBeGreaterThanOrEqual(12);
   });
   it('rozehrané hledání se při převodu neztratí, rozbitý seznam se opraví', () => {
     expect(migrate({ schema: 12, total: 1, rounds: {}, hunt: { d: '2026-10-31', today: ['M'], total: 4 } }).hunt).toEqual({ d: '2026-10-31', today: ['M'], total: 4 });
     expect(migrate({ schema: 12, total: 1, rounds: {}, hunt: { d: 'x', today: 'M', total: 1 } }).hunt.today).toEqual([]);
+  });
+});
+
+describe('schéma 13 (verze hry 77): Slova v 5 stupních', () => {
+  it('dosažený stupeň Slov se přečísluje (do 4 písmen = stupeň 3, vše = 4), nic otevřeného se nezavře', () => {
+    expect(migrate({ schema: 12, total: 1, rounds: {}, stages: { words: 0, numbers: 2 } }).stages).toEqual({ words: 0, numbers: 2 });
+    expect(migrate({ schema: 12, total: 1, rounds: {}, stages: { words: 1 } }).stages.words).toBe(3);
+    expect(migrate({ schema: 12, total: 1, rounds: {}, stages: { words: 2 } }).stages.words).toBe(4);
+    expect(migrate({ schema: 13, total: 1, rounds: {}, stages: { words: 1 } }).stages.words).toBe(1);
+    const old = fixture('save-v11'), s = migrate(old);
+    for (const k of Object.keys(old)) if (k !== 'schema' && k !== 'stages') kept(s[k], old[k], k);
+    expect(s.schema).toBe(13);
   });
 });

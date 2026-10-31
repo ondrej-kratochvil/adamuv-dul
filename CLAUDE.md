@@ -53,7 +53,9 @@ přidej i odměny, aby Adam nedošel na strop dřív, než dojde obsah.
 - **Stupně obtížnosti** (`logic/stages.ts`, Ondřej 24. 10. 2026): obsah patra přibývá podle zvládnutí, ne podle počtu kol.
   Další stupeň až při 70 % zvládnutých úloh všech otevřených stupňů (Počty: 12 zvládnutých příkladů do 10, pak `crossingReady`).
   Písmena: krátké samohlásky, dlouhé, Y/Ý/Ů, M L S. Slabiky: MA až MU, s L a S, dlouhé a s Y. Čísla 10, 20, 50, 100.
-  Slova délka 3, 4, vše. Čtení jednotné, množné. Psaní snadné, vše, smyčka a spirála. Mluvení po jedné dvojici hlásek.
+  Slova (5 stupňů od 31. 10. 2026, ať Adama neodrazují): krátká s jednou souhláskou (MÁ, EMA), do 3 písmen (LES), dvě otevřené
+  slabiky (MÁMA), do 4 písmen, vše; v prvním stupni nejvýš 3 kostky a slovo, které ještě neumí, má lehké chytáky (`easyDistractor`:
+  jiné první písmeno, liší se aspoň ve 2 písmenech), zvládnuté ty nejpodobnější. Čtení jednotné, množné. Psaní snadné, vše, smyčka a spirála. Mluvení po jedné dvojici hlásek.
   Dosažený stupeň se pamatuje (`save.stages`) a nezavře se; po povedeném kole hra oznámí, co se otevřelo (`#newStage`).
   Počet kol řídí jen počet kostek (2, 3, 4). Nový obsah zařadit do stupně v `STAGES` (poslední stupeň = celý obsah, test to hlídá).
 - **Zvládnutý úkol** = `mastery() === 'good'` (aspoň 3× správně a poslední dobou bez chyby).

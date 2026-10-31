@@ -52,7 +52,7 @@ a hraje **kolo**: 8 úkolů (v Psaní 5). Hlas řekne zadání a dítě kope kru
 |---|---|
 | **Písmena** | slyší písmeno a najde ho; občas „Na jaké písmeno začíná slovo…?“ |
 | **Slabiky** | slyší slabiku (MA, LE, SÍ…) a najde ji |
-| **Slova** | slyší slovo a najde ho mezi podobnými (LES a LOS) |
+| **Slova** | slyší slovo a najde ho na kostkách; začíná krátkými slovy (MÁ, EMA), u slov, která ještě neumí, jsou chytáky snadné, u zvládnutých podobné (LES a LOS) |
 | **Čtení** | přečte slovo na ceduli (hlas ho neřekne) a vybere obrázek; později celé věty („EMA MÁ MÍSU.“) |
 | **Čísla** | slyší číslo a najde ho (pozor na chytáky: 68 a 86) |
 | **Počty** | sčítání a odčítání, porovnávání (<, =, >) a doplňování (3 + ? = 5) |

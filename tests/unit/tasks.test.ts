@@ -1,6 +1,6 @@
 // Generátory úkolů: tisíce náhodných úkolů v každé fázi obtížnosti.
 import { describe, expect, it } from 'vitest';
-import { conflict, genLetters, genMath, genNumbers, genReading, genWords, genWriting, WRITING_EASY, WRITING_HARD, crossingReady, isCrossing, type Ctx, type Task } from '../../src/logic/tasks';
+import { conflict, easyDistractor, wordChoices, genLetters, genMath, genNumbers, genReading, genWords, genWriting, WRITING_EASY, WRITING_HARD, crossingReady, isCrossing, type Ctx, type Task } from '../../src/logic/tasks';
 import { STAGES } from '../../src/logic/stages';
 import { choiceCount } from '../../src/logic/mastery';
 import type { Stats } from '../../src/logic/mastery';
@@ -59,8 +59,31 @@ describe('počty', () => {
 
 describe('slova a čtení', () => {
   it.each(stagesOf('words'))('slova, stupeň %i: délka slova podle stupně', st => {
-    const maxLen = [3, 4, 9][st];
-    for (const r of ROUNDS) for (let s = 1; s <= 200; s++) { const t = genWords(ctxFor('words', r, s, st)); checkTask(t, choiceCount(r)); expect(t.answer.length).toBeLessThanOrEqual(maxLen); }
+    const maxLen = [3, 3, 4, 4, 9][st];
+    for (const r of ROUNDS) for (let s = 1; s <= 200; s++) { const t = genWords(ctxFor('words', r, s, st)); checkTask(t, wordChoices(r, st)); expect(t.answer.length).toBeLessThanOrEqual(maxLen); }
+  });
+  it('lehčí Slova (Ondřej 31. 10. 2026): první stupeň jen krátká slova s jednou souhláskou a nejvýš 3 kostky', () => {
+    expect(STAGES.words[0].items).toEqual(expect.arrayContaining(['MÁ', 'EMA', 'ÚLY']));
+    for (const w of ['LES', 'SŮL', 'SÁM', 'MÁMA']) expect(STAGES.words[0].items).not.toContain(w);
+    expect(STAGES.words[1].items).toContain('SŮL');
+    expect(STAGES.words[2].items).toEqual(expect.arrayContaining(['MÁMA', 'MASO', 'LAMA']));
+    for (const w of ['OSEL', 'EMIL', 'OSLÍ']) expect(STAGES.words[2].items).not.toContain(w);
+    expect(STAGES.words[3].items).toContain('OSEL');
+    for (let s = 1; s <= 200; s++) expect(genWords(ctxFor('words', 9, s, 0)).choices.length).toBe(3);
+  });
+  it('slovo, které ještě neumí, má lehké chytáky (jiné první písmeno, ne SÁM a SAM); zvládnuté ty nejpodobnější', () => {
+    const stats: Stats = {};
+    for (let s = 1; s <= 300; s++) {
+      const t = genWords({ rounds: { words: 9 }, stats, recent: [], rng: seeded(s), stages: { words: 4 } });
+      for (const c of t.choices) if (c !== t.answer) expect(easyDistractor(t.answer, c), `${t.answer} × ${c}`).toBe(true);
+    }
+    const good = { ok: 5, miss: 0 } as Stats[string];
+    let similar = 0;
+    for (let s = 1; s <= 100; s++) {
+      const t = genWords({ rounds: { words: 9 }, stats: { 'words:LES': good }, recent: [], rng: seeded(s), stages: { words: 4 }, force: 'LES' });
+      if (t.choices.some(c => c !== 'LES' && !easyDistractor('LES', c))) similar++;
+    }
+    expect(similar).toBe(100);
   });
   it.each(stagesOf('reading'))('čtení, stupeň %i: množné číslo až ve druhém stupni', st => {
     for (const r of ROUNDS) for (let s = 1; s <= 200; s++) {
@@ -70,7 +93,7 @@ describe('slova a čtení', () => {
     }
   });
   it('nedávné úkoly se neopakují', () => {
-    for (let s = 1; s <= 200; s++) expect(genWords({ rounds: { words: 9 }, stats: {}, recent: ['LES', 'LOS', 'OSA', 'SŮL'], rng: seeded(s), stages: { words: 2 } }).answer).not.toMatch(/^(LES|LOS|OSA|SŮL)$/);
+    for (let s = 1; s <= 200; s++) expect(genWords({ rounds: { words: 9 }, stats: {}, recent: ['LES', 'LOS', 'OSA', 'SŮL'], rng: seeded(s), stages: { words: 4 } }).answer).not.toMatch(/^(LES|LOS|OSA|SŮL)$/);
   });
 });
 

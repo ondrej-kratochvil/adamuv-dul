@@ -21,6 +21,12 @@ const lettersOf = (s: string) => s.split(' ');
 const syll = (cons: string[], vowels: string) => cons.flatMap(c => vowels.split(' ').map(v => c + v));
 const upTo = (n: number) => range(0, n).map(String);
 const wordsUpTo = (len: number) => WORDS.filter(w => w.length <= len);
+// Slova od nejlehčích (Ondřej 31. 10. 2026: „aby ho složitost neodrazovala“; Adam měl zvládnuté 1 slovo z 87):
+// nejdřív krátká slova s jednou souhláskou (MÁ, EMA, ÚLY), pak se zavřenou slabikou (LES, SŮL), pak dvě otevřené slabiky
+// jako ve slabikáři (MÁ-MA, PI-LA), pak ostatní čtyřpísmenná a nakonec dlouhá
+export const VOWELS = 'AÁEÉĚIÍOÓUÚŮYÝ';
+export const consonants = (w: string): number => [...w].filter(c => !VOWELS.includes(c)).length;
+export const openSyllables = (w: string): boolean => /^(?:[^AÁEÉĚIÍOÓUÚŮYÝ][AÁEÉĚIÍOÓUÚŮYÝ])+$/.test(w);
 const speechWords = (pairs: [string, string][]) => SPEECH_WORDS.filter(w => pairs.some(p => fitsPair(w, p))).map(w => w.w);
 
 // úlohy každého stupně (souhrnně: stupeň k obsahuje i všechno ze stupňů před ním); name = co se otevřelo (pro hlas)
@@ -44,10 +50,13 @@ export const STAGES: Record<string, Stage[]> = {
     { items: upTo(50), name: 'čísla do padesáti' },
     { items: upTo(100), name: 'čísla do sta' },
   ],
+  // getter: WORDS se po spuštění přepočítá podle zapnutých písmen (logic/letters.ts applyLetters)
   words: [
-    { items: wordsUpTo(3), name: '' },
-    { items: wordsUpTo(4), name: 'slova se čtyřmi písmeny' },
-    { items: WORDS, name: 'dlouhá slova' },
+    { get items() { return wordsUpTo(3).filter(w => consonants(w) <= 1); }, name: '' },
+    { get items() { return wordsUpTo(3); }, name: 'krátká slova jako LES a SŮL' },
+    { get items() { return WORDS.filter(w => w.length <= 3 || (w.length === 4 && openSyllables(w))); }, name: 'slova ze dvou slabik, třeba MÁMA' },
+    { get items() { return wordsUpTo(4); }, name: 'slova se čtyřmi písmeny' },
+    { get items() { return WORDS; }, name: 'dlouhá slova' },
   ],
   reading: [
     { get items() { return PIC_WORDS.filter(w => PIC[w]); }, name: '' }, // jen slova ze zapnutých písmen
@@ -95,6 +104,8 @@ export const crossingReady = (stats: Stats): boolean => goodMath(stats, p => p.t
 /* ---------- výpočet stupně ---------- */
 export const share = (stats: Stats, level: string, items: string[]): number =>
   items.length ? items.filter(it => mastery(stats[level + ':' + it]) === 'good').length / items.length : 0;
+// stupně Slov před verzí 77 (3 stupně: do 3 písmen, do 4, vše) -> nové číslo stupně (save/schema.ts migrate, schéma 13)
+export const OLD_WORD_STAGE = [0, 3, 4];
 // stupeň jen podle zvládnutí (bez paměti)
 export function masteredStage(level: string, stats: Stats): number {
   if (level === 'math') return crossingReady(stats) ? 2 : goodMath(stats, p => p.top <= 10) >= MATH_TO_20 && goodMath(stats, p => p.top > 6 && p.top <= 10) >= MATH_7_10 ? 1 : 0;

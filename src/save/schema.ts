@@ -8,8 +8,9 @@ import type { Player } from '../logic/player';
 import { cloudDefaults, type Cloud } from '../logic/cloud';
 import { huntDefaults, type Hunt } from '../logic/hunt';
 import { packText, unpackText } from '../logic/transfer';
+import { OLD_WORD_STAGE } from '../logic/stages';
 
-export const SCHEMA = 12; // 1 = vše do verze hry 15 (bez čísla schématu), 2 = s číslem schématu a nejvyšším stavem vesnice,
+export const SCHEMA = 13; // 1 = vše do verze hry 15 (bez čísla schématu), 2 = s číslem schématu a nejvyšším stavem vesnice,
                         // 3 = doba řešení a záměny u úloh, procvičování, fronta pro tabulku Google (verze hry 27),
                         // 4 = převlékání rodiny (verze hry 28), 5 = název a značka zařízení pro tabulku (verze hry 39),
                         // 6 = ranní karta a dnešní úkol (verze hry 51), 7 = stupně obtížnosti podle zvládnutí (verze hry 52),
@@ -17,6 +18,7 @@ export const SCHEMA = 12; // 1 = vše do verze hry 15 (bez čísla schématu), 2
                         // 9 = psací písmo v Psaní (verze hry 56), 10 = počet splněných dnešních úkolů pro zvířátka (verze hry 57),
                         // 11 = Schoolcraft online: přihlášení k serveru, dny splněných úkolů pro týdenní body (verze hry 59)
                         // 12 = hledání pokladu s písmeny (verze hry 70; fotky jen v zařízení, ne v uloženém stavu)
+                        // 13 = Slova v 5 stupních místo 3 (verze hry 77): dosažený stupeň Slov se přečísluje
 
 // pauses/pauseSecs: pauzy v kole (od verze 36); secs je doba bez pauz
 export interface LogEntry { t: number; d: string; level: string; clean: number; done: number; len: number; ok: boolean; quit: boolean; secs: number; rate?: number; pauses?: number; pauseSecs?: number; lost?: number }
@@ -109,6 +111,8 @@ export function migrate(raw: unknown): SaveState {
   // Adam se od 24. 10. 2026 učí P (Ondřej); dřívější postup = samohlásky, M, L, S a nově P
   if (from < 8 && !Array.isArray(s.letters)) out.letters = ['M', 'L', 'S', 'P'];
   if (!Array.isArray(out.letters) || !out.letters.length) out.letters = ['M', 'L', 'S'];
+  // v12 -> v13: Slova mají lehčí stupně na začátku; dosažený stupeň se přečísluje, ať se nic otevřeného nezavře
+  if (from < 13 && typeof out.stages.words === 'number') out.stages.words = OLD_WORD_STAGE[out.stages.words] ?? out.stages.words;
   // v11 -> v12: hledání pokladu začíná prázdné (hunt z výchozích hodnot přes NESTED)
   // v10 -> v11: online začíná nepřihlášené (cloud z výchozích hodnot přes NESTED), dny úkolů prázdné
   if (!Array.isArray(out.cloud.queue)) out.cloud.queue = [];

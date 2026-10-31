@@ -114,7 +114,7 @@ Seznam pater je `LEVELS` v `src/levels/reading.js`; Procvičit je `PRACTICE` v `
 | Písmena | `letters` | hlas řekne písmeno, dítě klepne na kostku | A E I O U → + Á É Í Ó Ú → + Y Ý Ů → + zapnuté souhlásky |
 | ↳ první hláska | `letters` | od 2. kola asi čtvrtina úkolů: „Na jaké písmeno začíná slovo…?“ (`genFirstSound`) | slova z otevřeného stupně |
 | Slabiky | `syllables` | hlas řekne slabiku | MA ME MI MO MU → + L a S s krátkými samohláskami → všechny (dlouhé, Y, Ó, Ů) |
-| Slova | `words` | hlas řekne slovo, na výběr nejpodobnější slova (Levenshtein) | do 3 písmen → do 4 → všechna |
+| Slova | `words` | hlas řekne slovo; nezvládnuté slovo má lehké chytáky (jiné první písmeno, Levenshtein ≥ 2), zvládnuté nejpodobnější slova; v 1. stupni nejvýš 3 kostky | do 3 písmen s 1 souhláskou → do 3 písmen → + dvě otevřené slabiky (MÁMA) → do 4 → všechna (schéma 13 přečíslovalo stupeň) |
 | Čtení | `reading` | slovo na ceduli (hlas ho neřekne), dítě vybere obrázek | jednotné číslo → i množné (OSY, ÚLY, LAMY, MÍSY) |
 | ↳ věty | `reading` | od 3. kola a stupně 1 asi 30 % úkolů: věta „EMA MÁ MÍSU.“, vybere se obrázek předmětu (`genSentence`) | jen přečtitelné věty |
 | Čísla | `numbers` | hlas řekne číslo; chytáky: prohozené číslice (85 %), sousední desítka (60 %) | 0–9 → 0–19 → 0–49 → 0–99 |

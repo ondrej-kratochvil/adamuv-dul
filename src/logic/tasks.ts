@@ -153,18 +153,28 @@ export function genMath(ctx: Ctx): Task {
 }
 
 /* ---------- slova a čtení ---------- */
-function similarWords(w: string, pool: string[], k: number, rng: Rng): string[] {
-  return pool.filter(x => x !== w).map(x => [x, lev(w, x) + rng() * 1.5] as [string, number]).sort((a, b) => a[1] - b[1]).slice(0, k).map(x => x[0]);
+function similarWords(w: string, pool: string[], k: number, rng: Rng, easy = false): string[] {
+  const near = (xs: string[]) => xs.map(x => [x, lev(w, x) + rng() * 1.5] as [string, number]).sort((a, b) => a[1] - b[1]).map(x => x[0]);
+  const rest = pool.filter(x => x !== w);
+  if (!easy) return near(rest).slice(0, k);
+  // lehké chytáky: jiné první písmeno a liší se aspoň ve dvou písmenech (ne SÁM a SAM, ne SUM a SUP); když nestačí, doplní se podobná
+  const far = rest.filter(x => easyDistractor(w, x)), picked = near(far).slice(0, k);
+  return [...picked, ...near(rest.filter(x => !picked.includes(x))).slice(0, k - picked.length)];
 }
-// slova podle stupně: do 3 písmen, do 4, všechna; na výběr nejpodobnější slova (LES a LOS, MALÝ a MALÁ)
+export const easyDistractor = (w: string, x: string): boolean => x[0] !== w[0] && lev(w, x) >= 2;
+// slova podle stupně (logic/stages.ts): od MÁ a EMA po dlouhá slova. Chytáky podle toho, jak slovo umí: dokud není zvládnuté,
+// lehké (jiné první písmeno, jiný tvar), u zvládnutého nejpodobnější slova (LES a LOS, MALÝ a MALÁ). V prvním stupni nejvýš 3 kostky.
+export const WORDS_FIRST_MAX = 3;
+export function wordChoices(r: number, st: number): number { return st === 0 ? Math.min(WORDS_FIRST_MAX, choiceCount(r)) : choiceCount(r); }
 export function genWords(ctx: Ctx): Task {
-  const rng = ctx.rng || Math.random, r = ctx.rounds.words || 0;
+  const rng = ctx.rng || Math.random, n = wordChoices(ctx.rounds.words || 0, stage('words', ctx));
   const avoid = ctx.recent.slice(-4);
   const open = openItems('words', ctx);
   const w = ctx.force && WORDS.includes(ctx.force) ? ctx.force : weightedPick(open.filter(x => !avoid.includes(x)), x => weight(ctx.stats, 'words', x), rng);
   // špatné kostky jen z otevřeného stupně jako ve Čtení (review 25. 10. 2026: vedle SUM leželo SUMA z pozdějšího stupně)
-  const pool = open.includes(w) && open.length >= choiceCount(r) ? open : WORDS;
-  return { answer: w, choices: shuffle([w, ...similarWords(w, pool, choiceCount(r) - 1, rng)], rng), say: pronounce(w, ctx.pron), stat: 'words:' + w, key: w };
+  const pool = open.includes(w) && open.length >= n ? open : WORDS;
+  const easy = mastery(ctx.stats['words:' + w]) !== 'good';
+  return { answer: w, choices: shuffle([w, ...similarWords(w, pool, n - 1, rng, easy)], rng), say: pronounce(w, ctx.pron), stat: 'words:' + w, key: w };
 }
 // slovo jen napsané na ceduli, výběr obrázku; ve druhém stupni i množné číslo
 // věty (content/sentences.ts): jen z písmen, která dítě zná, a s obrázkem, který je mezi otevřenými
