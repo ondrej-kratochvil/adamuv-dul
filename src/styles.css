@@ -597,3 +597,7 @@ canvas.ench { animation: ench 1.8s ease-in-out infinite; }
 /* ranní upozornění v nastavení (karta Hra) */
 .push-row { align-items: center; }
 .push-row select { font-family: var(--f-read); font-size: 17px; padding: 6px 8px; border: 3px solid #161616; background: #fff; }
+/* QR kód hráče a čtečka (ui/qr-ui.js) */
+.qr-box { display: grid; justify-items: start; gap: 6px; margin: 8px 0; }
+.qr-box canvas { width: min(260px, 70vw); height: auto; image-rendering: pixelated; border: 3px solid #161616; }
+.scan video { width: 100%; max-height: 50vh; background: #000; border: 3px solid #161616; object-fit: cover; }

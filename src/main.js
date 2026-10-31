@@ -36,6 +36,9 @@ import { initShare } from './ui/share.js';
 import { shortcutTarget } from './logic/shortcut.ts';
 import { openDay } from './world/daily.js';
 import { practiceReady } from './levels/practice.js';
+import { codeFromText } from './logic/qr.ts';
+import { askCodeRestore, initQrUi } from './ui/qr-ui.js';
+import { openGateForCode } from './ui/settings.js';
 import { applyLetters } from './logic/letters.ts';
 import { initSetup, needsSetup, openSetup } from './ui/setup.js';
 import { profile } from './save/save.ts';
@@ -114,7 +117,12 @@ renderHome();
 // otočení tabletu: pozdrav a úkol se přesunou mezi nebe a dlaždice (ui/screens.js)
 let wasWide = matchMedia('(min-width: 700px)').matches;
 addEventListener('resize', () => { const w = matchMedia('(min-width: 700px)').matches; if (w !== wasWide && !$('#home').hidden) renderHome(); wasWide = w; });
-initSetup(); if (needsSetup()) openSetup(profile.id !== MAIN_ID ? profile.name : ''); // nová hra: kdo hraje
+initSetup(); initQrUi();
+// QR kód hráče naskenovaný fotoaparátem telefonu otevře hru s #kod=…: nové zařízení stáhne hráče, jinak přes zámek pro rodiče
+const qrCode = codeFromText(location.hash);
+if (qrCode) history.replaceState(null, '', location.pathname + location.search);
+if (needsSetup()) openSetup(profile.id !== MAIN_ID ? profile.name : ''); // nová hra: kdo hraje
+if (qrCode) { if (needsSetup()) askCodeRestore(qrCode); else openGateForCode(qrCode); }
 initDay(); // ranní karta při prvním otevření dne
 // zkratka z ikony aplikace (manifest shortcuts): karta dnešního úkolu (tlačítko na ní spustí patro) nebo procvičování
 { const go = shortcutTarget(location.search); if (go && !needsSetup()) { history.replaceState(null, '', location.pathname); if (go === 'quest') openDay(); else if (practiceReady()) startRound('practice'); } }

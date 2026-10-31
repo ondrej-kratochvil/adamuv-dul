@@ -1,6 +1,13 @@
 {
-  "version": 68,
+  "version": 69,
   "changes": [
+    {
+      "version": 69,
+      "date": "2026-10-31",
+      "notes": [
+        "Hru můžeš přenést na jiný tablet nebo mobil pomocí QR kódu. Stačí ho naskenovat fotoaparátem."
+      ]
+    },
     {
       "version": 68,
       "date": "2026-10-31",

@@ -96,6 +96,10 @@ přidej i odměny, aby Adam nedošel na strop dřív, než dojde obsah.
 - **Otisk prstu do nastavení** (WebAuthn, `src/logic/passkey.ts`, `src/app/passkey.js`, nastavuje se na kartě Hra): na zařízení
   (vestavěný autentizátor, nabídne se hned po klepnutí na kolo) a telefonem rodiče přes QR kód (`hybrid`, Adam ho neobejde).
   Ověřuje se v zařízení: výzva, typ a příznak UV. Příklad (`logic/gate.ts`) zůstává vždy jako záloha. Id klíčů v `schoolcraft-otisk`.
+- **QR kód hráče** (`src/logic/qr.ts`, `src/app/qr.js`, `src/ui/qr-ui.js`, knihovny `qrcode-generator` a `jsqr`): karta Online
+  ukáže QR s adresou `https://schoolcraft.games/#kod=…` (kód jen za #, na server ani do záznamů nejde) a načte ho fotoaparátem
+  (BarcodeDetector, jinak jsQR). Hra otevřená z té adresy: nové zařízení stáhne hráče (`#codeOverlay`), jinde jen přes zámek
+  pro rodiče (`openGateForCode`). Úvodní „Kdo bude hrát?“ má tlačítko Načíst QR kód hráče.
 
 ## Verze a novinky
 

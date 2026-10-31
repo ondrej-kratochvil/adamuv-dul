@@ -388,7 +388,26 @@
       <div class="letter-toggles" id="setupLetters"></div>
       <div class="actions"><button class="gbtn go" id="btnSetupGo" type="submit" data-icon="next">Začít hrát</button></div>
     </form>
+    <p class="lbl-small">Hráč už hraje na jiném zařízení? <button class="gbtn" type="button" id="btnSetupCode">Načíst QR kód hráče</button></p>
     <p class="lbl-small">Rodinu, která bude dítěti fandit, a další nastavení najdete později pod ozubeným kolem (pro rodiče).</p>
+  </div>
+</div>
+
+<!-- QR KÓD: čtení fotoaparátem (app/qr.js) a stažení hráče z kódu na novém zařízení -->
+<div class="overlay" id="scanOverlay" hidden>
+  <div class="panel scan" role="dialog" aria-labelledby="scanTitle">
+    <h2 id="scanTitle">Načíst QR kód hráče</h2>
+    <video id="scanVideo" muted playsinline></video>
+    <p class="lbl-small" id="scanMsg" role="status">Namiřte fotoaparát na QR kód z druhého zařízení.</p>
+    <div class="actions"><button class="gbtn" type="button" id="btnScanStop" data-icon="back">Zrušit</button></div>
+  </div>
+</div>
+<div class="overlay" id="codeOverlay" hidden>
+  <div class="panel" role="dialog" aria-labelledby="codeTitle">
+    <h2 id="codeTitle">Stáhnout hráče z kódu</h2>
+    <p>Na tohle zařízení se stáhne postup hráče ze serveru Schoolcraft.</p>
+    <p class="lbl-small" id="codeMsg" role="status"></p>
+    <div class="actions"><button class="gbtn go" type="button" id="btnCodeYes" data-icon="check">Stáhnout</button><button class="gbtn" type="button" id="btnCodeNo" data-icon="back">Zpět</button></div>
   </div>
 </div>
 
@@ -609,7 +628,8 @@
     <p class="lbl-small" id="cloudInfo" role="status"></p>
     <h3>Přenos na jiné zařízení</h3>
     <p>Kód hráče patří jen vám: kdo ho zná, může postup stáhnout. Na novém zařízení ho vložte a postup se stáhne ze serveru.</p>
-    <div class="seg"><button class="gbtn" type="button" id="btnCloudCode">Ukázat kód</button><button class="gbtn" type="button" id="btnCloudRestore">Vložit kód</button></div>
+    <div class="seg"><button class="gbtn" type="button" id="btnCloudQr">QR kód</button><button class="gbtn" type="button" id="btnCloudScan">Načíst QR kód</button><button class="gbtn" type="button" id="btnCloudCode">Ukázat kód</button><button class="gbtn" type="button" id="btnCloudRestore">Vložit kód</button></div>
+    <div class="qr-box" id="cloudQrBox" hidden><canvas id="cloudQr" aria-label="QR kód hráče"></canvas><p class="lbl-small">Naskenujte fotoaparátem nového zařízení (otevře hru a nabídne stažení postupu), nebo ve hře tlačítkem Načíst QR kód.</p></div>
     <textarea class="copy-out" id="cloudCode" hidden></textarea>
     <div class="confirm" id="cloudRestoreConfirm" hidden>
       <p style="margin:0">Nahradit postup v tomhle zařízení postupem ze serveru? Ten současný se uloží jako záloha v zařízení.</p>

@@ -6,6 +6,9 @@ import { deleteCloud, restoreFromCode, syncCloud } from '../app/cloud.js';
 import { player } from '../app/player.js';
 import { applyLetters } from '../logic/letters.ts';
 import { loadFamily } from '../world/family.js';
+import { codeUrl } from '../logic/qr.ts';
+import { drawQr } from '../app/qr.js';
+import { openScanner } from './qr-ui.js';
 
 const stamp = t => { const d = new Date(t); return `${d.getDate()}. ${d.getMonth() + 1}. ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`; };
 function renderOnline(msg) {
@@ -27,6 +30,14 @@ function initOnline() {
     box.hidden = false; box.readOnly = true; box.value = code; box.focus(); box.select();
     try { await navigator.clipboard.writeText(code); renderOnline('Kód je zkopírovaný do schránky.'); } catch (e) { renderOnline('Kód je označený, zkopírujte ho.'); }
   });
+  // QR kód hráče (Ondřej 31. 10. 2026): ukázat a načíst fotoaparátem
+  $('#btnCloudQr').addEventListener('click', async () => {
+    if (!save.cloud.id) await syncCloud(true);
+    const code = codeOf(save.cloud);
+    if (!code) { renderOnline('QR kód zatím není: zapněte online a připojte se k internetu.'); return; }
+    drawQr($('#cloudQr'), codeUrl(code)); $('#cloudQrBox').hidden = false;
+  });
+  $('#btnCloudScan').addEventListener('click', () => openScanner(offerRestore));
   $('#btnCloudRestore').addEventListener('click', () => { box.hidden = false; box.readOnly = false; box.value = ''; box.placeholder = 'Sem vložte kód hráče'; box.focus(); $('#cloudRestoreConfirm').hidden = true; });
   box.addEventListener('input', () => { if (!box.readOnly) $('#cloudRestoreConfirm').hidden = !/^\s*[a-f0-9-]{36}\.[a-f0-9]{64}\s*$/.test(box.value); });
   $('#btnCloudRestoreNo').addEventListener('click', () => { $('#cloudRestoreConfirm').hidden = true; });
@@ -42,4 +53,9 @@ function initOnline() {
     try { await deleteCloud(); renderOnline('Smazáno ze serveru, online hraní je vypnuté.'); } catch (e) { renderOnline('Smazání se nepovedlo (bez internetu?). Zkuste to znovu.'); }
   });
 }
-export { initOnline, renderOnline };
+// kód z QR nebo z adresy: vyplnit a nabídnout nahrazení postupu (rodič potvrdí)
+function offerRestore(code) {
+  const box = $('#cloudCode'); box.hidden = false; box.readOnly = false; box.value = code;
+  $('#cloudRestoreConfirm').hidden = false; renderOnline('Kód hráče je načtený. Potvrďte nahrazení postupu.');
+}
+export { initOnline, offerRestore, renderOnline };

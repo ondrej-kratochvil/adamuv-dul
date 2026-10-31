@@ -10,6 +10,7 @@ import { loadFamily } from '../world/family.js';
 import { applyName } from '../app/name.js';
 import { renderHome } from './screens.js';
 import { checkNewDay } from '../world/daily.js';
+import { askCodeRestore, openScanner } from './qr-ui.js';
 
 let gender = 'm', letters = ['M', 'L', 'S'];
 function renderLetters() {
@@ -29,6 +30,7 @@ function preview() {
 function needsSetup() { return !save.player; }
 function openSetup(name = '') { $('#setupName').value = name; letters = [...save.letters]; preview(); renderLetters(); $('#setupOverlay').hidden = false; }
 function initSetup() {
+  $('#btnSetupCode').addEventListener('click', () => openScanner(askCodeRestore)); // hráč z jiného zařízení (QR kód)
   $('#setupName').addEventListener('input', preview);
   document.querySelectorAll('#setupGender [data-g]').forEach(b => b.addEventListener('click', () => { gender = b.dataset.g; preview(); }));
   $('#setupForm').addEventListener('submit', e => {

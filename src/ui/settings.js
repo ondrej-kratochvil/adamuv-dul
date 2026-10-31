@@ -18,7 +18,7 @@ import { renderProfiles } from '../app/profiles.js';
 import { MAIN_ID } from '../logic/profiles.ts';
 import { renameDevice, syncDefaults, validSyncUrl } from '../logic/sync.ts';
 import { initPlayerSet, renderPlayerSet } from './player-settings.js';
-import { initOnline, renderOnline } from './online-settings.js';
+import { initOnline, offerRestore, renderOnline } from './online-settings.js';
 import { initPushSettings, renderPush } from './push-settings.js';
 import { canVibrate, setVibration, storageProtected, vibrationOn } from '../app/device.js';
 import { localAvailable, passState, passSupport, registerPass, removePass, verifyPass } from '../app/passkey.js';
@@ -78,7 +78,10 @@ function showSetTab(tab) {
   const panel = $('#setOverlay .panel'); if (panel) panel.scrollTop = 0;
 }
 document.querySelectorAll('.set-tabs [data-tab]').forEach(b => b.addEventListener('click', () => showSetTab(b.dataset.tab)));
-function openSettings() { renderProfiles(); updateSettings(); renderNotes(); updateRestore(); renderPron(); updateSync(); $('#resetConfirm').hidden = true; showSetTab(setTab); $('#setOverlay').hidden = false; }
+function openSettings() { renderProfiles(); updateSettings(); renderNotes(); updateRestore(); renderPron(); updateSync(); $('#resetConfirm').hidden = true; showSetTab(pendingCode ? 'online' : setTab); $('#setOverlay').hidden = false; if (pendingCode) { offerRestore(pendingCode); pendingCode = null; } }
+// kód hráče z QR (adresa #kod=…) na zařízení, kde už někdo hraje: nahrazení postupu jen přes zámek pro rodiče
+let pendingCode = null;
+function openGateForCode(code) { pendingCode = code; openGate(); }
 function openGate() {
   gate = makeGate();
   $('#gateQ').textContent = gate.text; $('#gateInput').value = ''; $('#gateMsg').textContent = '';
@@ -243,4 +246,4 @@ $('#btnImportYes').addEventListener('click', () => {
   updateSettings();
 });
 
-export { updateSettings, updateVoiceInfo };
+export { updateSettings, updateVoiceInfo, openGateForCode };
