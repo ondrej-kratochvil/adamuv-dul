@@ -134,7 +134,7 @@ na seznam; na tabletu naležato a na počítači je seznam vlevo a část vpravo
 | Skupina | Část | Co tam je |
 |---|---|---|
 | Hráč a rodina | **Hráč** | kdo hraje (jméno, oslovení, rod, narozeniny, svátek), rodina, která fandí, soubor hráče |
-| | **Vzkazy a pes** | vzkazy od rodiny (přečtou se po nejbližším povedeném kole), jméno psa |
+| | **Vzkazy a návštěva** | vzkazy od rodiny (přečtou se po nejbližším povedeném kole), **návštěva** (kdo z rodiny je dnes na návštěvě: hra fandí jen jeho hlasem), jméno psa |
 | Učení | **Písmena** | písmena, která dítě zná; psací písmo; velká / malá písmena na kostkách |
 | | **Přísnost** | kolik úkolů bez chyby je potřeba na povedené kolo |
 | | **Hlas** | rychlost hlasu, vyzkoušení, výslovnost slabik |
@@ -145,6 +145,12 @@ na seznam; na tabletu naležato a na počítači je seznam vlevo a část vpravo
 | | **Profily** | další hráči nebo testovací profil |
 | | **Online a skupina** | zapnutí online, skupina pro žebříček, přezdívka, QR kód a kód hráče, výměna kódu, smazání ze serveru |
 | | **Tabulka Google** | statistiky do vaší tabulky Google (volitelné) |
+
+### 6.0 Návštěva
+
+Přijel někdo z rodiny a dítě mu chce hru ukázat? Část **Vzkazy a návštěva** → **Návštěva**: vyberte hosty (třeba dědu a jeho
+rodinu) a klepněte **Dnes je na návštěvě**. Úvodní obrazovka je pozdraví a po kolech fandí jen oni svými hláškami.
+Zítra se vše vrátí samo, nebo **Ukončit návštěvu**. Hlas zůstává hlasem tabletu (je jen jeden), mění se slova a obličeje.
 
 ### 6.1 Písmena, která dítě zná
 

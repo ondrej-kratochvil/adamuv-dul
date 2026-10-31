@@ -20,6 +20,7 @@ import { renameDevice, syncDefaults, validSyncUrl } from '../logic/sync.ts';
 import { initPlayerSet, renderPlayerSet } from './player-settings.js';
 import { initOnline, offerRestore, renderGroup, renderOnline } from './online-settings.js';
 import { initPushSettings, renderPush } from './push-settings.js';
+import { initVisit, renderVisit } from './visit-settings.js';
 import { canVibrate, setVibration, storageProtected, vibrationOn } from '../app/device.js';
 import { localAvailable, passState, passSupport, registerPass, removePass, verifyPass } from '../app/passkey.js';
 import { CONS_ORDER } from '../content/alphabet.ts';
@@ -47,7 +48,7 @@ function updateSettings() {
   updateVoiceInfo();
   renderPlayerSet();
   renderLetters();
-  renderOnline(); renderGroup(); renderPush(); renderDevice(); renderPass();
+  renderOnline(); renderGroup(); renderPush(); renderDevice(); renderPass(); renderVisit();
 }
 // písmena zapnutá rodičem (logic/letters.ts)
 function renderLetters() {
@@ -131,6 +132,7 @@ $('#btnGoOnline').addEventListener('click', () => showSetTab('online'));
 initPlayerSet();
 initOnline();
 initPushSettings();
+initVisit();
 $('#btnVibrate').addEventListener('click', () => { setVibration(!vibrationOn()); renderDevice(); if (vibrationOn() && canVibrate()) navigator.vibrate(60); });
 // vibrace a ochrana uloženého postupu (app/device.js)
 function renderDevice() {

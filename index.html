@@ -537,7 +537,7 @@
     <nav class="set-tree" aria-label="Části nastavení">
       <div class="set-group"><h3>Hráč a rodina</h3>
         <button class="set-item" type="button" data-tab="player">Hráč</button>
-        <button class="set-item" type="button" data-tab="family">Vzkazy a pes</button></div>
+        <button class="set-item" type="button" data-tab="family">Vzkazy a návštěva</button></div>
       <div class="set-group"><h3>Učení</h3>
         <button class="set-item" type="button" data-tab="game">Písmena</button>
         <button class="set-item" type="button" data-tab="strict">Přísnost</button>
@@ -683,6 +683,11 @@
       <textarea id="noteText" rows="2" placeholder="Např. jsem na tebe pyšný, v sobotu jdeme na karate!"></textarea>
       <button class="gbtn go" id="btnNoteAdd">Uložit vzkaz</button>
       <ul class="note-list" id="noteList"></ul>
+      <h3>Návštěva</h3>
+      <p>Přijel někdo z rodiny a dítě mu chce hru ukázat? Vyberte, kdo je na návštěvě: hra pak dnes fandí jen jejich hlasem (jejich hláškami) a na úvodní obrazovce je pozdraví. Zítra se vše vrátí samo.</p>
+      <div class="seg" id="visitWho"></div>
+      <div class="seg"><button class="gbtn go" type="button" id="btnVisitOn">Dnes je na návštěvě</button><button class="gbtn" type="button" id="btnVisitOff">Ukončit návštěvu</button></div>
+      <p class="lbl-small" id="visitInfo" role="status"></p>
       <h3>Jméno psa</h3>
       <p>Jak se jmenuje pejsek, který k hráči přiběhne na farmě (může ho vymyslet sám).</p>
       <input id="dogName" type="text" maxlength="20" placeholder="Pejsek">

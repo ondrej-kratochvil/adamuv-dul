@@ -38,3 +38,17 @@ export function momReminder(now: Date, playedTodaySecs: number, saidToday: reado
 export const earlyBird = (now: Date, saidToday: readonly string[], until: string): boolean => hhmm(now) < until && !saidToday.includes('ranni');
 // pozdrav na úvodní obrazovce: ráno ranní, když ho člověk má
 export const helloFor = (l: Lines, now: Date): string => (hhmm(now) < MORNING_UNTIL && l.helloMorning) || l.hello;
+
+// Návštěva (Ondřej 31. 10. 2026: Adam ukazuje hru dědovi Markovi): rodič vybere, kdo je dnes na návštěvě, a celý den
+// fandí jen oni (jejich schválené hlášky). Platí jen ten den; prázdný výběr nebo jiný den = běžné střídání celé rodiny.
+export interface Visit { d: string; ids: string[] }
+export const VISIT_KEY = 'schoolcraft-navsteva'; // localStorage: dočasné, patří zařízení
+export function parseVisit(raw: string | null): Visit {
+  try { const j = JSON.parse(raw || '{}') || {}; return { d: typeof j.d === 'string' ? j.d : '', ids: Array.isArray(j.ids) ? j.ids.filter((x: unknown) => typeof x === 'string').slice(0, 20) : [] }; } catch { return { d: '', ids: [] }; }
+}
+export function visitFans<T extends { id: string }>(fans: T[], visit: Visit, day: string): T[] {
+  if (visit.d !== day || !visit.ids.length) return fans;
+  const v = fans.filter(p => visit.ids.includes(p.id));
+  return v.length ? v : fans;
+}
+export const visitActive = (visit: Visit, day: string): boolean => visit.d === day && visit.ids.length > 0;

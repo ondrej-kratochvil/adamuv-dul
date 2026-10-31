@@ -40,7 +40,7 @@ test('nové zařízení otevřené z QR adresy stáhne hráče (kód se z adresy
   expect(await page.evaluate(() => location.hash)).toBe('');
   await page.locator('#btnCodeYes').click();
   await page.waitForLoadState('load');
-  await expect.poll(() => page.evaluate(() => window.__adam && window.__adam.save.total)).toBe(42);
+  await expect.poll(() => page.evaluate(() => window.__adam && window.__adam.save.total).catch(() => null)).toBe(42);
   await expect(page.locator('#setupOverlay')).toBeHidden();
 });
 

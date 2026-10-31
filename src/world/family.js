@@ -7,7 +7,7 @@ import { audio } from '../audio/sfx.js';
 import { gemWord, updateGems } from './farm.js';
 import { dayNum, dayStr, easterMonday, holidayOn } from '../logic/calendar.ts';
 import { player, voc, gx } from '../app/player.js';
-import { earlyBird, helloFor, momReminder, pickLine, remember } from '../logic/family.ts';
+import { VISIT_KEY, earlyBird, helloFor, momReminder, parseVisit, pickLine, remember, visitActive, visitFans } from '../logic/family.ts';
 import { wornItems } from '../logic/family-wear.ts';
 import { wearById } from '../content/family-wear.ts';
 
@@ -66,9 +66,14 @@ const ENCOURAGE = [
   p => 'Pomalu a pozorně, a půjde to. Věřím ti!',
   p => `I ${g2(p, 'já jsem se to musela', 'já jsem se to musel')} učit. Zkus to ještě jednou!`,
 ];
-function pickPerson() { if (!FANS.length) return GAME_FAN; const opts = FANS.filter(p => p.id !== save.lastCheer); const p = pick(Math.random, opts.length ? opts : FANS); save.lastCheer = p.id; return p; }
+// návštěva (logic/family.ts visitFans): dnes fandí jen vybraní
+function visitNow() { try { return parseVisit(localStorage.getItem(VISIT_KEY)); } catch (e) { return parseVisit(null); } }
+function setVisit(ids) { try { localStorage.setItem(VISIT_KEY, JSON.stringify({ d: dayStr(), ids })); } catch (e) { /* nic */ } }
+function visitors() { return visitActive(visitNow(), dayStr()) ? visitFans(FANS, visitNow(), dayStr()) : []; }
+function fansNow() { return visitFans(FANS, visitNow(), dayStr()); }
+function pickPerson() { const F = fansNow(); if (!F.length) return GAME_FAN; const opts = F.filter(p => p.id !== save.lastCheer); const p = pick(Math.random, opts.length ? opts : F); save.lastCheer = p.id; return p; }
 // kdo dnes fandí: každý den někdo jiný, podle data
-function todaysFan() { if (!FANS.length) return GAME_FAN; const n = dayNum(dayStr()); return FANS[((n % FANS.length) + FANS.length) % FANS.length]; }
+function todaysFan() { const F = fansNow(); if (!F.length) return GAME_FAN; const n = dayNum(dayStr()); return F[((n % F.length) + F.length) % F.length]; }
 // české svátky a rodinná výročí (logic/calendar.ts); dárek smaragdů jednou za rok
 function holiday() { return holidayOn(new Date(), player()); }
 const isBirthday = () => dayStr().slice(5) === player().birthday;
@@ -93,10 +98,11 @@ function cheerFor(ok, milestone) {
   if (!save.momSaid || save.momSaid.d !== today) save.momSaid = { d: today, ids: [] };
   const played = save.log.filter(e => e.d === today).reduce((a, e) => a + e.secs, 0);
   const P = player(), momP = FAMILY.find(x => x.role === 'mom');
-  const mom = P.mom && momP ? momReminder(new Date(), played, save.momSaid.ids, P.mom) : null;
+  const vis = visitors(), inVisit = id => !vis.length || vis.some(v => v.id === id); // při návštěvě mluví jen hosté
+  const mom = P.mom && momP && inVisit(momP.id) ? momReminder(new Date(), played, save.momSaid.ids, P.mom) : null;
   let p, line;
   if (mom) { p = momP; line = `${ok ? P.mom.open.ok : P.mom.open.fail} ${mom.text}`; save.momSaid.ids.push(mom.id); save.lastCheer = momP.id; }
-  else if (P.earlyBird && FAMILY.some(x => x.id === P.earlyBird.who) && earlyBird(new Date(), save.momSaid.ids, P.earlyBird.until)) { const EARLY_BIRD = P.earlyBird; p = fam(EARLY_BIRD.who); line = ok ? EARLY_BIRD.ok : EARLY_BIRD.fail; save.momSaid.ids.push('ranni'); save.lastCheer = p.id; }
+  else if (P.earlyBird && FAMILY.some(x => x.id === P.earlyBird.who) && inVisit(P.earlyBird.who) && earlyBird(new Date(), save.momSaid.ids, P.earlyBird.until)) { const EARLY_BIRD = P.earlyBird; p = fam(EARLY_BIRD.who); line = ok ? EARLY_BIRD.ok : EARLY_BIRD.fail; save.momSaid.ids.push('ranni'); save.lastCheer = p.id; }
   else {
     p = pickPerson();
     const own = p.lines || { cheers: [], enc: [] };
@@ -112,10 +118,11 @@ function renderFan(wrap) {
   if (h && h.gift && save.gifts[h.id] !== year) { save.gifts[h.id] = year; save.emeralds += h.gift; gift = h.gift; persist(); updateGems(); }
   const b = document.createElement('button'); b.className = 'fan';
   const faces = document.createElement('div'); faces.className = 'cheer'; faces.style.margin = 0;
-  const people = h ? (h.all && FAMILY.length ? FAMILY : [fam(h.who)]) : [todaysFan()];
+  const vis = visitors();
+  const people = h ? (h.all && FAMILY.length ? FAMILY : [fam(h.who)]) : vis.length > 1 ? vis : [todaysFan()];
   const fc = document.createElement('div'); fc.className = 'faces' + (people.length > 2 ? ' many' : ''); people.forEach(p => fc.appendChild(famCanvas(p))); faces.appendChild(fc);
-  const text = h ? h.text + (gift ? ` Dárek od nás: ${gift} ${gemWord(gift)}.` : '') : ((people[0].lines ? helloFor(people[0].lines, new Date()) : '') || (people[0] === GAME_FAN ? `Ahoj ${voc()}! Zahraj si, ať ti roste dům.` : `Dneska ti fandí ${people[0].name}. Ahoj ${voc()}, zahraj si!`));
-  const bb = document.createElement('div'); bb.className = 'bubble'; bb.innerHTML = `<b>${people.length > 1 ? 'celá rodina' : people[0].name}</b>`; bb.append(text); faces.appendChild(bb);
+  const text = h ? h.text + (gift ? ` Dárek od nás: ${gift} ${gemWord(gift)}.` : '') : vis.length > 1 ? `Na návštěvě: ${vis.map(p => p.name).join(', ')}. Ahoj ${voc()}, ukaž jim, co umíš!` : ((people[0].lines ? helloFor(people[0].lines, new Date()) : '') || (people[0] === GAME_FAN ? `Ahoj ${voc()}! Zahraj si, ať ti roste dům.` : `Dneska ti fandí ${people[0].name}. Ahoj ${voc()}, zahraj si!`));
+  const bb = document.createElement('div'); bb.className = 'bubble'; bb.innerHTML = `<b>${people.length > 1 ? (vis.length > 1 ? 'návštěva' : 'celá rodina') : people[0].name}</b>`; bb.append(text); faces.appendChild(bb);
   b.appendChild(faces); b.setAttribute('aria-label', text);
   b.addEventListener('click', () => { audio(); speak(text); });
   wrap.appendChild(b);
@@ -131,4 +138,5 @@ function renderNotes() {
 }
 let noteWho = ''; // komu patří nový vzkaz (první člen rodiny, když nikdo nevybraný)
 
+export { setVisit, visitNow, visitors };
 export { GAME_FAN, loadFamily, FANS, FRIENDS, SENDERS, CHEERS, ENCOURAGE, FAMILY, cheerFor, dogName, easterMonday, fam, famCanvas, g2, holiday, isBirthday, noteWho, pickPerson, renderFan, renderNotes, showCheer, todaysFan };

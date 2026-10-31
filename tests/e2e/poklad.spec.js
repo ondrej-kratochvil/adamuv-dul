@@ -11,7 +11,8 @@ test('poklad: písmeno, fotka, rodič potvrdí, smaragdy a fotka ve sbírce (i p
   await page.getByRole('button', { name: 'Poklad', exact: true }).click();
   await expect(page.locator('#hunt')).toBeVisible();
   const letter = await page.locator('#huntLetter').textContent();
-  expect(letter).toMatch(/^[AEIOUMLS]$/);
+  const known = await page.evaluate(() => ['A', 'E', 'I', 'O', 'U', ...window.__adam.save.letters]); // samohlásky a zapnuté souhlásky
+  expect(known).toContain(letter);
   await expect.poll(() => page.evaluate(() => window.__said.join(' | '))).toContain('Vyfotit');
   await page.locator('#huntFile').setInputFiles(photo('poklad.png'));
   await expect(page.locator('#huntCheck')).toBeVisible();

@@ -82,7 +82,7 @@ přidej i odměny, aby Adam nedošel na strop dřív, než dojde obsah.
 ## Nastavení pro rodiče
 
 - **Strom** (Ondřej 31. 10. 2026, karet bylo moc; `.set-tree` v `index.html`, `showSetTab` v `ui/settings.js`): Hráč a rodina (Hráč,
-  Vzkazy a pes), Učení (Písmena, Přísnost, Hlas), Zařízení (Upozornění, Otisk prstu, Vibrace), Postup a data (Postup a zálohy,
+  Vzkazy a návštěva), Učení (Písmena, Přísnost, Hlas), Zařízení (Upozornění, Otisk prstu, Vibrace), Postup a data (Postup a zálohy,
   Profily, Online a skupina, Tabulka Google). Mobil: seznam, po výběru jen ta část s tlačítkem Zpět; od 900 px strom vlevo.
   Nová volba patří do části podle tématu (případně nová položka stromu), ne na konec. Pamatuje si poslední část; Hlas má „!“,
   když chybí český hlas. V testech `openSettings(page, 'část')` a `settingsTab(page, 'část')` (`tests/e2e/helpers.js`).
@@ -123,6 +123,12 @@ přidej i odměny, aby Adam nedošel na strop dřív, než dojde obsah.
   obrazovce a na kartě Online. Určení hry, bezpečnost, co se kam ukládá (pravdivě: online jen se souhlasem rodiče, záloha
   obsahuje údaje o hráči a rodině, žebříček jen ve skupině), smazání a uchovávání, správce a kontakt. Když se změní, co se ukládá nebo posílá,
   opravit tento text i kartu Online a `docs/prirucka.md`.
+
+## Návštěva (Ondřej 31. 10. 2026)
+
+- Část Vzkazy a návštěva: rodič vybere, kdo je dnes na návštěvě (`schoolcraft-navsteva` v zařízení, `visitFans` v
+  `logic/family.ts`, `src/ui/visit-settings.js`); ten den fandí jen hosté jejich schválenými hláškami, na úvodní obrazovce
+  „Na návštěvě: …“, máma připomíná jen když je mezi hosty. Nové hlášky pro návštěvu nejdřív schválí Ondřej.
 
 ## Verze a novinky
 

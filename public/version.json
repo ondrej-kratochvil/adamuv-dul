@@ -1,6 +1,13 @@
 {
-  "version": 75,
+  "version": 76,
   "changes": [
+    {
+      "version": 76,
+      "date": "2026-10-31",
+      "notes": [
+        "Když přijede návštěva, hra jí může fandit. Třeba děda Marek!"
+      ]
+    },
     {
       "version": 75,
       "date": "2026-10-31",

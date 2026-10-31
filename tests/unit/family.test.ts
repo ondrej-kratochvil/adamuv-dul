@@ -77,3 +77,19 @@ describe('prababička Marcelka vstává brzo (Ondřej 20. 10. 2026)', () => {
   });
 });
 
+
+describe('návštěva (31. 10. 2026)', async () => {
+  const { parseVisit, visitFans, visitActive } = await import('../../src/logic/family');
+  const fans = [{ id: 'paja' }, { id: 'marek' }, { id: 'sarka' }, { id: 'tomas' }];
+  it('dnes fandí jen hosté; jiný den nebo prázdný výběr = celá rodina', () => {
+    expect(visitFans(fans, { d: '2026-11-01', ids: ['marek', 'sarka'] }, '2026-11-01').map(p => p.id)).toEqual(['marek', 'sarka']);
+    expect(visitFans(fans, { d: '2026-10-31', ids: ['marek'] }, '2026-11-01')).toHaveLength(4);
+    expect(visitFans(fans, { d: '2026-11-01', ids: [] }, '2026-11-01')).toHaveLength(4);
+    expect(visitFans(fans, { d: '2026-11-01', ids: ['nikdo'] }, '2026-11-01')).toHaveLength(4); // neznámý host: radši celá rodina
+    expect(visitActive({ d: '2026-11-01', ids: ['marek'] }, '2026-11-01')).toBe(true);
+  });
+  it('uložený stav: rozbitý = žádná návštěva', () => {
+    expect(parseVisit('nesmysl')).toEqual({ d: '', ids: [] });
+    expect(parseVisit('{"d":"2026-11-01","ids":["marek",5]}')).toEqual({ d: '2026-11-01', ids: ['marek'] });
+  });
+});
