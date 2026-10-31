@@ -85,6 +85,15 @@ přidej i odměny, aby Adam nedošel na strop dřív, než dojde obsah.
   Postup (statistiky, od začátku, záloha, přenos), Profily, Tabulka (Google). Nová volba patří do karty podle tématu, ne na konec.
   Při dalším otevření zůstane poslední karta; karta Hlas má „!“, když chybí český hlas. V testech `openSettings(page, 'karta')`.
 
+## Funkce zařízení (Ondřej 31. 10. 2026)
+
+- `src/app/device.js`: trvalé úložiště (`storage.persist` při startu, stav na kartě Postup), obrazovka během kola nezhasne
+  (Wake Lock v `startRound`, pustí se v `endRound`, `goHome` a pauze), vibrace při chybě (`penalize`) a po povedeném kole
+  (jen Android, vypínač na kartě Hra, `schoolcraft-vibrace` patří zařízení), číslo na ikoně aplikace, dokud čeká dnešní úkol
+  (`renderQuest`, i service worker při ranním upozornění), Poslat obrázek u domu, farmy, Přerova a Netheru (`[data-share]`,
+  `src/ui/share.js`, Web Share, jinak stažení). Zkratky na ikoně v manifestu (`?go=ukol`, `?go=procvicit`, `logic/shortcut.ts`).
+  Rozpoznávání řeči ne (logopedie) a poloha ne (Ondřej 31. 10. 2026).
+
 ## Verze a novinky
 
 Každá úprava, která jde na `main`, zvýší `APP_VERSION` v `index.html` a přidá do `version.json` záznam se stejným

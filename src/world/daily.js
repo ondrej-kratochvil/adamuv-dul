@@ -7,6 +7,7 @@ import { persist, save } from '../save/save.ts';
 import { speak } from '../audio/speech.js';
 import { audio, sfx } from '../audio/sfx.js';
 import { dayStr } from '../logic/calendar.ts';
+import { setBadge } from '../app/device.js';
 import { DAILY_BONUS, dateSay, dateShow, greeting, isNewDay, nameDay, pickQuest, questStep, questText, stateHoliday } from '../logic/daily.ts';
 import { LEVELS } from '../levels/reading.js';
 import { practiceReady } from '../levels/practice.js';
@@ -81,6 +82,7 @@ function renderQuest(wrap) {
   el.appendChild(sprIcon('emerald'));
   el.append(q.done ? 'Dnešní úkol splněný!' : `Dnešní úkol: ${questText(q, levelName(q.level))}` + (q.need > 1 ? ` (${q.got} z ${q.need})` : ''));
   el.addEventListener('click', () => { audio(); openDay(); });
+  setBadge(q.done ? 0 : 1); // číslo na ikoně aplikace, dokud dnešní úkol čeká
   if (old) old.replaceWith(el); else if (wrap) wrap.appendChild(el);
 }
 // po povedeném kole: posun úkolu; vrací bonus (0, když se úkol nesplnil právě teď) a zvířátko, které tím přibylo
@@ -113,4 +115,4 @@ function initDay() {
   checkNewDay();
 }
 
-export { checkNewDay, initDay, openDay, questAfterRound, renderQuest };
+export { checkNewDay, initDay, openDay, questAfterRound, renderQuest, startQuest };

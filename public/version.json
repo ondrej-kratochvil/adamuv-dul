@@ -1,6 +1,14 @@
 {
-  "version": 66,
+  "version": 67,
   "changes": [
+    {
+      "version": 67,
+      "date": "2026-10-31",
+      "notes": [
+        "Obrázek domu, farmy, Přerova nebo Netheru můžeš poslat babičce. Klepni na tlačítko se šipkou ven z krabice, je na něm obrázek.",
+        "Během kola tablet nezhasne a při chybě krátce cvrnkne."
+      ]
+    },
     {
       "version": 66,
       "date": "2026-10-31",

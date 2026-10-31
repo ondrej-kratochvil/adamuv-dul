@@ -20,6 +20,7 @@ import { renameDevice, syncDefaults, validSyncUrl } from '../logic/sync.ts';
 import { initPlayerSet, renderPlayerSet } from './player-settings.js';
 import { initOnline, renderOnline } from './online-settings.js';
 import { initPushSettings, renderPush } from './push-settings.js';
+import { canVibrate, setVibration, storageProtected, vibrationOn } from '../app/device.js';
 import { CONS_ORDER } from '../content/alphabet.ts';
 import { applyLetters, normalizeLetters } from '../logic/letters.ts';
 import { SYLL } from '../content/letters.ts';
@@ -45,7 +46,7 @@ function updateSettings() {
   updateVoiceInfo();
   renderPlayerSet();
   renderLetters();
-  renderOnline(); renderPush();
+  renderOnline(); renderPush(); renderDevice();
 }
 // písmena zapnutá rodičem (logic/letters.ts)
 function renderLetters() {
@@ -88,6 +89,12 @@ $('#btnGoOnline').addEventListener('click', () => showSetTab('online'));
 initPlayerSet();
 initOnline();
 initPushSettings();
+$('#btnVibrate').addEventListener('click', () => { setVibration(!vibrationOn()); renderDevice(); if (vibrationOn() && canVibrate()) navigator.vibrate(60); });
+// vibrace a ochrana uloženého postupu (app/device.js)
+function renderDevice() {
+  const on = vibrationOn(); $('#btnVibrate').setAttribute('aria-pressed', String(on)); $('#btnVibrate').textContent = canVibrate() ? (on ? 'Vibrace: zapnuto' : 'Vibrace: vypnuto') : 'Vibrace: zařízení neumí';
+  storageProtected().then(p => { $('#storageInfo').textContent = p === true ? 'Uložení v zařízení: chráněné, prohlížeč ho sám nesmaže.' : p === false ? 'Uložení v zařízení: prohlížeč ho při nedostatku místa může smazat. Pomůže hra přidaná na plochu, nebo zapnuté online (záloha na serveru).' : ''; });
+}
 $('#btnCursive').addEventListener('click', () => { save.cursive = !save.cursive; applyLetters(save.letters, save.cursive); persist(); renderLetters(); });
 $('#gateForm').addEventListener('submit', e => {
   e.preventDefault();

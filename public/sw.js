@@ -16,6 +16,7 @@ self.addEventListener('push', e => {
   e.waitUntil((async () => {
     let t = { title: 'Schoolcraft', body: 'Dobré ráno! Čeká tě dnešní úkol.' };
     try { const r = await (await caches.open('schoolcraft-upozorneni')).match('/__upozorneni'); if (r) t = { ...t, ...await r.json() }; } catch (x) { /* obecný text */ }
+    if (self.navigator && self.navigator.setAppBadge) self.navigator.setAppBadge(1).catch(() => {}); // číslo na ikoně: úkol čeká
     await self.registration.showNotification(t.title, { body: t.body, icon: 'icon-192.png', badge: 'icon-192.png', tag: 'denni-ukol', renotify: true });
   })());
 });

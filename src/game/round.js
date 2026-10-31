@@ -19,6 +19,7 @@ import { audio, sfx } from '../audio/sfx.js';
 import { layoutTrace, setupTrace, writingSay } from '../levels/writing.js';
 import { LEVELS, choiceCount, display, makeChoices, picCanvas, pickTarget, sayText } from '../levels/reading.js';
 import { blockEl, renderHome, show } from '../ui/screens.js';
+import { buzz, keepAwake } from '../app/device.js';
 import { updateStages } from './ctx.js';
 import { FARM_STAGES, FARM_START, PERFECT_BONUS, bark, dogHappy, drawFarm, farmStage, fitCanvas, gemWord, mountDog, spr, sprIcon, updateGems } from '../world/farm.js';
 import { dayWord, registerDay } from '../rewards/streak.js';
@@ -45,6 +46,7 @@ const ROUND_LEN = 8;
 const protectionLevels = () => ['hat', 'shirt', 'pants', 'shoes'].reduce((a, pc) => a + enchLevel(pc, 'Ochrana'), 0);
 const stuckMs = () => stuckMsFor(protectionLevels());
 function startRound(level) {
+  keepAwake(true); // obrazovka během kola nezhasne (app/device.js)
   flushRate();
   const L = levelDef(level);
   G.R = { level, i: 0, busy: true, recent: [], loot: [], clean: 0, len: L.len || ROUND_LEN, start: Date.now(), pauses: 0, pauseMs: 0, errors: 0, lost: 0 };
@@ -167,6 +169,7 @@ function ytLine(ok) {
 }
 // chyba v kole: od třetí stojí smaragd (logic/rewards.ts errorCost); vrací větu, která se řekne před opakováním zadání
 function penalize() {
+  buzz(60); // krátké cvrnknutí při chybě (jen Android, jde vypnout)
   G.R.errors++;
   const cost = errorCost(G.R.errors, G.R.lost, save.emeralds);
   if (cost) { save.emeralds -= cost; G.R.lost += cost; persist(); updateGems(); retrigger($('#hudGems'), 'lose'); return 'Smaragd je pryč. '; }
@@ -229,6 +232,7 @@ function showEndPlace(place) {
   setBtn($('#btnEndHouse'), 'house', place === 'house' ? 'Můj dům' : 'Farma');
 }
 function endRound() {
+  keepAwake(false);
   addBlocks(save.build, G.R.loot.map(l => l.t)); persist(); // vykopané kostky do zásoby na stavění
   if (G.R.level === 'boss') { const eb = $('#endBlocks'); eb.hidden = !G.R.loot.length || save.total < BUILD_UNLOCK; eb.textContent = `Vykopané kostky (${G.R.loot.length}) čekají ve Stavění.`; return bossVictory(); }
   const level = G.R.level;
@@ -340,7 +344,7 @@ function endRound() {
   showEndPlace(st <= FARM_START ? 'house' : 'farm');
   G.R = null;
   $('#endOverlay').hidden = false;
-  sfx.fanfare(); if (newTier || perfect) sfx.sparkle();
+  sfx.fanfare(); if (newTier || perfect) sfx.sparkle(); buzz([30, 60, 30]);
   if (st === FARM_START + 1) bark();
   const dn = dogName();
   const story = st === FARM_START ? ' Dům je hotový! Příště začneš stavět farmu. Stavění je otevřené.' : st === FARM_START + 1 ? ` Přiběhl k tobě pejsek${dn ? ' ' + dn : ''}! Je tvůj a bude s tebou kopat. Na úvodní obrazovce na něj klepni a vyber mu jméno a barvu.` : st === FARM_START + FARM_STAGES.length ? ' Farma je hotová!' : '';
@@ -358,6 +362,7 @@ function pauseRound(auto = false) {
   if (!G.R || G.R.paused || !$('#endOverlay').hidden) return;
   G.R.paused = true; G.R.pausedAt = Date.now(); G.R.pauses++;
   G.speechId++; if (synth) synth.cancel(); // nedořečená věta se po pauze nezopakuje sama: postará se resumeRound
+  keepAwake(false);
   $('#game').classList.add('paused'); $('#pauseOverlay').hidden = false;
   if (!auto) speak('Pauza. Zadání jsem schoval. Až budeš chtít pokračovat, klepni na zelené tlačítko s trojúhelníkem, je na něm napsáno Pokračovat.');
 }
@@ -367,7 +372,7 @@ function resumeRound() {
   const d = Date.now() - G.R.pausedAt;
   // čas pauzy se do doby úlohy ani kola nepočítá
   G.R.start += d; if (G.R.shownAt) G.R.shownAt += d; if (G.R.heardAt) G.R.heardAt += d; G.R.pauseMs += d;
-  G.R.paused = false; G.speechId++; if (synth) synth.cancel();
+  G.R.paused = false; G.speechId++; if (synth) synth.cancel(); keepAwake(true);
   $('#game').classList.remove('paused'); $('#pauseOverlay').hidden = true;
   if (G.R.resumeNext || G.R.busy) { G.R.resumeNext = false; G.R.busy = true; nextTask(); }
   else if (G.R.say) speak(G.R.say);
@@ -382,6 +387,7 @@ function rotate(level) {
   return ` Patro ${LEVELS[level].name} si teď dá pauzu. Zkus ${name}: tlačítko se šipkou, je na něm napsáno Hrát ${name}.`;
 }
 function goHome() {
+  keepAwake(false);
   flushRate();
   stopMic();
   $('#game').classList.remove('paused'); $('#pauseOverlay').hidden = true;

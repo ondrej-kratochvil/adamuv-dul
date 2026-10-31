@@ -129,6 +129,7 @@
       <div class="inner hud">
         <button class="gbtn icon" id="btnFarmBack" aria-label="Zpět domů"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h3v3h-3v3h-3v4h3v3h3v3h-3v-3h-3v-3H8v-4h3V7h3V4z"/></svg></button>
         <div class="ward-title">Farma</div>
+        <button class="gbtn icon share-btn" data-share="farmBig" data-name="farma" aria-label="Poslat obrázek"></button>
         <button class="gbtn icon" id="btnFarmShop" aria-label="Obchod"></button>
       </div>
       <div class="house-view inner"><canvas id="farmBig" class="px" aria-label="Adamova farma"></canvas></div>
@@ -209,7 +210,7 @@
       <div class="inner hud">
         <button class="gbtn icon" id="btnPrerovBack" aria-label="Zpět domů"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h3v3h-3v3h-3v4h3v3h3v3h-3v-3h-3v-3H8v-4h3V7h3V4z"/></svg></button>
         <div class="ward-title">Přerov</div>
-        <div style="width:56px"></div>
+        <button class="gbtn icon share-btn" data-share="prerovBig" data-name="prerov" aria-label="Poslat obrázek"></button>
       </div>
       <div class="house-view inner"><canvas id="prerovBig" class="px" aria-label="Přerov z kostek"></canvas></div>
       <div class="house-cap inner" id="prerovCap" style="font-family: var(--f-read); font-size: 18px;"></div>
@@ -252,7 +253,7 @@
       <div class="inner hud">
         <button class="gbtn icon" id="btnNetherBack" aria-label="Zpět domů"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h3v3h-3v3h-3v4h3v3h3v3h-3v-3h-3v-3H8v-4h3V7h3V4z"/></svg></button>
         <div class="ward-title">Nether</div>
-        <div style="width:56px"></div>
+        <button class="gbtn icon share-btn" data-share="netherBig" data-name="nether" aria-label="Poslat obrázek"></button>
       </div>
       <div class="house-view inner"><canvas id="netherBig" class="px" aria-label="Portál a Nether"></canvas></div>
       <div class="house-cap inner" id="netherCap"></div>
@@ -285,6 +286,7 @@
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h3v3h-3v3h-3v4h3v3h3v3h-3v-3h-3v-3H8v-4h3V7h3V4z"/></svg>
         </button>
         <div style="flex:1"></div>
+        <button class="gbtn icon share-btn" data-share="houseBig" data-name="dum" aria-label="Poslat obrázek"></button>
       </div>
       <div class="house-view inner"><canvas id="houseBig" class="px" aria-label="Adamův dům"></canvas></div>
       <div class="house-cap inner" id="houseCap"></div>
@@ -503,6 +505,10 @@
       <button class="gbtn" data-strict="strict" id="strictHard">přísná (6 z 8, 5 z 5)</button>
     </div>
 
+    <h3>Vibrace</h3>
+    <p>Při chybě tablet krátce cvrnkne, po povedeném kole zabzučí (umí jen Android).</p>
+    <div class="seg"><button class="gbtn" type="button" id="btnVibrate" aria-pressed="true">Vibrace: zapnuto</button></div>
+
     <h3>Ranní upozornění</h3>
     <p>Tablet každé ráno připomene dnešní úkol, i když je hra zavřená. Funguje v aplikaci ze schoolcraft.games (přidané na plochu). U dětského účtu s Family Link musí rodič nejdřív povolit webům oprávnění: v aplikaci Family Link vyberte dítě, Ovládací prvky, Google Chrome a web.</p>
     <div class="seg push-row">
@@ -550,6 +556,7 @@
     <div class="set-tab" role="tabpanel" data-tab="progress">
     <h3>Postup</h3>
     <p id="progressInfo"></p>
+    <p class="lbl-small" id="storageInfo"></p>
     <div class="seg"><button class="gbtn go" id="btnStats">Statistiky</button><button class="gbtn" id="btnReset">Začít od začátku</button><button class="gbtn" id="btnRestore" hidden>Vrátit zálohu</button></div>
     <div class="confirm" id="restoreConfirm" hidden>
       <p style="margin:0" id="restoreInfo"></p>

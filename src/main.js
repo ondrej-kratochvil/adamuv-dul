@@ -31,6 +31,11 @@ import { initProfiles } from './app/profiles.js';
 import { clearFamily } from './world/dressup.js';
 import { initDay } from './world/daily.js';
 import { initPush } from './app/push.js';
+import { persistStorage } from './app/device.js';
+import { initShare } from './ui/share.js';
+import { shortcutTarget } from './logic/shortcut.ts';
+import { openDay } from './world/daily.js';
+import { practiceReady } from './levels/practice.js';
 import { applyLetters } from './logic/letters.ts';
 import { initSetup, needsSetup, openSetup } from './ui/setup.js';
 import { profile } from './save/save.ts';
@@ -97,6 +102,8 @@ checkVersion(); // nová verze na serveru? (při startu a při návratu do hry)
 initProfiles();
 initDevice();
 initPush(); // text ranního upozornění podle hráče (service worker ho zobrazí se zavřenou hrou)
+persistStorage(); // prohlížeč pak uložený postup sám nesmaže (app/device.js)
+initShare(); // Poslat obrázek u domu, farmy, Přerova a Netheru
 updateStages(); persist(); // stupně obtížnosti ze zvládnutých úloh (u staršího postupu poprvé, bez oznámení)
 moveIn().then(m => { if (!m) moveOut(); }); // přestěhování z GitHub Pages na schoolcraft.games (app/move.js)
 flushSync(); syncCloud(true); // co čeká na odeslání do tabulky Google a na server Schoolcraft (třeba z doby bez internetu)
@@ -109,6 +116,8 @@ let wasWide = matchMedia('(min-width: 700px)').matches;
 addEventListener('resize', () => { const w = matchMedia('(min-width: 700px)').matches; if (w !== wasWide && !$('#home').hidden) renderHome(); wasWide = w; });
 initSetup(); if (needsSetup()) openSetup(profile.id !== MAIN_ID ? profile.name : ''); // nová hra: kdo hraje
 initDay(); // ranní karta při prvním otevření dne
+// zkratka z ikony aplikace (manifest shortcuts): karta dnešního úkolu (tlačítko na ní spustí patro) nebo procvičování
+{ const go = shortcutTarget(location.search); if (go && !needsSetup()) { history.replaceState(null, '', location.pathname); if (go === 'quest') openDay(); else if (practiceReady()) startRound('practice'); } }
 // ikona na ploše a hraní bez internetu
 if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => {});
 // pro automatické testy: přístup k běžícímu kolu a uloženému stavu
