@@ -1,6 +1,6 @@
 // Ranní upozornění na serveru (worker/push.ts): komu a kdy poslat, podpis VAPID, odeslání.
 import { describe, expect, it } from 'vitest';
-import { b64url, dueSubs, fromB64url, makeVapid, pragueNow, sendPush, validEndpoint, validHour, validKey, vapidAuth } from '../../worker/push';
+import { b64url, dueSubs, fromB64url, makeVapid, overtaken, pragueNow, rankText, rankTime, sendPush, validEndpoint, validHour, validKey, vapidAuth } from '../../worker/push';
 
 describe('ranní upozornění: server', () => {
   it('posílá jen na známé služby upozornění přes https', () => {
@@ -58,4 +58,22 @@ describe('ranní upozornění: server', () => {
     expect(await sendPush('https://fcm.googleapis.com/x', v, fake(500))).toBe('fail');
     expect(await sendPush('https://fcm.googleapis.com/x', v, (async () => { throw new Error('síť'); }) as unknown as typeof fetch)).toBe('fail');
   });
+  it('předběhnutí: jen hráči v žebříčku tento týden, které nové body přeskočily', () => {
+    const rows = [
+      { id: 'me', week: 'W', week_points: 5, public: 1 },
+      { id: 'a', week: 'W', week_points: 10, public: 1 },  // přeskočený
+      { id: 'b', week: 'W', week_points: 5, public: 1 },   // měl stejně jako já předtím: teď je za mnou
+      { id: 'c', week: 'W', week_points: 20, public: 1 },  // pořád přede mnou
+      { id: 'd', week: 'W', week_points: 12, public: 0 },  // není v žebříčku
+      { id: 'e', week: 'V', week_points: 8, public: 1 },   // minulý týden
+    ];
+    expect(overtaken(rows, 'me', 'W', 5, 15)).toEqual(['a', 'b']);
+    expect(overtaken(rows, 'me', 'W', 15, 15)).toEqual([]);
+    expect(overtaken(rows, 'me', 'W', 15, 10)).toEqual([]);
+  });
+  it('předběhnutí jen přes den (8 až 19 h) a text bez rodu', () => {
+    expect(rankTime(7)).toBe(false); expect(rankTime(8)).toBe(true); expect(rankTime(18)).toBe(true); expect(rankTime(19)).toBe(false);
+    expect(rankText('Víťa').body).toBe('Víťa je v žebříčku před tebou. Zahraješ si?');
+  });
 });
+

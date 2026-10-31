@@ -160,3 +160,7 @@ aktualizaci a po ní novinky ukáže.
   s tou hodinou českého času; text zobrazí `public/sw.js` z mezipaměti (`PUSH_TEXT_URL`, píše ho hra při startu).
   Klíč VAPID si server vytvoří sám a drží v D1 (`config`), nikde jinde není. Jen známé služby upozornění (`validEndpoint`).
   Family Link: rodič musí povolit oprávnění pro weby (Ovládací prvky, Google Chrome a web). Stav patří zařízení (`schoolcraft-upozorneni`).
+- **Předběhnutí v žebříčku** (31. 10. 2026): přepínač na kartě Hra (potřebuje online hráče; `rank` u `push_subs`, migrace
+  `0003_push_rank.sql`). Po `PUT /api/me` server najde předběhnuté (`overtaken` v `worker/push.ts`), jen 8 až 19 h a nejvýš
+  jednou denně (`rank_day`), uloží text (`news`, platí hodinu) a pošle prázdnou zprávu; `public/sw.js` si text vyzvedne
+  přes `POST /api/push/news`, jinak ukáže ranní text. Text bez rodu: „Víťa je v žebříčku před tebou. Zahraješ si?“

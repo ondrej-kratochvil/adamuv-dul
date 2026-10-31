@@ -30,21 +30,21 @@ async function writePushText() {
   try { const c = await caches.open(PUSH_TEXT_CACHE); await c.put(PUSH_TEXT_URL, new Response(JSON.stringify(pushText(voc())), { headers: { 'Content-Type': 'application/json' } })); } catch (e) { /* bez mezipaměti řekne obecný text */ }
 }
 // zapnout (nebo změnit hodinu): souhlas musí přijít z klepnutí rodiče
-async function enablePush(hour) {
+async function enablePush(hour, rank = pushState().rank) {
   const p = pushProblem(); if (p) throw new Error(p);
   if (await Notification.requestPermission() !== 'granted') throw new Error('denied');
   const reg = await ready(), { key } = await api('GET');
   const sub = await reg.pushManager.getSubscription() || await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: keyBytes(key) });
   const j = sub.toJSON();
-  await api('POST', { endpoint: j.endpoint, keys: j.keys, hour });
+  await api('POST', { endpoint: j.endpoint, keys: j.keys, hour, rank: rank && !!(save.cloud && save.cloud.id) });
   await writePushText();
-  storeState({ on: true, hour, endpoint: j.endpoint });
+  storeState({ on: true, hour, endpoint: j.endpoint, rank });
 }
 async function disablePush() {
   const s = pushState();
   try { const reg = await ready(); const sub = await reg.pushManager.getSubscription(); if (sub) await sub.unsubscribe(); } catch (e) { /* zrušení u služby jen když jde */ }
   if (s.endpoint) await api('DELETE', { endpoint: s.endpoint }).catch(() => {});
-  storeState({ ...s, on: false, endpoint: '' });
+  storeState({ ...s, on: false, endpoint: '', rank: false });
 }
 // zkušební upozornění hned (bez serveru): ukáže, jestli tablet upozornění pustí
 async function testPush() {

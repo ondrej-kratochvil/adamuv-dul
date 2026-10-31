@@ -16,6 +16,11 @@ self.addEventListener('push', e => {
   e.waitUntil((async () => {
     let t = { title: 'Schoolcraft', body: 'Dobré ráno! Čeká tě dnešní úkol.' };
     try { const r = await (await caches.open('schoolcraft-upozorneni')).match('/__upozorneni'); if (r) t = { ...t, ...await r.json() }; } catch (x) { /* obecný text */ }
+    // předběhnutí v žebříčku: text čeká na serveru (worker/index.ts /api/push/news), jinak zůstane ranní
+    try {
+      const sub = await self.registration.pushManager.getSubscription();
+      if (sub) { const r = await fetch('/api/push/news', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ endpoint: sub.endpoint }) }); const j = await r.json(); if (j && j.body) t = { title: j.title || t.title, body: j.body }; }
+    } catch (x) { /* bez internetu ranní text */ }
     if (self.navigator && self.navigator.setAppBadge) self.navigator.setAppBadge(1).catch(() => {}); // číslo na ikoně: úkol čeká
     await self.registration.showNotification(t.title, { body: t.body, icon: 'icon-192.png', badge: 'icon-192.png', tag: 'denni-ukol', renotify: true });
   })());

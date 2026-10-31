@@ -1,6 +1,13 @@
 {
-  "version": 70,
+  "version": 71,
   "changes": [
+    {
+      "version": 71,
+      "date": "2026-10-31",
+      "notes": [
+        "Když tě někdo předběhne v žebříčku, tablet ti to může přes den připomenout."
+      ]
+    },
     {
       "version": 70,
       "date": "2026-10-31",

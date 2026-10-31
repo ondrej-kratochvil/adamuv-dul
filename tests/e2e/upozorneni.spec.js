@@ -51,3 +51,26 @@ test('bez podpory upozornění to nastavení vysvětlí a nic nespadne', async (
   await openSettings(page, 'game');
   await expect(page.locator('#pushInfo')).toContainText(/neumí|na plochu/);
 });
+
+test('předběhnutí v žebříčku: bez online to nastavení vysvětlí, s online se pošle rank: true', async ({ page }) => {
+  await page.addInitScript(fakePush);
+  await openGame(page, { total: 3, seenVersion: 999 });
+  const calls = [];
+  await page.route(/schoolcraft\.games\/api\/push/, async route => {
+    const r = route.request(); let body = null; try { body = r.postDataJSON(); } catch (e) { /* GET */ }
+    calls.push({ method: r.method(), body, auth: r.headers().authorization || '' });
+    await route.fulfill({ status: 200, contentType: 'application/json', headers: { 'access-control-allow-origin': '*' }, body: JSON.stringify(r.url().endsWith('/key') ? { key: 'AQID' } : { ok: true }) });
+  });
+  await openSettings(page, 'game');
+  await page.locator('#btnPushRank').click();
+  await expect(page.locator('#pushInfo')).toContainText('online');
+  expect(calls.length).toBe(0);
+  // online hráč
+  await page.evaluate(() => { const s = window.__adam.save; s.cloud = { ...s.cloud, on: true, id: '0f8fad5b-d9cb-469f-a165-70867728950e', secret: 'ab'.repeat(32) }; });
+  await page.locator('#btnPushRank').click();
+  await expect(page.locator('#btnPushRank')).toHaveText('Předběhnutí v žebříčku: zapnuto');
+  const post = calls.find(c => c.method === 'POST');
+  expect(post.body).toMatchObject({ rank: true, hour: 7 });
+  expect(post.auth).toMatch(/^Bearer 0f8fad5b/);
+  await expect(page.locator('#btnPushOn')).toHaveText('Upozornění: zapnuto'); // zapnulo i ranní upozornění
+});

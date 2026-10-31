@@ -1,12 +1,13 @@
 // Schoolcraft na Cloudflare Workers: hra (statické soubory z dist) a API pro postup, statistiky a žebříček.
 // Databáze D1 (binding DB) je v EU. Hráč se přihlašuje „id.tajemstvi“ (Authorization: Bearer …), v databázi je jen otisk tajemství.
-import { dueSubs, makeVapid, pragueNow, sendPush, validEndpoint, validHour, validKey, type Vapid } from './push';
+import { NEWS_MS, dueSubs, makeVapid, overtaken, pragueNow, rankText, rankTime, sendPush, validEndpoint, validHour, validKey, type RankRow, type Vapid } from './push';
 import { leaderboardRows, MAX_EVENTS, MAX_SAVE, ORIGINS, safeJson, sanitizeNick, sanitizeSummary, weekKey, type Row } from './logic';
 
 interface D1Result<T> { results: T[] }
 interface D1Stmt { bind(...v: unknown[]): D1Stmt; first<T>(): Promise<T | null>; all<T>(): Promise<D1Result<T>>; run(): Promise<unknown> }
 interface D1 { prepare(sql: string): D1Stmt; batch(s: D1Stmt[]): Promise<unknown> }
 interface Env { DB: D1; ASSETS: { fetch(r: Request): Promise<Response> } }
+interface Ctx { waitUntil(p: Promise<unknown>): void }
 
 const hex = (b: ArrayBuffer | Uint8Array) => [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, '0')).join('');
 const sha = async (s: string) => hex(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s)));
@@ -31,7 +32,7 @@ async function body(req: Request, max: number): Promise<Record<string, unknown> 
   return j && typeof j === 'object' ? j as Record<string, unknown> : null;
 }
 
-async function api(req: Request, env: Env, path: string): Promise<Response> {
+async function api(req: Request, env: Env, path: string, ctx: Ctx): Promise<Response> {
   const now = Date.now();
   // nový hráč: vrátí id a tajemství (hra si je uloží; v databázi jen otisk)
   if (path === '/api/players' && req.method === 'POST') {
@@ -49,9 +50,18 @@ async function api(req: Request, env: Env, path: string): Promise<Response> {
     if (!endpoint) return json(req, { error: 'bad' }, 400);
     const n = await env.DB.prepare('SELECT COUNT(*) AS n FROM push_subs').first<{ n: number }>();
     if (n && n.n >= MAX_SUBS) return json(req, { error: 'full' }, 503);
-    await env.DB.prepare('INSERT INTO push_subs (endpoint, p256dh, auth, hour, player_id, created) VALUES (?, ?, ?, ?, ?, ?) ON CONFLICT(endpoint) DO UPDATE SET p256dh = excluded.p256dh, auth = excluded.auth, hour = excluded.hour, player_id = excluded.player_id, fails = 0')
-      .bind(endpoint, validKey(k.p256dh, 65) || '', validKey(k.auth, 16) || '', validHour(b!.hour), await auth(req, env), now).run();
+    await env.DB.prepare('INSERT INTO push_subs (endpoint, p256dh, auth, hour, player_id, created, rank) VALUES (?, ?, ?, ?, ?, ?, ?) ON CONFLICT(endpoint) DO UPDATE SET p256dh = excluded.p256dh, auth = excluded.auth, hour = excluded.hour, player_id = excluded.player_id, rank = excluded.rank, fails = 0')
+      .bind(endpoint, validKey(k.p256dh, 65) || '', validKey(k.auth, 16) || '', validHour(b!.hour), await auth(req, env), now, b!.rank === true ? 1 : 0).run();
     return json(req, { ok: true });
+  }
+  // service worker po prázdné zprávě: čeká tu text (předběhnutí v žebříčku)? Jinak {} a zobrazí ranní text
+  if (path === '/api/push/news' && req.method === 'POST') {
+    const b = await body(req, 2000), endpoint = b && validEndpoint(b.endpoint);
+    if (!endpoint) return json(req, {});
+    const r = await env.DB.prepare('SELECT news, news_t FROM push_subs WHERE endpoint = ?').bind(endpoint).first<{ news: string; news_t: number }>();
+    if (!r || !r.news || now - r.news_t > NEWS_MS) return json(req, {});
+    await env.DB.prepare("UPDATE push_subs SET news = '' WHERE endpoint = ?").bind(endpoint).run();
+    return json(req, safeJson(r.news) || {});
   }
   if (path === '/api/push' && req.method === 'DELETE') {
     const b = await body(req, 2000), endpoint = b && validEndpoint(b.endpoint);
@@ -73,8 +83,12 @@ async function api(req: Request, env: Env, path: string): Promise<Response> {
     const pts = typeof b.weekPoints === 'number' ? Math.max(0, Math.min(1000, Math.round(b.weekPoints))) : 0;
     const save = b.save === undefined ? null : JSON.stringify(b.save);
     if (save && save.length > MAX_SAVE) return json(req, { error: 'save too big' }, 413);
+    const old = await env.DB.prepare('SELECT week, week_points FROM players WHERE id = ?').bind(me).first<{ week: string; week_points: number }>();
+    const nick = sanitizeNick(b.nick), pub = b.public === false ? 0 : 1;
     await env.DB.prepare(`UPDATE players SET nick = ?, public = ?, week = ?, week_points = ?, summary = ?, updated = ?${save ? ', save = ?, save_updated = ?' : ''} WHERE id = ?`)
-      .bind(...[sanitizeNick(b.nick), b.public === false ? 0 : 1, week, pts, JSON.stringify(sanitizeSummary(b.summary)), now, ...(save ? [save, now] : []), me]).run();
+      .bind(...[nick, pub, week, pts, JSON.stringify(sanitizeSummary(b.summary)), now, ...(save ? [save, now] : []), me]).run();
+    // předběhl někoho v žebříčku? (jen veřejný hráč, tento týden)
+    if (pub && week === weekKey()) ctx.waitUntil(rankNotify(env, me, nick, week, old && old.week === week ? old.week_points : 0, pts).catch(() => {}));
     return json(req, { ok: true });
   }
   if (path === '/api/me/save' && req.method === 'GET') {
@@ -110,6 +124,20 @@ async function vapid(env: Env): Promise<Vapid> {
   if (!v) { await env.DB.prepare("INSERT OR IGNORE INTO config (key, value) VALUES ('vapid', ?)").bind(JSON.stringify(await makeVapid())).run(); v = await read(); }
   return vapidCache = v!;
 }
+// předběhnutí v žebříčku: upozornit předběhnuté hráče, kteří to chtějí (přes den, nejvýš jednou denně)
+async function rankNotify(env: Env, me: string, nick: string, week: string, before: number, after: number): Promise<void> {
+  if (after <= before) return;
+  const now = pragueNow(); if (!rankTime(now.hour)) return;
+  const r = await env.DB.prepare('SELECT id, week, week_points, public FROM players WHERE week = ? AND public = 1 AND week_points >= ? AND week_points < ? AND id != ? LIMIT 50').bind(week, before, after, me).all<RankRow>();
+  const ids = overtaken(r.results, me, week, before, after); if (!ids.length) return;
+  const subs = await env.DB.prepare(`SELECT endpoint FROM push_subs WHERE rank = 1 AND rank_day != ? AND player_id IN (${ids.map(() => '?').join(',')})`).bind(now.day, ...ids).all<{ endpoint: string }>();
+  if (!subs.results.length) return;
+  const v = await vapid(env), news = JSON.stringify(rankText(nick)), t = Date.now();
+  for (const s of subs.results) {
+    await env.DB.prepare('UPDATE push_subs SET rank_day = ?, news = ?, news_t = ? WHERE endpoint = ?').bind(now.day, news, t, s.endpoint).run();
+    if (await sendPush(s.endpoint, v) === 'gone') await env.DB.prepare('DELETE FROM push_subs WHERE endpoint = ?').bind(s.endpoint).run();
+  }
+}
 // každou celou hodinu (wrangler.jsonc triggers): upozornění zařízením, která chtějí tuhle hodinu českého času
 async function morning(env: Env): Promise<void> {
   const now = pragueNow();
@@ -118,19 +146,20 @@ async function morning(env: Env): Promise<void> {
   if (!due.length) return;
   const v = await vapid(env);
   for (const s of due) {
+    await env.DB.prepare("UPDATE push_subs SET news = '' WHERE endpoint = ?").bind(s.endpoint).run(); // ranní zpráva: service worker ukáže ranní text
     const res = await sendPush(s.endpoint, v);
     if (res === 'gone' || (res === 'fail' && s.fails >= 9)) await env.DB.prepare('DELETE FROM push_subs WHERE endpoint = ?').bind(s.endpoint).run();
-    else await env.DB.prepare('UPDATE push_subs SET last_day = ?, fails = ? WHERE endpoint = ?').bind(now.day, res === 'ok' ? 0 : s.fails + 1, s.endpoint).run();
+    else await env.DB.prepare("UPDATE push_subs SET last_day = ?, fails = ?, news = '' WHERE endpoint = ?").bind(now.day, res === 'ok' ? 0 : s.fails + 1, s.endpoint).run(); // ranní: žádný starý text
   }
 }
 
 export default {
   async scheduled(_event: unknown, env: Env, ctx: { waitUntil(p: Promise<unknown>): void }): Promise<void> { ctx.waitUntil(morning(env)); },
-  async fetch(req: Request, env: Env): Promise<Response> {
+  async fetch(req: Request, env: Env, ctx: Ctx): Promise<Response> {
     const url = new URL(req.url);
     if (url.pathname.startsWith('/api/')) {
       if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: cors(req) });
-      try { return await api(req, env, url.pathname); } catch (e) { return json(req, { error: 'server' }, 500); }
+      try { return await api(req, env, url.pathname, ctx); } catch (e) { return json(req, { error: 'server' }, 500); }
     }
     return env.ASSETS.fetch(req);
   },
