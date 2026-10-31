@@ -586,3 +586,6 @@ canvas.ench { animation: ench 1.8s ease-in-out infinite; }
   #game .stage-row { grid-template-columns: auto 1fr auto; }
   #game .stage-row > .player { margin-right: calc(var(--hero-h, 72px) * .6); }
 }
+/* ranní upozornění v nastavení (karta Hra) */
+.push-row { align-items: center; }
+.push-row select { font-family: var(--f-read); font-size: 17px; padding: 6px 8px; border: 3px solid #161616; background: #fff; }

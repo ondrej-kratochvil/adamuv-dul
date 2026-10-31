@@ -10,3 +10,17 @@ self.addEventListener('fetch', e => {
     return res;
   }).catch(() => caches.match(e.request).then(r => r || caches.match('index.html'))));
 });
+
+// Ranní upozornění (src/app/push.js, server worker/push.ts): zpráva přijde prázdná, text uložila hra do mezipaměti
+self.addEventListener('push', e => {
+  e.waitUntil((async () => {
+    let t = { title: 'Schoolcraft', body: 'Dobré ráno! Čeká tě dnešní úkol.' };
+    try { const r = await (await caches.open('schoolcraft-upozorneni')).match('/__upozorneni'); if (r) t = { ...t, ...await r.json() }; } catch (x) { /* obecný text */ }
+    await self.registration.showNotification(t.title, { body: t.body, icon: 'icon-192.png', badge: 'icon-192.png', tag: 'denni-ukol', renotify: true });
+  })());
+});
+// klepnutí na upozornění: otevřít hru (nebo přepnout na už otevřenou)
+self.addEventListener('notificationclick', e => {
+  e.notification.close();
+  e.waitUntil(self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(cs => { const c = cs.find(x => 'focus' in x); return c ? c.focus() : self.clients.openWindow('./'); }));
+});

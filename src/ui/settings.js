@@ -19,6 +19,7 @@ import { MAIN_ID } from '../logic/profiles.ts';
 import { renameDevice, syncDefaults, validSyncUrl } from '../logic/sync.ts';
 import { initPlayerSet, renderPlayerSet } from './player-settings.js';
 import { initOnline, renderOnline } from './online-settings.js';
+import { initPushSettings, renderPush } from './push-settings.js';
 import { CONS_ORDER } from '../content/alphabet.ts';
 import { applyLetters, normalizeLetters } from '../logic/letters.ts';
 import { SYLL } from '../content/letters.ts';
@@ -44,7 +45,7 @@ function updateSettings() {
   updateVoiceInfo();
   renderPlayerSet();
   renderLetters();
-  renderOnline();
+  renderOnline(); renderPush();
 }
 // písmena zapnutá rodičem (logic/letters.ts)
 function renderLetters() {
@@ -86,6 +87,7 @@ $('#btnSettings').addEventListener('click', openGate);
 $('#btnGoOnline').addEventListener('click', () => showSetTab('online'));
 initPlayerSet();
 initOnline();
+initPushSettings();
 $('#btnCursive').addEventListener('click', () => { save.cursive = !save.cursive; applyLetters(save.letters, save.cursive); persist(); renderLetters(); });
 $('#gateForm').addEventListener('submit', e => {
   e.preventDefault();

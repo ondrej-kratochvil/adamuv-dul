@@ -502,6 +502,16 @@
       <button class="gbtn" data-strict="normal" id="strictNormal">střední (5 z 8, 4 z 5)</button>
       <button class="gbtn" data-strict="strict" id="strictHard">přísná (6 z 8, 5 z 5)</button>
     </div>
+
+    <h3>Ranní upozornění</h3>
+    <p>Tablet každé ráno připomene dnešní úkol, i když je hra zavřená. Funguje v aplikaci ze schoolcraft.games (přidané na plochu). U dětského účtu s Family Link musí rodič nejdřív povolit webům oprávnění: v aplikaci Family Link vyberte dítě, Ovládací prvky, Google Chrome a web.</p>
+    <div class="seg push-row">
+      <button class="gbtn" type="button" id="btnPushOn" aria-pressed="false">Upozornění: vypnuto</button>
+      <label class="lbl-small" for="pushHour">v</label>
+      <select id="pushHour"></select>
+      <button class="gbtn" type="button" id="btnPushTest">Vyzkoušet hned</button>
+    </div>
+    <p id="pushInfo" role="status"></p>
     </div>
 
     <div class="set-tab" role="tabpanel" data-tab="voice">

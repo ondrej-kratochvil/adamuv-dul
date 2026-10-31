@@ -1,6 +1,13 @@
 {
-  "version": 64,
+  "version": 65,
   "changes": [
+    {
+      "version": 65,
+      "date": "2026-10-31",
+      "notes": [
+        "Tablet ti může každé ráno připomenout dnešní úkol. Zapíná to táta nebo máma v nastavení."
+      ]
+    },
     {
       "version": 64,
       "date": "2026-10-25",

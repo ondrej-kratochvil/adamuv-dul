@@ -1,5 +1,6 @@
 // Schoolcraft na Cloudflare Workers: hra (statické soubory z dist) a API pro postup, statistiky a žebříček.
 // Databáze D1 (binding DB) je v EU. Hráč se přihlašuje „id.tajemstvi“ (Authorization: Bearer …), v databázi je jen otisk tajemství.
+import { dueSubs, makeVapid, pragueNow, sendPush, validEndpoint, validHour, validKey, type Vapid } from './push';
 import { leaderboardRows, MAX_EVENTS, MAX_SAVE, ORIGINS, safeJson, sanitizeNick, sanitizeSummary, weekKey, type Row } from './logic';
 
 interface D1Result<T> { results: T[] }
@@ -40,6 +41,24 @@ async function api(req: Request, env: Env, path: string): Promise<Response> {
       .bind(id, await sha(secret), sanitizeNick(b.nick), b.public === false ? 0 : 1, now, now).run();
     return json(req, { id, secret });
   }
+  // ranní upozornění (worker/push.ts): veřejný klíč serveru, přihlášení a odhlášení zařízení (i bez online hráče)
+  if (path === '/api/push/key' && req.method === 'GET') return json(req, { key: (await vapid(env)).publicKey });
+  if (path === '/api/push' && req.method === 'POST') {
+    const b = await body(req, 3000), k = (b && b.keys && typeof b.keys === 'object' ? b.keys : {}) as Record<string, unknown>;
+    const endpoint = b && validEndpoint(b.endpoint);
+    if (!endpoint) return json(req, { error: 'bad' }, 400);
+    const n = await env.DB.prepare('SELECT COUNT(*) AS n FROM push_subs').first<{ n: number }>();
+    if (n && n.n >= MAX_SUBS) return json(req, { error: 'full' }, 503);
+    await env.DB.prepare('INSERT INTO push_subs (endpoint, p256dh, auth, hour, player_id, created) VALUES (?, ?, ?, ?, ?, ?) ON CONFLICT(endpoint) DO UPDATE SET p256dh = excluded.p256dh, auth = excluded.auth, hour = excluded.hour, player_id = excluded.player_id, fails = 0')
+      .bind(endpoint, validKey(k.p256dh, 65) || '', validKey(k.auth, 16) || '', validHour(b!.hour), await auth(req, env), now).run();
+    return json(req, { ok: true });
+  }
+  if (path === '/api/push' && req.method === 'DELETE') {
+    const b = await body(req, 2000), endpoint = b && validEndpoint(b.endpoint);
+    if (!endpoint) return json(req, { error: 'bad' }, 400);
+    await env.DB.prepare('DELETE FROM push_subs WHERE endpoint = ?').bind(endpoint).run();
+    return json(req, { ok: true });
+  }
   if (path === '/api/leaderboard' && req.method === 'GET') {
     const me = await auth(req, env), week = weekKey();
     const r = await env.DB.prepare('SELECT id, nick, week, week_points, summary FROM players WHERE public = 1 OR id = ? ORDER BY (week = ?) DESC, week_points DESC, updated DESC LIMIT 100').bind(me || '', week).all<Row>();
@@ -75,13 +94,38 @@ async function api(req: Request, env: Env, path: string): Promise<Response> {
   }
   // smazat hráče i statistiky (rodič v nastavení)
   if (path === '/api/me' && req.method === 'DELETE') {
-    await env.DB.batch([env.DB.prepare('DELETE FROM events WHERE player_id = ?').bind(me), env.DB.prepare('DELETE FROM players WHERE id = ?').bind(me)]);
+    await env.DB.batch([env.DB.prepare('DELETE FROM events WHERE player_id = ?').bind(me), env.DB.prepare('DELETE FROM push_subs WHERE player_id = ?').bind(me), env.DB.prepare('DELETE FROM players WHERE id = ?').bind(me)]);
     return json(req, { ok: true });
   }
   return json(req, { error: 'not found' }, 404);
 }
 
+const MAX_SUBS = 5000; // pojistka proti zahlcení
+// klíč serveru pro podpis upozornění: vytvoří se při prvním použití a zůstane v databázi (nikde jinde není)
+let vapidCache: Vapid | null = null;
+async function vapid(env: Env): Promise<Vapid> {
+  if (vapidCache) return vapidCache;
+  const read = async () => { const r = await env.DB.prepare("SELECT value FROM config WHERE key = 'vapid'").first<{ value: string }>(); return r ? JSON.parse(r.value) as Vapid : null; };
+  let v = await read();
+  if (!v) { await env.DB.prepare("INSERT OR IGNORE INTO config (key, value) VALUES ('vapid', ?)").bind(JSON.stringify(await makeVapid())).run(); v = await read(); }
+  return vapidCache = v!;
+}
+// každou celou hodinu (wrangler.jsonc triggers): upozornění zařízením, která chtějí tuhle hodinu českého času
+async function morning(env: Env): Promise<void> {
+  const now = pragueNow();
+  const r = await env.DB.prepare('SELECT endpoint, hour, last_day, fails FROM push_subs WHERE hour = ? AND last_day != ? LIMIT 1000').bind(now.hour, now.day).all<{ endpoint: string; hour: number; last_day: string; fails: number }>();
+  const due = dueSubs(r.results, now);
+  if (!due.length) return;
+  const v = await vapid(env);
+  for (const s of due) {
+    const res = await sendPush(s.endpoint, v);
+    if (res === 'gone' || (res === 'fail' && s.fails >= 9)) await env.DB.prepare('DELETE FROM push_subs WHERE endpoint = ?').bind(s.endpoint).run();
+    else await env.DB.prepare('UPDATE push_subs SET last_day = ?, fails = ? WHERE endpoint = ?').bind(now.day, res === 'ok' ? 0 : s.fails + 1, s.endpoint).run();
+  }
+}
+
 export default {
+  async scheduled(_event: unknown, env: Env, ctx: { waitUntil(p: Promise<unknown>): void }): Promise<void> { ctx.waitUntil(morning(env)); },
   async fetch(req: Request, env: Env): Promise<Response> {
     const url = new URL(req.url);
     if (url.pathname.startsWith('/api/')) {

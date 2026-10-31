@@ -134,3 +134,9 @@ aktualizaci a po ní novinky ukáže.
 - Online ve hře: `src/app/cloud.js` (přihlášení zařízení kódem, záloha postupu, statistiky, žebříček), pravidla
   v `src/logic/cloud.ts`. V testech je server zablokovaný (`tests/e2e/helpers.js`), testy online si ho napodobí.
 - Do žebříčku jde jen přezdívka, postavička, týdenní body a co je postavené; nikdy jméno rodiny, chyby ani statistiky.
+- **Ranní upozornění** (web push, Ondřej 31. 10. 2026): rodič zapne na kartě Hra (`src/ui/push-settings.js`, `src/app/push.js`,
+  pravidla `src/logic/push.ts`), hodina 5 až 9, výchozí 7. Server (`worker/push.ts`, tabulky `push_subs` a `config`
+  v `worker/migrations/0002_push.sql`) každou celou hodinu (cron v `wrangler.jsonc`) pošle prázdnou zprávu zařízením
+  s tou hodinou českého času; text zobrazí `public/sw.js` z mezipaměti (`PUSH_TEXT_URL`, píše ho hra při startu).
+  Klíč VAPID si server vytvoří sám a drží v D1 (`config`), nikde jinde není. Jen známé služby upozornění (`validEndpoint`).
+  Family Link: rodič musí povolit oprávnění pro weby (Ovládací prvky, Google Chrome a web). Stav patří zařízení (`schoolcraft-upozorneni`).

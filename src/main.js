@@ -30,6 +30,7 @@ import { moveIn, moveOut } from './app/move.js';
 import { initProfiles } from './app/profiles.js';
 import { clearFamily } from './world/dressup.js';
 import { initDay } from './world/daily.js';
+import { initPush } from './app/push.js';
 import { applyLetters } from './logic/letters.ts';
 import { initSetup, needsSetup, openSetup } from './ui/setup.js';
 import { profile } from './save/save.ts';
@@ -95,6 +96,7 @@ checkEnchants(); // očarování za už zvládnuté úkoly
 checkVersion(); // nová verze na serveru? (při startu a při návratu do hry)
 initProfiles();
 initDevice();
+initPush(); // text ranního upozornění podle hráče (service worker ho zobrazí se zavřenou hrou)
 updateStages(); persist(); // stupně obtížnosti ze zvládnutých úloh (u staršího postupu poprvé, bez oznámení)
 moveIn().then(m => { if (!m) moveOut(); }); // přestěhování z GitHub Pages na schoolcraft.games (app/move.js)
 flushSync(); syncCloud(true); // co čeká na odeslání do tabulky Google a na server Schoolcraft (třeba z doby bez internetu)
