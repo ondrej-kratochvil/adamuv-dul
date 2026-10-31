@@ -107,7 +107,7 @@ přidej i odměny, aby Adam nedošel na strop dřív, než dojde obsah.
 
 ## Verze a novinky
 
-Každá úprava, která jde na `main`, zvýší `APP_VERSION` v `index.html` a přidá do `version.json` záznam se stejným
+Každá úprava, která jde na `main`, zvýší `APP_VERSION` v `src/app/version.js` a přidá do `version.json` záznam se stejným
 číslem: 1 až 3 krátké věty pro Adama (hra je umí přečíst nahlas), co je nového. Hra podle `version.json` nabídne
 aktualizaci a po ní novinky ukáže.
 
