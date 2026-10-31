@@ -1,6 +1,6 @@
 // Verze 27 (Ondřej 20. 10. 2026): doba a záměny u úloh, Procvičování, ukazatel zvládnutí, tabulka Google.
 import { test, expect } from '@playwright/test';
-import { openGame, openSettings, playRound, saved } from './helpers.js';
+import { openGame, openSettings, playRound, saved, settingsTab } from './helpers.js';
 
 const good = { ok: 3, miss: 0, n: 3 };
 const WEAK = { 'reading:MÍSA': { ok: 2, miss: 3, bad: 5, n: 7 }, 'syllables:LÍ': { ok: 2, miss: 2, bad: 2, n: 4 }, 'numbers:68': { ok: 0, miss: 1, bad: 1, n: 1 }, 'letters:A': good };
@@ -98,7 +98,7 @@ test('vložený postup z jiného zařízení nepřebere název zařízení, adre
   await openSettings(page, 'sync');
   await expect(page.locator('#syncDevice')).toHaveValue('počítač děda Bob');
   const other = await page.evaluate(() => { const s = JSON.parse(JSON.stringify(window.__adam.save)); s.total = 41; s.sync = { url: 'https://script.google.com/macros/s/TABLET/exec', queue: [], last: 0, sent: 99, error: '', seq: 0, device: 'tablet', uid: 'tb01' }; return 'ADAMUV-DUL-POSTUP:' + JSON.stringify(s); });
-  await page.locator('.set-tabs [data-tab="progress"]').click();
+  await settingsTab(page, 'progress');
   await page.locator('#btnImport').click();
   await page.locator('#transferText').fill(other);
   await page.locator('#btnImportYes').click();

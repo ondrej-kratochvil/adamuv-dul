@@ -2,7 +2,7 @@
 
 > **Co:** jak hru nainstalovat, nastavit a používat; co dítě ve hře dělá a za co dostává odměny; řešení potíží
 > **Stav:** aktivní
-> **Stav k:** 31. 10. 2026 (hra verze 74)
+> **Stav k:** 31. 10. 2026 (hra verze 75)
 > **Souhrn:**
 > - Hra učí písmena, slabiky, čtení, čísla, počty, psaní a sluch pro výslovnost; za zvládnuté úkoly si dítě staví svůj svět.
 > - Hraje se na https://schoolcraft.games, nejlépe přidané na plochu tabletu jako aplikace; jde i bez internetu.
@@ -19,7 +19,7 @@
 2. Přidejte hru na plochu: Chrome → nabídka **⋮** → **Instalovat aplikaci** (nebo **Přidat na plochu**).
    Na iPadu: Safari → **Sdílet** → **Přidat na plochu**.
 3. Hru pak spouštějte ikonou **Schoolcraft** na ploše. Běží přes celou obrazovku a funguje i bez internetu.
-4. Ověřte hlas: ozubené kolo → karta **Hlas** → **Vyzkoušet hlas**. Když tablet nemá český hlas, karta Hlas má vykřičník
+4. Ověřte hlas: ozubené kolo → část **Hlas** → **Vyzkoušet hlas**. Když tablet nemá český hlas, část Hlas má vykřičník
    a obsahuje návod, jak ho nainstalovat (Android: Nastavení → Převod textu na řeč → Google → čeština).
 
 **Dětský účet s Family Link**: některé funkce (upozornění, fotoaparát, otisk prstu) může Family Link blokovat.
@@ -37,7 +37,7 @@ Hra se zeptá **Kdo bude hrát?**:
 - **jméno dítěte** (hra z něj odvodí oslovení, třeba Jakube, Emo; jde opravit v nastavení);
 - **kluk / holka** (podle toho hra skloňuje: „našel jsi“ / „našla jsi“);
 - **písmena, která už zná**: samohlásky jsou zapnuté vždy, souhlásky zapněte podle školy (výchozí M, L, S);
-- **hrát online** (nezaškrtnuté): záloha na serveru a žebříček skupiny; jde zapnout i později na kartě Online.
+- **hrát online** (nezaškrtnuté): záloha na serveru a žebříček skupiny; jde zapnout i později v části Online a skupina.
 
 Hraje-li dítě už na jiném zařízení, klepněte na **Načíst QR kód hráče** a postup se stáhne (viz oddíl 8).
 
@@ -128,18 +128,23 @@ a dvakrát Smazat.
 ## 6. Nastavení pro rodiče
 
 Ozubené kolo vpravo nahoře. Otevře se po spočítání příkladu (násobení, které dítě v 1. třídě neumí), nebo **otiskem prstu**
-(oddíl 6.2). Nastavení má karty; při dalším otevření zůstane poslední karta.
+(oddíl 6.2). Nastavení je **strom**: na mobilu seznam částí, klepnutím se část otevře a tlačítko **Nastavení** (šipka) vrátí
+na seznam; na tabletu naležato a na počítači je seznam vlevo a část vpravo. Hra si pamatuje poslední otevřenou část.
 
-| Karta | Co tam je |
-|---|---|
-| **Hráč** | kdo hraje (jméno, oslovení, rod, narozeniny, svátek), rodina, která fandí (podoba, hlášky), soubor hráče (export a import) |
-| **Hra** | písmena, která dítě zná; psací písmo; velká / malá písmena na kostkách; přísnost; otisk prstu; vibrace; ranní upozornění a upozornění na předběhnutí |
-| **Hlas** | rychlost hlasu, vyzkoušení, výslovnost slabik (vyberte variantu, která na vašem tabletu zní česky) |
-| **Rodina** | vzkazy od rodiny (přečtou se po nejbližším povedeném kole), jméno psa |
-| **Postup** | přehled, Statistiky, Začít od začátku, Vrátit zálohu, přenos textem, stav uložení v zařízení |
-| **Profily** | další hráči nebo testovací profil (kopie postupu nebo od začátku) |
-| **Tabulka** | statistiky do vaší tabulky Google (volitelné) |
-| **Online** | záloha na serveru, žebříček, přezdívka, QR kód a kód hráče, smazání ze serveru |
+| Skupina | Část | Co tam je |
+|---|---|---|
+| Hráč a rodina | **Hráč** | kdo hraje (jméno, oslovení, rod, narozeniny, svátek), rodina, která fandí, soubor hráče |
+| | **Vzkazy a pes** | vzkazy od rodiny (přečtou se po nejbližším povedeném kole), jméno psa |
+| Učení | **Písmena** | písmena, která dítě zná; psací písmo; velká / malá písmena na kostkách |
+| | **Přísnost** | kolik úkolů bez chyby je potřeba na povedené kolo |
+| | **Hlas** | rychlost hlasu, vyzkoušení, výslovnost slabik |
+| Zařízení | **Upozornění** | ranní upozornění, předběhnutí v žebříčku, zkušební upozornění |
+| | **Otisk prstu** | vstup do nastavení otiskem na zařízení nebo telefonem rodiče |
+| | **Vibrace** | zapnout / vypnout |
+| Postup a data | **Postup a zálohy** | přehled, Statistiky, Začít od začátku, Vrátit zálohu, přenos textem, stav uložení |
+| | **Profily** | další hráči nebo testovací profil |
+| | **Online a skupina** | zapnutí online, skupina pro žebříček, přezdívka, QR kód a kód hráče, výměna kódu, smazání ze serveru |
+| | **Tabulka Google** | statistiky do vaší tabulky Google (volitelné) |
 
 ### 6.1 Písmena, která dítě zná
 
@@ -148,7 +153,7 @@ slovo s neznámým písmenem se neobjeví.
 
 ### 6.2 Otisk prstu místo příkladu
 
-Karta **Hra** → **Vstup do nastavení otiskem prstu**:
+Část **Otisk prstu**:
 
 - **Nastavit na tomto zařízení**: použije zámek tabletu (otisk, obličej nebo PIN). Projde ale každý, kdo tablet umí odemknout.
 - **Nastavit telefon rodiče**: tablet ukáže QR kód, naskenujete ho svým telefonem a potvrdíte otiskem. Tablet i telefon
@@ -157,7 +162,7 @@ Karta **Hra** → **Vstup do nastavení otiskem prstu**:
 
 ### 6.3 Upozornění
 
-Karta **Hra** → **Ranní upozornění**:
+Část **Upozornění**:
 
 1. Zapněte **Upozornění** a vyberte hodinu (5 až 9, výchozí 7:00).
 2. Tablet se zeptá na souhlas s upozorněními: povolte.
@@ -165,7 +170,7 @@ Karta **Hra** → **Ranní upozornění**:
 
 Každé ráno pak přijde „Dobré ráno, Jakube! Čeká tě dnešní úkol za 5 smaragdů.“, i když je hra zavřená. Klepnutí otevře hru.
 
-**Předběhnutí v žebříčku** (stejná karta): přes den (8 až 19 h, nejvýš jednou denně) přijde „Víťa je v žebříčku před tebou.
+**Předběhnutí v žebříčku** (stejná část): přes den (8 až 19 h, nejvýš jednou denně) přijde „Víťa je v žebříčku před tebou.
 Zahraješ si?“. Potřebuje zapnuté online a hráče v žebříčku.
 
 Upozornění fungují jen v aplikaci z adresy schoolcraft.games. Na iPadu jen u hry přidané na plochu.
@@ -182,14 +187,14 @@ Upozornění fungují jen v aplikaci z adresy schoolcraft.games. Na iPadu jen u 
 
 ## 7. Statistiky
 
-Karta **Postup** → **Statistiky**:
+Část **Postup a zálohy** → **Statistiky**:
 
 - u každého patra co je zvládnuté, s čím má dítě potíže, nad čím nejdéle přemýšlí, co si s čím plete a kolik je rychlých tipů;
 - nahoře **Co procvičit**;
 - hodnocení kol (dítě po kole dává 1 až 10, kolik ho to bavilo);
 - **Zkopírovat přehled** převede statistiky na text k poslání.
 
-Výsledky mohou samy chodit do **tabulky Google** (karta Tabulka), i z více zařízení do jedné tabulky. Návod:
+Výsledky mohou samy chodit do **tabulky Google** (část Tabulka Google), i z více zařízení do jedné tabulky. Návod:
 [`google-tabulka.md`](google-tabulka.md). Do tabulky ani na server se neposílá nic o rodině.
 
 ---
@@ -198,17 +203,17 @@ Výsledky mohou samy chodit do **tabulky Google** (karta Tabulka), i z více za�
 
 **QR kódem** (nejsnazší; potřebuje zapnuté online):
 
-1. Na starém zařízení: karta **Online** → **QR kód**.
+1. Na starém zařízení: část **Online a skupina** → **QR kód**.
 2. Na novém zařízení: naskenujte QR fotoaparátem telefonu (otevře hru a nabídne **Stáhnout**), nebo ve hře
-   **Načíst QR kód** (na kartě Online, u nového hráče na úvodní obrazovce).
+   **Načíst QR kód** (v části Online a skupina, u nového hráče na úvodní obrazovce).
 3. Na zařízení, kde už někdo hraje, se nahrazení postupu potvrzuje v nastavení pro rodiče.
 
-**Kódem hráče**: karta Online → **Ukázat kód** / **Vložit kód**. Kód hráče patří jen vám: kdo ho zná, může postup stáhnout.
+**Kódem hráče**: část Online a skupina → **Ukázat kód** / **Vložit kód**. Kód hráče patří jen vám: kdo ho zná, může postup stáhnout.
 
-**Textem bez serveru**: karta Postup → **Zkopírovat postup** / **Vložit postup** (poslat si třeba zprávou).
+**Textem bez serveru**: část Postup a zálohy → **Zkopírovat postup** / **Vložit postup** (poslat si třeba zprávou).
 
 **Zálohy**: před smazáním, vložením nebo stažením postupu se ten současný uloží jako záloha v zařízení.
-**Vrátit zálohu** (karta Postup) ho vrátí; jde vrátit i zpátky. Se zapnutým online je záloha i na serveru.
+**Vrátit zálohu** (část Postup a zálohy) ho vrátí; jde vrátit i zpátky. Se zapnutým online je záloha i na serveru.
 
 Upozornění, otisk prstu, vibrace a tabulka Google patří zařízení: na novém zařízení je nastavte znovu.
 
@@ -216,11 +221,11 @@ Upozornění, otisk prstu, vibrace a tabulka Google patří zařízení: na nov�
 
 ## 9. Online a žebříček
 
-Online je u nového hráče vypnuté; zapnete ho v úvodním nastavení nebo na kartě **Online** → **Online: zapnuto**:
+Online je u nového hráče vypnuté; zapnete ho v úvodním nastavení nebo v části **Online a skupina** → **Online: zapnuto**:
 
 - postup se zálohuje na server Schoolcraft (Cloudflare, data v EU);
 - statistiky úloh se ukládají i na server;
-- **žebříček je jen ve skupině** (rodina, třída): na kartě Online **Založit skupinu** a kód pozvánky pošlete ostatním rodičům,
+- **žebříček je jen ve skupině** (rodina, třída): v části Online a skupina **Založit skupinu** a kód pozvánky pošlete ostatním rodičům,
   nebo **Připojit kódem**. Bez skupiny vidí dítě v žebříčku jen sebe; cizí lidé se do skupiny bez kódu nedostanou.
 - body za týden: 1 za povedené kolo, 3 za dnešní úkol, od pondělí; server uzná jen kola, která opravdu dostal.
   **V žebříčku: ne** dítě ze žebříčku schová.
@@ -233,7 +238,7 @@ Online je u nového hráče vypnuté; zapnete ho v úvodním nastavení nebo na 
 
 ## 10. Profily
 
-Karta **Profily**: další hráč (sourozenec, kamarád) nebo testovací profil pro rodiče.
+Část **Profily**: další hráč (sourozenec, kamarád) nebo testovací profil pro rodiče.
 
 - **Od začátku**, nebo **kopie postupu** (kopie nepřebírá tabulku Google ani upozornění a stará kola znovu neposílá).
 - U jiného než hlavního profilu je na úvodní obrazovce červený štítek se jménem.
@@ -245,23 +250,23 @@ Karta **Profily**: další hráč (sourozenec, kamarád) nebo testovací profil 
 
 | Potíž | Řešení |
 |---|---|
-| Hlas mluví anglicky nebo vůbec | karta Hlas: nainstalujte český hlas; u slabik vyberte variantu, která zní česky |
+| Hlas mluví anglicky nebo vůbec | část Hlas: nainstalujte český hlas; u slabik vyberte variantu, která zní česky |
 | Hlas mlčí po spuštění | prohlížeč pustí hlas až po prvním doteku; klepněte kamkoli |
 | Upozornění nepřichází | Vyzkoušet hned; Family Link: povolit oprávnění pro weby; hra musí být ze schoolcraft.games |
 | „Upozornění jsou pro hru zakázaná“ | povolit v nastavení prohlížeče u schoolcraft.games (u dětského účtu ve Family Link) |
 | Fotoaparát nejde | povolit fotoaparát v prohlížeči (u dětského účtu ve Family Link); kód jde vložit i ručně |
 | Otisk „zařízení neumí“ | tablet nemá zámek obrazovky; použijte telefon rodiče nebo příklad |
-| Ztracený postup | karta Postup → Vrátit zálohu; se zapnutým online Načíst QR kód / Vložit kód |
+| Ztracený postup | část Postup a zálohy → Vrátit zálohu; se zapnutým online Načíst QR kód / Vložit kód |
 | Nová verze se nenačetla | hra sama nabídne Aktualizovat; jinak zavřít a znovu otevřít |
 | Dítě hraje pořád jedno patro | střídání pater ho po 3 kolech pošle jinam; dnešní úkol vybírá patra, která zaostávají |
-| Je to moc těžké / lehké | karta Hra → Přísnost; zapnutá písmena; obtížnost se jinak přizpůsobuje sama |
+| Je to moc těžké / lehké | část Přísnost; zapnutá písmena; obtížnost se jinak přizpůsobuje sama |
 
 ---
 
 ## 12. Soukromí
 
 Stejné informace má hra i v sobě: odkaz **O hře a soukromí** v úvodním nastavení nového hráče, dole na úvodní obrazovce
-a na kartě Online (bez zámku).
+a v části Online a skupina (bez zámku).
 
 - Online je u nového hráče vypnuté a zapíná ho rodič. Záloha na serveru obsahuje i údaje o hráči a rodině
   (jméno a narozeniny dítěte, jména a narozeniny rodiny, vzkazy).

@@ -1,6 +1,6 @@
 // Hráč (Schoolcraft, Ondřej 24. 10. 2026): nová hra se zeptá, kdo hraje; rodič nastaví rodinu; soubor hráče jde přenést.
 import { test, expect } from '@playwright/test';
-import { openGame, openSettings, playRound, saved } from './helpers.js';
+import { openGame, openSettings, playRound, saved, settingsTab } from './helpers.js';
 
 test('nová hra: jméno a rod, pak hra oslovuje hráče a jmenuje se Schoolcraft', async ({ page }) => {
   await openGame(page, null, { fresh: true });
@@ -42,7 +42,7 @@ test('karta Hráč: u Adama vestavěný hráč, nový člen rodiny z něj uděl�
   expect(p.name).toBe('Adam');
   expect(p.family.find(m => m.name === 'teta Věra')).toMatchObject({ gen: 'tety Věry', f: true, lines: { cheers: ['Výborně, Adame!', 'To je paráda!'] } });
   // vzkazy: nová teta je mezi odesílateli
-  await page.locator('.set-tabs [data-tab="family"]').click();
+  await settingsTab(page, 'family');
   await expect(page.locator('#noteWho')).toContainText('teta Věra');
 });
 

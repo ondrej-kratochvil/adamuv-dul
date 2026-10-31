@@ -81,9 +81,11 @@ přidej i odměny, aby Adam nedošel na strop dřív, než dojde obsah.
 
 ## Nastavení pro rodiče
 
-- Karty (Ondřej 21. 10. 2026, nastavení bylo dlouhé): Hra (písmo, přísnost), Hlas (hlas, výslovnost slabik), Rodina (vzkazy, jméno psa),
-  Postup (statistiky, od začátku, záloha, přenos), Profily, Tabulka (Google). Nová volba patří do karty podle tématu, ne na konec.
-  Při dalším otevření zůstane poslední karta; karta Hlas má „!“, když chybí český hlas. V testech `openSettings(page, 'karta')`.
+- **Strom** (Ondřej 31. 10. 2026, karet bylo moc; `.set-tree` v `index.html`, `showSetTab` v `ui/settings.js`): Hráč a rodina (Hráč,
+  Vzkazy a pes), Učení (Písmena, Přísnost, Hlas), Zařízení (Upozornění, Otisk prstu, Vibrace), Postup a data (Postup a zálohy,
+  Profily, Online a skupina, Tabulka Google). Mobil: seznam, po výběru jen ta část s tlačítkem Zpět; od 900 px strom vlevo.
+  Nová volba patří do části podle tématu (případně nová položka stromu), ne na konec. Pamatuje si poslední část; Hlas má „!“,
+  když chybí český hlas. V testech `openSettings(page, 'část')` a `settingsTab(page, 'část')` (`tests/e2e/helpers.js`).
 
 ## Funkce zařízení (Ondřej 31. 10. 2026)
 

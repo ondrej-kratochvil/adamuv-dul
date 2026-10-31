@@ -1,6 +1,6 @@
 // Rozložení na mobilu a tabletu: nic nepřetéká, tlačítka na konci kola jsou vidět.
 import { test, expect } from '@playwright/test';
-import { openGame, openSettings, playRound } from './helpers.js';
+import { openGame, openSettings, playRound, settingsTab } from './helpers.js';
 
 const SIZES = { 'mobil na výšku': [412, 860], 'tablet na výšku': [800, 1110], 'tablet na šířku': [1280, 690] };
 for (const [name, [w, h]] of Object.entries(SIZES)) {
@@ -87,7 +87,7 @@ test('panáček stojí ve hře tam, kde doma; smaragdy jsou doma vpravo jako ve 
   }
   await openSettings(page, 'game');
   const top = (await page.locator('#setOverlay .panel').boundingBox()).y;
-  await page.locator('.set-tabs [data-tab="online"]').click();
+  await settingsTab(page, 'online');
   expect((await page.locator('#setOverlay .panel').boundingBox()).y).toBe(top);
   expect(top).toBeLessThan(40);
 });

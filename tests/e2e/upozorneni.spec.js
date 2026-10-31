@@ -23,7 +23,7 @@ test('zapnutí ranního upozornění v 7:00, změna času, vypnutí a zkušební
     const r = route.request(); calls.push({ method: r.method(), url: r.url(), body: r.postDataJSON ? (() => { try { return r.postDataJSON(); } catch (e) { return null; } })() : null });
     await route.fulfill({ status: 200, contentType: 'application/json', headers: { 'access-control-allow-origin': '*' }, body: JSON.stringify(r.url().endsWith('/key') ? { key: 'AQID' } : { ok: true }) });
   });
-  await openSettings(page, 'game');
+  await openSettings(page, 'push');
   await expect(page.locator('#pushHour')).toHaveValue('7');
   await page.locator('#btnPushOn').click();
   await expect(page.locator('#pushInfo')).toContainText('každý den v 7:00');
@@ -48,7 +48,7 @@ test('zapnutí ranního upozornění v 7:00, změna času, vypnutí a zkušební
 test('bez podpory upozornění to nastavení vysvětlí a nic nespadne', async ({ page }) => {
   await page.addInitScript(() => { delete window.PushManager; });
   await openGame(page, { total: 3, seenVersion: 999 });
-  await openSettings(page, 'game');
+  await openSettings(page, 'push');
   await expect(page.locator('#pushInfo')).toContainText(/neumí|na plochu/);
 });
 
@@ -61,7 +61,7 @@ test('předběhnutí v žebříčku: bez online to nastavení vysvětlí, s onli
     calls.push({ method: r.method(), body, auth: r.headers().authorization || '' });
     await route.fulfill({ status: 200, contentType: 'application/json', headers: { 'access-control-allow-origin': '*' }, body: JSON.stringify(r.url().endsWith('/key') ? { key: 'AQID' } : { ok: true }) });
   });
-  await openSettings(page, 'game');
+  await openSettings(page, 'push');
   await page.locator('#btnPushRank').click();
   await expect(page.locator('#pushInfo')).toContainText('online');
   expect(calls.length).toBe(0);

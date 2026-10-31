@@ -503,12 +503,6 @@ canvas.ench { animation: ench 1.8s ease-in-out infinite; }
 .seg { display: flex; flex-wrap: wrap; gap: 8px; }
 .seg .gbtn { font-size: 17px; padding: 8px 14px; }
 /* karty nastavení (Ondřej 21. 10. 2026: nastavení bylo dlouhé a nepřehledné) */
-.set-tabs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin: 0 0 6px; position: sticky; top: -22px; z-index: 1; background: var(--gui); padding: 6px 0; }
-@media (min-width: 600px) { .set-tabs { grid-template-columns: repeat(7, 1fr); } }
-.set-tabs .gbtn { font-size: 14px; padding: 8px 2px; }
-@media (min-width: 600px) { .set-tabs .gbtn { font-size: 16px; padding: 8px 4px; } }
-.set-tabs .gbtn[aria-selected="true"] { background: var(--go); }
-.set-tabs .gbtn.warn::after { content: " !"; color: #ffd166; }
 .set-tab > h3:first-child { margin-top: 10px; }
 .seg .gbtn[aria-pressed="true"] { background: var(--go); }
 .voice-ok { color: #2c5e1a; font-weight: 700; }
@@ -568,7 +562,6 @@ canvas.ench { animation: ench 1.8s ease-in-out infinite; }
 .lead-badge.more { background: #e3f7e6; border-color: #3f9b3a; font-weight: 700; }
 .online-set input[type=text] { width: 100%; font-family: var(--f-read); font-size: 16px; padding: 6px; border: 3px solid #161616; margin: 4px 0 8px; }
 .online-set .privacy { font-family: var(--f-read); font-size: 14px; line-height: 1.4; padding-left: 18px; }
-@media (min-width: 600px) { .set-tabs { grid-template-columns: repeat(8, 1fr); } }
 /* pozdrav a dnešní úkol v nebi na tabletu (ui/screens.js) */
 .home-info { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 16px; align-items: center; max-width: 1100px; margin: -6px auto 12px; position: relative; z-index: 2; }
 .home-info[hidden] { display: none; }
@@ -621,3 +614,25 @@ canvas.ench { animation: ench 1.8s ease-in-out infinite; }
 .about ul { padding-left: 20px; margin: 0 0 8px; }
 .about li, .about p { font-family: var(--f-read); font-size: 16px; line-height: 1.45; margin: 0 0 6px; }
 .about h3 { margin: 16px 0 6px; font-size: 18px; }
+/* strom nastavení (ui/settings.js showSetTab): mobil = seznam, nebo vybraná část se Zpět; od 900 px vedle sebe */
+.set-tree { display: grid; gap: 14px; }
+.set-group { display: grid; gap: 6px; }
+.set-group h3 { margin: 4px 0 2px; font-size: 15px; text-transform: uppercase; letter-spacing: .04em; color: #555; }
+.set-item { text-align: left; font-family: var(--f-read); font-weight: 700; font-size: 18px; padding: 12px 14px; background: #ececec; border: 3px solid #161616; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+.set-item::after { content: '›'; font-size: 22px; color: #555; }
+.set-item[aria-current="page"] { background: #bfe6a8; }
+.set-item.warn::before { content: '!'; order: 2; margin-left: auto; margin-right: 8px; color: #a8341c; font-size: 20px; }
+.set-back { margin-bottom: 6px; }
+@media (max-width: 899px) {
+  .set:not(.in-tab) .set-body { display: none; }
+  .set.in-tab .set-tree { display: none; }
+}
+@media (min-width: 900px) {
+  .overlay .panel.set { width: min(980px, 100%); display: grid; grid-template-columns: 240px minmax(0, 1fr); column-gap: 22px; align-items: start; }
+  .set > h2 { grid-column: 1 / -1; }
+  .set > .actions { grid-column: 2; } /* pod částí, ne přes strom (strom zůstává při posouvání nahoře) */
+  .set-tree { grid-row: 2 / span 2; }
+  .set-tree { position: sticky; top: 0; }
+  .set-back { display: none; }
+  .set-item { font-size: 16px; padding: 9px 12px; }
+}

@@ -4,7 +4,7 @@ import { $ } from '../core/dom.js';
 import { BACKUP_KEY, defaults, persist, profile, save, replaceSave } from '../save/save.ts';
 import { exportText, importText } from '../save/schema.ts';
 import { PRON_MODES, RISKY_SYLLABLES, RISKY_WORDS, defaultMode, pronounceAs } from '../logic/pronounce.ts';
-import { iconSvg } from './icons.js';
+import { iconSvg, setBtn } from './icons.js';
 import { gateOk, makeGate } from '../logic/gate.ts';
 import { tierOf } from '../gfx/player.js';
 import { csVoice, loadVoices, speak, synth, voicesKnown } from '../audio/speech.js';
@@ -28,7 +28,7 @@ import { SYLL } from '../content/letters.ts';
 import { WORDS } from '../content/words.ts';
 
 // karta Hlas upozorní, když chybí český hlas (návod je až uvnitř karty)
-function voiceTabWarn() { const t = $('.set-tabs [data-tab="voice"]'); if (t) t.classList.toggle('warn', !$('#voiceHelp').hidden); }
+function voiceTabWarn() { const t = $('.set-tree [data-tab="voice"]'); if (t) t.classList.toggle('warn', !$('#voiceHelp').hidden); }
 function updateVoiceInfo() {
   const el = $('#voiceInfo'); if (!el) return;
   if (!synth) { el.innerHTML = '<span class="voice-bad">Prohlížeč neumí předčítat.</span>'; $('#voiceHelp').hidden = false; voiceTabWarn(); return; }
@@ -69,16 +69,23 @@ function renderLetters() {
 }
 // Nastavení je pro rodiče: otevře se po vyřešení příkladu pro dospělého (logic/gate.ts)
 let gate = null;
-// karty nastavení; při dalším otevření zůstane naposledy otevřená karta
+// strom nastavení (index.html .set-tree): na úzké obrazovce seznam a po výběru část se Zpět, na širší obojí vedle sebe;
+// při dalším otevření zůstane naposledy otevřená část (na mobilu se nejdřív ukáže seznam)
 let setTab = 'game';
+const narrow = () => typeof matchMedia === 'function' && matchMedia('(max-width: 899px)').matches;
 function showSetTab(tab) {
   setTab = tab;
-  document.querySelectorAll('.set-tabs [data-tab]').forEach(b => { b.setAttribute('aria-selected', String(b.dataset.tab === tab)); b.tabIndex = b.dataset.tab === tab ? 0 : -1; });
+  document.querySelectorAll('.set-tree [data-tab]').forEach(b => { const on = b.dataset.tab === tab; b.setAttribute('aria-current', on ? 'page' : 'false'); });
   document.querySelectorAll('.set-tab').forEach(p => { p.hidden = p.dataset.tab !== tab; });
+  $('#setOverlay .panel').classList.add('in-tab');
+  const item = $(`.set-tree [data-tab="${tab}"]`);
+  $('#setTitle').textContent = item && narrow() ? item.textContent : 'Pro rodiče';
   const panel = $('#setOverlay .panel'); if (panel) panel.scrollTop = 0;
 }
-document.querySelectorAll('.set-tabs [data-tab]').forEach(b => b.addEventListener('click', () => showSetTab(b.dataset.tab)));
-function openSettings() { renderProfiles(); updateSettings(); renderNotes(); updateRestore(); renderPron(); updateSync(); $('#resetConfirm').hidden = true; showSetTab(pendingCode ? 'online' : setTab); $('#setOverlay').hidden = false; if (pendingCode) { offerRestore(pendingCode); pendingCode = null; } }
+function showSetTree() { $('#setOverlay .panel').classList.remove('in-tab'); $('#setTitle').textContent = 'Pro rodiče'; const panel = $('#setOverlay .panel'); if (panel) panel.scrollTop = 0; }
+document.querySelectorAll('.set-tree [data-tab]').forEach(b => b.addEventListener('click', () => showSetTab(b.dataset.tab)));
+setBtn($('#btnSetBack'), 'back', 'Nastavení'); $('#btnSetBack').addEventListener('click', showSetTree);
+function openSettings() { renderProfiles(); updateSettings(); renderNotes(); updateRestore(); renderPron(); updateSync(); $('#resetConfirm').hidden = true; showSetTab(pendingCode ? 'online' : setTab); if (narrow() && !pendingCode) showSetTree(); $('#setOverlay').hidden = false; if (pendingCode) { offerRestore(pendingCode); pendingCode = null; } }
 // kód hráče z QR (adresa #kod=…) na zařízení, kde už někdo hraje: nahrazení postupu jen přes zámek pro rodiče
 let pendingCode = null;
 function openGateForCode(code) { pendingCode = code; openGate(); }

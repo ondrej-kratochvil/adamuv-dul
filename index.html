@@ -533,16 +533,27 @@
 <div class="overlay" id="setOverlay" hidden>
   <div class="panel set" role="dialog" aria-labelledby="setTitle">
     <h2 id="setTitle">Pro rodiče</h2>
-    <div class="set-tabs" role="tablist" aria-label="Části nastavení">
-      <button class="gbtn" role="tab" data-tab="player">Hráč</button>
-      <button class="gbtn" role="tab" data-tab="game">Hra</button>
-      <button class="gbtn" role="tab" data-tab="voice">Hlas</button>
-      <button class="gbtn" role="tab" data-tab="family">Rodina</button>
-      <button class="gbtn" role="tab" data-tab="progress">Postup</button>
-      <button class="gbtn" role="tab" data-tab="profiles">Profily</button>
-      <button class="gbtn" role="tab" data-tab="sync">Tabulka</button>
-      <button class="gbtn" role="tab" data-tab="online">Online</button>
-    </div>
+    <!-- strom nastavení (Ondřej 31. 10. 2026: karet bylo moc): na mobilu seznam a po výběru část se Zpět, na širší obrazovce vedle sebe -->
+    <nav class="set-tree" aria-label="Části nastavení">
+      <div class="set-group"><h3>Hráč a rodina</h3>
+        <button class="set-item" type="button" data-tab="player">Hráč</button>
+        <button class="set-item" type="button" data-tab="family">Vzkazy a pes</button></div>
+      <div class="set-group"><h3>Učení</h3>
+        <button class="set-item" type="button" data-tab="game">Písmena</button>
+        <button class="set-item" type="button" data-tab="strict">Přísnost</button>
+        <button class="set-item" type="button" data-tab="voice">Hlas</button></div>
+      <div class="set-group"><h3>Zařízení</h3>
+        <button class="set-item" type="button" data-tab="push">Upozornění</button>
+        <button class="set-item" type="button" data-tab="pass">Otisk prstu</button>
+        <button class="set-item" type="button" data-tab="device">Vibrace</button></div>
+      <div class="set-group"><h3>Postup a data</h3>
+        <button class="set-item" type="button" data-tab="progress">Postup a zálohy</button>
+        <button class="set-item" type="button" data-tab="profiles">Profily</button>
+        <button class="set-item" type="button" data-tab="online">Online a skupina</button>
+        <button class="set-item" type="button" data-tab="sync">Tabulka Google</button></div>
+    </nav>
+    <div class="set-body">
+    <button class="gbtn set-back" type="button" id="btnSetBack">Nastavení</button>
 
     <div class="set-tab player-set" role="tabpanel" data-tab="player">
     <h3>Kdo hraje</h3>
@@ -605,7 +616,9 @@
       <button class="gbtn" data-case="lower" id="caseLower">malá</button>
       <button class="gbtn" data-case="both" id="caseBoth">obojí</button>
     </div>
+    </div>
 
+    <div class="set-tab" role="tabpanel" data-tab="strict">
     <h3>Přísnost</h3>
     <p>Za chybu se krumpáč na 2 sekundy zasekne. Kolo se počítá, jen když má hráč dost úkolů bez chyby: z 8 kostek, v psaní z 5 tahů.</p>
     <div class="seg" id="segStrict">
@@ -613,16 +626,22 @@
       <button class="gbtn" data-strict="normal" id="strictNormal">střední (5 z 8, 4 z 5)</button>
       <button class="gbtn" data-strict="strict" id="strictHard">přísná (6 z 8, 5 z 5)</button>
     </div>
+    </div>
 
+    <div class="set-tab" role="tabpanel" data-tab="pass">
     <h3>Vstup do nastavení otiskem prstu</h3>
     <p>Místo příkladu jde nastavení otevřít otiskem prstu (nebo obličejem). <b>Na tomto zařízení</b> použije zámek tabletu: projde každý, kdo tablet umí odemknout. <b>Telefonem rodiče</b> tablet ukáže QR kód, naskenujete ho svým telefonem a potvrdíte otiskem (tablet i telefon potřebují zapnutý Bluetooth); dítě to neobejde. Příklad zůstává vždy jako záloha.</p>
     <div class="seg"><button class="gbtn" type="button" id="btnPassLocal">Nastavit na tomto zařízení</button><button class="gbtn" type="button" id="btnPassPhone">Nastavit telefon rodiče</button><button class="gbtn" type="button" id="btnPassOff">Zrušit otisky</button></div>
     <p id="passInfo" role="status"></p>
+    </div>
 
+    <div class="set-tab" role="tabpanel" data-tab="device">
     <h3>Vibrace</h3>
     <p>Při chybě tablet krátce cvrnkne, po povedeném kole zabzučí (umí jen Android).</p>
     <div class="seg"><button class="gbtn" type="button" id="btnVibrate" aria-pressed="true">Vibrace: zapnuto</button></div>
+    </div>
 
+    <div class="set-tab" role="tabpanel" data-tab="push">
     <h3>Ranní upozornění</h3>
     <p>Tablet každé ráno připomene dnešní úkol, i když je hra zavřená. Funguje v aplikaci ze schoolcraft.games (přidané na plochu). U dětského účtu s Family Link musí rodič nejdřív povolit webům oprávnění: v aplikaci Family Link vyberte dítě, Ovládací prvky, Google Chrome a web.</p>
     <div class="seg push-row">
@@ -761,6 +780,7 @@
       <button class="gbtn" id="btnBackfillNo">Jen nová</button>
     </div>
     <p id="syncInfo" role="status"></p>
+    </div>
     </div>
 
     <div class="actions" style="margin-top:20px">

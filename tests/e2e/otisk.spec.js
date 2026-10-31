@@ -1,7 +1,7 @@
 // Otisk prstu místo příkladu (Ondřej 31. 10. 2026): na zařízení i telefonem rodiče přes QR kód; příklad zůstává záložní.
 // WebAuthn v testovacím prohlížeči napodobí init skript (uv = jestli „otisk“ projde).
 import { test, expect } from '@playwright/test';
-import { openGame, openSettings } from './helpers.js';
+import { openGame, openSettings, settingsTab } from './helpers.js';
 
 const fakeWebAuthn = () => {
   window.__wa = { uv: true, creates: [], gets: [] };
@@ -18,7 +18,7 @@ const fakeWebAuthn = () => {
 test('otisk na zařízení: nastavit, pak se nastavení otevře bez příkladu; neověřený otisk nestačí', async ({ page }) => {
   await page.addInitScript(fakeWebAuthn);
   await openGame(page, { total: 3, seenVersion: 999 });
-  await openSettings(page, 'game');
+  await openSettings(page, 'pass');
   await page.locator('#btnPassLocal').click();
   await expect(page.locator('#passInfo')).toContainText('Otisk je nastavený');
   expect((await page.evaluate(() => window.__wa.creates))[0]).toMatchObject({ k: 'platform' });
@@ -37,7 +37,7 @@ test('otisk na zařízení: nastavit, pak se nastavení otevře bez příkladu; 
 test('telefon rodiče přes QR kód: tlačítko u zámku, ověření jde přes telefon (hybrid)', async ({ page }) => {
   await page.addInitScript(fakeWebAuthn);
   await openGame(page, { total: 3, seenVersion: 999 });
-  await openSettings(page, 'game');
+  await openSettings(page, 'pass');
   await page.locator('#btnPassPhone').click();
   await expect(page.locator('#passInfo')).toContainText('Telefon rodiče je nastavený');
   expect((await page.evaluate(() => window.__wa.creates))[0]).toMatchObject({ k: 'cross-platform', hints: ['hybrid'] });
@@ -49,7 +49,8 @@ test('telefon rodiče přes QR kód: tlačítko u zámku, ověření jde přes t
   await page.locator('#btnGatePhone').click();
   await expect(page.locator('#setOverlay')).toBeVisible();
   expect(await page.evaluate(() => window.__wa.gets)).toEqual(['hybrid']);
-  // zrušit otisky: zámek je zase jen příklad
+  // zrušit otisky: zámek je zase jen příklad (na mobilu se nastavení otevře na seznamu)
+  await settingsTab(page, 'pass');
   await page.locator('#btnPassOff').click();
   await page.locator('#btnSetClose').click();
   await page.locator('#btnSettings').click();
@@ -59,7 +60,7 @@ test('telefon rodiče přes QR kód: tlačítko u zámku, ověření jde přes t
 test('bez WebAuthn: nastavení to vysvětlí, zámek je příklad jako dřív', async ({ page }) => {
   await page.addInitScript(() => { delete window.PublicKeyCredential; });
   await openGame(page, { total: 3, seenVersion: 999 });
-  await openSettings(page, 'game');
+  await openSettings(page, 'pass');
   await expect(page.locator('#passInfo')).toContainText('neumí');
   await expect(page.locator('#btnPassLocal')).toBeHidden();
 });

@@ -48,7 +48,12 @@ export async function openSettings(page, tab) {
   await page.locator('#gateInput').fill(String(a * b));
   await page.locator('#btnGateOk').click();
   await expect(page.locator('#setOverlay')).toBeVisible();
-  if (tab) await page.locator(`.set-tabs [data-tab="${tab}"]`).click();
+  if (tab) await settingsTab(page, tab);
+}
+// část nastavení ze stromu (na mobilu případně nejdřív Zpět na seznam)
+export async function settingsTab(page, tab) {
+  if (await page.locator('#btnSetBack').isVisible()) await page.locator('#btnSetBack').click();
+  await page.locator(`.set-tree [data-tab="${tab}"]`).click();
 }
 
 export const saved = page => page.evaluate(k => JSON.parse(localStorage.getItem(k)), KEY);

@@ -36,7 +36,7 @@ test('v kole obrazovka nezhasne, po kole se zámek pustí; chyba a povedené kol
 test('vibrace jde v nastavení vypnout', async ({ page }) => {
   await page.addInitScript(fakeDevice);
   await openGame(page, { total: 3, seenVersion: 999 });
-  await openSettings(page, 'game');
+  await openSettings(page, 'device');
   await expect(page.locator('#btnVibrate')).toHaveText('Vibrace: zapnuto');
   await page.locator('#btnVibrate').click();
   await expect(page.locator('#btnVibrate')).toHaveText('Vibrace: vypnuto');
