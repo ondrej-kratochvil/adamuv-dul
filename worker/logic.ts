@@ -36,6 +36,10 @@ export function sanitizeSummary(raw: unknown): Summary {
 }
 
 export const MAX_SAVE = 1_500_000; // znaků zálohy postupu
+// uchovávání (31. 10. 2026): statistiky úloh 12 měsíců, hráč nepřihlášený 2 roky se smaže i se vším
+export const EVENTS_KEEP_MS = 365 * 864e5, PLAYER_KEEP_MS = 730 * 864e5;
+// které požadavky se počítají do přísnějšího limitu (zakládání): nový hráč, skupina, upozornění
+export const isNewThing = (method: string, path: string): boolean => method === 'POST' && ['/api/players', '/api/group', '/api/push'].includes(path) || (method === 'PUT' && path === '/api/group');
 export const MAX_EVENTS = 300;      // řádků statistik v jednom požadavku
 
 // řádek žebříčku: body jen z tohoto týdne (starší týden = 0)

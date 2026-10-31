@@ -5,8 +5,11 @@ self.addEventListener('install', e => { self.skipWaiting(); e.waitUntil(caches.o
 self.addEventListener('activate', e => { e.waitUntil(self.clients.claim()); });
 self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET' || e.request.url.includes('version.json')) return;
+  // API a cizí adresy rovnou na síť a nic z nich do mezipaměti (záloha postupu a žebříček patří přihlášenému hráči, 31. 10. 2026)
+  const u = new URL(e.request.url);
+  if (u.origin !== self.location.origin || u.pathname.startsWith('/api/')) return;
   e.respondWith(fetch(e.request).then(res => {
-    if (res.ok && (e.request.url.startsWith(self.location.origin) || e.request.url.includes('fonts.g'))) { const copy = res.clone(); caches.open(CACHE).then(c => c.put(e.request, copy)); }
+    if (res.ok) { const copy = res.clone(); caches.open(CACHE).then(c => c.put(e.request, copy)); }
     return res;
   }).catch(() => caches.match(e.request).then(r => r || caches.match('index.html'))));
 });

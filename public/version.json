@@ -1,6 +1,13 @@
 {
-  "version": 72,
+  "version": 73,
   "changes": [
+    {
+      "version": 73,
+      "date": "2026-10-31",
+      "notes": [
+        "Hra je lépe chráněná a písmo je teď přímo v ní."
+      ]
+    },
     {
       "version": 72,
       "date": "2026-10-31",

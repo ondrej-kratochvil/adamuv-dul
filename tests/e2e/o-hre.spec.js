@@ -8,7 +8,8 @@ async function checkAbout(page) {
   for (const h of ['K čemu hra je', 'Bezpečnost pro dítě', 'Co se kam ukládá', 'Smazání údajů', 'Správce a kontakt']) await expect(o.getByRole('heading', { name: h })).toBeVisible();
   await expect(o).toContainText('jména a narozeniny členů rodiny'); // co záloha na serveru opravdu obsahuje
   await expect(o).toContainText('jen tady a nikam se neposílají'); // fotky
-  await expect(o).toContainText('Google Fonts');
+  await expect(o).toContainText('i písma jsou přímo na serveru hry');
+  await expect(o).toContainText('mažou po 12 měsících');
   await expect(page.locator('#aboutVersion')).toHaveText(/^Verze hry \d+$/);
   await page.locator('#btnAboutClose').click();
   await expect(o).toBeHidden();

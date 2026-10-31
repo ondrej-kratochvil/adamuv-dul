@@ -48,3 +48,21 @@ describe('online ve hře (logic/cloud.ts)', () => {
     expect(b).toEqual({ total: 3 });
   });
 });
+
+describe('server: omezení a uchovávání (31. 10. 2026)', () => {
+  it('přísnější limit jen na zakládání (hráč, skupina, upozornění)', async () => {
+    const { isNewThing } = await import('../../worker/logic');
+    expect(isNewThing('POST', '/api/players')).toBe(true);
+    expect(isNewThing('POST', '/api/push')).toBe(true);
+    expect(isNewThing('POST', '/api/group')).toBe(true);
+    expect(isNewThing('PUT', '/api/group')).toBe(true);
+    expect(isNewThing('PUT', '/api/me')).toBe(false);
+    expect(isNewThing('GET', '/api/leaderboard')).toBe(false);
+    expect(isNewThing('POST', '/api/events')).toBe(false);
+  });
+  it('statistiky se drží rok, nepřihlášený hráč dva roky', async () => {
+    const { EVENTS_KEEP_MS, PLAYER_KEEP_MS } = await import('../../worker/logic');
+    expect(EVENTS_KEEP_MS).toBe(365 * 864e5);
+    expect(PLAYER_KEEP_MS).toBe(730 * 864e5);
+  });
+});

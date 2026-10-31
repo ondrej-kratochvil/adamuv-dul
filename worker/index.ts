@@ -1,12 +1,13 @@
 // Schoolcraft na Cloudflare Workers: hra (statické soubory z dist) a API pro postup, statistiky a žebříček.
 // Databáze D1 (binding DB) je v EU. Hráč se přihlašuje „id.tajemstvi“ (Authorization: Bearer …), v databázi je jen otisk tajemství.
 import { NEWS_MS, dueSubs, makeVapid, overtaken, pragueNow, rankText, rankTime, sendPush, validEndpoint, validHour, validKey, type RankRow, type Vapid } from './push';
-import { leaderboardRows, MAX_EVENTS, MAX_SAVE, ORIGINS, safeJson, sanitizeNick, sanitizeSummary, weekKey, type Row } from './logic';
+import { EVENTS_KEEP_MS, isNewThing, leaderboardRows, MAX_EVENTS, MAX_SAVE, ORIGINS, PLAYER_KEEP_MS, safeJson, sanitizeNick, sanitizeSummary, weekKey, type Row } from './logic';
 
 interface D1Result<T> { results: T[] }
 interface D1Stmt { bind(...v: unknown[]): D1Stmt; first<T>(): Promise<T | null>; all<T>(): Promise<D1Result<T>>; run(): Promise<unknown> }
 interface D1 { prepare(sql: string): D1Stmt; batch(s: D1Stmt[]): Promise<unknown> }
-interface Env { DB: D1; ASSETS: { fetch(r: Request): Promise<Response> } }
+interface Limiter { limit(o: { key: string }): Promise<{ success: boolean }> }
+interface Env { DB: D1; ASSETS: { fetch(r: Request): Promise<Response> }; RL_API?: Limiter; RL_NEW?: Limiter }
 interface Ctx { waitUntil(p: Promise<unknown>): void }
 
 const hex = (b: ArrayBuffer | Uint8Array) => [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, '0')).join('');
@@ -16,7 +17,9 @@ function cors(req: Request): Record<string, string> {
   const o = req.headers.get('Origin') || '';
   return ORIGINS.includes(o) ? { 'Access-Control-Allow-Origin': o, 'Access-Control-Allow-Headers': 'Authorization, Content-Type', 'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS', Vary: 'Origin' } : {};
 }
-const json = (req: Request, body: unknown, status = 200) => new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store', ...cors(req) } });
+const json = (req: Request, body: unknown, status = 200) => new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff', 'Referrer-Policy': 'no-referrer', ...cors(req) } });
+// omezení počtu požadavků (wrangler.jsonc ratelimits); bez vazby (lokální testy) se nepočítá
+async function limited(rl: Limiter | undefined, key: string): Promise<boolean> { if (!rl) return false; try { return !(await rl.limit({ key })).success; } catch { return false; } }
 
 // přihlášený hráč z hlavičky, nebo null
 async function auth(req: Request, env: Env): Promise<string | null> {
@@ -34,6 +37,9 @@ async function body(req: Request, max: number): Promise<Record<string, unknown> 
 
 async function api(req: Request, env: Env, path: string, ctx: Ctx): Promise<Response> {
   const now = Date.now();
+  const ip = req.headers.get('CF-Connecting-IP') || 'local', who = /^Bearer ([a-f0-9-]{36})\./.exec(req.headers.get('Authorization') || '');
+  if (isNewThing(req.method, path) && await limited(env.RL_NEW, 'ip:' + ip)) return json(req, { error: 'too many' }, 429);
+  if (await limited(env.RL_API, who ? 'p:' + who[1] : 'ip:' + ip)) return json(req, { error: 'too many' }, 429);
   // nový hráč: vrátí id a tajemství (hra si je uloží; v databázi jen otisk)
   if (path === '/api/players' && req.method === 'POST') {
     const b = await body(req, 2000); if (!b) return json(req, { error: 'bad' }, 400);
@@ -114,7 +120,7 @@ async function api(req: Request, env: Env, path: string, ctx: Ctx): Promise<Resp
   return json(req, { error: 'not found' }, 404);
 }
 
-const MAX_SUBS = 5000; // pojistka proti zahlcení
+const MAX_SUBS = 20000; // pojistka proti zahlcení (zakládání hlídá i RL_NEW podle IP)
 // klíč serveru pro podpis upozornění: vytvoří se při prvním použití a zůstane v databázi (nikde jinde není)
 let vapidCache: Vapid | null = null;
 async function vapid(env: Env): Promise<Vapid> {
@@ -153,8 +159,17 @@ async function morning(env: Env): Promise<void> {
   }
 }
 
+// uchovávání (jednou denně ve 3 h): staré statistiky a dlouho nepřihlášení hráči pryč
+async function cleanup(env: Env): Promise<void> {
+  if (pragueNow().hour !== 3) return;
+  const now = Date.now();
+  await env.DB.prepare('DELETE FROM events WHERE ts < ?').bind(now - EVENTS_KEEP_MS).run();
+  const old = await env.DB.prepare('SELECT id FROM players WHERE updated < ? LIMIT 200').bind(now - PLAYER_KEEP_MS).all<{ id: string }>();
+  for (const p of old.results) await env.DB.batch([env.DB.prepare('DELETE FROM events WHERE player_id = ?').bind(p.id), env.DB.prepare('DELETE FROM push_subs WHERE player_id = ?').bind(p.id), env.DB.prepare('DELETE FROM players WHERE id = ?').bind(p.id)]);
+}
+
 export default {
-  async scheduled(_event: unknown, env: Env, ctx: { waitUntil(p: Promise<unknown>): void }): Promise<void> { ctx.waitUntil(morning(env)); },
+  async scheduled(_event: unknown, env: Env, ctx: { waitUntil(p: Promise<unknown>): void }): Promise<void> { ctx.waitUntil(morning(env)); ctx.waitUntil(cleanup(env).catch(() => {})); },
   async fetch(req: Request, env: Env, ctx: Ctx): Promise<Response> {
     const url = new URL(req.url);
     if (url.pathname.startsWith('/api/')) {

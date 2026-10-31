@@ -1,3 +1,12 @@
+// písma z vlastního serveru (Ondřej 31. 10. 2026: dřív z Google Fonts, Google tak viděl adresu zařízení); jen latinka a latinka s háčky
+import '@fontsource/andika/latin-400.css';
+import '@fontsource/andika/latin-ext-400.css';
+import '@fontsource/andika/latin-700.css';
+import '@fontsource/andika/latin-ext-700.css';
+import '@fontsource/pixelify-sans/latin-500.css';
+import '@fontsource/pixelify-sans/latin-ext-500.css';
+import '@fontsource/pixelify-sans/latin-700.css';
+import '@fontsource/pixelify-sans/latin-ext-700.css';
 import './styles.css';
 // Tlačítka
 import { G } from './core/state.js';

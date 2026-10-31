@@ -105,6 +105,16 @@ přidej i odměny, aby Adam nedošel na strop dřív, než dojde obsah.
   Druhá karta Moje obrázky. Fotky jen v zařízení (IndexedDB `schoolcraft-fotky`, `src/app/photos.js`, po profilech),
   nikdy na server ani do zálohy postupu.
 
+## Bezpečnost (Ondřej 31. 10. 2026)
+
+- CSP v `index.html` vkládá `vite.config.js` při sestavení (`CSP`; skripty jen vlastní, připojení jen server a skript tabulky Google);
+  další hlavičky (HSTS, frame-ancestors, nosniff, Permissions-Policy) v `public/_headers`. Test `tests/e2e/bezpecnost.spec.js`
+  hlídá, že běžné hraní CSP neporuší. Nový cizí zdroj = upravit `CSP` i ten test.
+- Písma jsou balíčky `@fontsource` (latinka a latinka s háčky), nic se nenačítá od cizích služeb.
+- Service worker nedává do mezipaměti `/api/` ani cizí adresy.
+- Server: omezení počtu požadavků (`ratelimits` ve `wrangler.jsonc`: `RL_API` 60 za minutu na hráče nebo IP, `RL_NEW` 6 za minutu
+  na zakládání podle IP), uchovávání (`cleanup` ve 3 h: statistiky 12 měsíců, nepřihlášený hráč 2 roky), hlavičky u API.
+
 ## O hře a soukromí (Ondřej 31. 10. 2026)
 
 - Přehled pro rodiče (`#aboutOverlay`, `src/ui/about.js`), bez zámku: odkaz v úvodním nastavení nového hráče, dole na úvodní

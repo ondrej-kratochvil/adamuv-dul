@@ -11,6 +11,11 @@
     { "binding": "DB", "database_name": "schoolcraft", "database_id": "71f73b1a-866a-4dfa-9356-debaa1d9fd44", "migrations_dir": "worker/migrations" }
   ],
   "routes": [{ "pattern": "schoolcraft.games", "custom_domain": true }],
+  // omezení počtu požadavků (31. 10. 2026): RL_API běžné volání (hráč nebo IP), RL_NEW zakládání hráčů, skupin a upozornění (IP)
+  "ratelimits": [
+    { "name": "RL_API", "namespace_id": "1001", "simple": { "limit": 60, "period": 60 } },
+    { "name": "RL_NEW", "namespace_id": "1002", "simple": { "limit": 6, "period": 60 } }
+  ],
   // ranní upozornění: každou celou hodinu (UTC); worker/index.ts morning() vybere zařízení podle českého času
   "triggers": { "crons": ["0 * * * *"] },
   "observability": { "enabled": true }

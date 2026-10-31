@@ -1,0 +1,10 @@
+# Bezpečnostní hlavičky pro statické soubory na schoolcraft.games (Cloudflare Workers Static Assets, 31. 10. 2026).
+# CSP se zdroji je v index.html (vkládá ji vite.config.js při sestavení); tady jen to, co jde jen hlavičkou.
+/*
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Content-Security-Policy: frame-ancestors 'none'
+  Referrer-Policy: no-referrer
+  Permissions-Policy: camera=(self), microphone=(self), geolocation=(), payment=(), usb=(), serial=()
+  Cross-Origin-Opener-Policy: same-origin
