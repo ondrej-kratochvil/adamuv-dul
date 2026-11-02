@@ -180,6 +180,8 @@ aktualizaci a po ní novinky ukáže.
   `npx wrangler dev --local` pro zkoušení API, `npx wrangler d1 migrations apply schoolcraft --local`.
 - Online ve hře: `src/app/cloud.js` (přihlášení zařízení kódem, záloha postupu, statistiky, žebříček), pravidla
   v `src/logic/cloud.ts`. V testech je server zablokovaný (`tests/e2e/helpers.js`), testy online si ho napodobí.
+- Texty žebříčku (`logic/leaders.ts`, Ondřej 2. 11. 2026: „vede ty“, „1 mláďat“): čísla přes `count(n, [1, 2 až 4, 5 a víc])`,
+  osoba „ty“ má vlastní tvar slovesa („Vedeš ty“), shoda „Vedete spolu“. Nový odznáček s číslem = tvary pro všechna čísla (test).
 - Do žebříčku jde jen přezdívka, postavička, týdenní body a co je postavené; nikdy jméno rodiny, chyby ani statistiky.
 - **Online jen se souhlasem** (31. 10. 2026): `cloudDefaults().on = false`, zapíná se zaškrtnutím v úvodním nastavení (`#setupOnline`)
   nebo na kartě Online. Starší postupy si nastavení nechávají.

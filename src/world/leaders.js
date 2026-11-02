@@ -8,22 +8,10 @@ import { show } from '../ui/screens.js';
 import { pickCanvas, playerCanvas, tierOf } from '../gfx/player.js';
 import { leaderboard, summary, syncCloud } from '../app/cloud.js';
 import { FARM_STAGES } from './farm.js';
+import { POINTS, badges as badgesOf, form, leadSpeech, rowSpeech } from '../logic/leaders.ts';
 
-const withPoints = n => `${n} ${n === 1 ? 'bodem' : 'body'}`; // „s 15 body“ (7. pád)
-const pointWord = n => n === 1 ? 'bod' : n >= 2 && n <= 4 ? 'body' : 'bodů';
-// odznáčky: [klíč, text na obrazovku, text pro hlas] (jen co hráč má)
-function badges(s) {
-  const out = [];
-  out.push(['house', s.house >= 12 ? 'dům hotový' : `dům ${s.house}/12`, s.house >= 12 ? 'hotový dům' : `${s.house} dílů domu`]);
-  if (s.farm) out.push(['farm', `farma ${s.farm}/${FARM_STAGES.length}`, `na farmě ${s.farm} dílů`]);
-  if (s.village) out.push(['village', `vesnice ${s.village}`, `${s.village} hotových budov ve vesnici`]);
-  if (s.pets) out.push(['pets', `zvířátka ${s.pets}`, `${s.pets} zvířátek`]);
-  if (s.babies) out.push(['babies', `mláďata ${s.babies}`, `${s.babies} mláďat na farmě`]);
-  if (s.portal) out.push(['portal', 'portál do Netheru', 'portál do Netheru']);
-  if (s.dragon) out.push(['dragon', `drak ${s.dragon}×`, 'poraženého draka']);
-  if (s.streak > 1) out.push(['streak', `řada ${s.streak} dní`, `řadu ${s.streak} dní`]);
-  return out;
-}
+const pointWord = n => form(n, POINTS);
+function badges(s) { return badgesOf(s, FARM_STAGES.length); }
 // má víc než já?
 const more = (k, s, m) => k === 'portal' ? s.portal && !m.portal : (s[k] || 0) > (m[k] || 0);
 function avatar(s) {
@@ -56,12 +44,11 @@ async function openLeaders() {
     li.addEventListener('click', () => {
       audio();
       const extra = r.me ? [] : bs.filter(([k]) => more(k, r.summary, mine)).map(b => b[2]);
-      speak(`${r.me ? 'Ty máš' : r.nick + ' má'} ${r.points} ${pointWord(r.points)}.` + (bs.length ? ` ${r.me ? 'Máš' : 'Má'} ${bs.map(b => b[2]).join(', ')}.` : '') + (extra.length ? ` To ty ještě nemáš: ${extra.join(', ')}.` : ''));
+      speak(rowSpeech(r, bs, extra));
     });
     list.appendChild(li);
   });
-  const top = rows[0], me = rows.find(x => x.me);
-  speak(!data.group ? info.textContent : top ? `Žebříček tohoto týdne. Vede ${top.me ? 'ty' : top.nick} s ${withPoints(top.points)}.` + (me && !top.me ? ` Ty máš ${me.points} ${pointWord(me.points)}.` : '') : 'Žebříček je zatím prázdný.');
+  speak(!data.group ? info.textContent : leadSpeech(rows));
 }
 
 export { badges, openLeaders };

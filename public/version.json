@@ -1,6 +1,13 @@
 {
-  "version": 77,
+  "version": 78,
   "changes": [
+    {
+      "version": 78,
+      "date": "2026-11-02",
+      "notes": [
+        "Žebříček teď mluví hezky česky. Když vedeš, řekne: Vedeš ty!"
+      ]
+    },
     {
       "version": 77,
       "date": "2026-10-31",

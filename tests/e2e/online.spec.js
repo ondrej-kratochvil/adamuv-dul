@@ -25,6 +25,21 @@ async function mockServer(page, players, saves = {}, group = { code: 'a1b2c3d4e5
 }
 const S = (o = {}) => ({ outfit: { shirt: 'oranzove' }, total: 10, house: 10, farm: 0, village: 0, pets: 0, babies: 0, streak: 1, cards: 0, dragon: 0, portal: false, ...o });
 
+test('žebříček česky (2. 11. 2026): „Vedeš ty“, „1 mládě“, „2 zvířátka“', async ({ page }) => {
+  await openGame(page, { total: 5, seenVersion: 999, cloud: { on: true } });
+  await mockServer(page, [
+    { nick: 'Adam', points: 4, summary: S({ babies: 1, pets: 2 }), me: true },
+    { nick: 'Víťa', points: 1, summary: S({ babies: 5 }), me: false },
+  ]);
+  await page.getByRole('button', { name: 'Žebříček', exact: true }).click();
+  await expect(page.locator('#leadList .lead-row.me')).toContainText('4 body');
+  await expect(page.locator('#leadList .lead-row.me .lead-badge')).toContainText(['2 zvířátka', '1 mládě']);
+  await expect(page.locator('#leadList .lead-row').nth(1)).toContainText('5 mláďat');
+  await expect.poll(() => page.evaluate(() => window.__said.at(-1))).toContain('Vedeš ty s 4 body.');
+  await page.locator('#leadList .lead-row').nth(1).click();
+  await expect.poll(() => page.evaluate(() => window.__said.at(-1))).toContain('Víťa má 1 bod. Má 10 dílů domu a 5 mláďat na farmě.');
+});
+
 test('žebříček: Víťa vede, u Adama „(ty)“, co má Víťa navíc je zvýrazněné', async ({ page }) => {
   await openGame(page, { total: 5, seenVersion: 999, cloud: { on: true } });
   const calls = await mockServer(page, [
