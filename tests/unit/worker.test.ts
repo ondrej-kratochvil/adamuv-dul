@@ -27,7 +27,17 @@ describe('server Schoolcraft (worker/logic.ts)', () => {
       { id: 'v', nick: 'Víťa', week: '2026-10-19', week_points: 15, summary: '{"total":10}' },
       { id: 's', nick: 'Starý', week: '2026-10-12', week_points: 50, summary: 'rozbité' },
     ], '2026-10-19', 'a');
-    expect(rows.map(r => [r.nick, r.points, r.me])).toEqual([['Víťa', 15, false], ['Adam', 12, true], ['Starý', 0, false]]);
+    expect(rows.map(r => [r.nick, r.points, r.me])).toEqual([['Víťa', 15, false], ['Adam', 12, true]]);
+  });
+  it('žebříček: hráči s 0 body (prázdné a staré účty) skrytí, já vždy; při shodě jsem až za ostatními', () => {
+    const rows = leaderboardRows([
+      { id: 'a', nick: 'Adam', week: '2026-10-19', week_points: 5, summary: '{"total":90}' },
+      { id: 'v', nick: 'Víťa', week: '2026-10-19', week_points: 5, summary: '{"total":10}' },
+      { id: 'h', nick: 'Hráč', week: '2026-10-19', week_points: 0, summary: '{}' },
+      { id: 'a2', nick: 'Adam', week: '2026-10-12', week_points: 9, summary: '{}' },
+    ], '2026-10-19', 'a');
+    expect(rows.map(r => [r.nick, r.me])).toEqual([['Víťa', false], ['Adam', true]]);
+    expect(leaderboardRows([{ id: 'a', nick: 'Adam', week: '2026-10-12', week_points: 3, summary: '{}' }], '2026-10-19', 'a').map(r => r.points)).toEqual([0]);
   });
 });
 

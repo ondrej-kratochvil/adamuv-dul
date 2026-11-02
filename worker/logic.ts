@@ -54,8 +54,11 @@ export const MAX_EVENTS = 300;      // řádků statistik v jednom požadavku
 // řádek žebříčku: body jen z tohoto týdne (starší týden = 0)
 export interface Row { id: string; nick: string; week: string; week_points: number; summary: string }
 export function leaderboardRows(rows: Row[], week: string, me = ''): { nick: string; points: number; summary: Summary; me: boolean }[] {
+  // jen kdo tento týden hrál (0 bodů = staré a prázdné účty, Ondřej 2. 11. 2026), já vždy;
+  // při stejných bodech jsem až za ostatními: o bod víc a jsem před nimi (motivace, Ondřej 2. 11. 2026)
   return rows.map(r => ({ nick: r.nick, points: r.week === week ? r.week_points : 0, summary: sanitizeSummary(safeJson(r.summary)), me: r.id === me }))
-    .sort((a, b) => b.points - a.points || b.summary.total - a.summary.total);
+    .filter(r => r.points > 0 || r.me)
+    .sort((a, b) => b.points - a.points || Number(a.me) - Number(b.me) || b.summary.total - a.summary.total);
 }
 export function safeJson(s: string | null | undefined): unknown { try { return JSON.parse(s || 'null'); } catch { return null; } }
 

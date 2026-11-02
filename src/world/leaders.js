@@ -30,7 +30,7 @@ async function openLeaders() {
   try { data = await leaderboard(); } catch (e) { info.textContent = 'Žebříček teď nejde načíst. Zkus to, až bude internet.'; speak(info.textContent); return; }
   const mine = summary(), rows = data.players || [];
   info.textContent = !data.group ? 'Žebříček je jen pro skupinu, třeba rodinu nebo třídu. Skupinu nastaví táta nebo máma v nastavení na kartě Online.'
-    : `Skupina ${data.group.name}. Body za tento týden: povedené kolo 1 bod, splněný dnešní úkol 3 body. V pondělí se začíná znovu.`;
+    : `Skupina ${data.group.name}. Body za tento týden: povedené kolo 1 bod, splněný dnešní úkol 3 body. V pondělí se začíná znovu. Kdo tento týden ještě nehrál, v žebříčku zatím není.`;
   rows.forEach((r, i) => {
     const li = document.createElement('li'); li.className = 'lead-row' + (r.me ? ' me' : '');
     li.insertAdjacentHTML('beforeend', `<b class="lead-rank">${i + 1}.</b>`);

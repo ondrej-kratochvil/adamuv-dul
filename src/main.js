@@ -98,6 +98,12 @@ $('#btnAgain').addEventListener('click', () => { const lv = $('#endOverlay').dat
 $('#btnEndHouse').addEventListener('click', () => { $('#endOverlay').hidden = true; ($('#endOverlay').dataset.place === 'farm' ? openFarm : openHouse)(); });
 $('#btnEndHome').addEventListener('click', goHome);
 $('#cheer').addEventListener('click', () => { audio(); if ($('#cheer').dataset.say) speak($('#cheer').dataset.say); });
+// po kole: klepnutí na kteroukoli položku (kartička, očarování, smaragdy, dům…) ji přečte znovu (Ondřej 2. 11. 2026)
+$('#endOverlay').addEventListener('click', e => {
+  const el = e.target.closest('#endOverlay .newpick, #endLine, #endGems, #endBlocks, #endTitle');
+  if (!el || el.hidden) return;
+  audio(); speak(el.dataset.say || el.textContent.trim());
+});
 
 loadFamily(); // rodina a kamarádi aktivního hráče (app/player.js)
 applyLetters(save.letters, save.cursive); // písmena, slabiky a slova podle toho, co rodič zapnul

@@ -320,7 +320,7 @@ CORS jen pro `ORIGINS` (`worker/logic.ts`).
 | PUT | `/api/group` | ano | `{ code }` | vstup kódem pozvánky; 404, když skupina není |
 | DELETE | `/api/group` | ano | | opustit skupinu |
 | POST | `/api/me/secret` | ano | | nový kód hráče `{ id, secret }`, starý přestane platit |
-| GET | `/api/leaderboard` | ano (bez přihlášení prázdný) | | `{ week, group, players: [{ nick, points, summary, me }] }`: jen hráči ze stejné skupiny, bez skupiny jen já |
+| GET | `/api/leaderboard` | ano (bez přihlášení prázdný) | | `{ week, group, players: [{ nick, points, summary, me }] }`: jen hráči ze stejné skupiny s body tento týden (já vždy), při shodě bodů já až za ostatními; bez skupiny jen já |
 | GET | `/api/push/key` | ne | | `{ key }` (veřejný klíč VAPID) |
 | POST | `/api/push` | volitelně (propojí hráče) | `{ endpoint, keys, hour, rank }` | `{ ok }`; 503 při 5000 zařízeních |
 | DELETE | `/api/push` | ne | `{ endpoint }` | `{ ok }` |

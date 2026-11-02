@@ -96,6 +96,20 @@ test('zvířátka: v Rodině zamčená; splněný dnešní úkol odemkne první 
   await expect.poll(() => page.evaluate(() => window.__said.at(-1))).toContain('přijde, až splníš dnešní úkol');
 });
 
+test('po kole jde na každou položku klepnout a hra ji přečte znovu (Ondřej 2. 11. 2026)', async ({ page }) => {
+  await page.clock.setFixedTime(new Date('2026-10-25T15:00:00+02:00'));
+  const quest = { kind: 'rounds', level: 'letters', need: 1, got: 0, done: false };
+  await openGame(page, { total: 3, seenVersion: 999, daily: { d: '2026-10-25', quest, shown: true } });
+  await playRound(page, 'Písmena');
+  await page.waitForTimeout(300);
+  await page.locator('#newPet').click();
+  await expect.poll(() => page.evaluate(() => window.__said.at(-1))).toBe('V Rodině přibylo zvířátko: Sunny, had, užovka červená. Bydlí u vás doma.');
+  await page.locator('#endGems').click();
+  await expect.poll(() => page.evaluate(() => window.__said.at(-1))).toMatch(/^Získal jsi \d+ smaragd.*Teď máš \d+ smaragd/);
+  await page.locator('#endLine').click();
+  await expect.poll(() => page.evaluate(() => window.__said.at(-1))).toContain('Přibylo na domě');
+});
+
 test('zvířátka v řadě rodiny za majitelem; Adam převleče Mourka a stejná čepice pro babičku je další kus', async ({ page }) => {
   await openGame(page, { total: 3, seenVersion: 999, questsDone: 5, emeralds: 30 });
   await page.getByRole('button', { name: 'Rodina', exact: true }).click();

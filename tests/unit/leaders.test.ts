@@ -22,9 +22,11 @@ describe('vedoucí hráč', () => {
     expect(leadSpeech([{ nick: 'Víťa', points: 15 }, { nick: 'Adam', points: 1, me: true }])).toBe('Žebříček tohoto týdne. Vede Víťa s 15 body. Ty máš 1 bod.');
     expect(leadSpeech([{ nick: 'Víťa', points: 1 }])).toContain('Vede Víťa s 1 bodem.');
   });
-  it('shoda na prvním místě: vedete spolu', () => {
-    expect(leadSpeech([{ nick: 'Víťa', points: 5 }, { nick: 'Adam', points: 5, me: true }, { nick: 'Ema', points: 2 }])).toBe('Žebříček tohoto týdne. Vedete spolu s 5 body: Víťa a ty.');
-    expect(leadSpeech([{ nick: 'Víťa', points: 5 }, { nick: 'Ema', points: 5 }, { nick: 'Adam', points: 2, me: true }])).toContain('Vedete spolu s 5 body: Víťa a Ema. Ty máš 2 body.');
+  it('shoda se mnou: jsem až druhý a hra povzbudí k bodu navíc', () => {
+    expect(leadSpeech([{ nick: 'Víťa', points: 5 }, { nick: 'Adam', points: 5, me: true }, { nick: 'Ema', points: 2 }])).toBe('Žebříček tohoto týdne. Vede Víťa s 5 body. Ty máš taky 5 bodů. Získej ještě jeden bod a budeš první!');
+  });
+  it('shoda dvou jiných: „Vedou spolu“ (ne „Vedete“, Adam mezi nimi není)', () => {
+    expect(leadSpeech([{ nick: 'Víťa', points: 5 }, { nick: 'Ema', points: 5 }, { nick: 'Adam', points: 2, me: true }])).toBe('Žebříček tohoto týdne. Vedou spolu Víťa a Ema s 5 body. Ty máš 2 body.');
   });
   it('nikdo nemá body, prázdný žebříček', () => {
     expect(leadSpeech([{ nick: 'Adam', points: 0, me: true }])).toContain('Zatím nikdo nemá žádný bod');

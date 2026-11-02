@@ -258,13 +258,17 @@ function endRound() {
   if (vil.length) { nv.hidden = false; nv.innerHTML = ''; nv.appendChild(signCanvas(vil[0].b.icon)); nv.insertAdjacentHTML('beforeend', `<span>Ve vesnici přibylo: ${vil.map(v => `${v.b.name} (${BLD_STAGES[v.st - 1]})`).join(', ')}${vil.some(v => v.st >= 8) ? `! Budova je hotová, +${VILLAGE_BONUS} smaragdů` : ''}!</span>`); }
   else nv.hidden = true;
   const vilTalk = vil.length ? ' Ve vesnici přibylo: ' + vil.map(v => v.st >= 8 ? `${v.b.name} je hotová a nastěhoval se ${v.b.who}` : `${v.b.name}, ${BLD_STAGES[v.st - 1]}`).join(' a ') + '.' : '';
+  ncEl.dataset.say = cardTalk.trim();
+  nv.dataset.say = vilTalk.trim();
   const enchTalk = newEnch.length ? ` Máš nové očarování: ${newEnch.map(e => `${pieceName(e.pc)}, ${e.name} ${e.lvl}`).join(' a ')}.` : '';
+  ne.dataset.say = enchTalk.trim();
   const eg = $('#endGems');
   const lostR = G.R.lost || 0;
   const lostTalk = lostR ? ` Za chyby jsi ${gx('ztratil', 'ztratila')} ${lostR} ${gemWord(lostR)}.` : '';
   const showGems = (bonus = 0, quest = 0) => {
     const extra = [perfect ? `${PERFECT_BONUS} za kolo bez chyby` : '', bonus ? `${bonus} za řadu dní` : '', quest ? `${quest} za dnešní úkol` : ''].filter(Boolean).join(', ');
     eg.innerHTML = ''; eg.appendChild(sprIcon('emerald'));
+    eg.dataset.say = `${gx('Získal', 'Získala')} jsi ${earned + bonus + quest} ${gemWord(earned + bonus + quest)}` + (extra ? `, z toho ${extra}` : '') + (lostR ? `. Za chyby jsi ${gx('ztratil', 'ztratila')} ${lostR}` : '') + `. Teď máš ${save.emeralds} ${gemWord(save.emeralds)}.`;
     eg.append(`+${earned + bonus + quest}` + (extra ? ` (z toho ${extra})` : '') + (lostR ? `, za chyby −${lostR}` : '') + `, máš ${save.emeralds}`);
   };
   showGems();
@@ -304,19 +308,23 @@ function endRound() {
   const npet = $('#newPet');
   if (pet) { npet.hidden = false; npet.innerHTML = ''; const pc = petCanvas(pet); pc.style.width = pc.style.height = '40px'; npet.appendChild(pc); npet.insertAdjacentHTML('beforeend', `<span>Nové zvířátko v Rodině: ${pet.name}!</span>`); }
   else npet.hidden = true;
+  if (pet) npet.dataset.say = `V Rodině přibylo zvířátko: ${petSay(pet)}`;
   const questTalk = questBonus ? ` ${gx('Splnil', 'Splnila')} jsi dnešní úkol! Bonus ${questBonus} ${gemWord(questBonus)}.` + (pet ? ` A v Rodině přibylo zvířátko: ${petSay(pet)}` : '') : '';
   // nový stupeň obtížnosti (podle zvládnutých úloh, logic/stages.ts): oznámit, co se otevřelo
   const opened = updateStages(), ns = $('#newStage');
   const stageTalk = opened.length ? ` Novinka! ${opened.map(o => `V patře ${LEVELS[o.lv] ? LEVELS[o.lv].name : ''} teď budou i ${o.news}`).join('. ')}.` : '';
   if (opened.length) { ns.hidden = false; ns.innerHTML = ''; ns.appendChild(sprIcon('emerald')); ns.insertAdjacentHTML('beforeend', `<span>${opened.map(o => `${LEVELS[o.lv] ? LEVELS[o.lv].name : ''}: nově ${o.news}`).join('. ')}!</span>`); }
   else ns.hidden = true;
+  ns.dataset.say = stageTalk.trim();
   const pn = $('#newPrerov'); let prerovTalk = '';
   const newPlaces = day ? PREROV.filter(x => day.prevBest < x.at && day.count >= x.at) : [];
   if (newPlaces.length) { pn.hidden = false; pn.innerHTML = ''; pn.appendChild(signCanvas('A')); pn.insertAdjacentHTML('beforeend', `<span>V Přerově přibylo: ${newPlaces.map(x => x.name).join(', ')}!</span>`); prerovTalk = ` Hraješ ${day.count} dní v řadě, a tak v Přerově přibylo: ${newPlaces.map(x => x.name).join(' a ')}!`; }
   else pn.hidden = true;
+  pn.dataset.say = prerovTalk.trim();
   const nb = $('#newBaby'); let babyTalk = '';
   if (day && day.baby) { nb.hidden = false; nb.innerHTML = ''; const bc = babyCanvas(day.baby); bc.style.width = '48px'; bc.style.height = '40px'; nb.appendChild(bc); nb.insertAdjacentHTML('beforeend', `<span>Tento týden jsi ${gx('hrál', 'hrála')} ${BABY_DAYS} dny. Na farmě se narodilo ${day.baby.name}!</span>`); babyTalk = ` Tento týden jsi ${gx('hrál', 'hrála')} už ${BABY_DAYS} dny, a tak se na farmě narodilo ${day.baby.name}!`; }
   else nb.hidden = true;
+  nb.dataset.say = babyTalk.trim();
   const nn = $('#newNether'); let netherTalk = '';
   if (day) {
     nn.hidden = false; nn.innerHTML = ''; nn.appendChild(sprIcon('portalIcon'));
@@ -324,6 +332,7 @@ function endRound() {
     const txt = o < PORTAL_NEED ? `Dnešní den: obsidián na portál (${o} z ${PORTAL_NEED})` : o === PORTAL_NEED ? 'Portál do Netheru se zapálil' : o - PORTAL_NEED <= NETHER_STAGES.length ? `V Netheru přibylo: ${NETHER_STAGES[o - PORTAL_NEED - 1]}` : 'Další den v Netheru';
     nn.insertAdjacentHTML('beforeend', `<span>${txt}!</span>`);
     netherTalk = o < PORTAL_NEED ? ` Za dnešní den máš obsidián, už ${o} z ${PORTAL_NEED} na portál.` : o === PORTAL_NEED ? ' Portál do Netheru se zapálil! Podívej se na úvodní obrazovce.' : o - PORTAL_NEED <= NETHER_STAGES.length ? ` V Netheru přibylo: ${NETHER_STAGES[o - PORTAL_NEED - 1]}.` : '';
+    nn.dataset.say = netherTalk.trim() || txt + '.';
   } else nn.hidden = true;
   const after = tierOf(save.total);
   const newTier = after !== before;
@@ -337,10 +346,12 @@ function endRound() {
     if (newTier) np.appendChild(pickCanvas(after)); newTools.forEach(n => np.appendChild(toolCanvas(n.tool, n.stage)));
     np.insertAdjacentHTML('beforeend', `<span>${[newTier ? `Nový krumpáč: ${after.name}` : '', ...newTools.map(n => `Nové v šatníku: ${toolName(n.tool, n.stage)}`)].filter(Boolean).join('. ')}!</span>`);
   } else np.hidden = true;
+  np.dataset.say = (newTier ? `Máš nový ${after.name} krumpáč!` : '') + (newTools.length ? ` V šatníku máš ${newTools.map(n => toolName(n.tool, n.stage)).join(' a ')}.` : '');
   const toolTalk = newTools.length ? ` V šatníku máš ${newTools.map(n => toolName(n.tool, n.stage)).join(' a ')}.` : '';
   const fresh = OUTFIT_CATS.flatMap(([cat]) => OUTFIT[cat].filter(it => it.at === st || (day && it.streak && day.prevBest < it.streak && day.count >= it.streak)).map(it => [cat, it]));
   if (fresh.length) { no.hidden = false; no.innerHTML = ''; fresh.forEach(([cat, it]) => no.appendChild(outfitIcon(cat, it))); no.insertAdjacentHTML('beforeend', `<span>Nové oblečení v šatníku: ${fresh.map(([, it]) => it.name).join(', ')}!</span>`); }
   else no.hidden = true;
+  no.dataset.say = fresh.length ? `Nové oblečení v šatníku: ${fresh.map(([, it]) => it.name).join(' a ')}.` : '';
   showEndPlace(st <= FARM_START ? 'house' : 'farm');
   G.R = null;
   $('#endOverlay').hidden = false;

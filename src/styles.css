@@ -636,3 +636,6 @@ canvas.ench { animation: ench 1.8s ease-in-out infinite; }
   .set-back { display: none; }
   .set-item { font-size: 16px; padding: 9px 12px; }
 }
+
+/* po kole jde na položky klepnout a hra je přečte znovu (main.js) */
+#endOverlay .newpick, #endLine, #endGems, #endBlocks, #endTitle { cursor: pointer; }

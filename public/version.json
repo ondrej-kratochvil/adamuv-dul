@@ -1,6 +1,14 @@
 {
-  "version": 78,
+  "version": 79,
   "changes": [
+    {
+      "version": 79,
+      "date": "2026-11-02",
+      "notes": [
+        "Po kole klepni na kartičku nebo jinou novinku a hra ti ji řekne znovu.",
+        "V žebříčku jsou jen hráči, kteří tento týden hráli. Když máš stejně bodů, získej ještě jeden a budeš před nimi!"
+      ]
+    },
     {
       "version": 78,
       "date": "2026-11-02",

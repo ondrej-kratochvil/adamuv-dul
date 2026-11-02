@@ -31,10 +31,10 @@ export function leadSpeech(rows: Row[]): string {
   if (!top) return 'Žebříček je zatím prázdný.';
   if (top.points <= 0) return 'Žebříček tohoto týdne. Zatím nikdo nemá žádný bod. Zahraj si kolo a budeš první!';
   const tie = rows.filter(r => r.points === top.points);
-  if (tie.length > 1 && top.points > 0) {
-    const names = tie.map(r => r.me ? 'ty' : r.nick), list = names.slice(0, -1).join(', ') + ' a ' + names.at(-1);
-    return `Žebříček tohoto týdne. Vedete spolu ${withPoints(top.points)}: ${list}.` + (me && me.points !== top.points ? ` Ty máš ${count(me.points, POINTS)}.` : '');
-  }
+  const names = (xs: Row[]) => list(xs.map(r => r.me ? 'ty' : r.nick));
+  // stejně bodů jako vedoucí: hra mě řadí až za ně (o bod víc a jsem první)
+  if (me && !top.me && me.points === top.points) return `Žebříček tohoto týdne. Vede ${names(tie.filter(r => !r.me))} ${withPoints(top.points)}. Ty máš taky ${count(me.points, POINTS)}. Získej ještě jeden bod a budeš první!`;
+  if (tie.length > 1) return `Žebříček tohoto týdne. Vedou spolu ${names(tie)} ${withPoints(top.points)}.` + (me ? ` Ty máš ${count(me.points, POINTS)}.` : '');
   return 'Žebříček tohoto týdne. ' + (top.me ? `Vedeš ty ${withPoints(top.points)}.` : `Vede ${top.nick} ${withPoints(top.points)}.` + (me ? ` Ty máš ${count(me.points, POINTS)}.` : ''));
 }
 // věta po klepnutí na hráče

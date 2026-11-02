@@ -132,6 +132,11 @@ přidej i odměny, aby Adam nedošel na strop dřív, než dojde obsah.
   `logic/family.ts`, `src/ui/visit-settings.js`); ten den fandí jen hosté jejich schválenými hláškami, na úvodní obrazovce
   „Na návštěvě: …“, máma připomíná jen když je mezi hosty. Nové hlášky pro návštěvu nejdřív schválí Ondřej.
 
+## Po kole
+
+- Na každou položku v dialogu po kole (kartička, očarování, smaragdy, dům, stupeň…) jde klepnout a hra ji přečte znovu
+  (`#endOverlay` v `main.js`; text pro hlas v `data-say`, jinak text na obrazovce). Nová položka = nastavit i `data-say`.
+
 ## Verze a novinky
 
 Každá úprava, která jde na `main`, zvýší `APP_VERSION` v `src/app/version.js` a přidá do `version.json` záznam se stejným
@@ -181,7 +186,10 @@ aktualizaci a po ní novinky ukáže.
 - Online ve hře: `src/app/cloud.js` (přihlášení zařízení kódem, záloha postupu, statistiky, žebříček), pravidla
   v `src/logic/cloud.ts`. V testech je server zablokovaný (`tests/e2e/helpers.js`), testy online si ho napodobí.
 - Texty žebříčku (`logic/leaders.ts`, Ondřej 2. 11. 2026: „vede ty“, „1 mláďat“): čísla přes `count(n, [1, 2 až 4, 5 a víc])`,
-  osoba „ty“ má vlastní tvar slovesa („Vedeš ty“), shoda „Vedete spolu“. Nový odznáček s číslem = tvary pro všechna čísla (test).
+  osoba „ty“ má vlastní tvar slovesa („Vedeš ty“), shoda dvou jiných „Vedou spolu“. Nový odznáček s číslem = tvary pro všechna čísla (test).
+- **Kdo je v žebříčku** (`leaderboardRows` ve `worker/logic.ts`, Ondřej 2. 11. 2026): jen hráči s body tento týden a já; při shodě
+  bodů jsem až za ostatními (motivace získat bod navíc, hlas: „Ty máš taky … Získej ještě jeden bod a budeš první!“).
+  Migrace `0005_ghost_players.sql` vyřadila ze skupin účty bez jediné statistiky (roboti a prázdné účty z doby před souhlasem).
 - Do žebříčku jde jen přezdívka, postavička, týdenní body a co je postavené; nikdy jméno rodiny, chyby ani statistiky.
 - **Online jen se souhlasem** (31. 10. 2026): `cloudDefaults().on = false`, zapíná se zaškrtnutím v úvodním nastavení (`#setupOnline`)
   nebo na kartě Online. Starší postupy si nastavení nechávají.
