@@ -144,7 +144,7 @@ na seznam; na tabletu naležato a na počítači je seznam vlevo a část vpravo
 | Postup a data | **Postup a zálohy** | přehled, Statistiky, Začít od začátku, Vrátit zálohu, přenos textem, stav uložení |
 | | **Profily** | další hráči nebo testovací profil |
 | | **Online a skupina** | zapnutí online, skupina pro žebříček, přezdívka, QR kód a kód hráče, výměna kódu, smazání ze serveru |
-| | **Tabulka Google** | statistiky do vaší tabulky Google (volitelné) |
+| | **Statistiky** | stažení statistik z databáze (CSV); tabulka Google už není potřeba |
 
 ### 6.0 Návštěva
 
@@ -200,7 +200,10 @@ Upozornění fungují jen v aplikaci z adresy schoolcraft.games. Na iPadu jen u 
 - hodnocení kol (dítě po kole dává 1 až 10, kolik ho to bavilo);
 - **Zkopírovat přehled** převede statistiky na text k poslání.
 
-Výsledky mohou samy chodit do **tabulky Google** (část Tabulka Google), i z více zařízení do jedné tabulky. Návod:
+Když je zapnuté online, jsou výsledky kol, úloh a hodnocení v databázi hry (12 měsíců). V části **Postup a data → Statistiky**
+jdou stáhnout tlačítky **Kola**, **Úlohy** a **Hodnocení** jako soubor CSV (otevře ho Excel i Tabulky Google).
+
+Dřívější cesta, už není potřeba: výsledky mohou samy chodit do **tabulky Google** (stejná část), i z více zařízení do jedné tabulky. Návod:
 [`google-tabulka.md`](google-tabulka.md). Do tabulky ani na server se neposílá nic o rodině.
 
 ---

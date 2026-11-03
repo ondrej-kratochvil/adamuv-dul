@@ -69,7 +69,10 @@ přidej i odměny, aby Adam nedošel na strop dřív, než dojde obsah.
   tipy (`qw`, chyba do 1,2 s od konce zadání), viz `recordResult` v `logic/mastery.ts`.
 - **Pauza** (`pauseRound`/`resumeRound` v `game/round.js`, tlačítko vedle Zpět, i při odchodu z aplikace): zadání a kostky se schovají,
   čas úlohy ani kola neběží; v deníku `pauses`/`pauseSecs`, v tabulce sloupce Pauzy a Pauza (s). Odliší přerušení od odchodu z kola.
-- **Tabulka Google** (`logic/sync.ts`, `app/sync.js`, skript `docs/google-tabulka.gs`, návod `docs/google-tabulka.md`): po každé úloze,
+- **Stažení z databáze** (Ondřej 3. 11. 2026: „abychom Google tabulku už nepotřebovali“): nastavení Postup a data → Statistiky,
+  tlačítka Kola, Úlohy, Hodnocení (`data-stats`), `src/app/stats-download.js` (nejdřív `syncCloud`), CSV v `logic/stats-export.ts`
+  (středník a BOM pro český Excel), API `GET /api/me/events?kind=&after=` po 1000 řádcích. Jen když je online zapnuté.
+- **Tabulka Google** (už není potřeba, zůstává pro starší zařízení; `logic/sync.ts`, `app/sync.js`, skript `docs/google-tabulka.gs`, návod `docs/google-tabulka.md`): po každé úloze,
   kole a hodnocení řádek do fronty v uloženém stavu, odeslání hned, při startu, při návratu do hry a po připojení. Řádky mají ID,
   skript duplicity přeskočí. Víc zařízení do jedné tabulky: sloupec Zařízení (`sync.device`, název v nastavení), značka `sync.uid` v ID,
   list „Stav <zařízení>“; vložený postup nepřebírá `sync` (patří zařízení). Adresa skriptu jen v nastavení (repo je veřejné), nikdy v kódu. Nic o rodině se neposílá.
@@ -85,7 +88,7 @@ přidej i odměny, aby Adam nedošel na strop dřív, než dojde obsah.
 
 - **Strom** (Ondřej 31. 10. 2026, karet bylo moc; `.set-tree` v `index.html`, `showSetTab` v `ui/settings.js`): Hráč a rodina (Hráč,
   Vzkazy a návštěva), Učení (Písmena, Přísnost, Hlas), Zařízení (Upozornění, Otisk prstu, Vibrace), Postup a data (Postup a zálohy,
-  Profily, Online a skupina, Tabulka Google). Mobil: seznam, po výběru jen ta část s tlačítkem Zpět; od 900 px strom vlevo.
+  Profily, Online a skupina, Statistiky). Mobil: seznam, po výběru jen ta část s tlačítkem Zpět; od 900 px strom vlevo.
   Nová volba patří do části podle tématu (případně nová položka stromu), ne na konec. Pamatuje si poslední část; Hlas má „!“,
   když chybí český hlas. V testech `openSettings(page, 'část')` a `settingsTab(page, 'část')` (`tests/e2e/helpers.js`).
 

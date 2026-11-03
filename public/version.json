@@ -1,6 +1,13 @@
 {
-  "version": 79,
+  "version": 80,
   "changes": [
+    {
+      "version": 80,
+      "date": "2026-11-03",
+      "notes": [
+        "Táta a máma si teď můžou stáhnout, jak ti to jde, přímo ze hry."
+      ]
+    },
     {
       "version": 79,
       "date": "2026-11-02",

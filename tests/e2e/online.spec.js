@@ -18,6 +18,11 @@ async function mockServer(page, players, saves = {}, group = { code: 'a1b2c3d4e5
     if (m === 'PUT' && url.pathname === '/api/group') { const c = JSON.parse(req.postData()).code; if (c !== 'a1b2c3d4e5f6') return route.fulfill({ status: 404, contentType: 'application/json', headers: { 'access-control-allow-origin': '*' }, body: '{"error":"no group"}' }); group = { code: c, name: 'Rodina' }; return json(group); }
     if (m === 'DELETE' && url.pathname === '/api/group') { group = null; return json({ ok: true }); }
     if (m === 'POST' && url.pathname === '/api/me/secret') return json({ id: ID, secret: 'c'.repeat(64) });
+    if (m === 'GET' && url.pathname === '/api/me/events') {
+      const after = +url.searchParams.get('after'), kind = url.searchParams.get('kind');
+      if (kind !== 'kolo') return json({ rows: [], next: 0 });
+      return json(after ? { rows: [{ Čas: '2026-11-02 8:01:00', Druh: 'kolo', Patro: 'Slova', 'Bez chyby': 7, Povedené: 'ano' }], next: 0 } : { rows: [{ Čas: '2026-11-02 7:50:00', Druh: 'kolo', Patro: 'Psaní; smyčka', 'Bez chyby': 3, Povedené: 'ne' }], next: 41 });
+    }
     if (m === 'GET' && url.pathname === '/api/me/save') { const code = (req.headers().authorization || '').slice(7); return json({ save: saves[code] || null }); }
     return route.fulfill({ status: 404, body: '{}' });
   });
@@ -145,4 +150,29 @@ test('výměna kódu hráče: po potvrzení nový kód, starý QR se schová', a
   await page.locator('#btnCloudRotateYes').click();
   await expect(page.locator('#cloudInfo')).toContainText('vyměněný');
   expect((await saved(page)).cloud.secret).toBe('c'.repeat(64));
+});
+
+test('statistiky z databáze jdou stáhnout jako CSV (Ondřej 3. 11. 2026, místo tabulky Google)', async ({ page }) => {
+  await openGame(page, { total: 5, seenVersion: 999, cloud: { on: true, id: ID, secret: SECRET, nick: 'Adam' } });
+  const calls = await mockServer(page, []);
+  await openSettings(page, 'sync');
+  await expect(page.locator('.set-tree [data-tab="sync"]')).toHaveText('Statistiky');
+  const [dl] = await Promise.all([page.waitForEvent('download'), page.locator('[data-stats="kolo"]').click()]);
+  expect(dl.suggestedFilename()).toMatch(/^schoolcraft-kola-adam-\d{4}-\d\d-\d\d\.csv$/);
+  const csv = (await import('node:fs')).readFileSync(await dl.path(), 'utf8');
+  expect(csv.split('\r\n')[0]).toBe('\uFEFFČas;Patro;Bez chyby;Povedené');
+  expect(csv).toContain('2026-11-02 7:50:00;"Psaní; smyčka";3;ne');
+  expect(csv).toContain('2026-11-02 8:01:00;Slova;7;ano');
+  await expect(page.locator('#statsInfo')).toContainText('Staženo: 2 řádky');
+  expect(calls.filter(c => c === 'GET /api/me/events')).toHaveLength(2); // dvě stránky
+  await page.locator('[data-stats="hodnocení"]').click();
+  await expect(page.locator('#statsInfo')).toContainText('V databázi zatím nejsou žádné záznamy');
+});
+
+test('statistiky: bez online hra vysvětlí, že v databázi nic není', async ({ page }) => {
+  await openGame(page, { total: 5, seenVersion: 999 });
+  await openSettings(page, 'sync');
+  await expect(page.locator('#statsInfo')).toContainText('Online je vypnuté');
+  await page.locator('[data-stats="kolo"]').click();
+  await expect(page.locator('#statsInfo')).toContainText('Online je vypnuté');
 });

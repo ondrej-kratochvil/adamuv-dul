@@ -313,6 +313,7 @@ CORS jen pro `ORIGINS` (`worker/logic.ts`).
 | POST | `/api/players` | ne | `{ nick, public }` | `{ id, secret }` |
 | PUT | `/api/me` | ano | `{ nick, public, week, weekPoints, summary, save }` (záloha do 1,5 mil. znaků) | `{ ok }`; může spustit upozornění na předběhnutí |
 | GET | `/api/me/save` | ano | | `{ nick, save, updated }` |
+| GET | `/api/me/events?kind=kolo\|úloha\|hodnocení&after=<id>` | ano | | `{ rows: [řádky jako do tabulky Google], next }`: vlastní statistiky po 1000, `next` = id pro další stránku (0 = konec) |
 | POST | `/api/events` | ano | `{ rows }` (nejvýš 300) | `{ ok, n }` |
 | DELETE | `/api/me` | ano | | smaže hráče, statistiky i upozornění |
 | GET | `/api/me` | ano | | `{ nick, public, group: { code, name } \| null }` |

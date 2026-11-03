@@ -1,6 +1,7 @@
 // Schoolcraft na Cloudflare Workers: hra (statické soubory z dist) a API pro postup, statistiky a žebříček.
 // Databáze D1 (binding DB) je v EU. Hráč se přihlašuje „id.tajemstvi“ (Authorization: Bearer …), v databázi je jen otisk tajemství.
 import { NEWS_MS, dueSubs, makeVapid, overtaken, pragueNow, rankText, rankTime, sendPush, validEndpoint, validHour, validKey, type RankRow, type Vapid } from './push';
+import { EXPORT_PAGE, validKind } from '../src/logic/stats-export';
 import { EVENTS_KEEP_MS, allowedPoints, sanitizeGroupName, validGroupCode, isNewThing, leaderboardRows, MAX_EVENTS, MAX_SAVE, ORIGINS, PLAYER_KEEP_MS, safeJson, sanitizeNick, sanitizeSummary, weekKey, type Row } from './logic';
 
 interface D1Result<T> { results: T[] }
@@ -151,6 +152,15 @@ async function api(req: Request, env: Env, path: string, ctx: Ctx): Promise<Resp
     });
     if (st.length) await env.DB.batch(st);
     return json(req, { ok: true, n: st.length });
+  }
+  // stažení vlastních statistik (rodič v nastavení, část Statistiky); po stránkách podle id, jen jeden druh
+  if (path === '/api/me/events' && req.method === 'GET') {
+    const q = new URL(req.url).searchParams, kind = q.get('kind') || '', after = Math.max(0, parseInt(q.get('after') || '0', 10) || 0);
+    if (!validKind(kind)) return json(req, { error: 'bad' }, 400);
+    const r = await env.DB.prepare('SELECT id, data FROM events WHERE player_id = ? AND kind = ? AND id > ? ORDER BY id LIMIT ?').bind(me, kind, after, EXPORT_PAGE).all<{ id: number; data: string }>();
+    const rows = r.results.map(x => safeJson(x.data)).filter(x => x && typeof x === 'object');
+    const last = r.results.at(-1);
+    return json(req, { rows, next: r.results.length === EXPORT_PAGE && last ? last.id : 0 });
   }
   // smazat hráče i statistiky (rodič v nastavení)
   if (path === '/api/me' && req.method === 'DELETE') {

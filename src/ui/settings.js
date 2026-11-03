@@ -27,6 +27,7 @@ import { CONS_ORDER } from '../content/alphabet.ts';
 import { applyLetters, normalizeLetters } from '../logic/letters.ts';
 import { SYLL } from '../content/letters.ts';
 import { WORDS } from '../content/words.ts';
+import { downloadStats } from '../app/stats-download.js';
 
 // karta Hlas upozorní, když chybí český hlas (návod je až uvnitř karty)
 function voiceTabWarn() { const t = $('.set-tree [data-tab="voice"]'); if (t) t.classList.toggle('warn', !$('#voiceHelp').hidden); }
@@ -157,11 +158,25 @@ $('#btnTestVoice').addEventListener('click', () => { loadVoices(); speak(`Ahoj $
 $('#btnReset').addEventListener('click', () => { $('#resetConfirm').hidden = false; });
 // tabulka Google (app/sync.js, návod docs/google-tabulka.md)
 const fmtWhen = t => { const d = new Date(t); return `${d.getDate()}. ${d.getMonth() + 1}. ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`; };
+// stažení statistik z databáze (app/stats-download.js); jen když je hráč online (Ondřej 3. 11. 2026)
+function statsHint() {
+  return !save.cloud.on ? 'Online je vypnuté, v databázi zatím nic není. Zapněte ho v části Online a skupina; statistiky se pak ukládají od dalšího kola.' : '';
+}
+document.querySelectorAll('[data-stats]').forEach(b => b.addEventListener('click', async () => {
+  const info = $('#statsInfo'), hint = statsHint();
+  if (hint) { info.textContent = hint; return; }
+  info.textContent = 'Stahuji…';
+  try {
+    const n = await downloadStats(b.dataset.stats);
+    info.textContent = n ? `Staženo: ${n} ${n === 1 ? 'řádek' : n < 5 ? 'řádky' : 'řádků'} (${b.textContent}). Soubor je ve Stažených souborech.` : `V databázi zatím nejsou žádné záznamy (${b.textContent}).`;
+  } catch (e) { info.textContent = `Stažení se nepovedlo (${e.message}). Zkuste to, až bude internet.`; }
+}));
 function updateSync(msg) {
   const s = save.sync; $('#syncUrl').value = s.url; $('#syncDevice').value = s.device;
   // adresa patří každému profilu zvlášť (21. 10. 2026: na profilu Ondra to vypadalo, že se adresa smazala)
   const other = profile.id !== MAIN_ID ? `Hraje se profil ${profile.name}. Adresa tabulky se nastavuje pro každý profil zvlášť, ` : '';
-  $('#syncInfo').textContent = msg || (!s.url ? (other ? other + `Adamův profil ji má svou. Tenhle profil zatím do tabulky neposílá; když adresu zadáte, jeho záznamy budou mít sloupec Profil.` : 'Zatím nenastaveno, statistiky zůstávají jen v tabletu.')
+  $('#statsInfo').textContent = statsHint();
+  $('#syncInfo').textContent = msg || (!s.url ? (other ? other + `Adamův profil ji má svou. Tenhle profil zatím do tabulky neposílá; když adresu zadáte, jeho záznamy budou mít sloupec Profil.` : 'Zatím nenastaveno. Není potřeba, statistiky jsou v databázi.')
     : `Odesláno ${s.sent} záznamů${s.last ? `, naposledy ${fmtWhen(s.last)}` : ''}. Čeká na odeslání: ${s.queue.length}.${s.error ? ` Poslední chyba: ${s.error}` : ''}`);
 }
 $('#btnSyncSave').addEventListener('click', () => {
