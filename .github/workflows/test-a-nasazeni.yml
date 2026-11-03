@@ -71,6 +71,7 @@ jobs:
     env:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      SCHOOLCRAFT_ADMIN_TOKEN: ${{ secrets.SCHOOLCRAFT_ADMIN_TOKEN }}
     steps:
       - uses: actions/checkout@v4
         if: env.CLOUDFLARE_API_TOKEN != ''
@@ -87,6 +88,9 @@ jobs:
       - name: Nasazení na schoolcraft.games
         if: env.CLOUDFLARE_API_TOKEN != ''
         run: npx wrangler deploy
+      - name: Klíč pro rozbory (jen čtení rodinné skupiny)
+        if: env.CLOUDFLARE_API_TOKEN != '' && env.SCHOOLCRAFT_ADMIN_TOKEN != ''
+        run: printf '%s' "$SCHOOLCRAFT_ADMIN_TOKEN" | npx wrangler secret put ADMIN_TOKEN
       - name: Bez tokenu se nenasazuje
         if: env.CLOUDFLARE_API_TOKEN == ''
         run: echo "::warning::Chybí tajná proměnná CLOUDFLARE_API_TOKEN, schoolcraft.games se nenasadilo."

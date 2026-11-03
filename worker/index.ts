@@ -2,13 +2,14 @@
 // Databáze D1 (binding DB) je v EU. Hráč se přihlašuje „id.tajemstvi“ (Authorization: Bearer …), v databázi je jen otisk tajemství.
 import { NEWS_MS, dueSubs, makeVapid, overtaken, pragueNow, rankText, rankTime, sendPush, validEndpoint, validHour, validKey, type RankRow, type Vapid } from './push';
 import { EXPORT_PAGE, validKind } from '../src/logic/stats-export';
+import { ADMIN_MIN_LEN, FAMILY_GROUP, adminToken, validPlayerId } from './logic';
 import { EVENTS_KEEP_MS, allowedPoints, sanitizeGroupName, validGroupCode, isNewThing, leaderboardRows, MAX_EVENTS, MAX_SAVE, ORIGINS, PLAYER_KEEP_MS, safeJson, sanitizeNick, sanitizeSummary, weekKey, type Row } from './logic';
 
 interface D1Result<T> { results: T[] }
 interface D1Stmt { bind(...v: unknown[]): D1Stmt; first<T>(): Promise<T | null>; all<T>(): Promise<D1Result<T>>; run(): Promise<unknown> }
 interface D1 { prepare(sql: string): D1Stmt; batch(s: D1Stmt[]): Promise<unknown> }
 interface Limiter { limit(o: { key: string }): Promise<{ success: boolean }> }
-interface Env { DB: D1; ASSETS: { fetch(r: Request): Promise<Response> }; RL_API?: Limiter; RL_NEW?: Limiter }
+interface Env { DB: D1; ASSETS: { fetch(r: Request): Promise<Response> }; RL_API?: Limiter; RL_NEW?: Limiter; ADMIN_TOKEN?: string }
 interface Ctx { waitUntil(p: Promise<unknown>): void }
 
 const hex = (b: ArrayBuffer | Uint8Array) => [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, '0')).join('');
@@ -36,11 +37,35 @@ async function body(req: Request, max: number): Promise<Record<string, unknown> 
   return j && typeof j === 'object' ? j as Record<string, unknown> : null;
 }
 
+// rozbory pro správce: jen čtení, jen rodinná skupina (worker/logic.ts FAMILY_GROUP), klíč v tajné proměnné ADMIN_TOKEN
+async function admin(req: Request, env: Env, path: string): Promise<Response> {
+  const t = adminToken(req.headers.get('Authorization'));
+  if (!t || !env.ADMIN_TOKEN || env.ADMIN_TOKEN.length < ADMIN_MIN_LEN || await sha(t) !== await sha(env.ADMIN_TOKEN)) return json(req, { error: 'auth' }, 401);
+  if (req.method !== 'GET') return json(req, { error: 'read only' }, 405);
+  const g = await env.DB.prepare('SELECT code FROM groups WHERE name = ? ORDER BY created LIMIT 1').bind(FAMILY_GROUP).first<{ code: string }>();
+  if (!g) return json(req, { players: [] });
+  if (path === '/api/admin/players') {
+    const r = await env.DB.prepare(`SELECT id, nick, week, week_points, updated, summary, (SELECT COUNT(*) FROM events WHERE player_id = players.id) AS events, (SELECT MAX(ts) FROM events WHERE player_id = players.id) AS last_event FROM players WHERE group_code = ? ORDER BY last_event DESC`).bind(g.code).all<Record<string, unknown>>();
+    return json(req, { players: r.results.map(p => ({ ...p, summary: safeJson(p.summary as string) })) });
+  }
+  if (path === '/api/admin/events') {
+    const q = new URL(req.url).searchParams, player = q.get('player'), kind = q.get('kind') || '', after = Math.max(0, parseInt(q.get('after') || '0', 10) || 0);
+    if (!validPlayerId(player) || !validKind(kind)) return json(req, { error: 'bad' }, 400);
+    const inGroup = await env.DB.prepare('SELECT 1 AS x FROM players WHERE id = ? AND group_code = ?').bind(player, g.code).first();
+    if (!inGroup) return json(req, { error: 'not in family group' }, 403);
+    const r = await env.DB.prepare('SELECT id, ts, data FROM events WHERE player_id = ? AND kind = ? AND id > ? ORDER BY id LIMIT ?').bind(player, kind, after, EXPORT_PAGE).all<{ id: number; ts: number; data: string }>();
+    const last = r.results.at(-1);
+    return json(req, { rows: r.results.map(x => safeJson(x.data)).filter(x => x && typeof x === 'object'), next: r.results.length === EXPORT_PAGE && last ? last.id : 0 });
+  }
+  return json(req, { error: 'not found' }, 404);
+}
+
 async function api(req: Request, env: Env, path: string, ctx: Ctx): Promise<Response> {
   const now = Date.now();
   const ip = req.headers.get('CF-Connecting-IP') || 'local', who = /^Bearer ([a-f0-9-]{36})\./.exec(req.headers.get('Authorization') || '');
   if (isNewThing(req.method, path) && await limited(env.RL_NEW, 'ip:' + ip)) return json(req, { error: 'too many' }, 429);
   if (await limited(env.RL_API, who ? 'p:' + who[1] : 'ip:' + ip)) return json(req, { error: 'too many' }, 429);
+  if (path.startsWith('/api/admin/')) return admin(req, env, path);
   // nový hráč: vrátí id a tajemství (hra si je uloží; v databázi jen otisk)
   if (path === '/api/players' && req.method === 'POST') {
     const b = await body(req, 2000); if (!b) return json(req, { error: 'bad' }, 400);

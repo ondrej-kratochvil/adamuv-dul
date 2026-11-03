@@ -64,3 +64,14 @@ export function safeJson(s: string | null | undefined): unknown { try { return J
 
 // odkud smí hra volat API (nová adresa, stará na GitHub Pages kvůli přestěhování postupu, vývoj)
 export const ORIGINS = ['https://schoolcraft.games', 'https://ondrej-kratochvil.github.io', 'http://127.0.0.1:4173', 'http://localhost:5173', 'http://127.0.0.1:8787'];
+
+/* ---------- rozbory pro správce (Ondřej 3. 11. 2026: pravidelné rozbory Adamových a Víťových her) ---------- */
+// Jen čtení a jen hráči rodinné skupiny (první skupina „Rodina“ z migrace 0004). Klíč je tajná proměnná ADMIN_TOKEN
+// na Cloudflare (nasazuje ji CI z tajné proměnné GitHubu SCHOOLCRAFT_ADMIN_TOKEN), v repu ani v databázi není.
+export const FAMILY_GROUP = 'Rodina';
+export const ADMIN_MIN_LEN = 32;
+export function adminToken(header: string | null): string | null {
+  const m = /^Admin (\S+)$/.exec(header || '');
+  return m && m[1].length >= ADMIN_MIN_LEN && m[1].length <= 200 ? m[1] : null;
+}
+export const validPlayerId = (x: unknown): x is string => typeof x === 'string' && /^[a-f0-9-]{36}$/.test(x);

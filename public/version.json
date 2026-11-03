@@ -1,6 +1,13 @@
 {
-  "version": 81,
+  "version": 82,
   "changes": [
+    {
+      "version": 82,
+      "date": "2026-11-03",
+      "notes": [
+        "Táta teď lépe uvidí, co ti jde, a může podle toho hru vylepšovat."
+      ]
+    },
     {
       "version": 81,
       "date": "2026-11-03",

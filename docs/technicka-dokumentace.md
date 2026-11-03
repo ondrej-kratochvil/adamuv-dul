@@ -314,6 +314,7 @@ CORS jen pro `ORIGINS` (`worker/logic.ts`).
 | PUT | `/api/me` | ano | `{ nick, public, week, weekPoints, summary, save }` (záloha do 1,5 mil. znaků) | `{ ok }`; může spustit upozornění na předběhnutí |
 | GET | `/api/me/save` | ano | | `{ nick, save, updated }` |
 | GET | `/api/me/events?kind=kolo\|úloha\|hodnocení&after=<id>` | ano | | `{ rows: [řádky jako do tabulky Google], next }`: vlastní statistiky po 1000, `next` = id pro další stránku (0 = konec) |
+| GET | `/api/admin/players`, `/api/admin/events?player=&kind=&after=` | klíč správce (`Authorization: Admin …`) | | rozbory: jen čtení, jen hráči rodinné skupiny (první „Rodina“); klíč `ADMIN_TOKEN` (tajná proměnná, CI z `SCHOOLCRAFT_ADMIN_TOKEN`) |
 | POST | `/api/events` | ano | `{ rows }` (nejvýš 300) | `{ ok, n }` |
 | DELETE | `/api/me` | ano | | smaže hráče, statistiky i upozornění |
 | GET | `/api/me` | ano | | `{ nick, public, group: { code, name } \| null }` |

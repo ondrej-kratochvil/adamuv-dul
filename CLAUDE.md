@@ -196,6 +196,10 @@ aktualizaci a po ní novinky ukáže.
 - **Kdo je v žebříčku** (`leaderboardRows` ve `worker/logic.ts`, Ondřej 2. 11. 2026): jen hráči s body tento týden a já; při shodě
   bodů jsem až za ostatními (motivace získat bod navíc, hlas: „Ty máš taky … Získej ještě jeden bod a budeš první!“).
   Migrace `0005_ghost_players.sql` vyřadila ze skupin účty bez jediné statistiky (roboti a prázdné účty z doby před souhlasem).
+- **Rozbory pro správce** (Ondřej 3. 11. 2026, pravidelné rozbory Adamových a Víťových her): `GET /api/admin/players` a
+  `/api/admin/events?player=&kind=&after=`, jen čtení a jen hráči první skupiny „Rodina“ (`FAMILY_GROUP`). Klíč: tajná proměnná
+  `ADMIN_TOKEN` na Cloudflare, nastavuje ji CI z tajné proměnné GitHubu `SCHOOLCRAFT_ADMIN_TOKEN`; v cloudové session Clauda je
+  ve stejnojmenné proměnné prostředí. Stažení: `node scripts/rozbor-stahni.mjs <složka mimo repo>`. Data o dětech do repa nikdy.
 - Do žebříčku jde jen přezdívka, postavička, týdenní body a co je postavené; nikdy jméno rodiny, chyby ani statistiky.
 - **Online jen se souhlasem** (31. 10. 2026): `cloudDefaults().on = false`, zapíná se zaškrtnutím v úvodním nastavení (`#setupOnline`)
   nebo na kartě Online. Starší postupy si nastavení nechávají.

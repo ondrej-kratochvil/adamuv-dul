@@ -96,3 +96,16 @@ describe('server: skupiny a body (31. 10. 2026)', () => {
     expect(allowedPoints(50, 0, 0)).toBe(0);
   });
 });
+
+describe('rozbory pro správce (worker/logic.ts)', () => {
+  it('klíč jen v hlavičce „Admin …“, aspoň 32 znaků; id hráče jen UUID', async () => {
+    const { adminToken, validPlayerId } = await import('../../worker/logic');
+    const k = 'x'.repeat(40);
+    expect(adminToken(`Admin ${k}`)).toBe(k);
+    expect(adminToken(`Bearer ${k}`)).toBeNull();
+    expect(adminToken('Admin kratky')).toBeNull();
+    expect(adminToken(null)).toBeNull();
+    expect(validPlayerId('0f8e2c1a-1b2c-4d5e-8f90-123456789abc')).toBe(true);
+    expect(validPlayerId("x' OR 1=1 --")).toBe(false);
+  });
+});
