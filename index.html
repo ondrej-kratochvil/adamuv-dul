@@ -776,6 +776,10 @@
     <p>Výsledky kol, jednotlivých úloh a hodnocení jsou v databázi hry (když je zapnuté online, část Online a skupina; uchovávají se 12 měsíců). Stáhnou se jako soubor CSV pro Excel nebo Tabulky Google.</p>
     <div class="seg" id="statsBtns"><button class="gbtn go" type="button" data-stats="kolo">Kola</button><button class="gbtn" type="button" data-stats="úloha">Úlohy</button><button class="gbtn" type="button" data-stats="hodnocení">Hodnocení</button></div>
     <p id="statsInfo" role="status"></p>
+    <h3>Starší kola</h3>
+    <p>Kola odehraná dřív, než se zapnulo online, jsou zatím jen v tomto zařízení. Pošlou se do databáze jednou (jen kola, jednotlivé úlohy se dřív neukládaly; do bodů v žebříčku se nepočítají).</p>
+    <div class="seg"><button class="gbtn" type="button" id="btnStatsOld">Poslat starší kola</button></div>
+    <p id="statsOldInfo" role="status"></p>
     <h3>Tabulka Google (už není potřeba)</h3>
     <p>Statistiky jsou v databázi a jdou stáhnout výše. Tabulku Google můžete nechat i vypnout. Hra může po každém kole poslat výsledky do tabulky Google ve vašem účtu. Pak je nemusíte posílat z tabletu. Bez internetu záznamy počkají a odejdou později. Návod: <a href="https://github.com/ondrej-kratochvil/adamuv-dul/blob/main/docs/google-tabulka.md" target="_blank" rel="noopener">docs/google-tabulka.md</a>.</p>
     <label class="lbl-small" for="syncDevice">Název tohoto zařízení (do tabulky, ať se zařízení nesmíchají):</label>

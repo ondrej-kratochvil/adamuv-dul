@@ -72,6 +72,9 @@ přidej i odměny, aby Adam nedošel na strop dřív, než dojde obsah.
 - **Stažení z databáze** (Ondřej 3. 11. 2026: „abychom Google tabulku už nepotřebovali“): nastavení Postup a data → Statistiky,
   tlačítka Kola, Úlohy, Hodnocení (`data-stats`), `src/app/stats-download.js` (nejdřív `syncCloud`), CSV v `logic/stats-export.ts`
   (středník a BOM pro český Excel), API `GET /api/me/events?kind=&after=` po 1000 řádcích. Jen když je online zapnuté.
+  **Starší kola** (tlačítko Poslat starší kola, `sendOldRounds`): kola z deníku (`save.log`) starší než nejstarší kolo v databázi
+  (`oldRoundRows`, porovnání času jako textu, `normStamp`), se sloupcem `Dodatečně`; opakování nic nezdvojí. Server je nepočítá
+  do týdenních bodů (`allowedPoints` ve `worker/index.ts` vynechá řádky s `Dodatečně`).
 - **Tabulka Google** (už není potřeba, zůstává pro starší zařízení; `logic/sync.ts`, `app/sync.js`, skript `docs/google-tabulka.gs`, návod `docs/google-tabulka.md`): po každé úloze,
   kole a hodnocení řádek do fronty v uloženém stavu, odeslání hned, při startu, při návratu do hry a po připojení. Řádky mají ID,
   skript duplicity přeskočí. Víc zařízení do jedné tabulky: sloupec Zařízení (`sync.device`, název v nastavení), značka `sync.uid` v ID,

@@ -11,7 +11,7 @@ async function mockServer(page, players, saves = {}, group = { code: 'a1b2c3d4e5
     const json = body => route.fulfill({ status: 200, contentType: 'application/json', headers: { 'access-control-allow-origin': '*' }, body: JSON.stringify(body) });
     if (m === 'POST' && url.pathname === '/api/players') return json({ id: ID, secret: SECRET });
     if (m === 'PUT' && url.pathname === '/api/me') return json({ ok: true });
-    if (m === 'POST' && url.pathname === '/api/events') return json({ ok: true });
+    if (m === 'POST' && url.pathname === '/api/events') { (calls.events ||= []).push(...JSON.parse(req.postData()).rows); return json({ ok: true }); }
     if (m === 'GET' && url.pathname === '/api/leaderboard') return json({ week: '2026-10-19', group: group && { name: group.name }, players });
     if (m === 'GET' && url.pathname === '/api/me') return json({ nick: 'Adam', public: true, group });
     if (m === 'POST' && url.pathname === '/api/group') { group = { code: 'f0f0f0f0f0f0', name: JSON.parse(req.postData()).name }; return json(group); }
@@ -175,4 +175,19 @@ test('statistiky: bez online hra vysvětlí, že v databázi nic není', async (
   await expect(page.locator('#statsInfo')).toContainText('Online je vypnuté');
   await page.locator('[data-stats="kolo"]').click();
   await expect(page.locator('#statsInfo')).toContainText('Online je vypnuté');
+});
+
+test('starší kola z deníku jdou dodatečně poslat do databáze, jen ta před nejstarším kolem v databázi a jen jednou', async ({ page }) => {
+  const at = s => new Date(s).getTime();
+  const e = (when, level) => ({ t: at(when), d: when.slice(0, 10), level, clean: 8, done: 8, len: 8, ok: true, quit: false, secs: 40 });
+  const log = [e('2026-10-19T07:17:37', 'numbers'), e('2026-10-20T07:15:35', 'letters'), e('2026-11-02T08:01:00', 'words')];
+  await openGame(page, { total: 3, seenVersion: 999, log, cloud: { on: true, id: ID, secret: SECRET, nick: 'Adam' } });
+  const calls = await mockServer(page, []);
+  await openSettings(page, 'sync');
+  await page.locator('#btnStatsOld').click();
+  await expect(page.locator('#statsOldInfo')).toContainText('Posláno 2 kola odehraných před zapnutím online.');
+  const old = calls.events.filter(r => r['Dodatečně'] === 'ano');
+  expect(old.map(r => r.Patro)).toEqual(['Čísla', 'Písmena']); // čas podle pásma prohlížeče, slovo 2. 11. už v databázi je
+  for (const r of old) expect(r['Čas']).toMatch(/^2026-10-(19|20) \d\d:\d\d:\d\d$/);
+  expect((await saved(page)).cloud.queue).toEqual([]);
 });

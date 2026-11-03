@@ -23,3 +23,24 @@ export function toCsv(rows: StatRow[]): string {
 export const fileName = (kind: StatKind, day: string, who = ''): string =>
   `schoolcraft-${STAT_KINDS[kind]}${who ? '-' + who.normalize('NFD').replace(/[^\w-]/g, '').toLowerCase() : ''}-${day}.csv`;
 export const validKind = (k: unknown): k is StatKind => typeof k === 'string' && k in STAT_KINDS;
+
+/* ---------- dodatečné poslání starších kol (Ondřej 3. 11. 2026) ---------- */
+// Kola odehraná před zapnutím online jsou jen v deníku v zařízení (save.log, jen kola, úlohy jednotlivě ne).
+// Pošlou se ta, která jsou starší než nejstarší kolo v databázi; opakované poslání proto nic nezdvojí.
+export interface OldRound { t: number; level: string; clean: number; done: number; len: number; ok: boolean; quit: boolean; secs: number; rate?: number; pauses?: number; pauseSecs?: number; lost?: number }
+export const BACKFILL_MARK = 'Dodatečně'; // sloupec u dodatečně poslaných kol (server je nepočítá do týdenních bodů)
+// starší záznamy můžou mít hodinu bez nuly (2026-10-19 7:17:37); pro porovnání jako text se doplní
+export const normStamp = (s: string): string => s.trim().replace(/ (\d):/, ' 0$1:');
+export function earliestStamp(rows: StatRow[]): string | null {
+  const s = rows.map(r => r['Čas']).filter((x): x is string => typeof x === 'string' && x.length > 0).map(normStamp).sort();
+  return s[0] || null;
+}
+// stamp = místní čas kola ve tvaru 2026-10-20 07:05:09 (logic/sync.ts localStamp, porovnává se jako text)
+export function oldRoundRows(log: readonly OldRound[], before: string | null, stamp: (t: number) => string, levelName: (lv: string) => string, extra: StatRow = {}): StatRow[] {
+  return log.filter(e => before === null || stamp(e.t) < before).map(e => ({
+    Čas: stamp(e.t), ...extra, Druh: 'kolo', Patro: levelName(e.level), 'Bez chyby': e.clean, Úloh: e.len, Hotovo: e.done,
+    Povedené: e.ok ? 'ano' : 'ne', Odešel: e.quit ? 'ano' : 'ne', Sekundy: e.secs,
+    ...(e.rate ? { Hodnocení: e.rate } : {}), ...(e.pauses ? { Pauzy: e.pauses, 'Pauza (s)': e.pauseSecs || 0 } : {}),
+    ...(e.lost ? { 'Ztracené smaragdy': e.lost } : {}), [BACKFILL_MARK]: 'ano',
+  }));
+}

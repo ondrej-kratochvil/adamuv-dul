@@ -3,12 +3,16 @@
 import { save } from '../save/save.ts';
 import { codeOf } from '../logic/cloud.ts';
 import { dayStr } from '../logic/calendar.ts';
-import { fileName, toCsv } from '../logic/stats-export.ts';
+import { BACKFILL_MARK, earliestStamp, fileName, oldRoundRows, toCsv } from '../logic/stats-export.ts';
+import { localStamp } from '../logic/sync.ts';
+import { persist, profile } from '../save/save.ts';
+import { MAIN_ID } from '../logic/profiles.ts';
+import { levelName } from './sync.js';
 import { API, syncCloud } from './cloud.js';
 import { player } from './player.js';
 
 const MAX_PAGES = 200; // pojistka (200 000 řádků)
-async function fetchStats(kind) {
+async function fetchStats(kind, onePage = false) {
   const rows = [];
   let after = 0;
   for (let i = 0; i < MAX_PAGES; i++) {
@@ -16,7 +20,7 @@ async function fetchStats(kind) {
     const data = await res.json().catch(() => null);
     if (!res.ok || !data) throw new Error((data && data.error) || `server ${res.status}`);
     rows.push(...data.rows);
-    if (!data.next) break;
+    if (!data.next || onePage) break;
     after = data.next;
   }
   return rows;
@@ -34,4 +38,22 @@ async function downloadStats(kind) {
   setTimeout(() => URL.revokeObjectURL(a.href), 5000);
   return rows.length;
 }
-export { downloadStats, fetchStats };
+// kola z deníku starší než nejstarší kolo v databázi (první stránka je seřazená od nejstarších záznamů)
+async function oldRounds() {
+  if (!save.cloud.on) throw new Error('online vypnuté');
+  await syncCloud(true).catch(() => {});
+  if (!save.cloud.id) throw new Error('nepřihlášeno k serveru');
+  if (save.cloud.queue.some(r => r[BACKFILL_MARK])) return { rows: [], waiting: true }; // už čekají na odeslání
+  const before = earliestStamp(await fetchStats('kolo', true));
+  return { rows: oldRoundRows(save.log, before, localStamp, levelName, profile.id !== MAIN_ID ? { Profil: profile.name } : {}), waiting: false };
+}
+// pošle starší kola (nejstarší napřed, před vším, co čeká ve frontě); vrací počet
+async function sendOldRounds() {
+  const { rows, waiting } = await oldRounds();
+  if (waiting) return -1;
+  if (!rows.length) return 0;
+  save.cloud.queue.unshift(...rows); persist();
+  await syncCloud(true);
+  return rows.length;
+}
+export { downloadStats, fetchStats, oldRounds, sendOldRounds };

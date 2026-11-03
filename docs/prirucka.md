@@ -202,6 +202,8 @@ Upozornění fungují jen v aplikaci z adresy schoolcraft.games. Na iPadu jen u 
 
 Když je zapnuté online, jsou výsledky kol, úloh a hodnocení v databázi hry (12 měsíců). V části **Postup a data → Statistiky**
 jdou stáhnout tlačítky **Kola**, **Úlohy** a **Hodnocení** jako soubor CSV (otevře ho Excel i Tabulky Google).
+Kola odehraná před zapnutím online pošle do databáze tlačítko **Poslat starší kola** (jednou; jen kola, jednotlivé úlohy se dřív
+neukládaly; do bodů v žebříčku se nepočítají).
 
 Dřívější cesta, už není potřeba: výsledky mohou samy chodit do **tabulky Google** (stejná část), i z více zařízení do jedné tabulky. Návod:
 [`google-tabulka.md`](google-tabulka.md). Do tabulky ani na server se neposílá nic o rodině.

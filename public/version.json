@@ -1,6 +1,13 @@
 {
-  "version": 80,
+  "version": 81,
   "changes": [
+    {
+      "version": 81,
+      "date": "2026-11-03",
+      "notes": [
+        "Hra si zapamatuje i kola, která jsi hrál úplně na začátku."
+      ]
+    },
     {
       "version": 80,
       "date": "2026-11-03",

@@ -98,7 +98,7 @@ async function api(req: Request, env: Env, path: string, ctx: Ctx): Promise<Resp
     // body: server uzná nejvýš tolik, kolik odpovídá poslaným povedeným kolům tohoto týdne (hra posílá statistiky před souhrnem)
     if (week === weekKey()) {
       const since = Date.parse(week + 'T00:00:00Z') - 2 * 3600_000; // pondělí 0:00 v Praze (s rezervou na letní čas)
-      const c = await env.DB.prepare(`SELECT COUNT(*) AS n, COUNT(DISTINCT date(ts / 1000, 'unixepoch')) AS d FROM events WHERE player_id = ? AND kind = 'kolo' AND ts >= ? AND json_extract(data, '$."Povedené"') = 'ano' AND json_extract(data, '$."Odešel"') = 'ne'`).bind(me, since).first<{ n: number; d: number }>();
+      const c = await env.DB.prepare(`SELECT COUNT(*) AS n, COUNT(DISTINCT date(ts / 1000, 'unixepoch')) AS d FROM events WHERE player_id = ? AND kind = 'kolo' AND ts >= ? AND json_extract(data, '$."Povedené"') = 'ano' AND json_extract(data, '$."Odešel"') = 'ne' AND json_extract(data, '$."Dodatečně"') IS NULL`).bind(me, since).first<{ n: number; d: number }>();
       pts = allowedPoints(pts, c ? c.n : 0, c ? c.d : 0);
     }
     const old = await env.DB.prepare('SELECT week, week_points FROM players WHERE id = ?').bind(me).first<{ week: string; week_points: number }>();

@@ -27,7 +27,7 @@ import { CONS_ORDER } from '../content/alphabet.ts';
 import { applyLetters, normalizeLetters } from '../logic/letters.ts';
 import { SYLL } from '../content/letters.ts';
 import { WORDS } from '../content/words.ts';
-import { downloadStats } from '../app/stats-download.js';
+import { downloadStats, sendOldRounds } from '../app/stats-download.js';
 
 // karta Hlas upozorní, když chybí český hlas (návod je až uvnitř karty)
 function voiceTabWarn() { const t = $('.set-tree [data-tab="voice"]'); if (t) t.classList.toggle('warn', !$('#voiceHelp').hidden); }
@@ -171,6 +171,16 @@ document.querySelectorAll('[data-stats]').forEach(b => b.addEventListener('click
     info.textContent = n ? `Staženo: ${n} ${n === 1 ? 'řádek' : n < 5 ? 'řádky' : 'řádků'} (${b.textContent}). Soubor je ve Stažených souborech.` : `V databázi zatím nejsou žádné záznamy (${b.textContent}).`;
   } catch (e) { info.textContent = `Stažení se nepovedlo (${e.message}). Zkuste to, až bude internet.`; }
 }));
+const kolWord = n => n === 1 ? 'kolo' : n < 5 ? 'kola' : 'kol';
+$('#btnStatsOld').addEventListener('click', async () => {
+  const info = $('#statsOldInfo'), hint = statsHint();
+  if (hint) { info.textContent = hint; return; }
+  info.textContent = 'Zjišťuji, co v databázi chybí…';
+  try {
+    const n = await sendOldRounds();
+    info.textContent = n < 0 ? 'Starší kola už čekají na odeslání, odejdou, až bude internet.' : n ? `Posláno ${n} ${kolWord(n)} odehraných před zapnutím online.${save.cloud.queue.length ? ' Část ještě čeká na odeslání.' : ''}` : 'Všechna kola z tohoto zařízení už v databázi jsou.';
+  } catch (e) { info.textContent = `Nepovedlo se (${e.message}). Zkuste to, až bude internet.`; }
+});
 function updateSync(msg) {
   const s = save.sync; $('#syncUrl').value = s.url; $('#syncDevice').value = s.device;
   // adresa patří každému profilu zvlášť (21. 10. 2026: na profilu Ondra to vypadalo, že se adresa smazala)
