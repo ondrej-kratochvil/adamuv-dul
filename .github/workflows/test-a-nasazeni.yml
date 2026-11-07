@@ -72,6 +72,7 @@ jobs:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
       SCHOOLCRAFT_ADMIN_TOKEN: ${{ secrets.SCHOOLCRAFT_ADMIN_TOKEN }}
+      SCHOOLCRAFT_GOOGLE_TTS_KEY: ${{ secrets.SCHOOLCRAFT_GOOGLE_TTS_KEY }}
     steps:
       - uses: actions/checkout@v4
         if: env.CLOUDFLARE_API_TOKEN != ''
@@ -91,6 +92,9 @@ jobs:
       - name: Klíč pro rozbory (jen čtení rodinné skupiny)
         if: env.CLOUDFLARE_API_TOKEN != '' && env.SCHOOLCRAFT_ADMIN_TOKEN != ''
         run: printf '%s' "$SCHOOLCRAFT_ADMIN_TOKEN" | npx wrangler secret put ADMIN_TOKEN
+      - name: Klíč pro přirozený hlas (Google Cloud Text-to-Speech)
+        if: env.CLOUDFLARE_API_TOKEN != '' && env.SCHOOLCRAFT_GOOGLE_TTS_KEY != ''
+        run: printf '%s' "$SCHOOLCRAFT_GOOGLE_TTS_KEY" | npx wrangler secret put GOOGLE_TTS_KEY
       - name: Bez tokenu se nenasazuje
         if: env.CLOUDFLARE_API_TOKEN == ''
         run: echo "::warning::Chybí tajná proměnná CLOUDFLARE_API_TOKEN, schoolcraft.games se nenasadilo."

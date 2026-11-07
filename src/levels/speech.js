@@ -4,7 +4,7 @@ import { G } from '../core/state.js';
 import { $ } from '../core/dom.js';
 import { persist, save } from '../save/save.ts';
 import { pick, tex } from '../gfx/textures.js';
-import { speak, synth } from '../audio/speech.js';
+import { isSpeaking, speak } from '../audio/speech.js';
 import { audio, sfx, tone } from '../audio/sfx.js';
 import { recordResult } from '../logic/mastery.ts';
 import { BLOW_LEVEL, BLOW_NEED_MS, genGym, genHear, genSay, rms, roundPlan } from '../logic/speech.ts';
@@ -69,7 +69,7 @@ function speechActivity() {
       const now = Date.now(), dt = now - last; last = now;
       mic.an.getFloatTimeDomainData(mic.buf); const lvl = rms(mic.buf);
       // hlas hry z reproduktoru se nepočítá (mlýn by roztočila hra sama)
-      if (lvl > BLOW_LEVEL && !G.R.paused && !(synth && synth.speaking)) { done += dt; angle += dt * Math.min(3, lvl * 20); }
+      if (lvl > BLOW_LEVEL && !G.R.paused && !isSpeaking()) { done += dt; angle += dt * Math.min(3, lvl * 20); }
       mill.style.transform = `rotate(${angle}deg)`; bar.style.width = Math.min(100, done / BLOW_NEED_MS * 100) + '%';
       if (done >= BLOW_NEED_MS) { stopMic(); finishSpeech(true, false, tok); return; }
       requestAnimationFrame(loop);

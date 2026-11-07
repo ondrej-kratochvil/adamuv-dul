@@ -5,7 +5,7 @@ import { $ } from '../core/dom.js';
 import { persist, save } from '../save/save.ts';
 import { texCanvas } from '../gfx/textures.js';
 import { seasonTex, snowFx } from './house.js';
-import { speak, synth } from '../audio/speech.js';
+import { speak, stopSpeech } from '../audio/speech.js';
 import { audio } from '../audio/sfx.js';
 import { LEVELS } from '../levels/reading.js';
 import { show } from '../ui/screens.js';
@@ -89,7 +89,7 @@ function drawVillageThumb(cv) {
   snowFx(g, W, H);
 }
 function openVillage() {
-  G.speechId++; if (synth) synth.cancel();
+  G.speechId++; stopSpeech();
   show('village');
   const done = BUILDINGS.filter(b => bldStage(b) >= 8).length;
   $('#villageCap').textContent = `Každé patro staví svou budovu. Za každý zvládnutý úkol kus stavby. Hotových budov: ${done} z ${BUILDINGS.length}.`;

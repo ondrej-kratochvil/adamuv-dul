@@ -4,7 +4,7 @@ import { G } from '../core/state.js';
 import { $, REDUCED } from '../core/dom.js';
 import { persist, save } from '../save/save.ts';
 import { pick, rng, texCanvas } from '../gfx/textures.js';
-import { speak, synth } from '../audio/speech.js';
+import { speak, stopSpeech } from '../audio/speech.js';
 import { audio, sfx } from '../audio/sfx.js';
 import { LEVELS, choiceCount, makeChoices, pickTarget, sayText } from '../levels/reading.js';
 import { show } from '../ui/screens.js';
@@ -35,7 +35,7 @@ function drawEnder(cv) {
   else g.drawImage(spr('egg'), 2 * C, 10 * C);
 }
 function openEnder() {
-  G.speechId++; if (synth) synth.cancel();
+  G.speechId++; stopSpeech();
   save.eyes = eyesHave(); persist();
   show('ender'); drawEnder($('#enderBig')); fitCanvas($('#enderBig'));
   const n = eyesHave(), { pts, max } = masteryPoints();

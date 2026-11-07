@@ -4,7 +4,7 @@ import { $ } from '../core/dom.js';
 import { save } from '../save/save.ts';
 import { pick, rng, texCanvas } from '../gfx/textures.js';
 import { seasonTex, snowFx } from './house.js';
-import { speak, synth } from '../audio/speech.js';
+import { speak, stopSpeech } from '../audio/speech.js';
 import { show } from '../ui/screens.js';
 import { fitCanvas, spr } from './farm.js';
 import { signCanvas } from './village.js';
@@ -71,7 +71,7 @@ function drawPrerov(cv) {
   snowFx(g, cv.width, cv.height);
 }
 function openPrerov() {
-  G.speechId++; if (synth) synth.cancel();
+  G.speechId++; stopSpeech();
   show('prerov'); drawPrerov($('#prerovBig')); fitCanvas($('#prerovBig'));
   const st = prerovStage(), next = PREROV[st];
   const cap = st === 0 ? `Přerov se začne stavět, až budeš hrát 3 dny v řadě. Tvoje nejdelší řada: ${save.streak.best}.` : next ? `Postaveno ${st} z ${PREROV.length}. Další: ${next.name}, až budeš hrát ${next.at} dní v řadě. Tvoje nejdelší řada: ${save.streak.best}.` : 'Celý Přerov je postavený, i s ohňostrojem!';

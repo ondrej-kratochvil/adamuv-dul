@@ -200,6 +200,13 @@ aktualizaci a po ní novinky ukáže.
   `/api/admin/events?player=&kind=&after=`, jen čtení a jen hráči první skupiny „Rodina“ (`FAMILY_GROUP`). Klíč: tajná proměnná
   `ADMIN_TOKEN` na Cloudflare, nastavuje ji CI z tajné proměnné GitHubu `SCHOOLCRAFT_ADMIN_TOKEN`; v cloudové session Clauda je
   ve stejnojmenné proměnné prostředí. Stažení: `node scripts/rozbor-stahni.mjs <složka mimo repo>`. Data o dětech do repa nikdy.
+- **Přirozený hlas** (Honza 7. 11. 2026 „lepší hlasy, viz ping“; verze 83): Google Cloud Text-to-Speech přes `POST /api/tts`
+  (`{ text, voice, slow }`, seznam hlasů a kontrola v `src/logic/tts.ts`, výchozí `cs-CZ-Chirp3-HD-Kore`). Klíč: tajná proměnná
+  `GOOGLE_TTS_KEY` na Cloudflare, CI ji nastaví z tajné proměnné GitHubu `SCHOOLCRAFT_GOOGLE_TTS_KEY`; bez klíče server vrací 503
+  a hra čte hlasem tabletu. Hotové MP3 drží mezipaměť Cloudflare a mezipaměť prohlížeče (`schoolcraft-hlas-1`), takže slyšené
+  věty jdou i bez internetu; nová syntéza má limit `RL_TTS` na IP. Při chybě sítě 30 s hlas tabletu, pak znovu Google.
+  Rodič volí hlas na kartě Hlas (`#ttsVoice`, `save.tts`; `device` = hlas tabletu). Rušení řeči vždy přes `stopSpeech()`,
+  ne `synth.cancel()` (zastaví i přehrávaný zvuk).
 - Do žebříčku jde jen přezdívka, postavička, týdenní body a co je postavené; nikdy jméno rodiny, chyby ani statistiky.
 - **Online jen se souhlasem** (31. 10. 2026): `cloudDefaults().on = false`, zapíná se zaškrtnutím v úvodním nastavení (`#setupOnline`)
   nebo na kartě Online. Starší postupy si nastavení nechávají.

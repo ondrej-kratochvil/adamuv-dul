@@ -4,7 +4,7 @@ import { $ } from '../core/dom.js';
 import { save } from '../save/save.ts';
 import { texCanvas } from '../gfx/textures.js';
 import { snowFx } from './house.js';
-import { speak, synth } from '../audio/speech.js';
+import { speak, stopSpeech } from '../audio/speech.js';
 import { show } from '../ui/screens.js';
 import { fitCanvas, spr } from './farm.js';
 import { setBtn } from '../ui/icons.js';
@@ -52,7 +52,7 @@ function drawNether(cv) {
   if (ns >= 12) for (let x = 21; x <= 23; x++) for (let y = 7; y <= 10; y++) cell('netherBrick', x, y);
 }
 function openNether() {
-  G.speechId++; if (synth) synth.cancel();
+  G.speechId++; stopSpeech();
   show('nether'); $('#nether').classList.toggle('lit', portalLit()); drawNether($('#netherBig')); fitCanvas($('#netherBig'));
   const ns = netherStage(), btn = $('#btnNetherMine');
   let cap;

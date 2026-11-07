@@ -4,7 +4,7 @@ import { $, REDUCED } from '../core/dom.js';
 import { persist, save } from '../save/save.ts';
 import { texCanvas } from '../gfx/textures.js';
 import { seasonTex, snowFx } from './house.js';
-import { speak, synth } from '../audio/speech.js';
+import { speak, stopSpeech } from '../audio/speech.js';
 import { audio, sfx } from '../audio/sfx.js';
 import { LOCK_SVG, show } from '../ui/screens.js';
 import { TOTEM_PRICE } from '../rewards/streak.js';
@@ -196,7 +196,7 @@ function fitCanvas(cv) {
   requestAnimationFrame(() => { const box = cv.parentElement; const s = Math.max(.5, Math.floor(Math.min(box.clientWidth / cv.width, (box.clientHeight - 8) / cv.height) * 4) / 4); cv.style.width = cv.width * s + 'px'; cv.style.height = cv.height * s + 'px'; });
 }
 function openFarm() {
-  G.speechId++; if (synth) synth.cancel();
+  G.speechId++; stopSpeech();
   show('farm'); drawFarm($('#farmBig'));
   const fs = farmStage();
   $('#farmCap').textContent = fs === 0 ? 'Farma začne, až dostavíš dům.' : fs < FARM_STAGES.length ? `Farma: ${fs} z ${FARM_STAGES.length} dílů` : 'Farma je hotová! Za smaragdy si do ní můžeš koupit zvířata a věci v obchodě.';
@@ -204,7 +204,7 @@ function openFarm() {
 }
 let shopArmed = null;
 function openShop() {
-  audio(); G.speechId++; if (synth) synth.cancel();
+  audio(); G.speechId++; stopSpeech();
   shopArmed = null; show('shop'); renderShop();
   speak('Obchod. Za smaragdy si můžeš koupit věci pro psa a na farmu.');
 }

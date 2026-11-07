@@ -1,4 +1,7 @@
-// Řeč
+// Řeč: přirozený hlas Google přes server (logic/tts.ts, worker /api/tts), jinak hlas tabletu (speechSynthesis).
+// Přirozený hlas si hra ukládá do mezipaměti prohlížeče, takže už slyšené věty jdou i bez internetu a hned.
+// logic/tts.ts jako první: ui/settings.js (kruhový import) volá updateVoiceInfo už při načtení tohoto modulu
+import { TTS_DEVICE, ttsChoice, ttsKey, ttsRate } from '../logic/tts.ts';
 import { G } from '../core/state.js';
 import { $ } from '../core/dom.js';
 import { save } from '../save/save.ts';
@@ -16,25 +19,89 @@ function loadVoices() {
   csVoice = cs.find(v => v.localService && /google|zuzana/i.test(v.name)) || cs.find(v => /zuzana|google/i.test(v.name)) || cs.find(v => v.localService) || cs[0] || null;
   updateVoiceInfo(); updateHint();
 }
-if (synth) { loadVoices(); synth.addEventListener ? synth.addEventListener('voiceschanged', loadVoices) : (synth.onvoiceschanged = loadVoices); }
-const noVoice = () => !synth || (voicesKnown && !csVoice);
+
+// --- přirozený hlas ---
+const TTS_URL = (location.hostname === 'schoolcraft.games' ? '' : 'https://schoolcraft.games') + '/api/tts';
+const CACHE = 'schoolcraft-hlas-1';
+const COOLDOWN_MS = 30000;   // po chybě (výpadek sítě) chvíli hlas tabletu, pak zkusit znovu
+const FETCH_MS = 4000;       // déle se na větu nečeká, radši ji řekne tablet
+let cloudOffUntil = 0, cloudMissing = false; // cloudMissing: server nemá klíč (503), v tomto spuštění už se neptat
+const urls = new Map();      // věta → adresa zvuku v paměti (blob:)
+let player = null;
+
+const cloudWanted = () => ttsChoice(save.tts) !== TTS_DEVICE;
+const cloudReady = () => cloudWanted() && !cloudMissing && Date.now() >= cloudOffUntil;
+const query = text => ({ text: String(text).replace(/\s+/g, ' ').trim(), voice: ttsChoice(save.tts), slow: !!save.slow });
+const cacheReq = q => new Request(TTS_URL.replace(/^\//, location.origin + '/') + '?k=' + encodeURIComponent(ttsKey({ text: q.text, voice: q.voice, rate: ttsRate(q.slow) })));
+
+async function fromCache(q) {
+  try { if (!('caches' in window)) return null; const c = await caches.open(CACHE); const r = await c.match(cacheReq(q)); return r ? await r.blob() : null; } catch (e) { return null; }
+}
+async function cloudBlob(q) {
+  const k = ttsKey({ text: q.text, voice: q.voice, rate: ttsRate(q.slow) });
+  if (urls.has(k)) return urls.get(k);
+  let blob = await fromCache(q);
+  if (!blob) {
+    if (navigator.onLine === false) throw new Error('offline');
+    const ac = new AbortController(), t = setTimeout(() => ac.abort(), FETCH_MS);
+    try {
+      const r = await fetch(TTS_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(q), signal: ac.signal });
+      if (r.status === 503) cloudMissing = true;
+      if (!r.ok) throw new Error('tts ' + r.status);
+      blob = await r.blob();
+    } finally { clearTimeout(t); }
+    try { if ('caches' in window) { const c = await caches.open(CACHE); await c.put(cacheReq(q), new Response(blob, { headers: { 'Content-Type': 'audio/mpeg' } })); } } catch (e) { /* plné úložiště: nevadí */ }
+  }
+  const url = URL.createObjectURL(blob);
+  if (urls.size > 300) { const [old, u] = urls.entries().next().value; URL.revokeObjectURL(u); urls.delete(old); }
+  urls.set(k, url);
+  return url;
+}
+
+function stopSpeech() {
+  if (synth) synth.cancel();
+  if (player) { try { player.pause(); } catch (e) { /* nic */ } }
+}
+const isSpeaking = () => !!((synth && synth.speaking) || (player && !player.paused && !player.ended));
+const noVoice = () => !(cloudReady() && navigator.onLine !== false) && (!synth || (voicesKnown && !csVoice));
+const cloudVoiceOn = () => cloudWanted() && !cloudMissing;
+
+function deviceSpeak(text, id, fin) {
+  if (!synth) { setTimeout(fin, 500); return; }
+  synth.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  // hlasy se v tabletu načítají se zpožděním; bez českého hlasu by tablet četl anglicky ("me" jako "mí")
+  if (!csVoice) loadVoices();
+  u.lang = 'cs-CZ'; if (csVoice) { u.voice = csVoice; u.lang = csVoice.lang.replace('_', '-'); }
+  u.rate = save.slow ? 0.62 : 0.85; u.pitch = 1.05;
+  u.onend = fin; u.onerror = fin;
+  synth.speak(u);
+  setTimeout(fin, 1600 + text.length * 140);
+}
+
 function speak(text, onend) {
   const id = ++G.speechId;
   const fin = () => { if (id !== G.speechId) return; G.speechId++; $('#btnListen').classList.remove('talking'); onend && onend(); };
-  if (!synth) { setTimeout(fin, 500); return; }
-  synth.cancel();
+  stopSpeech();
   setTimeout(() => {
     if (id !== G.speechId) return;
-    const u = new SpeechSynthesisUtterance(text);
-    // hlasy se v tabletu načítají se zpožděním; bez českého hlasu by tablet četl anglicky ("me" jako "mí")
-    if (!csVoice) loadVoices();
-    u.lang = 'cs-CZ'; if (csVoice) { u.voice = csVoice; u.lang = csVoice.lang.replace('_', '-'); }
-    u.rate = save.slow ? 0.62 : 0.85; u.pitch = 1.05;
-    u.onend = fin; u.onerror = fin;
     $('#btnListen').classList.add('talking');
-    synth.speak(u);
-    setTimeout(fin, 1600 + text.length * 140);
+    if (!cloudReady()) { deviceSpeak(text, id, fin); return; }
+    setTimeout(fin, FETCH_MS + 3000 + text.length * 200); // pojistka, kdyby zvuk neskončil
+    const fallback = () => { if (id === G.speechId) deviceSpeak(text, id, fin); };
+    cloudBlob(query(text)).then(url => {
+      if (id !== G.speechId) return;
+      if (!player) player = new Audio();
+      player.onended = fin; player.onerror = () => { cloudOffUntil = Date.now() + COOLDOWN_MS; fallback(); };
+      player.onloadedmetadata = () => { if (isFinite(player.duration)) setTimeout(fin, player.duration * 1000 + 1500); };
+      player.src = url;
+      // přehrání může prohlížeč odmítnout (zvuk bez klepnutí): pak řekne větu tablet
+      player.play().catch(fallback);
+    }).catch(() => { if (!cloudMissing) cloudOffUntil = Date.now() + COOLDOWN_MS; fallback(); });
   }, 60);
 }
 
-export { csVoice, loadVoices, noVoice, speak, synth, voicesKnown };
+// až na konci: loadVoices volá updateVoiceInfo a updateHint, které potřebují funkce a proměnné výše
+if (synth) { loadVoices(); synth.addEventListener ? synth.addEventListener('voiceschanged', loadVoices) : (synth.onvoiceschanged = loadVoices); }
+
+export { cloudVoiceOn, csVoice, isSpeaking, loadVoices, noVoice, speak, stopSpeech, synth, voicesKnown };

@@ -2,7 +2,7 @@
 import { $ } from '../core/dom.js';
 import { persist, save } from '../save/save.ts';
 import { tex, texCanvas } from '../gfx/textures.js';
-import { speak, synth } from '../audio/speech.js';
+import { speak, stopSpeech } from '../audio/speech.js';
 import { audio, sfx, tone } from '../audio/sfx.js';
 import { show } from '../ui/screens.js';
 import { dogCanvas, hasDog } from './farm.js';
@@ -58,7 +58,7 @@ function renderBuild() {
   if (!types.length) inv.insertAdjacentHTML('beforeend', '<p class="inv-empty">Kostky dostaneš za kopání. Každá vykopaná kostka přijde sem.</p>');
 }
 function openBuild() {
-  audio(); G.speechId++; if (synth) synth.cancel();
+  audio(); G.speechId++; stopSpeech();
   if (!buildOpen()) { speak('Stavět budeš moct, až dostavíš dům. Kostky, které vykopeš, si zatím schovávám.'); return; }
   if (!selected) selected = Object.keys(save.build.blocks).find(t => save.build.blocks[t] > 0) || null;
   show('build'); renderBuild(); fitBuild();

@@ -14,7 +14,7 @@ import { persist, save } from '../save/save.ts';
 import { cracks, pick, tex, texCanvas } from '../gfx/textures.js';
 import { OUTFIT, OUTFIT_CATS, mountPlayer, outfitIcon, pickCanvas, tierOf } from '../gfx/player.js';
 import { STAGES, drawHouse } from '../world/house.js';
-import { speak, synth } from '../audio/speech.js';
+import { speak, stopSpeech } from '../audio/speech.js';
 import { audio, sfx } from '../audio/sfx.js';
 import { layoutTrace, setupTrace, writingSay } from '../levels/writing.js';
 import { LEVELS, choiceCount, display, makeChoices, picCanvas, pickTarget, sayText } from '../levels/reading.js';
@@ -372,7 +372,7 @@ function endRound() {
 function pauseRound(auto = false) {
   if (!G.R || G.R.paused || !$('#endOverlay').hidden) return;
   G.R.paused = true; G.R.pausedAt = Date.now(); G.R.pauses++;
-  G.speechId++; if (synth) synth.cancel(); // nedořečená věta se po pauze nezopakuje sama: postará se resumeRound
+  G.speechId++; stopSpeech(); // nedořečená věta se po pauze nezopakuje sama: postará se resumeRound
   keepAwake(false);
   $('#game').classList.add('paused'); $('#pauseOverlay').hidden = false;
   if (!auto) speak('Pauza. Zadání jsem schoval. Až budeš chtít pokračovat, klepni na zelené tlačítko s trojúhelníkem, je na něm napsáno Pokračovat.');
@@ -383,7 +383,7 @@ function resumeRound() {
   const d = Date.now() - G.R.pausedAt;
   // čas pauzy se do doby úlohy ani kola nepočítá
   G.R.start += d; if (G.R.shownAt) G.R.shownAt += d; if (G.R.heardAt) G.R.heardAt += d; G.R.pauseMs += d;
-  G.R.paused = false; G.speechId++; if (synth) synth.cancel(); keepAwake(true);
+  G.R.paused = false; G.speechId++; stopSpeech(); keepAwake(true);
   $('#game').classList.remove('paused'); $('#pauseOverlay').hidden = true;
   if (G.R.resumeNext || G.R.busy) { G.R.resumeNext = false; G.R.busy = true; nextTask(); }
   else if (G.R.say) speak(G.R.say);
@@ -402,7 +402,7 @@ function goHome() {
   flushRate();
   stopMic();
   $('#game').classList.remove('paused'); $('#pauseOverlay').hidden = true;
-  G.speechId++; if (synth) synth.cancel();
+  G.speechId++; stopSpeech();
   if (G.R && G.R.level !== 'boss' && G.R.i > 0 && G.R.i < G.R.len) logRound(false, true); // rozehrané a opuštěné kolo: signál, že nebaví
   if (G.R && G.R.loot.length && $('#endOverlay').hidden) { addBlocks(save.build, G.R.loot.map(l => l.t)); persist(); } // už vykopané kostky se neztratí
   G.R = null; $('#endOverlay').hidden = true;

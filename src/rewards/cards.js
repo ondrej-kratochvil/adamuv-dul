@@ -3,7 +3,7 @@ import { G } from '../core/state.js';
 import { partLabel } from '../content/pictures.ts';
 import { $ } from '../core/dom.js';
 import { persist, save } from '../save/save.ts';
-import { speak, synth } from '../audio/speech.js';
+import { speak, stopSpeech } from '../audio/speech.js';
 import { audio } from '../audio/sfx.js';
 import { WORDS } from '../content/words.ts';
 import { PIC, PLURAL, display, inCzech, picCanvas } from '../levels/reading.js';
@@ -35,7 +35,7 @@ function checkCards(silent) {
   return silent ? [] : got.map(w => ({ w, bonus }));
 }
 function openAlbum() {
-  audio(); G.speechId++; if (synth) synth.cancel();
+  audio(); G.speechId++; stopSpeech();
   show('album');
   const all = cardWords(), have = all.filter(w => save.cards.includes(w));
   $('#albumCap').textContent = `Kartičky: ${have.length} z ${all.length}. Novou kartičku dostaneš za každé zvládnuté slovo. Klepni na kartičku a uslyšíš slovo.`;

@@ -3,7 +3,7 @@ import { changesBetween, versionLabel } from '../logic/version.ts';
 import { G } from '../core/state.js';
 import { $ } from '../core/dom.js';
 import { persist, save } from '../save/save.ts';
-import { speak, synth } from '../audio/speech.js';
+import { speak, stopSpeech } from '../audio/speech.js';
 import { audio, tone } from '../audio/sfx.js';
 import { renderHome } from '../ui/screens.js';
 import { APP_VERSION } from './version.js';
@@ -63,11 +63,11 @@ function renderUpdate(wrap) {
   let title, notes, btn;
   if (serverVersion && serverVersion.version > APP_VERSION) {
     // na serveru je novější verze, než právě běží
-    title = `Je tu nová ${versionLabel(serverVersion.version)}!`; notes = notesSince(APP_VERSION, serverVersion.version); btn = ['refresh', 'Aktualizovat', () => { G.speechId++; if (synth) synth.cancel(); location.reload(); }];
+    title = `Je tu nová ${versionLabel(serverVersion.version)}!`; notes = notesSince(APP_VERSION, serverVersion.version); btn = ['refresh', 'Aktualizovat', () => { G.speechId++; stopSpeech(); location.reload(); }];
   } else if (save.seenVersion < APP_VERSION && (save.seenVersion > 0 || save.total > 0)) {
     // hra se právě aktualizovala: jednou ukázat novinky
     title = `Co je nového ve hře, ${versionLabel(APP_VERSION)}`; notes = notesSince(save.seenVersion || APP_VERSION - 1, APP_VERSION);
-    btn = ['check', 'Rozumím', () => { G.speechId++; if (synth) synth.cancel(); save.seenVersion = APP_VERSION; persist(); renderHome(); }];
+    btn = ['check', 'Rozumím', () => { G.speechId++; stopSpeech(); save.seenVersion = APP_VERSION; persist(); renderHome(); }];
   } else {
     if (save.seenVersion !== APP_VERSION) { save.seenVersion = APP_VERSION; persist(); } // první spuštění: bez novinek
     return;

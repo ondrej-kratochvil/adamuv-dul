@@ -9,7 +9,7 @@ import { pickMaterials, toolCanvas, toolStageOf } from '../gfx/tools.js';
 import { MATERIALS, TOOLS, toolName } from '../content/tools.ts';
 import { toolNeed } from '../logic/tools.ts';
 import { drawHouse } from '../world/house.js';
-import { speak, synth } from '../audio/speech.js';
+import { speak, stopSpeech } from '../audio/speech.js';
 import { audio, sfx, tone } from '../audio/sfx.js';
 import { LEVELS, picCanvas } from '../levels/reading.js';
 import { drawFarm, farmStage, fitCanvas, mountDog, openFarm, openShop, sprIcon, updateGems } from '../world/farm.js';
@@ -177,7 +177,7 @@ function renderHome() {
 }
 let wardCat = 'shirt';
 function openWardrobe() {
-  audio(); G.speechId++; if (synth) synth.cancel();
+  audio(); G.speechId++; stopSpeech();
   show('wardrobe'); renderWardrobe();
   speak('Šatník. Vyber si oblečení.');
 }
@@ -239,7 +239,7 @@ function renderTools(box) {
   box.insertAdjacentHTML('beforeend', '<p class="tool-note">V ruce máš vždy nejlepší odemčený materiál. Krumpáč se zlepšuje za povedená kola, ostatní za zvládnuté úkoly v jejich patrech.</p>');
 }
 function openHouse() {
-  G.speechId++; if (synth) synth.cancel();
+  G.speechId++; stopSpeech();
   show('house'); drawHouse($('#houseBig'));
   const st = Math.min(12, save.total);
   $('#houseCap').textContent = st === 0 ? 'Dům zatím nestojí. Vykopej první kolo!' : st < 12 ? `Postaveno ${st} z 12 dílů` : 'Dům je hotový! Každé kolo přidá zahradu.';

@@ -7,7 +7,8 @@ import { PRON_MODES, RISKY_SYLLABLES, RISKY_WORDS, defaultMode, pronounceAs } fr
 import { iconSvg, setBtn } from './icons.js';
 import { gateOk, makeGate } from '../logic/gate.ts';
 import { tierOf } from '../gfx/player.js';
-import { csVoice, loadVoices, speak, synth, voicesKnown } from '../audio/speech.js';
+import { cloudVoiceOn, csVoice, loadVoices, speak, synth, voicesKnown } from '../audio/speech.js';
+import { TTS_DEVICE, TTS_VOICES, ttsChoice } from '../logic/tts.ts';
 import { renderHome } from './screens.js';
 import { FARM_STAGES, farmStage } from '../world/farm.js';
 import { streakNow } from '../rewards/streak.js';
@@ -33,6 +34,13 @@ import { downloadStats, sendOldRounds } from '../app/stats-download.js';
 function voiceTabWarn() { const t = $('.set-tree [data-tab="voice"]'); if (t) t.classList.toggle('warn', !$('#voiceHelp').hidden); }
 function updateVoiceInfo() {
   const el = $('#voiceInfo'); if (!el) return;
+  // seznam se plní až tady: settings.js a audio/speech.js se importují navzájem, při načtení modulu ještě logic/tts.ts není připravené
+  const sel = $('#ttsVoice');
+  if (sel && !sel.options.length) sel.innerHTML = TTS_VOICES.map(v => `<option value="${v.id}">${v.label}</option>`).join('') + `<option value="${TTS_DEVICE}">Hlas tabletu (i bez internetu)</option>`;
+  if (sel) sel.value = ttsChoice(save.tts);
+  // přirozený hlas (logic/tts.ts): hlas tabletu je jen záloha bez internetu, chybějící český hlas tabletu tolik nevadí
+  const cloud = cloudVoiceOn(), dev = !synth ? 'Prohlížeč neumí předčítat sám.' : csVoice ? `Hlas tabletu: ${csVoice.name}.` : voicesKnown ? 'Tablet nemá český hlas.' : '';
+  if (cloud) { el.innerHTML = `<span class="voice-ok">Přirozený hlas přes internet.</span> Bez internetu čte hlas tabletu, věty už jednou slyšené jdou i bez internetu. ${dev}`; $('#voiceHelp').hidden = true; voiceTabWarn(); return; }
   if (!synth) { el.innerHTML = '<span class="voice-bad">Prohlížeč neumí předčítat.</span>'; $('#voiceHelp').hidden = false; voiceTabWarn(); return; }
   if (csVoice) { el.innerHTML = `<span class="voice-ok">Český hlas: ${csVoice.name}</span>`; $('#voiceHelp').hidden = true; }
   else if (voicesKnown) { el.innerHTML = '<span class="voice-bad">Český hlas nebyl nalezen.</span>'; $('#voiceHelp').hidden = false; }
@@ -154,6 +162,7 @@ document.querySelectorAll('#segCase [data-case]').forEach(b => b.addEventListene
 document.querySelectorAll('#segStrict [data-strict]').forEach(b => b.addEventListener('click', () => { save.strict = b.dataset.strict; persist(); updateSettings(); }));
 $('#rateNormal').addEventListener('click', () => { save.slow = false; persist(); updateSettings(); });
 $('#rateSlow').addEventListener('click', () => { save.slow = true; persist(); updateSettings(); });
+$('#ttsVoice').addEventListener('change', () => { save.tts = $('#ttsVoice').value; persist(); updateVoiceInfo(); $('#btnTestVoice').click(); });
 $('#btnTestVoice').addEventListener('click', () => { loadVoices(); speak(`Ahoj ${voc()}! Tady je hra. ` + ['MA', 'MÉ', 'SO', 'LY'].map(s => pronounceAs(s, save.pron?.[s] || defaultMode(s))).join('. ') + '.'); setTimeout(loadVoices, 800); });
 $('#btnReset').addEventListener('click', () => { $('#resetConfirm').hidden = false; });
 // tabulka Google (app/sync.js, návod docs/google-tabulka.md)
@@ -212,7 +221,7 @@ async function syncNow() {
 $('#btnSyncNow').addEventListener('click', syncNow);
 $('#syncDevice').addEventListener('change', e => { const v = e.target.value.trim(); if (v) { renameDevice(save.sync, v.slice(0, 40)); persist(); updateSync('Název uložen. Nové záznamy půjdou do tabulky s tímhle názvem.'); } });
 $('#btnResetNo').addEventListener('click', () => { $('#resetConfirm').hidden = true; });
-$('#btnResetYes').addEventListener('click', () => { try { localStorage.setItem(BACKUP_KEY, JSON.stringify(save)); } catch (e) {} const keep = { sync: { ...syncDefaults(), url: save.sync.url, device: save.sync.device, uid: save.sync.uid }, caseMode: save.caseMode, slow: save.slow, strict: save.strict, pron: save.pron, outfit: save.outfit, notes: save.notes, dogName: save.dogName, player: save.player, gameName: save.gameName, letters: save.letters, cursive: save.cursive }; /* nastavení rodiče včetně výslovnosti zůstává */ replaceSave(Object.assign(defaults(), keep)); applyLetters(save.letters, save.cursive); persist(); updateRestore(); $('#resetConfirm').hidden = true; updateSettings(); });
+$('#btnResetYes').addEventListener('click', () => { try { localStorage.setItem(BACKUP_KEY, JSON.stringify(save)); } catch (e) {} const keep = { sync: { ...syncDefaults(), url: save.sync.url, device: save.sync.device, uid: save.sync.uid }, caseMode: save.caseMode, slow: save.slow, tts: save.tts, strict: save.strict, pron: save.pron, outfit: save.outfit, notes: save.notes, dogName: save.dogName, player: save.player, gameName: save.gameName, letters: save.letters, cursive: save.cursive }; /* nastavení rodiče včetně výslovnosti zůstává */ replaceSave(Object.assign(defaults(), keep)); applyLetters(save.letters, save.cursive); persist(); updateRestore(); $('#resetConfirm').hidden = true; updateSettings(); });
 
 /* výslovnost slabik: rodič poslechne varianty a vybere tu, která na jeho tabletu zní česky */
 const PRON_LABEL = { plain: 'obyčejně', split: 'rozděleně', letters: 's písmeny' };

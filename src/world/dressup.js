@@ -2,7 +2,7 @@
 import { G } from '../core/state.js';
 import { $ } from '../core/dom.js';
 import { persist, save } from '../save/save.ts';
-import { speak, synth } from '../audio/speech.js';
+import { speak, stopSpeech } from '../audio/speech.js';
 import { audio, sfx } from '../audio/sfx.js';
 import { show, LOCK_SVG } from '../ui/screens.js';
 import { FAMILY, famCanvas } from './family.js';
@@ -25,7 +25,7 @@ function wearIcon(w) {
   return c;
 }
 function openFamily() {
-  G.speechId++; if (synth) synth.cancel();
+  G.speechId++; stopSpeech();
   armed = null; show('family'); renderFamily();
   speak('Rodina. Vyber, koho chceš převléct, a klepni na věc. Věci se kupují za smaragdy.');
 }

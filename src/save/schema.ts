@@ -26,7 +26,7 @@ export interface Note { who: string; text: string; done: boolean; t?: number }
 
 export interface SaveState {
   schema: number;
-  caseMode: 'upper' | 'lower' | 'both'; slow: boolean; strict: 'mild' | 'normal' | 'strict';
+  caseMode: 'upper' | 'lower' | 'both'; slow: boolean; tts: string; // hlas: Google (logic/tts.ts) nebo 'device' = hlas tabletu strict: 'mild' | 'normal' | 'strict';
   total: number; rounds: Record<string, number>; stats: Stats; log: LogEntry[];
   ench: string[]; emeralds: number; notes: Note[]; dogName: string; gifts: Record<string, number>; bday: number; lastCheer: string;
   village: Record<string, number> | null; obsidian: number | null; netherMine: boolean; cards: string[] | null;
@@ -59,7 +59,7 @@ export interface SaveState {
 export function defaults(): SaveState {
   return {
     schema: SCHEMA,
-    caseMode: 'both', slow: false, strict: 'normal', total: 0,
+    caseMode: 'both', slow: false, tts: '', strict: 'normal', total: 0,
     rounds: { letters: 0, syllables: 0, words: 0, numbers: 0, math: 0, writing: 0, reading: 0, speech: 0 },
     stats: {}, log: [], ench: [], emeralds: 0, notes: [], dogName: '', gifts: {}, bday: 0, lastCheer: '',
     village: null, obsidian: null, netherMine: false, cards: null, weeks: null, babies: null, eyes: 0, dragon: 0,

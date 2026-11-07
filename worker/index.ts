@@ -3,13 +3,14 @@
 import { NEWS_MS, dueSubs, makeVapid, overtaken, pragueNow, rankText, rankTime, sendPush, validEndpoint, validHour, validKey, type RankRow, type Vapid } from './push';
 import { EXPORT_PAGE, validKind } from '../src/logic/stats-export';
 import { ADMIN_MIN_LEN, FAMILY_GROUP, adminToken, validPlayerId } from './logic';
+import { googleBody, ttsKey, ttsQuery, type TtsQuery } from '../src/logic/tts';
 import { EVENTS_KEEP_MS, allowedPoints, sanitizeGroupName, validGroupCode, isNewThing, leaderboardRows, MAX_EVENTS, MAX_SAVE, ORIGINS, PLAYER_KEEP_MS, safeJson, sanitizeNick, sanitizeSummary, weekKey, type Row } from './logic';
 
 interface D1Result<T> { results: T[] }
 interface D1Stmt { bind(...v: unknown[]): D1Stmt; first<T>(): Promise<T | null>; all<T>(): Promise<D1Result<T>>; run(): Promise<unknown> }
 interface D1 { prepare(sql: string): D1Stmt; batch(s: D1Stmt[]): Promise<unknown> }
 interface Limiter { limit(o: { key: string }): Promise<{ success: boolean }> }
-interface Env { DB: D1; ASSETS: { fetch(r: Request): Promise<Response> }; RL_API?: Limiter; RL_NEW?: Limiter; ADMIN_TOKEN?: string }
+interface Env { DB: D1; ASSETS: { fetch(r: Request): Promise<Response> }; RL_API?: Limiter; RL_NEW?: Limiter; RL_TTS?: Limiter; ADMIN_TOKEN?: string; GOOGLE_TTS_KEY?: string }
 interface Ctx { waitUntil(p: Promise<unknown>): void }
 
 const hex = (b: ArrayBuffer | Uint8Array) => [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, '0')).join('');
@@ -60,9 +61,39 @@ async function admin(req: Request, env: Env, path: string): Promise<Response> {
   return json(req, { error: 'not found' }, 404);
 }
 
+// přirozený hlas (src/logic/tts.ts): Google Cloud Text-to-Speech, klíč v tajné proměnné GOOGLE_TTS_KEY.
+// Hotové MP3 se drží v mezipaměti Cloudflare (stejná věta se u Googlu neplatí dvakrát), nová syntéza má vlastní limit na IP.
+const edgeCache = (): Cache | null => (globalThis as unknown as { caches?: { default?: Cache } }).caches?.default || null;
+async function googleTts(q: TtsQuery, key: string): Promise<Uint8Array | null> {
+  const call = (b: Record<string, unknown>) => fetch('https://texttospeech.googleapis.com/v1/text:synthesize', { method: 'POST', headers: { 'Content-Type': 'application/json; charset=utf-8', 'X-Goog-Api-Key': key }, body: JSON.stringify(b) });
+  let r = await call(googleBody(q));
+  if (r.status === 400 && q.rate !== 1) r = await call(googleBody({ ...q, rate: 1 })); // hlas bez nastavení rychlosti
+  if (!r.ok) { console.log('tts google', r.status, (await r.text()).slice(0, 200)); return null; }
+  const j = await r.json() as { audioContent?: string };
+  if (!j.audioContent) return null;
+  return Uint8Array.from(atob(j.audioContent), c => c.charCodeAt(0));
+}
+async function tts(req: Request, env: Env, ctx: Ctx, ip: string): Promise<Response> {
+  const q = ttsQuery(await body(req, 3000));
+  if (!q) return json(req, { error: 'bad' }, 400);
+  if (!env.GOOGLE_TTS_KEY) return json(req, { error: 'tts off' }, 503);
+  const cache = edgeCache(), key = new Request('https://schoolcraft.games/tts-cache/' + await sha(ttsKey(q)));
+  let mp3: ArrayBuffer | Uint8Array | null = null;
+  const hit = cache ? await cache.match(key) : undefined;
+  if (hit) mp3 = await hit.arrayBuffer();
+  else {
+    if (await limited(env.RL_TTS, 'ip:' + ip)) return json(req, { error: 'too many' }, 429);
+    mp3 = await googleTts(q, env.GOOGLE_TTS_KEY);
+    if (!mp3) return json(req, { error: 'tts provider' }, 502);
+    if (cache) ctx.waitUntil(cache.put(key, new Response(mp3, { headers: { 'Content-Type': 'audio/mpeg', 'Cache-Control': 'public, max-age=31536000, immutable' } })));
+  }
+  return new Response(mp3, { headers: { 'Content-Type': 'audio/mpeg', 'Cache-Control': 'private, max-age=31536000', 'X-Content-Type-Options': 'nosniff', ...cors(req) } });
+}
+
 async function api(req: Request, env: Env, path: string, ctx: Ctx): Promise<Response> {
   const now = Date.now();
   const ip = req.headers.get('CF-Connecting-IP') || 'local', who = /^Bearer ([a-f0-9-]{36})\./.exec(req.headers.get('Authorization') || '');
+  if (path === '/api/tts' && req.method === 'POST') return tts(req, env, ctx, ip);
   if (isNewThing(req.method, path) && await limited(env.RL_NEW, 'ip:' + ip)) return json(req, { error: 'too many' }, 429);
   if (await limited(env.RL_API, who ? 'p:' + who[1] : 'ip:' + ip)) return json(req, { error: 'too many' }, 429);
   if (path.startsWith('/api/admin/')) return admin(req, env, path);
