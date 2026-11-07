@@ -14,7 +14,8 @@ Dítě kope do kostek se správnou odpovědí a za pokrok staví svůj svět. Vz
 | [`docs/google-tabulka.md`](docs/google-tabulka.md) | statistiky do tabulky Google (skript `docs/google-tabulka.gs`) |
 | [`docs/koncepce.md`](docs/koncepce.md) | proč je hra postavená takhle (převod na moduly a testy, 19. 10. 2026) |
 | [`docs/ucebnice-alter.md`](docs/ucebnice-alter.md) | obsah podle učebnic ALTER |
-| `docs/hosting-a-domena.md`, `docs/navod-registrator-a-hosting.md` | doména a hosting na Cloudflare |
+| `docs/hosting-a-domena.md`, `docs/navod-registrator-a-hosting.md` | doména a hosting na Cloudflare, schoolcraft.cz |
+| [`docs/prirozeny-hlas.md`](docs/prirozeny-hlas.md) | přirozený hlas Google: převzato z pingu, náklady, ochrana, zapnutí klíčem |
 
 Rodinný kontext (co Adam umí, rozhodnutí) je v osobní znalostní bázi (`osobni/deti.md`, sekce „Čtecí hra Adamův důl“).
 

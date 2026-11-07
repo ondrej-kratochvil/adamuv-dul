@@ -21,6 +21,8 @@
 3. Hru pak spouštějte ikonou **Schoolcraft** na ploše. Běží přes celou obrazovku a funguje i bez internetu.
 4. Ověřte hlas: ozubené kolo → část **Hlas** → **Vyzkoušet hlas**. Když tablet nemá český hlas, část Hlas má vykřičník
    a obsahuje návod, jak ho nainstalovat (Android: Nastavení → Převod textu na řeč → Google → čeština).
+   Od verze 83 hra čte přirozeným hlasem přes internet; v části Hlas jde v poli **Kdo čte** vybrat jiný hlas, nebo hlas
+   tabletu. Bez internetu čte hlas tabletu, věty už jednou slyšené přirozeným hlasem jdou i bez internetu.
 
 **Dětský účet s Family Link**: některé funkce (upozornění, fotoaparát, otisk prstu) může Family Link blokovat.
 Povolíte je v aplikaci Family Link na svém telefonu: vyberte dítě → **Ovládací prvky** → **Google Chrome a web**
@@ -137,7 +139,7 @@ na seznam; na tabletu naležato a na počítači je seznam vlevo a část vpravo
 | | **Vzkazy a návštěva** | vzkazy od rodiny (přečtou se po nejbližším povedeném kole), **návštěva** (kdo z rodiny je dnes na návštěvě: hra fandí jen jeho hlasem), jméno psa |
 | Učení | **Písmena** | písmena, která dítě zná; psací písmo; velká / malá písmena na kostkách |
 | | **Přísnost** | kolik úkolů bez chyby je potřeba na povedené kolo |
-| | **Hlas** | rychlost hlasu, vyzkoušení, výslovnost slabik |
+| | **Hlas** | kdo čte (přirozený hlas, nebo hlas tabletu), rychlost hlasu, vyzkoušení, výslovnost slabik |
 | Zařízení | **Upozornění** | ranní upozornění, předběhnutí v žebříčku, zkušební upozornění |
 | | **Otisk prstu** | vstup do nastavení otiskem na zařízení nebo telefonem rodiče |
 | | **Vibrace** | zapnout / vypnout |
@@ -150,7 +152,7 @@ na seznam; na tabletu naležato a na počítači je seznam vlevo a část vpravo
 
 Přijel někdo z rodiny a dítě mu chce hru ukázat? Část **Vzkazy a návštěva** → **Návštěva**: vyberte hosty (třeba dědu a jeho
 rodinu) a klepněte **Dnes je na návštěvě**. Úvodní obrazovka je pozdraví a po kolech fandí jen oni svými hláškami.
-Zítra se vše vrátí samo, nebo **Ukončit návštěvu**. Hlas zůstává hlasem tabletu (je jen jeden), mění se slova a obličeje.
+Zítra se vše vrátí samo, nebo **Ukončit návštěvu**. Hlas zůstává stejný (je jen jeden), mění se slova a obličeje.
 
 ### 6.1 Písmena, která dítě zná
 
