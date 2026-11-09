@@ -1,6 +1,8 @@
 // Přirozený hlas Google Cloud Text-to-Speech (podnět Honzy 7. 11. 2026, stejně jako v jeho aplikaci ping).
 // Hra posílá text na schoolcraft.games/api/tts (worker/index.ts), server se zeptá Googlu a výsledek si uloží do mezipaměti.
 // Bez internetu nebo bez klíče na serveru čte dál hlas tabletu (audio/speech.js).
+// Pojistky proti útratě (Honza 9. 11. 2026): jen věty ze hry (gameText), sdílená mezipaměť v D1, denní a měsíční strop znaků, limit na IP.
+import GAME_WORDS from './tts-words.json';
 
 export interface TtsVoice { id: string; label: string }
 // jen tyhle hlasy (ochrana proti drahým hlasům a cizímu použití); rodič vybírá v nastavení, karta Hlas
@@ -22,6 +24,16 @@ export const validVoice = (v: unknown): v is string => typeof v === 'string' && 
 export const ttsChoice = (v: unknown): string => v === TTS_DEVICE ? TTS_DEVICE : validVoice(v) ? v : TTS_DEFAULT;
 // rychlost: přirozený hlas mluví rychleji než hlas tabletu, pro prvňáka trochu zpomalit (pomalu = nastavení rodiče)
 export const ttsRate = (slow: boolean): number => slow ? 0.75 : 0.92;
+
+// věta ze hry: každé slovo delší než 3 písmena je ve slovníku textů hry (scripts/tts-slova.mjs), čísla smí;
+// volný text (jméno napsané rodičem, cizí použití serveru) čte hlas tabletu
+const WORDS = new Set<string>(GAME_WORDS as string[]);
+export const gameText = (text: string): boolean => (text.toLocaleLowerCase('cs').match(/\p{L}+/gu) || []).every(w => w.length <= 3 || WORDS.has(w));
+
+// strop znaků poslaných Googlu (worker/index.ts, proměnné TTS_DAY_CHARS a TTS_MONTH_CHARS ve wrangler.jsonc); po něm hlas tabletu
+export const TTS_DAY_CHARS = 100000;
+export const TTS_MONTH_CHARS = 1000000;
+export const capNum = (v: unknown, def: number): number => { const n = Number(v); return Number.isFinite(n) && n >= 0 ? Math.floor(n) : def; };
 
 export interface TtsQuery { text: string; voice: string; rate: number }
 // kontrola požadavku na serveru: text 1 až TTS_MAX znaků, hlas ze seznamu, rychlost jen normálně nebo pomalu

@@ -3,14 +3,14 @@
 import { NEWS_MS, dueSubs, makeVapid, overtaken, pragueNow, rankText, rankTime, sendPush, validEndpoint, validHour, validKey, type RankRow, type Vapid } from './push';
 import { EXPORT_PAGE, validKind } from '../src/logic/stats-export';
 import { ADMIN_MIN_LEN, FAMILY_GROUP, adminToken, validPlayerId } from './logic';
-import { googleBody, ttsKey, ttsQuery, type TtsQuery } from '../src/logic/tts';
+import { TTS_DAY_CHARS, TTS_MONTH_CHARS, capNum, gameText, googleBody, ttsKey, ttsQuery, type TtsQuery } from '../src/logic/tts';
 import { EVENTS_KEEP_MS, allowedPoints, sanitizeGroupName, validGroupCode, isNewThing, leaderboardRows, MAX_EVENTS, MAX_SAVE, ORIGINS, PLAYER_KEEP_MS, safeJson, sanitizeNick, sanitizeSummary, weekKey, type Row } from './logic';
 
 interface D1Result<T> { results: T[] }
 interface D1Stmt { bind(...v: unknown[]): D1Stmt; first<T>(): Promise<T | null>; all<T>(): Promise<D1Result<T>>; run(): Promise<unknown> }
 interface D1 { prepare(sql: string): D1Stmt; batch(s: D1Stmt[]): Promise<unknown> }
 interface Limiter { limit(o: { key: string }): Promise<{ success: boolean }> }
-interface Env { DB: D1; ASSETS: { fetch(r: Request): Promise<Response> }; RL_API?: Limiter; RL_NEW?: Limiter; RL_TTS?: Limiter; ADMIN_TOKEN?: string; GOOGLE_TTS_KEY?: string }
+interface Env { DB: D1; ASSETS: { fetch(r: Request): Promise<Response> }; RL_API?: Limiter; RL_NEW?: Limiter; RL_TTS?: Limiter; RL_TTS_NEW?: Limiter; ADMIN_TOKEN?: string; GOOGLE_TTS_KEY?: string; TTS_DAY_CHARS?: string; TTS_MONTH_CHARS?: string }
 interface Ctx { waitUntil(p: Promise<unknown>): void }
 
 const hex = (b: ArrayBuffer | Uint8Array) => [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, '0')).join('');
@@ -43,6 +43,11 @@ async function admin(req: Request, env: Env, path: string): Promise<Response> {
   const t = adminToken(req.headers.get('Authorization'));
   if (!t || !env.ADMIN_TOKEN || env.ADMIN_TOKEN.length < ADMIN_MIN_LEN || await sha(t) !== await sha(env.ADMIN_TOKEN)) return json(req, { error: 'auth' }, 401);
   if (req.method !== 'GET') return json(req, { error: 'read only' }, 405);
+  if (path === '/api/admin/tts') {
+    const r = await env.DB.prepare('SELECT day, chars, calls, refused FROM tts_usage ORDER BY day DESC LIMIT 62').all<Record<string, unknown>>();
+    const n = await env.DB.prepare('SELECT COUNT(*) AS sentences, COALESCE(SUM(chars), 0) AS chars FROM tts_audio').first<Record<string, unknown>>();
+    return json(req, { caps: { day: capNum(env.TTS_DAY_CHARS, TTS_DAY_CHARS), month: capNum(env.TTS_MONTH_CHARS, TTS_MONTH_CHARS) }, stored: n, days: r.results });
+  }
   const g = await env.DB.prepare('SELECT code FROM groups WHERE name = ? ORDER BY created LIMIT 1').bind(FAMILY_GROUP).first<{ code: string }>();
   if (!g) return json(req, { players: [] });
   if (path === '/api/admin/players') {
@@ -62,7 +67,8 @@ async function admin(req: Request, env: Env, path: string): Promise<Response> {
 }
 
 // přirozený hlas (src/logic/tts.ts): Google Cloud Text-to-Speech, klíč v tajné proměnné GOOGLE_TTS_KEY.
-// Hotové MP3 se drží v mezipaměti Cloudflare (stejná věta se u Googlu neplatí dvakrát), nová syntéza má vlastní limit na IP.
+// Pojistky (Honza 9. 11. 2026): jen věty ze hry, hotové MP3 sdílené všemi hráči (D1 tts_audio + mezipaměť Cloudflare),
+// denní a měsíční strop znaků (tts_usage), limit požadavků na IP (RL_TTS všechny, RL_TTS_NEW nové věty). Po stropu čte hlas tabletu.
 const edgeCache = (): Cache | null => (globalThis as unknown as { caches?: { default?: Cache } }).caches?.default || null;
 async function googleTts(q: TtsQuery, key: string): Promise<Uint8Array | null> {
   const call = (b: Record<string, unknown>) => fetch('https://texttospeech.googleapis.com/v1/text:synthesize', { method: 'POST', headers: { 'Content-Type': 'application/json; charset=utf-8', 'X-Goog-Api-Key': key }, body: JSON.stringify(b) });
@@ -73,21 +79,36 @@ async function googleTts(q: TtsQuery, key: string): Promise<Uint8Array | null> {
   if (!j.audioContent) return null;
   return Uint8Array.from(atob(j.audioContent), c => c.charCodeAt(0));
 }
+// rezervace znaků pod stropem (jedním příkazem, aby dva požadavky naráz strop nepřelezly)
+async function reserveChars(env: Env, n: number): Promise<boolean> {
+  const day = new Date().toISOString().slice(0, 10), dayCap = capNum(env.TTS_DAY_CHARS, TTS_DAY_CHARS), monthCap = capNum(env.TTS_MONTH_CHARS, TTS_MONTH_CHARS);
+  await env.DB.prepare('INSERT OR IGNORE INTO tts_usage (day) VALUES (?)').bind(day).run();
+  const r = await env.DB.prepare('UPDATE tts_usage SET chars = chars + ?1, calls = calls + 1 WHERE day = ?2 AND chars + ?1 <= ?3 AND (SELECT COALESCE(SUM(chars), 0) FROM tts_usage WHERE day LIKE ?4) + ?1 <= ?5')
+    .bind(n, day, dayCap, day.slice(0, 8) + '%', monthCap).run() as { meta?: { changes?: number } };
+  if (r.meta?.changes) return true;
+  await env.DB.prepare('UPDATE tts_usage SET refused = refused + 1 WHERE day = ?').bind(day).run();
+  return false;
+}
 async function tts(req: Request, env: Env, ctx: Ctx, ip: string): Promise<Response> {
+  if (await limited(env.RL_TTS, 'ip:' + ip)) return json(req, { error: 'too many' }, 429);
   const q = ttsQuery(await body(req, 3000));
   if (!q) return json(req, { error: 'bad' }, 400);
+  if (!gameText(q.text)) return json(req, { error: 'not game text' }, 422);
   if (!env.GOOGLE_TTS_KEY) return json(req, { error: 'tts off' }, 503);
-  const cache = edgeCache(), key = new Request('https://schoolcraft.games/tts-cache/' + await sha(ttsKey(q)));
-  let mp3: ArrayBuffer | Uint8Array | null = null;
+  const id = await sha(ttsKey(q)), cache = edgeCache(), key = new Request('https://schoolcraft.games/tts-cache/' + id);
+  const mp3Response = (mp3: ArrayBuffer | Uint8Array) => new Response(mp3, { headers: { 'Content-Type': 'audio/mpeg', 'Cache-Control': 'private, max-age=31536000', 'X-Content-Type-Options': 'nosniff', ...cors(req) } });
+  const toEdge = (mp3: ArrayBuffer | Uint8Array) => { if (cache) ctx.waitUntil(cache.put(key, new Response(mp3, { headers: { 'Content-Type': 'audio/mpeg', 'Cache-Control': 'public, max-age=31536000, immutable' } }))); };
   const hit = cache ? await cache.match(key) : undefined;
-  if (hit) mp3 = await hit.arrayBuffer();
-  else {
-    if (await limited(env.RL_TTS, 'ip:' + ip)) return json(req, { error: 'too many' }, 429);
-    mp3 = await googleTts(q, env.GOOGLE_TTS_KEY);
-    if (!mp3) return json(req, { error: 'tts provider' }, 502);
-    if (cache) ctx.waitUntil(cache.put(key, new Response(mp3, { headers: { 'Content-Type': 'audio/mpeg', 'Cache-Control': 'public, max-age=31536000, immutable' } })));
-  }
-  return new Response(mp3, { headers: { 'Content-Type': 'audio/mpeg', 'Cache-Control': 'private, max-age=31536000', 'X-Content-Type-Options': 'nosniff', ...cors(req) } });
+  if (hit) return mp3Response(await hit.arrayBuffer());
+  const row = await env.DB.prepare('SELECT mp3 FROM tts_audio WHERE key = ?').bind(id).first<{ mp3: ArrayBuffer | number[] }>();
+  if (row) { const mp3 = row.mp3 instanceof ArrayBuffer ? row.mp3 : new Uint8Array(row.mp3); toEdge(mp3); return mp3Response(mp3); }
+  if (await limited(env.RL_TTS_NEW, 'ip:' + ip)) return json(req, { error: 'too many' }, 429);
+  if (!await reserveChars(env, q.text.length)) return json(req, { error: 'cap' }, 429);
+  const mp3 = await googleTts(q, env.GOOGLE_TTS_KEY);
+  if (!mp3) return json(req, { error: 'tts provider' }, 502);
+  ctx.waitUntil(env.DB.prepare('INSERT OR IGNORE INTO tts_audio (key, mp3, chars, created) VALUES (?, ?, ?, ?)').bind(id, mp3, q.text.length, Date.now()).run());
+  toEdge(mp3);
+  return mp3Response(mp3);
 }
 
 async function api(req: Request, env: Env, path: string, ctx: Ctx): Promise<Response> {

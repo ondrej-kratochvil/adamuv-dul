@@ -1,6 +1,13 @@
 {
-  "version": 83,
+  "version": 84,
   "changes": [
+    {
+      "version": 84,
+      "date": "2026-11-09",
+      "notes": [
+        "Oprava: hra zase mluví na každém tabletu a mobilu."
+      ]
+    },
     {
       "version": 83,
       "date": "2026-11-07",

@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { TTS_DEFAULT, TTS_DEVICE, TTS_MAX, TTS_VOICES, googleBody, ttsChoice, ttsKey, ttsQuery, ttsRate } from '../../src/logic/tts';
+import { readFileSync } from 'node:fs';
+import { TTS_DAY_CHARS, TTS_DEFAULT, TTS_DEVICE, TTS_MAX, TTS_VOICES, capNum, gameText, googleBody, ttsChoice, ttsKey, ttsQuery, ttsRate } from '../../src/logic/tts';
+// @ts-expect-error skript bez typů
+import { WORDS_FILE, collectWords } from '../../scripts/tts-slova.mjs';
 
 describe('přirozený hlas (logic/tts.ts)', () => {
   it('server přijme jen hlas ze seznamu a rozumně dlouhý text', () => {
@@ -26,5 +29,21 @@ describe('přirozený hlas (logic/tts.ts)', () => {
     const q = ttsQuery({ text: 'Máma', voice: TTS_DEFAULT })!;
     expect(googleBody(q)).toEqual({ input: { text: 'Máma' }, voice: { languageCode: 'cs-CZ', name: TTS_DEFAULT }, audioConfig: { audioEncoding: 'MP3', speakingRate: q.rate } });
     expect((googleBody({ ...q, rate: 1 }).audioConfig as Record<string, unknown>).speakingRate).toBeUndefined();
+  });
+  it('Google čte jen věty ze hry (Honza 9. 11. 2026), volný text čte tablet', () => {
+    expect(gameText('Bez jediné chyby! Máš nový diamantový krumpáč!')).toBe(true);
+    expect(gameText('Ahoj Adame! Tady je hra. ma, em, a')).toBe(true);
+    expect(gameText('m­a')).toBe(true);
+    expect(gameText('Získal jsi 125 smaragdů.')).toBe(true);
+    expect(gameText('Objednejte si levné pojištění auta')).toBe(false);
+    expect(gameText('Ahoj Kvido Zbyhněvo!')).toBe(false);
+  });
+  it('slovník textů hry je aktuální (po změně textů: node scripts/tts-slova.mjs)', () => {
+    expect(JSON.parse(readFileSync(WORDS_FILE, 'utf8'))).toEqual(collectWords());
+  });
+  it('strop znaků: z proměnné na serveru, jinak výchozí', () => {
+    expect(capNum('5000', TTS_DAY_CHARS)).toBe(5000);
+    expect(capNum(undefined, TTS_DAY_CHARS)).toBe(TTS_DAY_CHARS);
+    expect(capNum('nic', TTS_DAY_CHARS)).toBe(TTS_DAY_CHARS);
   });
 });

@@ -15,9 +15,12 @@
   "ratelimits": [
     { "name": "RL_API", "namespace_id": "1001", "simple": { "limit": 60, "period": 60 } },
     { "name": "RL_NEW", "namespace_id": "1002", "simple": { "limit": 6, "period": 60 } },
-    // přirozený hlas (7. 11. 2026): nové věty u Googlu (IP); věty z mezipaměti se nepočítají
-    { "name": "RL_TTS", "namespace_id": "1003", "simple": { "limit": 120, "period": 60 } }
+    // přirozený hlas (7. a 9. 11. 2026, IP): RL_TTS všechny požadavky na /api/tts, RL_TTS_NEW jen nové věty (platí se u Googlu)
+    { "name": "RL_TTS", "namespace_id": "1003", "simple": { "limit": 120, "period": 60 } },
+    { "name": "RL_TTS_NEW", "namespace_id": "1004", "simple": { "limit": 30, "period": 60 } }
   ],
+  // strop znaků poslaných Googlu (Honza 9. 11. 2026: denně 100 tisíc; měsíčně 1 milion = volný limit Chirp 3 HD), pak hlas tabletu
+  "vars": { "TTS_DAY_CHARS": "100000", "TTS_MONTH_CHARS": "1000000" },
   // ranní upozornění: každou celou hodinu (UTC); worker/index.ts morning() vybere zařízení podle českého času
   "triggers": { "crons": ["0 * * * *"] },
   "observability": { "enabled": true }

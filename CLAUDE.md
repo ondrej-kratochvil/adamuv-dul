@@ -204,9 +204,16 @@ aktualizaci a po ní novinky ukáže.
   (`{ text, voice, slow }`, seznam hlasů a kontrola v `src/logic/tts.ts`, výchozí `cs-CZ-Chirp3-HD-Kore`). Klíč: tajná proměnná
   `GOOGLE_TTS_KEY` na Cloudflare, CI ji nastaví z tajné proměnné GitHubu `SCHOOLCRAFT_GOOGLE_TTS_KEY`; bez klíče server vrací 503
   a hra čte hlasem tabletu. Hotové MP3 drží mezipaměť Cloudflare a mezipaměť prohlížeče (`schoolcraft-hlas-1`), takže slyšené
-  věty jdou i bez internetu; nová syntéza má limit `RL_TTS` na IP. Při chybě sítě 30 s hlas tabletu, pak znovu Google.
+  věty jdou i bez internetu. Při chybě sítě 30 s hlas tabletu, pak znovu Google.
   Rodič volí hlas na kartě Hlas (`#ttsVoice`, `save.tts`; `device` = hlas tabletu). Rušení řeči vždy přes `stopSpeech()`,
-  ne `synth.cancel()` (zastaví i přehrávaný zvuk).
+  ne `synth.cancel()` (zastaví i přehrávaný zvuk). V `deviceSpeak` nerušit, co nemluví: hned po `cancel()` Safari a některé
+  tablety další větu spolknou (verze 83 „nefunguje zvuk“, Honza 9. 11. 2026).
+  **Pojistky proti útratě** (Honza 9. 11. 2026, podmínka pro klíč; verze 84): Google čte jen věty ze hry (`gameText`: slova
+  delší než 3 písmena musí být ve slovníku `src/logic/tts-words.json`, ostatní čte tablet; server jinak 422). **Po změně textů
+  ve hře spustit `node scripts/tts-slova.mjs`**, test hlídá aktuálnost. Hotové MP3 sdílí všichni hráči (D1 `tts_audio`,
+  migrace 0006, nad tím mezipaměť Cloudflare). Strop znaků poslaných Googlu za den a měsíc (`vars` TTS_DAY_CHARS 100 000,
+  TTS_MONTH_CHARS 1 000 000 ve `wrangler.jsonc`, počítá `tts_usage`), po něm 429 a 10 min hlas tabletu. Limity na IP:
+  `RL_TTS` všechny požadavky 120/min, `RL_TTS_NEW` nové věty 30/min. Spotřeba: `GET /api/admin/tts` (klíč správce).
 - Do žebříčku jde jen přezdívka, postavička, týdenní body a co je postavené; nikdy jméno rodiny, chyby ani statistiky.
 - **Online jen se souhlasem** (31. 10. 2026): `cloudDefaults().on = false`, zapíná se zaškrtnutím v úvodním nastavení (`#setupOnline`)
   nebo na kartě Online. Starší postupy si nastavení nechávají.
