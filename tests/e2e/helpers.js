@@ -46,6 +46,24 @@ export async function mockCloudVoice(page, { ios = false } = {}) {
       return Promise.resolve();
     };
     P.pause = function () {};
+    // Web Audio: „rozbalení“ vrátí text, zdroj ho „přehraje“; na iPhonu běží AudioContext až po klepnutí (resume)
+    const B = window.BaseAudioContext && BaseAudioContext.prototype;
+    if (B) {
+      Object.defineProperty(B, 'state', { configurable: true, get() { return this.__running || !ios ? 'running' : 'suspended'; } });
+      const resume = B.resume || AudioContext.prototype.resume;
+      AudioContext.prototype.resume = function () { if (!ios || (navigator.userActivation && navigator.userActivation.isActive)) this.__running = true; return Promise.resolve(); };
+      B.decodeAudioData = function (ab) { return Promise.resolve({ __text: new TextDecoder().decode(ab), duration: 0.1 }); };
+      const make = B.createBufferSource;
+      B.createBufferSource = function () {
+        const real = make.call(this), fake = {
+          buffer: null, onended: null, connect(n) { return fake.buffer && fake.buffer.__text ? n : real.connect(n); },
+          start(...x) { if (fake.buffer && fake.buffer.__text) { window.__played.push(fake.buffer.__text); setTimeout(() => fake.onended && fake.onended(), 150); } else { real.buffer = fake.buffer; real.start(...x); } },
+          stop() { fake.onended = null; }, disconnect() {},
+        };
+        return fake;
+      };
+      void resume;
+    }
   }, ios);
   return asked;
 }

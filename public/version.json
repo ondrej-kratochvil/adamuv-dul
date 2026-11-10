@@ -1,6 +1,13 @@
 {
-  "version": 88,
+  "version": 89,
   "changes": [
+    {
+      "version": 89,
+      "date": "2026-11-10",
+      "notes": [
+        "Oprava: na iPhonu a iPadu hra přečte každé slovo."
+      ]
+    },
     {
       "version": 88,
       "date": "2026-11-10",

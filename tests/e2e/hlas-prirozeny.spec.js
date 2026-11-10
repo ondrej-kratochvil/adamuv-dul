@@ -1,7 +1,7 @@
 // Přirozený hlas (audio/speech.js): server a přehrávač napodobí mockCloudVoice (tests/e2e/helpers.js).
 // Ondřej 10. 11. 2026: na iPhonu v patře Slova každé druhé slovo nezaznělo.
 import { test, expect } from '@playwright/test';
-import { openGame, playRound } from './helpers.js';
+import { openGame, openSettings, playRound } from './helpers.js';
 
 for (const level of ['Slova', 'Písmena', 'Čtení']) {
   test(`${level}: každé zadání se přehraje přirozeným hlasem`, async ({ page }) => {
@@ -30,4 +30,10 @@ test('iPhone: po prvním klepnutí přehrávač hraje i zadání bez klepnutí',
   expect(errors.asked.length).toBeGreaterThan(6);
   expect(errors.asked.filter(t => !played.includes(t))).toEqual([]);
   expect(await page.evaluate(() => window.__blocked)).toBe(0);
+  // záznam hlasu v nastavení: věty hrály přes Web Audio, žádná chyba
+  await page.locator('#btnEndHome').click();
+  await openSettings(page, 'voice');
+  await page.locator('#voiceLogBox summary').click();
+  await expect(page.locator('#voiceLog')).toContainText('přirozený (Web Audio) [running]');
+  expect(await page.locator('#voiceLog').textContent()).not.toContain('chyba');
 });

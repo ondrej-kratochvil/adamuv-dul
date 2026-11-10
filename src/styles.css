@@ -507,6 +507,7 @@ canvas.ench { animation: ench 1.8s ease-in-out infinite; }
 .seg .gbtn[aria-pressed="true"] { background: var(--go); }
 .voice-ok { color: #2c5e1a; font-weight: 700; }
 .voice-bad { color: #9a2a14; font-weight: 700; }
+.voice-log pre { white-space: pre-wrap; font-size: 12px; max-height: 240px; overflow: auto; background: #f4f1e8; border: 2px solid #161616; padding: 6px; }
 .confirm { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 8px; }
 
 @media (prefers-reduced-motion: reduce) {

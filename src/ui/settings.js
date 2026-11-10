@@ -7,7 +7,7 @@ import { PRON_MODES, RISKY_SYLLABLES, RISKY_WORDS, defaultMode, pronounceAs } fr
 import { iconSvg, setBtn } from './icons.js';
 import { gateOk, makeGate } from '../logic/gate.ts';
 import { tierOf } from '../gfx/player.js';
-import { cloudVoiceOn, csVoice, loadVoices, speak, synth, voicesKnown } from '../audio/speech.js';
+import { cloudVoiceOn, csVoice, loadVoices, speak, synth, voiceLogText, voicesKnown } from '../audio/speech.js';
 import { TTS_DEVICE, TTS_VOICES, ttsChoice } from '../logic/tts.ts';
 import { renderHome } from './screens.js';
 import { FARM_STAGES, farmStage } from '../world/farm.js';
@@ -162,6 +162,7 @@ document.querySelectorAll('#segCase [data-case]').forEach(b => b.addEventListene
 document.querySelectorAll('#segStrict [data-strict]').forEach(b => b.addEventListener('click', () => { save.strict = b.dataset.strict; persist(); updateSettings(); }));
 $('#rateNormal').addEventListener('click', () => { save.slow = false; persist(); updateSettings(); });
 $('#rateSlow').addEventListener('click', () => { save.slow = true; persist(); updateSettings(); });
+$('#voiceLogBox').addEventListener('toggle', () => { if ($('#voiceLogBox').open) $('#voiceLog').textContent = voiceLogText(); });
 $('#ttsVoice').addEventListener('change', () => { save.tts = $('#ttsVoice').value; persist(); updateVoiceInfo(); $('#btnTestVoice').click(); });
 $('#btnTestVoice').addEventListener('click', () => { loadVoices(); speak(`Ahoj ${voc()}! Tady je hra. ` + ['MA', 'MÉ', 'SO', 'LY'].map(s => pronounceAs(s, save.pron?.[s] || defaultMode(s))).join('. ') + '.'); setTimeout(loadVoices, 800); });
 $('#btnReset').addEventListener('click', () => { $('#resetConfirm').hidden = false; });

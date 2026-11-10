@@ -208,6 +208,11 @@ aktualizaci a po ní novinky ukáže.
   Rodič volí hlas na kartě Hlas (`#ttsVoice`, `save.tts`; `device` = hlas tabletu). Rušení řeči vždy přes `stopSpeech()`,
   ne `synth.cancel()` (zastaví i přehrávaný zvuk). V `deviceSpeak` nerušit, co nemluví: hned po `cancel()` Safari a některé
   tablety další větu spolknou (verze 83 „nefunguje zvuk“, Honza 9. 11. 2026).
+  **Přehrávání přes Web Audio** (verze 89): přes `<audio>` Safari na iPhonu vynechávalo každou druhou větu. Klepnutí
+  (`touchend`, `click`, ne `pointerdown`) rozjede AudioContext ze `audio/sfx.js`, MP3 se rozbalí (`decodeAudioData`)
+  a hraje jako zvuky hry; `<audio>` je záloha. `navigator.audioSession.type = 'playback'` (iOS 17+), ať tlačítko ztlumení
+  hlas neumlčí. Záznam posledních 40 vět: nastavení, karta Hlas, „Záznam hlasu“. E2E: `mockCloudVoice` / `openGame(…,
+  { cloudVoice: true, ios: true })` v `tests/e2e/helpers.js`, testy `tests/e2e/hlas-prirozeny.spec.js`.
   **Pojistky proti útratě** (Honza 9. 11. 2026, podmínka pro klíč; verze 84): Google čte jen věty ze hry (`gameText`: slova
   delší než 3 písmena musí být ve slovníku `src/logic/tts-words.json`, ostatní čte tablet; server jinak 422). **Po změně textů
   ve hře spustit `node scripts/tts-slova.mjs`**, test hlídá aktuálnost. Hotové MP3 sdílí všichni hráči (D1 `tts_audio`,
