@@ -17,7 +17,40 @@ export async function mockSpeech(page) {
 
 // Otevře hru s daným uloženým stavem (null = čistá hra s Adamem; fresh = úplně nová hra bez hráče).
 // Ranní kartu (world/daily.js) zavře, když day není true.
-export async function openGame(page, state = null, { day = false, fresh = false } = {}) {
+// Přirozený hlas bez serveru a bez zvuku: /api/tts vrátí místo MP3 rovnou text věty, přehrávač ho „přehraje“
+// (zapíše do window.__played) a za chvíli ohlásí konec. Vrací pole textů, o které hra server požádala.
+// ios: jako Safari na iPhonu, přehrávač smí hrát bez klepnutí, až když se jednou rozjel při klepnutí (jinak NotAllowedError)
+export async function mockCloudVoice(page, { ios = false } = {}) {
+  const asked = [];
+  await page.route(/schoolcraft\.games\/api\/tts/, async route => {
+    const q = route.request().postDataJSON() || {};
+    asked.push(q.text);
+    await route.fulfill({ status: 200, contentType: 'audio/mpeg', headers: { 'Access-Control-Allow-Origin': '*' }, body: q.text });
+  });
+  await page.addInitScript(ios => {
+    window.__played = []; window.__blocked = 0;
+    // obsah blobu podle adresy (fetch na blob: by zakázala CSP hry)
+    const texts = new Map(), make = URL.createObjectURL.bind(URL);
+    URL.createObjectURL = b => { const u = make(b); if (b instanceof Blob) texts.set(u, b.text()); return u; };
+    const P = HTMLMediaElement.prototype;
+    // adresa bez skutečného načítání (text místo MP3 by prohlížeč odmítl jako chybu zvuku)
+    Object.defineProperty(P, 'src', { configurable: true, get() { return this.__src || ''; }, set(v) { this.__src = String(v); } });
+    P.play = function () {
+      const el = this, src = el.src;
+      if (ios) {
+        if (navigator.userActivation && navigator.userActivation.isActive) el.__unlocked = true;
+        if (!el.__unlocked) { window.__blocked++; return Promise.reject(new DOMException('not allowed', 'NotAllowedError')); }
+      }
+      if (texts.has(src)) texts.get(src).then(t => { if (!t.startsWith('RIFF')) window.__played.push(t); });
+      setTimeout(() => { if (el.src === src) el.dispatchEvent(new Event('ended')); }, 150);
+      return Promise.resolve();
+    };
+    P.pause = function () {};
+  }, ios);
+  return asked;
+}
+
+export async function openGame(page, state = null, { day = false, fresh = false, cloudVoice = false, ios = false } = {}) {
   if (!state && !fresh) state = { player: 'adam', gameName: 'Adamův důl' };
   await mockSpeech(page);
   // testy nezávislé na internetu: písma z Google se nestahují (hra má náhradní písma)
@@ -25,6 +58,7 @@ export async function openGame(page, state = null, { day = false, fresh = false 
   // server Schoolcraft v testech není (testy, které ho potřebují, si ho napodobí vlastním page.route)
   await page.route(/schoolcraft\.games\/api\//, r => r.abort());
   const errors = [];
+  if (cloudVoice) errors.asked = await mockCloudVoice(page, { ios }); // registrováno později = má přednost před abort
   page.on('pageerror', e => errors.push(e.message));
   await page.addInitScript(([key, st]) => {
     if (sessionStorage.getItem('__seeded')) return; // jen při prvním načtení, reload pak vidí, co hra uložila
@@ -76,7 +110,8 @@ async function traceCurrent(page) {
 
 // Dohraje kolo: wrong = kolik úkolů nejdřív odpovědět špatně (kostky) nebo kolikrát vyjet z dráhy (psaní).
 // repeat: chybovat i opakovaně v jednom úkolu (kolo má jen 6 úkolů, víc chyb jinak nejde)
-export async function playRound(page, label, { wrong = 0, repeat = false } = {}) {
+// listen: klepnout až po zadání (jako dítě), ne hned, jak jsou kostky; jinak hra zadání přeskočí
+export async function playRound(page, label, { wrong = 0, repeat = false, listen = false } = {}) {
   if (label) await page.getByRole('button', { name: label, exact: true }).first().click(); // bez názvu: kolo už běží
 
   let mistakes = wrong;
@@ -95,8 +130,8 @@ export async function playRound(page, label, { wrong = 0, repeat = false } = {})
       await page.waitForTimeout(150);
       continue;
     }
-    const s = await page.evaluate(() => { const r = window.__adam.R; return r ? { level: r.level, busy: r.busy, stuck: r.stuck, ready: !!(r.els || window.__adam.TR), first: r.firstTry, left: r.len - r.i } : null; });
-    if (s && !s.busy && !s.stuck && s.ready) {
+    const s = await page.evaluate(() => { const r = window.__adam.R; return r ? { level: r.level, busy: r.busy, stuck: r.stuck, ready: !!(r.els || window.__adam.TR), first: r.firstTry, left: r.len - r.i, heard: !!r.heardAt } : null; });
+    if (s && !s.busy && !s.stuck && s.ready && (!listen || s.heard || s.level === 'writing')) {
       if (s.level === 'writing') {
         if (mistakes > 0 && s.first) {
           // vyjet z dráhy: začít u tečky a ujet stranou
