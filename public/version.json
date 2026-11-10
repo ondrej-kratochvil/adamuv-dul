@@ -1,6 +1,13 @@
 {
-  "version": 89,
+  "version": 90,
   "changes": [
+    {
+      "version": 90,
+      "date": "2026-11-10",
+      "notes": [
+        "Hra zase čte hlasem tabletu, ať slyšíš každé slovo hned."
+      ]
+    },
     {
       "version": 89,
       "date": "2026-11-10",

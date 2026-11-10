@@ -201,7 +201,8 @@ aktualizaci a po ní novinky ukáže.
   `ADMIN_TOKEN` na Cloudflare, nastavuje ji CI z tajné proměnné GitHubu `SCHOOLCRAFT_ADMIN_TOKEN`; v cloudové session Clauda je
   ve stejnojmenné proměnné prostředí. Stažení: `node scripts/rozbor-stahni.mjs <složka mimo repo>`. Data o dětech do repa nikdy.
 - **Přirozený hlas** (Honza 7. 11. 2026 „lepší hlasy, viz ping“; verze 83): Google Cloud Text-to-Speech přes `POST /api/tts`
-  (`{ text, voice, slow }`, seznam hlasů a kontrola v `src/logic/tts.ts`, výchozí `cs-CZ-Chirp3-HD-Kore`). Klíč: tajná proměnná
+  (`{ text, voice, slow }`, seznam hlasů a kontrola v `src/logic/tts.ts`). **Výchozí je hlas tabletu** (`ttsChoice`: Google jen když ho rodič vybere;
+  Ondřej 10. 11. 2026: na Androidu se s Googlem slovo nebo slabika nepřečetla ani po opakovaném klepnutí na reproduktor). Klíč: tajná proměnná
   `GOOGLE_TTS_KEY` na Cloudflare, CI ji nastaví z tajné proměnné GitHubu `SCHOOLCRAFT_GOOGLE_TTS_KEY`; bez klíče server vrací 503
   a hra čte hlasem tabletu. Hotové MP3 drží mezipaměť Cloudflare a mezipaměť prohlížeče (`schoolcraft-hlas-1`), takže slyšené
   věty jdou i bez internetu. Při chybě sítě 30 s hlas tabletu, pak znovu Google.

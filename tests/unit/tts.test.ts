@@ -13,9 +13,11 @@ describe('přirozený hlas (logic/tts.ts)', () => {
     expect(ttsQuery({ text: 'a'.repeat(TTS_MAX + 1), voice: TTS_DEFAULT })).toBeNull();
     expect(ttsQuery(null)).toBeNull();
   });
-  it('volba v uloženém stavu: neznámá = výchozí hlas, hlas tabletu zůstane', () => {
-    expect(ttsChoice(undefined)).toBe(TTS_DEFAULT);
-    expect(ttsChoice('')).toBe(TTS_DEFAULT);
+  it('volba v uloženém stavu: výchozí a neznámá = hlas tabletu (Ondřej 10. 11. 2026), vybraný hlas Googlu zůstane', () => {
+    expect(ttsChoice(undefined)).toBe(TTS_DEVICE);
+    expect(ttsChoice('')).toBe(TTS_DEVICE);
+    expect(ttsChoice('cs-CZ-Neznamy')).toBe(TTS_DEVICE);
+    expect(ttsChoice(TTS_DEFAULT)).toBe(TTS_DEFAULT);
     expect(ttsChoice(TTS_DEVICE)).toBe(TTS_DEVICE);
     expect(ttsChoice(TTS_VOICES[1].id)).toBe(TTS_VOICES[1].id);
   });

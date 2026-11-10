@@ -5,7 +5,7 @@ import { openGame, openSettings, playRound } from './helpers.js';
 
 for (const level of ['Slova', 'Písmena', 'Čtení']) {
   test(`${level}: každé zadání se přehraje přirozeným hlasem`, async ({ page }) => {
-    const errors = await openGame(page, { total: 3 }, { cloudVoice: true });
+    const errors = await openGame(page, { total: 3, tts: 'cs-CZ-Chirp3-HD-Kore' }, { cloudVoice: true });
     await playRound(page, level, { listen: true });
     await page.waitForTimeout(500);
     const played = await page.evaluate(() => window.__played);
@@ -22,7 +22,7 @@ for (const level of ['Slova', 'Písmena', 'Čtení']) {
 // iPhone (Honza 10. 11. 2026, verze 84: hra občas mlčela): první skutečné klepnutí přehrávač odemkne,
 // pak se přehraje každé zadání, i když přijde až po stažení věty (bez klepnutí)
 test('iPhone: po prvním klepnutí přehrávač hraje i zadání bez klepnutí', async ({ page }) => {
-  const errors = await openGame(page, { total: 3 }, { cloudVoice: true, ios: true });
+  const errors = await openGame(page, { total: 3, tts: 'cs-CZ-Chirp3-HD-Kore' }, { cloudVoice: true, ios: true });
   await page.getByRole('button', { name: 'Slova', exact: true }).first().click(); // skutečné klepnutí
   await playRound(page, null, { listen: true });
   await page.waitForTimeout(500);

@@ -21,8 +21,9 @@
 3. Hru pak spouštějte ikonou **Schoolcraft** na ploše. Běží přes celou obrazovku a funguje i bez internetu.
 4. Ověřte hlas: ozubené kolo → část **Hlas** → **Vyzkoušet hlas**. Když tablet nemá český hlas, část Hlas má vykřičník
    a obsahuje návod, jak ho nainstalovat (Android: Nastavení → Převod textu na řeč → Google → čeština).
-   Od verze 83 hra čte přirozeným hlasem přes internet; v části Hlas jde v poli **Kdo čte** vybrat jiný hlas, nebo hlas
-   tabletu. Bez internetu čte hlas tabletu, věty už jednou slyšené přirozeným hlasem jdou i bez internetu.
+   Hra čte hlasem tabletu (od verze 90 výchozí; s přirozeným hlasem se na Androidu slovo občas nepřečetlo). V části Hlas
+   jde v poli **Kdo čte** zapnout přirozený hlas přes internet; bez internetu pak čte hlas tabletu, věty už jednou slyšené
+   přirozeným hlasem jdou i bez internetu.
 
 **Dětský účet s Family Link**: některé funkce (upozornění, fotoaparát, otisk prstu) může Family Link blokovat.
 Povolíte je v aplikaci Family Link na svém telefonu: vyberte dítě → **Ovládací prvky** → **Google Chrome a web**

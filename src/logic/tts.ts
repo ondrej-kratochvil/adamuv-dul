@@ -15,13 +15,14 @@ export const TTS_VOICES: TtsVoice[] = [
   { id: 'cs-CZ-Chirp3-HD-Charon', label: 'Charon (muž)' },
   { id: 'cs-CZ-Wavenet-B', label: 'Wavenet (žena, starší)' },
 ];
-export const TTS_DEFAULT = 'cs-CZ-Chirp3-HD-Kore';
+export const TTS_DEFAULT = 'cs-CZ-Chirp3-HD-Kore'; // první hlas Googlu v nabídce (výchozí je hlas tabletu, ttsChoice)
 export const TTS_DEVICE = 'device';   // volba „hlas tabletu“ (bez internetu, bez serveru)
 export const TTS_MAX = 300;           // znaků v jedné promluvě (nejdelší hlášky hry mají kolem 200)
 
 export const validVoice = (v: unknown): v is string => typeof v === 'string' && TTS_VOICES.some(x => x.id === v);
-// volba v uloženém stavu: hlas Googlu, nebo hlas tabletu; cokoli neznámého = výchozí hlas Googlu
-export const ttsChoice = (v: unknown): string => v === TTS_DEVICE ? TTS_DEVICE : validVoice(v) ? v : TTS_DEFAULT;
+// volba v uloženém stavu: hlas Googlu, jen když ho rodič vybral; jinak hlas tabletu (Ondřej 10. 11. 2026: na Androidu
+// se s hlasem Googlu slovo nebo slabika občas nepřečetla ani po opakovaném klepnutí na reproduktor)
+export const ttsChoice = (v: unknown): string => validVoice(v) ? v : TTS_DEVICE;
 // rychlost: přirozený hlas mluví rychleji než hlas tabletu, pro prvňáka trochu zpomalit (pomalu = nastavení rodiče)
 export const ttsRate = (slow: boolean): number => slow ? 0.75 : 0.92;
 
