@@ -10,7 +10,7 @@
 > - **Kopum** je zatím nejlepší pracovní varianta, ale nikoli čistý mezinárodní vítěz: existuje aktivní značka pracích prostředků Kopum Plus.
 > - Registrátor: Cloudflare Registrar je nejlepší varianta s kartou; Dynadot jen pokud je nutný předplacený kredit.
 > - Postup krok za krokem: [navod-registrator-a-hosting.md](navod-registrator-a-hosting.md)
-> - **schoolcraft.cz** (7. 11. 2026): koupil Honza na firmu, jen přesměrování na schoolcraft.games; čeká na přepnutí NS na Cloudflare.
+> - **schoolcraft.cz** (7. 11. 2026): koupil Honza na firmu, jen přesměrování na schoolcraft.games; zóna a přesměrování v Cloudflare od 10. 11., čeká na přepnutí NS ve Forpsi.
 > - Cíl: Ondřej založí účty, nastaví platbu a vytvoří API klíče; běžnou správu dělá Claude Code přes API a příkazovou řádku.
 
 ## Zadání
@@ -351,8 +351,13 @@ provést oficiální rešerši známek ve třídách 9 a 41, nebo pokračovat v 
 - Hlavní adresa zůstává **schoolcraft.games**: koncovka říká, že jde o hru, funguje v každém jazyce (výhledově slovenština
   a angličtina), .cz by hru vázala na Česko; hosting, databáze i doména jsou na jednom místě v Cloudflare (Forpsi .games nenabízí).
 - **schoolcraft.cz jen přesměruje** na schoolcraft.games (pro ty, kdo napíšou .cz ze zvyku).
-- Čeká se na Honzu: přepnout NS u registrátora na Cloudflare (dotaz ve vlákně #domeny 7. 11. 17:36). Pak přesměrování
-  nastaví Claude Code (zóna v Cloudflare, pravidlo přesměrování 301 na `https://schoolcraft.games` se zachováním cesty).
+- **10. 11. 2026 nastaveno v Cloudflare** (účet Ondřeje, tarif Free): zóna schoolcraft.cz, jmenné servery
+  `ben.ns.cloudflare.com` a `phoenix.ns.cloudflare.com`. Pravidlo přesměrování „schoolcraft.cz na schoolcraft.games“
+  (Rules → Redirect Rules): všechny požadavky, dynamicky `concat("https://schoolcraft.games", http.request.uri.path)`,
+  301, se zachováním parametrů. DNS záznamy převzaté ze skenu (A na parkování Forpsi 81.2.196.19, `*` a `www` jako CNAME),
+  všechny přes proxy Cloudflaru, takže je zachytí pravidlo dřív, než dojdou k Forpsi.
+- Čeká se na Honzu: přepnout NS ve Forpsi (registrátor) na ty dva výše, případně předtím vypnout DNSSEC. Zóna se pak
+  aktivuje sama; ověření: `curl -I https://schoolcraft.cz/test` vrátí 301 na `https://schoolcraft.games/test`.
 
 ## Zdroje
 
