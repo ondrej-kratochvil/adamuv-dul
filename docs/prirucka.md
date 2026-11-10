@@ -48,7 +48,7 @@ Hraje-li dítě už na jiném zařízení, klepněte na **Načíst QR kód hrá�
 ## 3. Jak se hraje
 
 Na úvodní obrazovce je postavička, pes, kdo dítěti dnes fandí, **dnešní úkol** a dlaždice pater. Dítě klepne na patro
-a hraje **kolo**: 6 úkolů (v Psaní 5; do verze 88 bylo 8). Hlas řekne zadání a dítě kope krumpáčem do kostky se správnou odpovědí.
+a hraje **kolo**: 6 úkolů ve všech patrech (do verze 88 bylo 8, v Psaní 5). Hlas řekne zadání a dítě kope krumpáčem do kostky se správnou odpovědí.
 
 | Patro | Co dítě dělá |
 |---|---|

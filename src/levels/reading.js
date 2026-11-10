@@ -40,7 +40,7 @@ const LEVELS = {
   numbers: { name: 'Čísla', tex: 'goldOre', gen: genNumbers, sample: ['3', '7'], intro: 'Poslouchej číslo a kopej do správné kostky.' },
   math: { name: 'Počty', tex: 'lapisOre', gen: genMath, sample: ['2+3'], small: true, intro: 'Spočítej příklad a kopej do správného výsledku.' },
   speech: { name: 'Mluvení', tex: 'emeraldOre', gen: genSpeechHear, speech: true, label: soundLabel, sample: ['R', 'Š'], intro: 'Mluvení! Poslouchej slovo a ukaž, jakou hlásku v něm slyšíš. Občas řekneš slovo nahlas nebo procvičíš pusu.' },
-  writing: { name: 'Psaní', tex: 'redstoneOre', trace: genWriting, len: 5, sample: ['1 A'], intro: 'Jeď prstem po dráze a nevyjeď z ní. Začni u zelené tečky a jeď po šipce.' },
+  writing: { name: 'Psaní', tex: 'redstoneOre', trace: genWriting, sample: ['1 A'], intro: 'Jeď prstem po dráze a nevyjeď z ní. Začni u zelené tečky a jeď po šipce.' },
 };
 const inCzech = (_kind, w) => T.pronounce(w, save.pron || {}); // dřív „Slovo w.“, teď jen výslovnost
 function sayText(level, it) { return T.sayText(level, it, save.pron || {}); }

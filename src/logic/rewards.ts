@@ -25,7 +25,7 @@ export function nextEnchant(pts: number, max: number, owned: readonly string[]):
 
 // kolik úkolů v kole musí být bez chyby, aby se kolo počítalo
 export const NEED_CLEAN = { mild: 3, normal: 4, strict: 5 } as const; // z 6 (kolo má od verze 88 šest úkolů)
-const SHORT_MISTAKES = { mild: 2, normal: 1, strict: 0 } as const;    // kolik chyb smí být v krátkém kole (psaní, 5 úkolů)
+const SHORT_MISTAKES = { mild: 2, normal: 1, strict: 0 } as const;    // kolik chyb smí být v kole do 5 úkolů (od verze 88 žádné takové není, Psaní má 6)
 export type Strictness = keyof typeof NEED_CLEAN;
 export function needClean(strict: Strictness, len: number): number {
   const s: Strictness = strict in NEED_CLEAN ? strict : 'normal';

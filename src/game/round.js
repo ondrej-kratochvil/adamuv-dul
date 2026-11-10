@@ -40,7 +40,7 @@ import { levelName, queueRows } from '../app/sync.js';
 import { restingLevel, suggestLevel } from '../logic/rotation.ts';
 import { pickLine, remember } from '../logic/family.ts';
 
-// kolo má 6 úkolů (Ondřej 10. 11. 2026: častější odměna; do verze 88 bylo 8), Psaní 5
+// každé kolo má 6 úkolů, i Psaní (Ondřej 10. 11. 2026: častější odměna, jednotně; do verze 88 bylo 8, v Psaní 5)
 const ROUND_LEN = 6;
 // kolik kostek z 6 musí být bez chyby, aby dům rostl
 // Ochrana na helmě, brnění, chráničích a botách zkracuje zaseknutí po chybě (logic/rewards.ts)

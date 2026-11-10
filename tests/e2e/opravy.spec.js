@@ -24,15 +24,15 @@ test('na konci kola v době stavby domu vede tlačítko do domu', async ({ page 
   await expect(page.locator('#btnEndHouse')).toHaveText('Můj dům');
 });
 
-test('přísnost platí i pro psaní: přísná nedovolí ani jednu chybu z 5', async ({ page }) => {
+test('přísnost platí i pro psaní: přísná dovolí jen jednu chybu z 6', async ({ page }) => {
   await openGame(page, { strict: 'strict' });
-  await playRound(page, 'Psaní', { wrong: 1 });
+  await playRound(page, 'Psaní', { wrong: 2 });
   await expect(page.locator('#endTitle')).toHaveText('Skoro!');
 });
 
-test('střední přísnost v psaní dovolí jednu chybu z 5', async ({ page }) => {
+test('střední přísnost v psaní dovolí dvě chyby z 6', async ({ page }) => {
   await openGame(page, { strict: 'normal' });
-  await playRound(page, 'Psaní', { wrong: 1 });
+  await playRound(page, 'Psaní', { wrong: 2 });
   await expect(page.locator('#endTitle')).toHaveText('Výborně, Adame!');
 });
 
