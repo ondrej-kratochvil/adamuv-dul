@@ -48,7 +48,7 @@ Hraje-li dítě už na jiném zařízení, klepněte na **Načíst QR kód hrá�
 ## 3. Jak se hraje
 
 Na úvodní obrazovce je postavička, pes, kdo dítěti dnes fandí, **dnešní úkol** a dlaždice pater. Dítě klepne na patro
-a hraje **kolo**: 8 úkolů (v Psaní 5). Hlas řekne zadání a dítě kope krumpáčem do kostky se správnou odpovědí.
+a hraje **kolo**: 8 úkolů (v Psaní 5, v Číslech 6). Hlas řekne zadání a dítě kope krumpáčem do kostky se správnou odpovědí.
 
 | Patro | Co dítě dělá |
 |---|---|
@@ -56,7 +56,7 @@ a hraje **kolo**: 8 úkolů (v Psaní 5). Hlas řekne zadání a dítě kope kru
 | **Slabiky** | slyší slabiku (MA, LE, SÍ…) a najde ji |
 | **Slova** | slyší slovo a najde ho na kostkách; začíná krátkými slovy (MÁ, EMA), u slov, která ještě neumí, jsou chytáky snadné, u zvládnutých podobné (LES a LOS) |
 | **Čtení** | přečte slovo na ceduli (hlas ho neřekne) a vybere obrázek; později celé věty („EMA MÁ MÍSU.“) |
-| **Čísla** | slyší číslo a najde ho (pozor na chytáky: 68 a 86) |
+| **Čísla** | slyší číslo a najde ho (pozor na chytáky: 68 a 86); kolo má 6 úkolů (od verze 88) |
 | **Počty** | sčítání a odčítání, porovnávání (<, =, >) a doplňování (3 + ? = 5) |
 | **Psaní** | obtahuje prstem číslice, písmena a uvolňovací cviky ve vymezené dráze (případně psací písmo) |
 | **Mluvení** | poslouchá, jestli ve slově slyší R, nebo L (S/Š, Z/Ž…); řekne slovo nahlas, rodič klepne, jestli se povedlo; cviky pusy a foukání do mlýna. **Hra výslovnost nehodnotí**, jen sluch; doplňuje logopedii, nenahrazuje ji |

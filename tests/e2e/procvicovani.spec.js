@@ -87,7 +87,7 @@ test('bez internetu záznamy počkají a chyba se ukáže', async ({ page }) => 
   await playRound(page, 'Čísla');
   await page.locator('#btnEndHome').click();
   const s = await saved(page);
-  expect(s.sync.queue.length).toBeGreaterThanOrEqual(9);
+  expect(s.sync.queue.length).toBeGreaterThanOrEqual(7); // 6 úloh Čísel (od verze 88) a řádek kola
   expect(s.sync.error).not.toBe('');
 });
 

@@ -37,7 +37,8 @@ const LEVELS = {
   syllables: { name: 'Slabiky', tex: 'stone', items: SYLL, sample: ['MA', 'lo'], small: true, intro: 'Poslouchej a kopej do správné slabiky.' },
   words: { name: 'Slova', tex: 'ironOre', gen: genWords, sample: ['MÁMA'], small: true, intro: 'Poslouchej slovo a kopej do správné kostky.' },
   reading: { name: 'Čtení', tex: 'diamondOre', gen: genReading, picture: true, sample: ['OSA'], small: true, intro: 'Přečti slovo na ceduli a kopni do správného obrázku.' },
-  numbers: { name: 'Čísla', tex: 'goldOre', gen: genNumbers, sample: ['3', '7'], intro: 'Poslouchej číslo a kopej do správné kostky.' },
+  // Čísla jen 6 úkolů: Adam z nich odcházel po 6. až 7. z 8, skoro bez chyb (statistiky 10. 11. 2026)
+  numbers: { name: 'Čísla', tex: 'goldOre', gen: genNumbers, len: 6, sample: ['3', '7'], intro: 'Poslouchej číslo a kopej do správné kostky.' },
   math: { name: 'Počty', tex: 'lapisOre', gen: genMath, sample: ['2+3'], small: true, intro: 'Spočítej příklad a kopej do správného výsledku.' },
   speech: { name: 'Mluvení', tex: 'emeraldOre', gen: genSpeechHear, speech: true, label: soundLabel, sample: ['R', 'Š'], intro: 'Mluvení! Poslouchej slovo a ukaž, jakou hlásku v něm slyšíš. Občas řekneš slovo nahlas nebo procvičíš pusu.' },
   writing: { name: 'Psaní', tex: 'redstoneOre', trace: genWriting, len: 5, sample: ['1 A'], intro: 'Jeď prstem po dráze a nevyjeď z ní. Začni u zelené tečky a jeď po šipce.' },

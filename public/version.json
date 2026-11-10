@@ -1,6 +1,13 @@
 {
-  "version": 87,
+  "version": 88,
   "changes": [
+    {
+      "version": 88,
+      "date": "2026-11-10",
+      "notes": [
+        "Kolo v Číslech je kratší: jen 6 úkolů."
+      ]
+    },
     {
       "version": 87,
       "date": "2026-11-10",
