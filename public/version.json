@@ -1,6 +1,13 @@
 {
-  "version": 85,
+  "version": 86,
   "changes": [
+    {
+      "version": 86,
+      "date": "2026-11-10",
+      "notes": [
+        "Oprava: na iPhonu a iPadu hra zase pokaždé řekne, co máš dělat."
+      ]
+    },
     {
       "version": 85,
       "date": "2026-11-10",

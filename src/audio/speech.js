@@ -30,15 +30,33 @@ let cloudOffUntil = 0, cloudMissing = false; // cloudMissing: server nemá klí�
 const urls = new Map();      // věta → adresa zvuku v paměti (blob:)
 const refused = new Set();   // věty, které server odmítl (422: není ze hry)
 let player = null;
-// iPhone a iPad pustí zvuk bez klepnutí, jen když se přehrávač jednou rozjel při klepnutí (krátké ticho)
-// (přes blob:, CSP ve vite.config.js data: pro zvuk nepouští)
-const SILENCE = 'UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=';
-function unlock() {
-  document.removeEventListener('pointerdown', unlock, true);
-  if (!cloudWanted() || player) return;
-  try { player = new Audio(); player.src = URL.createObjectURL(new Blob([Uint8Array.from(atob(SILENCE), c => c.charCodeAt(0))], { type: 'audio/wav' })); const p = player.play(); if (p && p.catch) p.catch(() => {}); } catch (e) { /* nic */ }
+// iPhone a iPad pustí zvuk bez klepnutí (přirozený hlas přijde až po stažení věty), jen když se přehrávač
+// i hlas zařízení jednou rozjely při klepnutí. Safari bere jako klepnutí touchend a click, ne pointerdown
+// (verze 84: přehrávač zůstal zamčený, hra na iPhonu občas mlčela, Honza 10. 11. 2026). Zkouší se, dokud se nepovede.
+const UNLOCK_EVENTS = ['touchend', 'click', 'keydown'];
+let mediaUnlocked = false, synthUnlocked = false;
+// 0,1 s ticha jako WAV (přes blob:, CSP ve vite.config.js data: pro zvuk nepouští)
+function silence() {
+  const n = 800, b = new Uint8Array(44 + n), v = new DataView(b.buffer), w = (o, s) => [...s].forEach((c, i) => { b[o + i] = c.charCodeAt(0); });
+  w(0, 'RIFF'); v.setUint32(4, 36 + n, true); w(8, 'WAVEfmt '); v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true);
+  v.setUint32(24, 8000, true); v.setUint32(28, 8000, true); v.setUint16(32, 1, true); v.setUint16(34, 8, true); w(36, 'data'); v.setUint32(40, n, true);
+  b.fill(128, 44);
+  return URL.createObjectURL(new Blob([b], { type: 'audio/wav' }));
 }
-document.addEventListener('pointerdown', unlock, true);
+function unlock() {
+  if (synth && !synthUnlocked) { synthUnlocked = true; try { const u = new SpeechSynthesisUtterance(' '); u.volume = 0; synth.speak(u); } catch (e) { /* nic */ } }
+  if (!mediaUnlocked && !(player && !player.paused && !player.ended)) {
+    try {
+      if (!player) player = new Audio();
+      player.onended = player.onerror = player.onloadedmetadata = null;
+      player.src = silence();
+      const p = player.play();
+      if (p && p.then) p.then(() => { mediaUnlocked = true; }, () => {}); else mediaUnlocked = true;
+    } catch (e) { /* nic */ }
+  }
+  if (mediaUnlocked && synthUnlocked) UNLOCK_EVENTS.forEach(ev => document.removeEventListener(ev, unlock, true));
+}
+UNLOCK_EVENTS.forEach(ev => document.addEventListener(ev, unlock, true));
 
 const cloudWanted = () => ttsChoice(save.tts) !== TTS_DEVICE;
 const cloudNet = () => !cloudMissing && Date.now() >= cloudOffUntil && navigator.onLine !== false;
@@ -115,7 +133,7 @@ function speak(text, onend) {
       player.onloadedmetadata = () => { if (isFinite(player.duration)) setTimeout(fin, player.duration * 1000 + 1500); };
       player.src = url;
       // přehrání může prohlížeč odmítnout (zvuk bez klepnutí): pak řekne větu tablet
-      player.play().catch(fallback);
+      player.play().then(() => { mediaUnlocked = true; }, fallback);
     }).catch(() => { if (net && !cloudMissing && !refused.has(q.text) && Date.now() >= cloudOffUntil) cloudOffUntil = Date.now() + COOLDOWN_MS; fallback(); });
   }, 60);
 }

@@ -9,7 +9,8 @@ export async function mockSpeech(page) {
   await page.addInitScript(() => {
     window.__said = [];
     if (!window.SpeechSynthesis) return;
-    SpeechSynthesis.prototype.speak = function (u) { window.__said.push(u.text); setTimeout(() => u.onend && u.onend(), 5); };
+    SpeechSynthesis.prototype.speak = function (u) { if (u.text.trim()) window.__said.push(u.text); // prázdná promluva = odemčení hlasu po klepnutí (audio/speech.js)
+    setTimeout(() => u.onend && u.onend(), 5); };
     SpeechSynthesis.prototype.cancel = function () {};
   });
 }
