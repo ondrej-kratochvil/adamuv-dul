@@ -75,7 +75,8 @@ async function traceCurrent(page) {
 }
 
 // Dohraje kolo: wrong = kolik úkolů nejdřív odpovědět špatně (kostky) nebo kolikrát vyjet z dráhy (psaní).
-export async function playRound(page, label, { wrong = 0 } = {}) {
+// repeat: chybovat i opakovaně v jednom úkolu (kolo má jen 6 úkolů, víc chyb jinak nejde)
+export async function playRound(page, label, { wrong = 0, repeat = false } = {}) {
   if (label) await page.getByRole('button', { name: label, exact: true }).first().click(); // bez názvu: kolo už běží
 
   let mistakes = wrong;
@@ -94,7 +95,7 @@ export async function playRound(page, label, { wrong = 0 } = {}) {
       await page.waitForTimeout(150);
       continue;
     }
-    const s = await page.evaluate(() => { const r = window.__adam.R; return r ? { level: r.level, busy: r.busy, stuck: r.stuck, ready: !!(r.els || window.__adam.TR), first: r.firstTry } : null; });
+    const s = await page.evaluate(() => { const r = window.__adam.R; return r ? { level: r.level, busy: r.busy, stuck: r.stuck, ready: !!(r.els || window.__adam.TR), first: r.firstTry, left: r.len - r.i } : null; });
     if (s && !s.busy && !s.stuck && s.ready) {
       if (s.level === 'writing') {
         if (mistakes > 0 && s.first) {
@@ -104,7 +105,8 @@ export async function playRound(page, label, { wrong = 0 } = {}) {
           mistakes--;
         } else await traceCurrent(page);
       } else {
-        const bad = mistakes > 0 && s.first;
+        // repeat: chyba v každém úkolu napoprvé, navíc opakovaně, když chyb zbývá víc než úkolů
+        const bad = mistakes > 0 && (s.first || (repeat && mistakes >= s.left));
         await page.evaluate(bad => { const r = window.__adam.R; const i = r.choices.indexOf(r.target); r.els[bad ? (i + 1) % r.choices.length : i].click(); }, bad);
         if (bad) mistakes--;
       }

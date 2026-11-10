@@ -5,7 +5,7 @@ import { openGame, playRound, saved } from './helpers.js';
 test('vykopané kostky přijdou do zásoby na stavění', async ({ page }) => {
   await openGame(page, { total: 2 });
   await playRound(page, 'Písmena');
-  expect((await saved(page)).build.blocks.dirt).toBe(8);
+  expect((await saved(page)).build.blocks.dirt).toBe(6); // kostka za každý úkol, kolo má 6 úkolů
 });
 
 test('stavění je zamčené do dostavěného domu', async ({ page }) => {

@@ -60,7 +60,7 @@ test('tabulka Google: po nastavení adresy odejdou dřívější kola i nové ú
   await openGame(page, { total: 5, log: [{ t: Date.now() - 86400000, d: '2026-10-19', level: 'numbers', clean: 8, done: 8, len: 8, ok: true, quit: false, secs: 44, rate: 8 }] });
   await playRound(page, 'Písmena');
   await page.locator('#btnEndHome').click();
-  expect((await saved(page)).sync.queue.length).toBeGreaterThan(8); // bez adresy čeká ve frontě
+  expect((await saved(page)).sync.queue.length).toBeGreaterThan(6); // bez adresy čeká ve frontě (6 úloh a kolo)
   await openSettings(page, 'sync');
   await page.locator('#syncUrl').fill('https://example.com/x');
   await page.locator('#btnSyncSave').click();
@@ -71,7 +71,7 @@ test('tabulka Google: po nastavení adresy odejdou dřívější kola i nové ú
   await page.locator('#btnBackfillYes').click();
   await expect(page.locator('#syncInfo')).toContainText('Čeká na odeslání: 0');
   const rows = got.flatMap(b => b.rows);
-  expect(rows.filter(r => r.Druh === 'úloha').length).toBe(8);
+  expect(rows.filter(r => r.Druh === 'úloha').length).toBe(6); // kolo má 6 úkolů (od verze 88)
   expect(rows.filter(r => r.Druh === 'kolo').map(r => r.Patro)).toEqual(['Čísla', 'Písmena']);
   expect(rows.every(r => r.ID && r.Čas)).toBe(true);
   expect(got[0].stav.patra.find(p => p.Patro === 'Písmena').Celkem).toBeGreaterThan(0);

@@ -24,14 +24,14 @@ export function nextEnchant(pts: number, max: number, owned: readonly string[]):
 }
 
 // kolik úkolů v kole musí být bez chyby, aby se kolo počítalo
-export const NEED_CLEAN = { mild: 4, normal: 5, strict: 6 } as const; // z 8
+export const NEED_CLEAN = { mild: 3, normal: 4, strict: 5 } as const; // z 6 (kolo má od verze 88 šest úkolů)
 const SHORT_MISTAKES = { mild: 2, normal: 1, strict: 0 } as const;    // kolik chyb smí být v krátkém kole (psaní, 5 úkolů)
 export type Strictness = keyof typeof NEED_CLEAN;
 export function needClean(strict: Strictness, len: number): number {
   const s: Strictness = strict in NEED_CLEAN ? strict : 'normal';
-  if (len === 8) return NEED_CLEAN[s];
+  if (len === 6) return NEED_CLEAN[s];
   if (len <= 5) return len - SHORT_MISTAKES[s];
-  return Math.ceil(NEED_CLEAN[s] * len / 8);
+  return Math.ceil(NEED_CLEAN[s] * len / 6);
 }
 
 // Ochrana: zaseknutí krumpáče po chybě kratší o 50 ms za úroveň, nejkratší 1,2 s

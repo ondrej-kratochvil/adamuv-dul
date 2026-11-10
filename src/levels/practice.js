@@ -20,6 +20,6 @@ function genPractice() {
   G.R.picked.push(t.stat);
   return w.level === 'reading' ? { ...t, task: partLabel(t.answer, display(t.answer)) } : t;
 }
-const PRACTICE = { name: 'Procvičování', tex: 'bookshelf', gen: genPractice, len: 8, intro: 'Procvičování. Dám ti úkoly, které ti ještě nejdou. Dobře poslouchej a kopej do správné kostky.' };
+const PRACTICE = { name: 'Procvičování', tex: 'bookshelf', gen: genPractice, intro: 'Procvičování. Dám ti úkoly, které ti ještě nejdou. Dobře poslouchej a kopej do správné kostky.' };
 
 export { PRACTICE, genPractice, practiceReady };

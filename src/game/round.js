@@ -40,8 +40,9 @@ import { levelName, queueRows } from '../app/sync.js';
 import { restingLevel, suggestLevel } from '../logic/rotation.ts';
 import { pickLine, remember } from '../logic/family.ts';
 
-const ROUND_LEN = 8;
-// kolik kostek z 8 musí být bez chyby, aby dům rostl
+// kolo má 6 úkolů (Ondřej 10. 11. 2026: častější odměna; do verze 88 bylo 8), Psaní 5
+const ROUND_LEN = 6;
+// kolik kostek z 6 musí být bez chyby, aby dům rostl
 // Ochrana na helmě, brnění, chráničích a botách zkracuje zaseknutí po chybě (logic/rewards.ts)
 const protectionLevels = () => ['hat', 'shirt', 'pants', 'shoes'].reduce((a, pc) => a + enchLevel(pc, 'Ochrana'), 0);
 const stuckMs = () => stuckMsFor(protectionLevels());
