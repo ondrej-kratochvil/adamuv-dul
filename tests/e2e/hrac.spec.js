@@ -93,3 +93,19 @@ test('úvodní nastavení: jde vypnout i M (poslední souhláska), začít jde a
   await expect(page.locator('#setupOverlay')).toBeHidden();
   expect((await saved(page)).letters).toEqual(['P']);
 });
+
+test('úvodní nastavení: přenos z jiného zařízení je nahoře; ve vestavěném prohlížeči LinkedInu poradí běžný prohlížeč', async ({ browser }) => {
+  const ctx = await browser.newContext({ userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 [LinkedInApp]/9.30' });
+  const page = await ctx.newPage();
+  await openGame(page, null, { fresh: true });
+  await expect(page.locator('#setupOverlay')).toBeVisible();
+  await expect(page.locator('#setupInApp')).toBeVisible();
+  await expect(page.locator('#setupInApp')).toContainText('LinkedIn');
+  await expect(page.locator('#btnSetupCode')).toBeVisible();
+  await ctx.close();
+});
+test('úvodní nastavení v běžném prohlížeči: bez varování o aplikaci', async ({ page }) => {
+  await openGame(page, null, { fresh: true });
+  await expect(page.locator('#setupOverlay')).toBeVisible();
+  await expect(page.locator('#setupInApp')).toBeHidden();
+});

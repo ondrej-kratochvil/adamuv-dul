@@ -225,7 +225,8 @@ async function api(req: Request, env: Env, path: string, ctx: Ctx): Promise<Resp
     if (!rows) return json(req, { error: 'bad' }, 400);
     const st = rows.filter(r => r && typeof r === 'object').map(r => {
       const o = r as Record<string, unknown>;
-      return env.DB.prepare('INSERT INTO events (player_id, ts, kind, data) VALUES (?, ?, ?, ?)').bind(me, now, String(o.Druh || '').slice(0, 30), JSON.stringify(o).slice(0, 4000));
+      return env.DB.prepare('INSERT OR IGNORE INTO events (player_id, ts, kind, data) VALUES (?, ?, ?, ?)') // znovu poslaná dávka: stejný řádek jen jednou (migrace 0007)
+        .bind(me, now, String(o.Druh || '').slice(0, 30), JSON.stringify(o).slice(0, 4000));
     });
     if (st.length) await env.DB.batch(st);
     return json(req, { ok: true, n: st.length });

@@ -410,6 +410,8 @@
   <div class="panel setup" role="dialog" aria-labelledby="setupTitle">
     <h2 id="setupTitle">Vítejte ve hře Schoolcraft</h2>
     <p>Hra učí písmena, slabiky, čtení, čísla a psaní. Za každý zvládnutý úkol si dítě staví dům, farmu a vesnici. Nejdřív řekněte, kdo bude hrát.</p>
+    <p class="setup-warn" id="setupInApp" hidden></p>
+    <p class="setup-move"><b>Hraje už dítě na jiném zařízení?</b> Nezakládejte ho znovu, přeneste postup: na původním zařízení otevřete nastavení, kartu Online, a tady načtěte QR kód hráče. <button class="gbtn" type="button" id="btnSetupCode">Načíst QR kód hráče</button></p>
     <form id="setupForm">
       <label class="lbl-small" for="setupName">Jméno dítěte</label>
       <input id="setupName" type="text" maxlength="30" autocomplete="off" required placeholder="třeba Ema nebo Jakub">
@@ -420,7 +422,6 @@
       <label class="lbl-small setup-online"><input type="checkbox" id="setupOnline"> Hrát online: zálohovat postup na server Schoolcraft (Cloudflare, EU) a ukázat hráče v žebříčku skupiny (rodina, třída). Jde zapnout i později na kartě Online.</label>
       <div class="actions"><button class="gbtn go" id="btnSetupGo" type="submit" data-icon="next">Začít hrát</button></div>
     </form>
-    <p class="lbl-small">Hráč už hraje na jiném zařízení? <button class="gbtn" type="button" id="btnSetupCode">Načíst QR kód hráče</button></p>
     <p class="lbl-small">Rodinu, která bude dítěti fandit, a další nastavení najdete později pod ozubeným kolem (pro rodiče).</p>
     <p class="lbl-small"><button class="linkbtn" type="button" id="btnSetupAbout">O hře a soukromí: k čemu hra je a co se kam ukládá</button></p>
   </div>

@@ -541,6 +541,9 @@ canvas.ench { animation: ench 1.8s ease-in-out infinite; }
 .fe-checks { display: flex; flex-wrap: wrap; gap: 4px 14px; font-family: var(--f-read); font-size: 15px; margin: 6px 0; }
 .setup p { font-family: var(--f-read); font-size: 17px; line-height: 1.4; }
 .setup input[type=text] { width: 100%; font-family: var(--f-read); font-size: 20px; padding: 8px; border: 3px solid #161616; margin: 4px 0 10px; }
+.setup .setup-move { background: #fff7d1; border: 3px solid #161616; padding: 8px 10px; font-size: 16px; }
+.setup .setup-move .gbtn { display: block; margin-top: 6px; }
+.setup .setup-warn { background: #fde2dc; border: 3px solid #9a2a14; color: #6b1d0d; padding: 8px 10px; font-size: 16px; font-weight: 700; }
 .letter-toggles { display: grid; grid-template-columns: repeat(auto-fill, minmax(44px, 1fr)); gap: 6px; margin: 6px 0; }
 .letter-toggles .gbtn { font-size: 18px; padding: 6px 0; font-family: var(--f-read); }
 .letter-toggles .gbtn[aria-pressed="true"] { background: var(--go); }

@@ -11,6 +11,7 @@ import { applyName } from '../app/name.js';
 import { renderHome } from './screens.js';
 import { checkNewDay } from '../world/daily.js';
 import { askCodeRestore, openScanner } from './qr-ui.js';
+import { inAppBrowser } from '../logic/inapp.ts';
 
 let gender = 'm', letters = ['M', 'L', 'S'];
 function renderLetters() {
@@ -28,7 +29,14 @@ function preview() {
   document.querySelectorAll('#setupGender [data-g]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.g === gender)));
 }
 function needsSetup() { return !save.player; }
-function openSetup(name = '') { $('#setupName').value = name; letters = [...save.letters]; preview(); renderLetters(); $('#setupOverlay').hidden = false; }
+function openSetup(name = '') {
+  $('#setupName').value = name; letters = [...save.letters]; preview(); renderLetters();
+  // vestavěný prohlížeč aplikace si postup často nepamatuje (logic/inapp.ts)
+  const app = inAppBrowser(navigator.userAgent || ''), w = $('#setupInApp');
+  w.hidden = !app;
+  if (app) w.textContent = `Hra je otevřená uvnitř aplikace ${app}. Tady si postup nemusí zapamatovat a příště by začínala znovu. Otevřete ji v prohlížeči (Safari nebo Chrome): menu se třemi tečkami, Otevřít v prohlížeči, nebo napište adresu schoolcraft.games.`;
+  $('#setupOverlay').hidden = false;
+}
 function initSetup() {
   $('#btnSetupCode').addEventListener('click', () => openScanner(askCodeRestore)); // hráč z jiného zařízení (QR kód)
   $('#setupName').addEventListener('input', preview);

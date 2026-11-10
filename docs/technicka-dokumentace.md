@@ -317,7 +317,7 @@ CORS jen pro `ORIGINS` (`worker/logic.ts`).
 | GET | `/api/admin/players`, `/api/admin/events?player=&kind=&after=` | klíč správce (`Authorization: Admin …`) | | rozbory: jen čtení, jen hráči rodinné skupiny (první „Rodina“); klíč `ADMIN_TOKEN` (tajná proměnná, CI z `SCHOOLCRAFT_ADMIN_TOKEN`) |
 | GET | `/api/admin/tts` | klíč správce | | spotřeba přirozeného hlasu: stropy, počet uložených vět, znaky za den (`tts_usage`) |
 | POST | `/api/tts` | ne | `{ text, voice, slow }` (text do 300 znaků, hlas ze seznamu, jen věta ze hry `gameText`) | MP3 přirozeného hlasu Google; sdílená mezipaměť (Cloudflare, D1 `tts_audio`); limit 120/min na IP, nové věty 30/min; 422 není ze hry, 429 limit nebo denní/měsíční strop znaků, 503 bez klíče `GOOGLE_TTS_KEY` |
-| POST | `/api/events` | ano | `{ rows }` (nejvýš 300) | `{ ok, n }` |
+| POST | `/api/events` | ano | `{ rows }` (nejvýš 300) | `{ ok, n }`; stejný řádek od stejného hráče jen jednou (znovu poslaná dávka, migrace 0007) |
 | DELETE | `/api/me` | ano | | smaže hráče, statistiky i upozornění |
 | GET | `/api/me` | ano | | `{ nick, public, group: { code, name } \| null }` |
 | POST | `/api/group` | ano | `{ name }` | založí skupinu a vstoupí: `{ code, name }` |
