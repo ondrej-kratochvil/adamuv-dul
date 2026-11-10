@@ -104,7 +104,7 @@ function openGate() {
   $('#gateQ').textContent = gate.text; $('#gateInput').value = ''; $('#gateMsg').textContent = '';
   const ps = passState(), any = ps.local.length || ps.phone.length;
   $('#gatePass').hidden = !any; $('#btnGateLocal').hidden = !ps.local.length; $('#btnGatePhone').hidden = !ps.phone.length;
-  $('#gateLead').textContent = any ? 'Nastavení otevřete otiskem prstu, nebo když spočítáte příklad.' : 'Nastavení otevřete, když spočítáte příklad.';
+  $('#gateLead').textContent = any ? 'Nastavení otevřete otiskem prstu nebo Face ID, nebo když spočítáte příklad.' : 'Nastavení otevřete, když spočítáte příklad.';
   $('#gateOverlay').hidden = false;
   speak('Tohle je nastavení pro rodiče.');
   if (ps.local.length) gatePass('local'); else $('#gateInput').focus(); // otisk na tomhle zařízení se nabídne hned (klepnutí na kolo je gesto)
@@ -121,21 +121,21 @@ async function gatePass(kind) {
 $('#btnGateLocal').addEventListener('click', () => gatePass('local'));
 $('#btnGatePhone').addEventListener('click', () => gatePass('phone'));
 // nastavení otisků na kartě Hra
-const PASS_WHY = { nosupport: 'Tohle zařízení přihlášení otiskem z webu neumí.', cancel: 'Nastavení otisku bylo zrušené.', verify: 'Zařízení nepotvrdilo, že ověřilo otisk nebo PIN.' };
+const PASS_WHY = { nosupport: 'Tohle zařízení přihlášení otiskem ani Face ID z webu neumí.', cancel: 'Nastavení bylo zrušené.', verify: 'Zařízení nepotvrdilo, že ověřilo otisk, obličej nebo PIN.' };
 async function renderPass(msg) {
   const s = passState(), local = await localAvailable();
   $('#btnPassLocal').hidden = !local; $('#btnPassPhone').hidden = !passSupport(); $('#btnPassOff').hidden = !(s.local.length || s.phone.length);
   $('#passInfo').textContent = msg || (!passSupport() ? PASS_WHY.nosupport
-    : [s.local.length ? 'Otisk na tomto zařízení: nastavený.' : '', s.phone.length ? 'Telefon rodiče: nastavený.' : '', !s.local.length && !s.phone.length ? 'Zatím nenastaveno, nastavení se otevírá příkladem.' : '', !local ? 'Toto zařízení nemá otisk ani zámek obrazovky, jde jen telefon rodiče.' : ''].filter(Boolean).join(' '));
+    : [s.local.length ? 'Otisk na tomto zařízení: nastavený.' : '', s.phone.length ? 'Telefon rodiče: nastavený.' : '', !s.local.length && !s.phone.length ? 'Zatím nenastaveno, nastavení se otevírá příkladem.' : '', !local ? 'Toto zařízení nemá otisk, Face ID ani zámek obrazovky, jde jen telefon rodiče.' : ''].filter(Boolean).join(' '));
 }
 async function setupPass(kind) {
-  $('#passInfo').textContent = kind === 'phone' ? 'Naskenujte QR kód telefonem a potvrďte otiskem…' : 'Přiložte prst (nebo zadejte PIN zařízení)…';
-  try { await registerPass(kind); renderPass(kind === 'phone' ? 'Telefon rodiče je nastavený. Příště stačí naskenovat QR kód.' : 'Otisk je nastavený. Příště se nastavení otevře otiskem.'); }
+  $('#passInfo').textContent = kind === 'phone' ? 'Naskenujte QR kód telefonem a potvrďte otiskem nebo Face ID…' : 'Přiložte prst, podívejte se do Face ID, nebo zadejte PIN zařízení…';
+  try { await registerPass(kind); renderPass(kind === 'phone' ? 'Telefon rodiče je nastavený. Příště stačí naskenovat QR kód.' : 'Otisk je nastavený. Příště se nastavení otevře otiskem nebo Face ID.'); }
   catch (e) { renderPass(PASS_WHY[e && e.message] || (e && e.name === 'NotAllowedError' ? PASS_WHY.cancel : `Nepovedlo se: ${e && e.message || e}. U dětského účtu to může blokovat Family Link.`)); }
 }
 $('#btnPassLocal').addEventListener('click', () => setupPass('local'));
 $('#btnPassPhone').addEventListener('click', () => setupPass('phone'));
-$('#btnPassOff').addEventListener('click', () => { removePass('local'); removePass('phone'); renderPass('Otisky zrušené, nastavení se otevírá příkladem.'); });
+$('#btnPassOff').addEventListener('click', () => { removePass('local'); removePass('phone'); renderPass('Otisk a Face ID zrušené, nastavení se otevírá příkladem.'); });
 $('#btnSettings').addEventListener('click', openGate);
 $('#btnGoOnline').addEventListener('click', () => showSetTab('online'));
 initPlayerSet();

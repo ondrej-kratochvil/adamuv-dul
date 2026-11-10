@@ -6,7 +6,7 @@
 > **Souhrn:**
 > - Hra učí písmena, slabiky, čtení, čísla, počty, psaní a sluch pro výslovnost; za zvládnuté úkoly si dítě staví svůj svět.
 > - Hraje se na https://schoolcraft.games, nejlépe přidané na plochu tabletu jako aplikace; jde i bez internetu.
-> - Nastavení pro rodiče je pod ozubeným kolem, chráněné příkladem nebo otiskem prstu.
+> - Nastavení pro rodiče je pod ozubeným kolem, chráněné příkladem nebo otiskem prstu či Face ID.
 > - Obtížnost se zvedá sama podle toho, co dítě opravdu umí; rodič zapíná písmena, která už zná ze školy.
 > **Souvisí:** [`technicka-dokumentace.md`](technicka-dokumentace.md) (pro vývojáře), [`google-tabulka.md`](google-tabulka.md)
 > (statistiky do tabulky Google)
@@ -129,7 +129,7 @@ a dvakrát Smazat.
 
 ## 6. Nastavení pro rodiče
 
-Ozubené kolo vpravo nahoře. Otevře se po spočítání příkladu (násobení, které dítě v 1. třídě neumí), nebo **otiskem prstu**
+Ozubené kolo vpravo nahoře. Otevře se po spočítání příkladu (násobení, které dítě v 1. třídě neumí), nebo **otiskem prstu či Face ID**
 (oddíl 6.2). Nastavení je **strom**: na mobilu seznam částí, klepnutím se část otevře a tlačítko **Nastavení** (šipka) vrátí
 na seznam; na tabletu naležato a na počítači je seznam vlevo a část vpravo. Hra si pamatuje poslední otevřenou část.
 
@@ -141,7 +141,7 @@ na seznam; na tabletu naležato a na počítači je seznam vlevo a část vpravo
 | | **Přísnost** | kolik úkolů bez chyby je potřeba na povedené kolo |
 | | **Hlas** | kdo čte (přirozený hlas, nebo hlas tabletu), rychlost hlasu, vyzkoušení, výslovnost slabik |
 | Zařízení | **Upozornění** | ranní upozornění, předběhnutí v žebříčku, zkušební upozornění |
-| | **Otisk prstu** | vstup do nastavení otiskem na zařízení nebo telefonem rodiče |
+| | **Otisk nebo Face ID** | vstup do nastavení otiskem nebo Face ID na zařízení, nebo telefonem rodiče |
 | | **Vibrace** | zapnout / vypnout |
 | Postup a data | **Postup a zálohy** | přehled, Statistiky, Začít od začátku, Vrátit zálohu, přenos textem, stav uložení |
 | | **Profily** | další hráči nebo testovací profil |
@@ -159,14 +159,14 @@ Zítra se vše vrátí samo, nebo **Ukončit návštěvu**. Hlas zůstává stej
 Zapínejte souhlásky podle toho, co se dítě naučilo ve škole. Hra z nich sama skládá slabiky, slova, obrázky ke čtení i psaní;
 slovo s neznámým písmenem se neobjeví.
 
-### 6.2 Otisk prstu místo příkladu
+### 6.2 Otisk nebo Face ID místo příkladu
 
-Část **Otisk prstu**:
+Část **Otisk nebo Face ID** (na iPhonu a iPadu ověřuje Face ID, jinde otisk, obličej nebo PIN zařízení; Honza 10. 11. 2026):
 
-- **Nastavit na tomto zařízení**: použije zámek tabletu (otisk, obličej nebo PIN). Projde ale každý, kdo tablet umí odemknout.
+- **Nastavit na tomto zařízení**: použije zámek tabletu (otisk, obličej či Face ID, nebo PIN). Projde ale každý, kdo tablet umí odemknout.
 - **Nastavit telefon rodiče**: tablet ukáže QR kód, naskenujete ho svým telefonem a potvrdíte otiskem. Tablet i telefon
   potřebují zapnutý Bluetooth. **Dítě to neobejde**, ani když zná PIN tabletu.
-- Příklad zůstává vždy jako záloha. **Zrušit otisky** vrátí jen příklad.
+- Příklad zůstává vždy jako záloha. **Zrušit otisk a Face ID** vrátí jen příklad.
 
 ### 6.3 Upozornění
 

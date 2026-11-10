@@ -1,6 +1,13 @@
 {
-  "version": 84,
+  "version": 85,
   "changes": [
+    {
+      "version": 85,
+      "date": "2026-11-10",
+      "notes": [
+        "Pro rodiče: nastavení jde na iPhonu a iPadu otevřít i přes Face ID."
+      ]
+    },
     {
       "version": 84,
       "date": "2026-11-09",
