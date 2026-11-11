@@ -164,7 +164,7 @@ $('#rateNormal').addEventListener('click', () => { save.slow = false; persist();
 $('#rateSlow').addEventListener('click', () => { save.slow = true; persist(); updateSettings(); });
 $('#voiceLogBox').addEventListener('toggle', () => { if ($('#voiceLogBox').open) $('#voiceLog').textContent = voiceLogText(); });
 $('#ttsVoice').addEventListener('change', () => { save.tts = $('#ttsVoice').value; persist(); updateVoiceInfo(); $('#btnTestVoice').click(); });
-$('#btnTestVoice').addEventListener('click', () => { loadVoices(); speak(`Ahoj ${voc()}! Tady je hra. ` + ['MA', 'MÉ', 'SO', 'LY'].map(s => pronounceAs(s, save.pron?.[s] || defaultMode(s))).join('. ') + '.'); setTimeout(loadVoices, 800); });
+$('#btnTestVoice').addEventListener('click', () => { loadVoices(); speak('Ahoj! Tady je hra. ' + ['MA', 'MÉ', 'SO', 'LY'].map(s => pronounceAs(s, save.pron?.[s] || defaultMode(s))).join('. ') + '.'); setTimeout(loadVoices, 800); });
 $('#btnReset').addEventListener('click', () => { $('#resetConfirm').hidden = false; });
 // tabulka Google (app/sync.js, návod docs/google-tabulka.md)
 const fmtWhen = t => { const d = new Date(t); return `${d.getDate()}. ${d.getMonth() + 1}. ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`; };

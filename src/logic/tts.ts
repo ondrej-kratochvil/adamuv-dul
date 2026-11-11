@@ -27,9 +27,15 @@ export const ttsChoice = (v: unknown): string => validVoice(v) ? v : TTS_DEVICE;
 export const ttsRate = (slow: boolean): number => slow ? 0.75 : 0.92;
 
 // věta ze hry: každé slovo delší než 3 písmena je ve slovníku textů hry (scripts/tts-slova.mjs), čísla smí;
-// volný text (jméno napsané rodičem, cizí použití serveru) čte hlas tabletu
+// jiný volný text (cizí použití serveru) čte hlas tabletu
 const WORDS = new Set<string>(GAME_WORDS as string[]);
-export const gameText = (text: string): boolean => (text.toLocaleLowerCase('cs').match(/\p{L}+/gu) || []).every(w => w.length <= 3 || WORDS.has(w));
+// Jedno slovo mimo slovník (nejvýš NAME_MAX písmen) projde: jméno dítěte v pozdravu a pochvale („Výborně, Terko!“), ať hra
+// mluví jedním hlasem (Ondřej 11. 11. 2026: věty se jménem četl tablet, hlasy se střídaly a ukázka v nastavení zněla pořád stejně).
+export const NAME_MAX = 15;
+export function gameText(text: string): boolean {
+  const unknown = (text.toLocaleLowerCase('cs').match(/\p{L}+/gu) || []).filter(w => w.length > 3 && !WORDS.has(w));
+  return unknown.length === 0 || (unknown.length === 1 && unknown[0].length <= NAME_MAX);
+}
 
 // strop znaků poslaných Googlu (worker/index.ts, proměnné TTS_DAY_CHARS a TTS_MONTH_CHARS ve wrangler.jsonc); po něm hlas tabletu
 export const TTS_DAY_CHARS = 100000;

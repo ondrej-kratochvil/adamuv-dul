@@ -38,7 +38,12 @@ describe('přirozený hlas (logic/tts.ts)', () => {
     expect(gameText('m­a')).toBe(true);
     expect(gameText('Získal jsi 125 smaragdů.')).toBe(true);
     expect(gameText('Objednejte si levné pojištění auta')).toBe(false);
-    expect(gameText('Ahoj Kvido Zbyhněvo!')).toBe(false);
+    expect(gameText('Ahoj Bartoloměji Zbyhněvo!')).toBe(false); // dvě slova mimo slovník
+    // jedno slovo mimo slovník = jméno dítěte (11. 11. 2026), nejvýš NAME_MAX písmen
+    expect(gameText('Výborně, Terko!')).toBe(true);
+    expect(gameText('Ahoj Bartoloměji! Tady je hra.')).toBe(true);
+    expect(gameText('Ahoj Abcdefghijklmnop!')).toBe(false);
+    expect(gameText('Kupte levné pojištění')).toBe(false);
   });
   it('slovník textů hry je aktuální (po změně textů: node scripts/tts-slova.mjs)', () => {
     expect(JSON.parse(readFileSync(WORDS_FILE, 'utf8'))).toEqual(collectWords());

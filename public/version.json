@@ -1,6 +1,13 @@
 {
-  "version": 91,
+  "version": 92,
   "changes": [
+    {
+      "version": 92,
+      "date": "2026-11-11",
+      "notes": [
+        "Přirozený hlas teď říká i tvoje jméno, celá hra mluví jedním hlasem."
+      ]
+    },
     {
       "version": 91,
       "date": "2026-11-11",

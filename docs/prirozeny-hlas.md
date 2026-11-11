@@ -73,7 +73,9 @@ a strop útraty na Text-to-Speech nejde). Hotové ve verzi 84:
 
 1. **Jen věty ze hry.** Slova delší než 3 písmena musí být ve slovníku textů hry (`src/logic/tts-words.json`, 3 543 slov,
    sbírá `scripts/tts-slova.mjs` ze všech řetězců v `src/` a z `index.html`). Krátká slova (písmena, slabiky) a čísla projdou.
-   Ostatní (jméno napsané rodičem, cizí použití) čte hlas tabletu, server vrací 422. Po změně textů spustit skript znovu.
+   Navíc smí ve větě být jedno slovo mimo slovník do 15 písmen: jméno dítěte (od 11. 11. 2026, `NAME_MAX`; předtím věty se jménem
+   četl tablet a hlasy se ve hře střídaly). Ostatní (víc neznámých slov, cizí použití) čte hlas tabletu, server vrací 422.
+   Po změně textů spustit skript znovu.
 2. **Sdílená mezipaměť.** Hotové MP3 v D1 (`tts_audio`), nad tím mezipaměť Cloudflare. Každá věta se u Googlu platí jednou.
 3. **Strop znaků.** Denně 100 tisíc, měsíčně 1 milion (= volný limit Chirp 3 HD), proměnné `TTS_DAY_CHARS` a
    `TTS_MONTH_CHARS` ve `wrangler.jsonc`. Počítá se při odeslání Googlu (`tts_usage`), po stropu 429 a hra 10 minut čte
