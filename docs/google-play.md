@@ -45,7 +45,8 @@ podpisový klíč drží Google, takže aplikace o aktualizace nepřijde.
 Jen když se mění něco v `android/` (ikona, název, barvy, oprávnění, knihovna androidbrowserhelper): zvýšit
 `versionCode` a `versionName` v `android/app/build.gradle` i `appVersionCode` v `android/twa-manifest.json`,
 sestavit a nahrát. Projekt vznikl z `@bubblewrap/core` 1.27.0 podle `twa-manifest.json`; úpravy proti vygenerovanému
-stavu: podpis z proměnných prostředí a vypnutá zkratka Nastavení webu (dítě se nemá dostat do nastavení Chromu).
+stavu: podpis z proměnných prostředí, vypnutá zkratka Nastavení webu (dítě se nemá dostat do nastavení Chromu) a
+minSdk 24 (Android 7.0), který vyžaduje androidbrowserhelper 2.7.
 
 ## Odpovědi do Play Console
 
