@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
-import { TTS_DAY_CHARS, TTS_DEFAULT, TTS_DEVICE, TTS_MAX, TTS_VOICES, capNum, gameText, googleBody, ttsChoice, ttsKey, ttsQuery, ttsRate } from '../../src/logic/tts';
+import { SHORT_VOICE, isShortSay, isSilent, voiceFor, TTS_DAY_CHARS, TTS_DEFAULT, TTS_DEVICE, TTS_MAX, TTS_VOICES, capNum, gameText, googleBody, ttsChoice, ttsKey, ttsQuery, ttsRate } from '../../src/logic/tts';
 // @ts-expect-error skript bez typů
 import { WORDS_FILE, collectWords } from '../../scripts/tts-slova.mjs';
 
@@ -52,5 +52,17 @@ describe('přirozený hlas (logic/tts.ts)', () => {
     expect(capNum('5000', TTS_DAY_CHARS)).toBe(5000);
     expect(capNum(undefined, TTS_DAY_CHARS)).toBe(TTS_DAY_CHARS);
     expect(capNum('nic', TTS_DAY_CHARS)).toBe(TTS_DAY_CHARS);
+  });
+  it('krátké hlásky čte Wavenet, Chirp 3 HD u nich vrací ticho (11. 11. 2026)', () => {
+    for (const t of ['o', 'ma', 'Sy.', 'ů', 'em']) expect(isShortSay(t)).toBe(true);
+    for (const t of ['máma', 'Paráda!', 'ma, me', '7 + 2']) expect(isShortSay(t)).toBe(false);
+    expect(voiceFor('ma', 'cs-CZ-Chirp3-HD-Kore')).toBe(SHORT_VOICE);
+    expect(voiceFor('Paráda!', 'cs-CZ-Chirp3-HD-Kore')).toBe('cs-CZ-Chirp3-HD-Kore');
+    expect(voiceFor('ma', 'cs-CZ-Wavenet-B')).toBe('cs-CZ-Wavenet-B');
+  });
+  it('ticho od Googlu se pozná podle hlasitosti', () => {
+    expect(isSilent(new Float32Array(8000))).toBe(true);
+    expect(isSilent(Float32Array.from({ length: 8000 }, (_, i) => Math.sin(i / 5) * 0.003))).toBe(true);
+    expect(isSilent(Float32Array.from({ length: 8000 }, (_, i) => Math.sin(i / 5) * 0.2))).toBe(false);
   });
 });

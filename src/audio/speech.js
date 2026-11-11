@@ -1,7 +1,7 @@
 // Řeč: přirozený hlas Google přes server (logic/tts.ts, worker /api/tts), jinak hlas tabletu (speechSynthesis).
 // Přirozený hlas si hra ukládá do mezipaměti prohlížeče, takže už slyšené věty jdou i bez internetu a hned.
 // logic/tts.ts jako první: ui/settings.js (kruhový import) volá updateVoiceInfo už při načtení tohoto modulu
-import { TTS_DEVICE, gameText, ttsChoice, ttsKey, ttsRate } from '../logic/tts.ts';
+import { TTS_DEVICE, gameText, isSilent, ttsChoice, ttsKey, ttsRate, voiceFor } from '../logic/tts.ts';
 import { G } from '../core/state.js';
 import { $ } from '../core/dom.js';
 import { save } from '../save/save.ts';
@@ -79,7 +79,9 @@ UNLOCK_EVENTS.forEach(ev => document.addEventListener(ev, unlock, true));
 
 const cloudWanted = () => ttsChoice(save.tts) !== TTS_DEVICE;
 const cloudNet = () => !cloudMissing && Date.now() >= cloudOffUntil && navigator.onLine !== false;
-const query = text => ({ text: String(text).replace(/\s+/g, ' ').trim(), voice: ttsChoice(save.tts), slow: !!save.slow });
+const query = text => { const t = String(text).replace(/\s+/g, ' ').trim(); return { text: t, voice: voiceFor(t, ttsChoice(save.tts)), slow: !!save.slow }; };
+// zvuky, které od Googlu přišly tiché (logic/tts.ts isSilent): v tomto spuštění je říká tablet
+const silent = new Set(), SILENT = 'ticho';
 const cacheReq = q => new Request(TTS_URL.replace(/^\//, location.origin + '/') + '?k=' + encodeURIComponent(ttsKey({ text: q.text, voice: q.voice, rate: ttsRate(q.slow) })));
 
 async function fromCache(q) {
@@ -111,6 +113,7 @@ async function cloudBuffer(q, net, a) {
   const blob = await cloudData(q, net);
   let buf = null;
   try { buf = await a.decodeAudioData(await blob.arrayBuffer()); } catch (e) { buf = null; }
+  if (buf && typeof buf.getChannelData === 'function' && isSilent(buf.getChannelData(0))) { silent.add(k); return SILENT; }
   if (buf) { if (bufs.size > 300) bufs.delete(bufs.keys().next().value); bufs.set(k, buf); }
   else urlFor(k, blob);
   return buf;
@@ -160,7 +163,7 @@ function speak(text, onend) {
     $('#btnListen').classList.add('talking');
     const q = query(text);
     // přirozený hlas jen pro věty ze hry (logic/tts.ts gameText); bez sítě nebo po chybě jen věty už uložené v tabletu
-    if (!cloudWanted() || !q.text || !gameText(q.text) || refused.has(q.text)) { deviceSpeak(text, id, fin); return; }
+    if (!cloudWanted() || !q.text || !gameText(q.text) || refused.has(q.text) || silent.has(keyOf(q))) { deviceSpeak(text, id, fin); return; }
     const net = cloudNet();
     if (!net && cloudMissing) { deviceSpeak(text, id, fin); return; }
     setTimeout(fin, FETCH_MS + 3000 + text.length * 200); // pojistka, kdyby zvuk neskončil
@@ -171,6 +174,7 @@ function speak(text, onend) {
     if (a && a.state === 'running') {
       cloudBuffer(q, net, a).then(buf => {
         if (id !== G.speechId) return;
+        if (buf === SILENT) { logVoice(text, 'ticho od Googlu, hlas zařízení'); deviceSpeak(text, id, fin); return; }
         if (!buf) { playElement(q, net, id, fin, fallback, failed); return; }
         const s1 = a.createBufferSource(); s1.buffer = buf; s1.connect(a.destination);
         s1.onended = () => { if (source === s1) source = null; fin(); };

@@ -76,11 +76,15 @@ a strop útraty na Text-to-Speech nejde). Hotové ve verzi 84:
    Navíc smí ve větě být jedno slovo mimo slovník do 15 písmen: jméno dítěte (od 11. 11. 2026, `NAME_MAX`; předtím věty se jménem
    četl tablet a hlasy se ve hře střídaly). Ostatní (víc neznámých slov, cizí použití) čte hlas tabletu, server vrací 422.
    Po změně textů spustit skript znovu.
-2. **Sdílená mezipaměť.** Hotové MP3 v D1 (`tts_audio`), nad tím mezipaměť Cloudflare. Každá věta se u Googlu platí jednou.
-3. **Strop znaků.** Denně 100 tisíc, měsíčně 1 milion (= volný limit Chirp 3 HD), proměnné `TTS_DAY_CHARS` a
+2. **Krátké hlásky Wavenetem.** Hlasy Chirp 3 HD (Kore, Aoede, Leda, Zephyr, Puck, Charon) u samotného písmene nebo slabiky
+   často vrátí ticho (měřeno 11. 11. 2026: ze 44 písmen a slabik 18 tichých i s velkým písmenem a tečkou, u stejné slabiky
+   pokaždé jinak). Text do 3 písmen proto čte `cs-CZ-Wavenet-B` (`voiceFor` v `src/logic/tts.ts`), věty a pochvaly zvolený hlas.
+   Pojistka: když přijde zvuk tišší než `SILENT_RMS`, hra ho nepřehraje a hlásku řekne hlas tabletu (v záznamu hlasu „ticho od Googlu“).
+3. **Sdílená mezipaměť.** Hotové MP3 v D1 (`tts_audio`), nad tím mezipaměť Cloudflare. Každá věta se u Googlu platí jednou.
+4. **Strop znaků.** Denně 100 tisíc, měsíčně 1 milion (= volný limit Chirp 3 HD), proměnné `TTS_DAY_CHARS` a
    `TTS_MONTH_CHARS` ve `wrangler.jsonc`. Počítá se při odeslání Googlu (`tts_usage`), po stropu 429 a hra 10 minut čte
    novými větami hlasem tabletu; už uložené věty jdou dál přirozeným hlasem.
-4. **Limit na IP** (Cloudflare Rate Limiting ve workeru): všechny požadavky 120 za minutu, nové věty 30 za minutu.
+5. **Limit na IP** (Cloudflare Rate Limiting ve workeru): všechny požadavky 120 za minutu, nové věty 30 za minutu.
 
 Spotřebu ukáže `GET /api/admin/tts` (klíč správce): stropy, počet uložených vět a znaky za každý den.
 

@@ -227,7 +227,7 @@ aktualizaci a po ní novinky ukáže.
   hlas neumlčí. Záznam posledních 40 vět: nastavení, karta Hlas, „Záznam hlasu“. E2E: `mockCloudVoice` / `openGame(…,
   { cloudVoice: true, ios: true })` v `tests/e2e/helpers.js`, testy `tests/e2e/hlas-prirozeny.spec.js`.
   **Pojistky proti útratě** (Honza 9. 11. 2026, podmínka pro klíč; verze 84): Google čte jen věty ze hry (`gameText`: slova
-  delší než 3 písmena musí být ve slovníku `src/logic/tts-words.json`, kromě jednoho slova do 15 písmen pro jméno dítěte (11. 11. 2026, `NAME_MAX`), ostatní čte tablet; server jinak 422). **Po změně textů
+  delší než 3 písmena musí být ve slovníku `src/logic/tts-words.json`, kromě jednoho slova do 15 písmen pro jméno dítěte (11. 11. 2026, `NAME_MAX`), ostatní čte tablet; **krátké hlásky** (písmeno, slabika do 3 písmen) čte u hlasů Chirp 3 HD vždy Wavenet (`voiceFor`, `SHORT_VOICE`; Chirp u nich často vrací ticho) a tichý zvuk od Googlu (`isSilent`) řekne tablet; server jinak 422). **Po změně textů
   ve hře spustit `node scripts/tts-slova.mjs`**, test hlídá aktuálnost. Hotové MP3 sdílí všichni hráči (D1 `tts_audio`,
   migrace 0006, nad tím mezipaměť Cloudflare). Strop znaků poslaných Googlu za den a měsíc (`vars` TTS_DAY_CHARS 100 000,
   TTS_MONTH_CHARS 1 000 000 ve `wrangler.jsonc`, počítá `tts_usage`), po něm 429 a 10 min hlas tabletu. Limity na IP:

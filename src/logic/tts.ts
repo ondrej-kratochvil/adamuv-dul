@@ -37,6 +37,19 @@ export function gameText(text: string): boolean {
   return unknown.length === 0 || (unknown.length === 1 && unknown[0].length <= NAME_MAX);
 }
 
+// Krátké hlásky (písmeno, slabika) čte Wavenet: hlasy Chirp 3 HD u nich často vrátí ticho (měřeno 11. 11. 2026: „o“, „ma“,
+// „Pe.“ skoro bez zvuku, u stejné slabiky pokaždé jinak; Wavenet přečetl všechny). Ondřej 11. 11. 2026: hlásky Wavenetem.
+export const SHORT_VOICE = 'cs-CZ-Wavenet-B';
+export const isShortSay = (text: string): boolean => /^\p{L}{1,3}[.!?…]?$/u.test(text.trim());
+export const voiceFor = (text: string, voice: string): string => voice.startsWith('cs-CZ-Chirp3') && isShortSay(text) ? SHORT_VOICE : voice;
+// ticho: střední hlasitost pod SILENT_RMS (vzorek každého 16. bodu), pak hlásku řekne tablet
+export const SILENT_RMS = 0.01;
+export function isSilent(samples: ArrayLike<number>): boolean {
+  let s = 0, n = 0;
+  for (let i = 0; i < samples.length; i += 16) { s += samples[i] * samples[i]; n++; }
+  return n > 0 && Math.sqrt(s / n) < SILENT_RMS;
+}
+
 // strop znaků poslaných Googlu (worker/index.ts, proměnné TTS_DAY_CHARS a TTS_MONTH_CHARS ve wrangler.jsonc); po něm hlas tabletu
 export const TTS_DAY_CHARS = 100000;
 export const TTS_MONTH_CHARS = 1000000;
