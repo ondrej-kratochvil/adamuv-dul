@@ -75,3 +75,15 @@ export function adminToken(header: string | null): string | null {
   return m && m[1].length >= ADMIN_MIN_LEN && m[1].length <= 200 ? m[1] : null;
 }
 export const validPlayerId = (x: unknown): x is string => typeof x === 'string' && /^[a-f0-9-]{36}$/.test(x);
+
+// Aplikace pro Android v Google Play (Schoolcraft 11. 11. 2026, složka android/): Android otevře hru bez lišty Chromu,
+// jen když web vyjmenuje otisky klíčů, kterými je aplikace podepsaná. Otisky jsou veřejné.
+// 1. nahrávací klíč (soubor upload.p12 mimo repo, heslo v RoboFormu), 2. podpisový klíč Google Play (Play Console → Integrita aplikace).
+export const ANDROID_PACKAGE = 'games.schoolcraft.app';
+export const ANDROID_FINGERPRINTS = [
+  'D7:E4:0B:29:34:CC:B0:49:21:C3:CD:3F:2A:B5:63:34:CF:D0:E4:C4:26:8E:DE:73:F2:FD:AE:40:4C:EA:51:34',
+];
+export const assetLinks = () => [{
+  relation: ['delegate_permission/common.handle_all_urls'],
+  target: { namespace: 'android_app', package_name: ANDROID_PACKAGE, sha256_cert_fingerprints: ANDROID_FINGERPRINTS },
+}];

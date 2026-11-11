@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { leaderboardRows, sanitizeNick, sanitizeSummary, weekKey } from '../../worker/logic';
+import { ANDROID_PACKAGE, assetLinks, leaderboardRows, sanitizeNick, sanitizeSummary, weekKey } from '../../worker/logic';
 import { backupOf, codeOf, parseCode, weekOf, weekPoints } from '../../src/logic/cloud';
 
 describe('server Schoolcraft (worker/logic.ts)', () => {
@@ -107,5 +107,12 @@ describe('rozbory pro správce (worker/logic.ts)', () => {
     expect(adminToken(null)).toBeNull();
     expect(validPlayerId('0f8e2c1a-1b2c-4d5e-8f90-123456789abc')).toBe(true);
     expect(validPlayerId("x' OR 1=1 --")).toBe(false);
+  });
+  it('assetlinks.json pro aplikaci v Google Play: balíček a otisky ve tvaru AB:CD:… (64 hex znaků)', () => {
+    const [l] = assetLinks();
+    expect(l.target.package_name).toBe(ANDROID_PACKAGE);
+    expect(l.relation).toEqual(['delegate_permission/common.handle_all_urls']);
+    expect(l.target.sha256_cert_fingerprints.length).toBeGreaterThan(0);
+    for (const f of l.target.sha256_cert_fingerprints) expect(f).toMatch(/^([0-9A-F]{2}:){31}[0-9A-F]{2}$/);
   });
 });

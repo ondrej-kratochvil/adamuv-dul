@@ -2,7 +2,7 @@
 // Databáze D1 (binding DB) je v EU. Hráč se přihlašuje „id.tajemstvi“ (Authorization: Bearer …), v databázi je jen otisk tajemství.
 import { NEWS_MS, dueSubs, makeVapid, overtaken, pragueNow, rankText, rankTime, sendPush, validEndpoint, validHour, validKey, type RankRow, type Vapid } from './push';
 import { EXPORT_PAGE, validKind } from '../src/logic/stats-export';
-import { ADMIN_MIN_LEN, FAMILY_GROUP, adminToken, validPlayerId } from './logic';
+import { ADMIN_MIN_LEN, FAMILY_GROUP, adminToken, assetLinks, validPlayerId } from './logic';
 import { TTS_DAY_CHARS, TTS_MONTH_CHARS, capNum, gameText, googleBody, ttsKey, ttsQuery, type TtsQuery } from '../src/logic/tts';
 import { EVENTS_KEEP_MS, allowedPoints, sanitizeGroupName, validGroupCode, isNewThing, leaderboardRows, MAX_EVENTS, MAX_SAVE, ORIGINS, PLAYER_KEEP_MS, safeJson, sanitizeNick, sanitizeSummary, weekKey, type Row } from './logic';
 
@@ -309,6 +309,7 @@ export default {
       if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: cors(req) });
       try { return await api(req, env, url.pathname, ctx); } catch (e) { return json(req, { error: 'server' }, 500); }
     }
+    if (url.pathname === '/.well-known/assetlinks.json') return new Response(JSON.stringify(assetLinks()), { headers: { 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=3600' } });
     return env.ASSETS.fetch(req);
   },
 };

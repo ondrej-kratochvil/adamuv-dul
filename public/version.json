@@ -1,6 +1,13 @@
 {
-  "version": 90,
+  "version": 91,
   "changes": [
+    {
+      "version": 91,
+      "date": "2026-11-11",
+      "notes": [
+        "Drobné úpravy pro rodiče."
+      ]
+    },
     {
       "version": 90,
       "date": "2026-11-10",

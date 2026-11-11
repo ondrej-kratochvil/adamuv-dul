@@ -131,6 +131,18 @@ přidej i odměny, aby Adam nedošel na strop dřív, než dojde obsah.
   obrazovce a na kartě Online. Určení hry, bezpečnost, co se kam ukládá (pravdivě: online jen se souhlasem rodiče, záloha
   obsahuje údaje o hráči a rodině, žebříček jen ve skupině), smazání a uchovávání, správce a kontakt. Když se změní, co se ukládá nebo posílá,
   opravit tento text i kartu Online a `docs/prirucka.md`.
+- Z téhož okna vzniká při sestavení veřejná stránka `soukromi.html` (`vite.config.js` `privacyPage`), na kterou odkazuje
+  Google Play jako na zásady ochrany soukromí a smazání účtu. Text se píše jen v `index.html`, nikde jinde.
+
+## Google Play (Ondřej 11. 11. 2026)
+
+- Hra je v obchodě jako obal Trusted Web Activity ve složce `android/` (balíček `games.schoolcraft.app`): otevře
+  schoolcraft.games v Chromu bez lišty. Změny hry jdou dál pushem na web, nová verze v obchodě jen při změně obalu.
+- Postup, texty do obchodu, odpovědi na Data safety a otisky klíčů: `docs/google-play.md`. Když se změní, co se ukládá
+  nebo posílá, opravit i odpovědi na Data safety tam (a v Play Console).
+- Podpisový klíč `upload.p12` a heslo nikdy do repa; jsou v RoboFormu a v tajných proměnných GitHubu.
+- Nový otisk klíče patří do `worker/logic.ts` `ANDROID_FINGERPRINTS` (`/.well-known/assetlinks.json`), jinak se hra
+  v aplikaci otevře s lištou adresy.
 
 ## Návštěva (Ondřej 31. 10. 2026)
 

@@ -2,3 +2,12 @@ node_modules/
 dist/
 test-results/
 playwright-report/
+
+# aplikace pro Android (android/): výstupy sestavení; podpisový klíč nikdy do repa
+android/.gradle/
+android/app/build/
+android/build/
+android/local.properties
+*.p12
+*.keystore
+*.jks

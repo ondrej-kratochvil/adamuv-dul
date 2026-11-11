@@ -1,0 +1,62 @@
+{
+  "packageId": "games.schoolcraft.app",
+  "host": "schoolcraft.games",
+  "name": "Schoolcraft",
+  "launcherName": "Schoolcraft",
+  "display": "fullscreen",
+  "themeColor": "#6FB2EA",
+  "themeColorDark": "#000000",
+  "navigationColor": "#000000",
+  "navigationColorDark": "#000000",
+  "navigationDividerColor": "#000000",
+  "navigationDividerColorDark": "#000000",
+  "backgroundColor": "#6FB2EA",
+  "enableNotifications": true,
+  "startUrl": "/",
+  "iconUrl": "https://schoolcraft.games/icon-512.png",
+  "splashScreenFadeOutDuration": 300,
+  "signingKey": {
+    "path": "./upload.p12",
+    "alias": "upload"
+  },
+  "appVersionName": "1",
+  "appVersionCode": 1,
+  "shortcuts": [
+    {
+      "name": "Dnešní úkol",
+      "shortName": "Úkol",
+      "url": "https://schoolcraft.games/?go=ukol",
+      "chosenIconUrl": "https://schoolcraft.games/icon-192.png"
+    },
+    {
+      "name": "Procvičit",
+      "shortName": "Procvičit",
+      "url": "https://schoolcraft.games/?go=procvicit",
+      "chosenIconUrl": "https://schoolcraft.games/icon-192.png"
+    }
+  ],
+  "generatorApp": "bubblewrap-core",
+  "webManifestUrl": "https://schoolcraft.games/manifest.webmanifest",
+  "fallbackType": "customtabs",
+  "features": {},
+  "alphaDependencies": {
+    "enabled": false
+  },
+  "enableSiteSettingsShortcut": false,
+  "isChromeOSOnly": false,
+  "isMetaQuest": false,
+  "fullScopeUrl": "https://schoolcraft.games/",
+  "minSdkVersion": 21,
+  "orientation": "any",
+  "fingerprints": [],
+  "additionalTrustedOrigins": [],
+  "retainedBundles": [],
+  "protocolHandlers": [],
+  "fileHandlers": [],
+  "launchHandlerClientMode": "",
+  "displayOverride": [
+    "fullscreen",
+    "standalone"
+  ],
+  "appVersion": "1"
+}

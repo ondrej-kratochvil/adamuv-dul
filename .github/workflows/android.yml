@@ -1,0 +1,45 @@
+# Aplikace pro Android do Google Play (Schoolcraft 11. 11. 2026): sestaví z android/ podepsaný balíček.
+# Spouští se ručně (Actions → Android → Run workflow) jen při změně obalu; hra sama se dál nasazuje na web.
+# AAB jde do Play Console, APK se dá nainstalovat přímo na telefon na vyzkoušení.
+# Tajné proměnné: ANDROID_KEYSTORE_B64 (upload.p12 v base64), ANDROID_KEYSTORE_PASSWORD. Klíč i heslo jsou v RoboFormu.
+name: Android
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: android
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Nahrávací klíč z tajných proměnných
+        env:
+          KEY_B64: ${{ secrets.ANDROID_KEYSTORE_B64 }}
+        run: |
+          test -n "$KEY_B64" || { echo "Chybí tajná proměnná ANDROID_KEYSTORE_B64"; exit 1; }
+          echo "$KEY_B64" | base64 -d > "$RUNNER_TEMP/upload.p12"
+      - name: Sestavení (AAB a APK)
+        env:
+          ANDROID_KEYSTORE: ${{ runner.temp }}/upload.p12
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+        run: |
+          chmod +x gradlew
+          ./gradlew --no-daemon bundleRelease assembleRelease
+      - name: Otisk podpisu APK (musí sedět s worker/logic.ts ANDROID_FINGERPRINTS)
+        run: $ANDROID_HOME/build-tools/$(ls $ANDROID_HOME/build-tools | sort -V | tail -1)/apksigner verify --print-certs app/build/outputs/apk/release/app-release.apk | grep SHA-256
+      - uses: actions/upload-artifact@v4
+        with:
+          name: schoolcraft-android
+          path: |
+            android/app/build/outputs/bundle/release/app-release.aab
+            android/app/build/outputs/apk/release/app-release.apk
+      - name: Úklid klíče
+        if: always()
+        run: rm -f "$RUNNER_TEMP/upload.p12"

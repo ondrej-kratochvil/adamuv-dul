@@ -396,6 +396,7 @@ Na staré adrese `ondrej-kratochvil.github.io/adamuv-dul/` hra zaregistruje vše
 | Otisk prstu | `src/logic/passkey.ts`, `src/app/passkey.js` | WebAuthn: na zařízení (`platform`) a telefonem přes QR (`hybrid`); ověřuje se výzva, typ a příznak UV |
 | QR kód hráče | `src/app/qr.js`, `src/ui/qr-ui.js` | kreslí `qrcode-generator`, čte `BarcodeDetector` nebo `jsqr` |
 | Fotky (Poklad) | `src/app/photos.js` | IndexedDB, po profilech, nikdy na server |
+| Aplikace v Google Play | `android/`, `worker/logic.ts` `assetLinks` | obal Trusted Web Activity, `/.well-known/assetlinks.json`, sestavení `.github/workflows/android.yml`; postup `docs/google-play.md` |
 
 Záměrně nepoužité: rozpoznávání řeči (dítě chodí na logopedii, hra by mu křivdila) a poloha (Ondřej 31. 10. 2026).
 
