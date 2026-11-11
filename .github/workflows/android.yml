@@ -24,12 +24,14 @@ jobs:
           KEY_B64: ${{ secrets.ANDROID_KEYSTORE_B64 }}
         run: |
           test -n "$KEY_B64" || { echo "Chybí tajná proměnná ANDROID_KEYSTORE_B64"; exit 1; }
-          echo "$KEY_B64" | base64 -d > "$RUNNER_TEMP/upload.p12"
+          printf %s "$KEY_B64" | tr -d '\r\n ' | base64 -d > "$RUNNER_TEMP/upload.p12"
       - name: Sestavení (AAB a APK)
         env:
           ANDROID_KEYSTORE: ${{ runner.temp }}/upload.p12
           ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
         run: |
+          # heslo uložené z PowerShellu (Get-Content | gh secret set) nese na konci CRLF: odstranit
+          export ANDROID_KEYSTORE_PASSWORD="$(printf %s "$ANDROID_KEYSTORE_PASSWORD" | tr -d '\r\n')"
           chmod +x gradlew
           ./gradlew --no-daemon bundleRelease assembleRelease
       - name: Otisk podpisu APK (musí sedět s worker/logic.ts ANDROID_FINGERPRINTS)
