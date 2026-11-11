@@ -25,6 +25,15 @@ jobs:
         run: |
           test -n "$KEY_B64" || { echo "Chybí tajná proměnná ANDROID_KEYSTORE_B64"; exit 1; }
           printf %s "$KEY_B64" | tr -d '\r\n ' | base64 -d > "$RUNNER_TEMP/upload.p12"
+      - name: Kontrola klíče a hesla (otisk souboru musí začínat 4a44ae3634be9b91)
+        env:
+          PW: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+        run: |
+          sha256sum "$RUNNER_TEMP/upload.p12" | cut -c1-16
+          export P="$(printf %s "$PW" | tr -d '\r\n')"
+          echo "délka hesla: ${#P}"
+          openssl pkcs12 -in "$RUNNER_TEMP/upload.p12" -noout -passin env:P && echo "OpenSSL: heslo sedí" || echo "OpenSSL: heslo NESEDÍ"
+          keytool -list -storetype pkcs12 -keystore "$RUNNER_TEMP/upload.p12" -storepass "$P" | head -5 || true
       - name: Sestavení (AAB a APK)
         env:
           ANDROID_KEYSTORE: ${{ runner.temp }}/upload.p12
