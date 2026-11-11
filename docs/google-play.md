@@ -19,7 +19,7 @@ Adresní řádek zmizí jen tehdy, když `assetlinks.json` obsahuje otisk klíč
 
 | Klíč | K čemu | Kde je | Otisk SHA-256 |
 |---|---|---|---|
-| nahrávací (`upload.p12`, alias `upload`) | podepisuje balíček, který nahrajeme do Play Console; APK na vyzkoušení | soubor a heslo v RoboFormu, kopie v tajných proměnných GitHubu `ANDROID_KEYSTORE_B64` a `ANDROID_KEYSTORE_PASSWORD` | `D7:E4:0B:29:34:CC:B0:49:21:C3:CD:3F:2A:B5:63:34:CF:D0:E4:C4:26:8E:DE:73:F2:FD:AE:40:4C:EA:51:34` |
+| nahrávací (`upload.p12`, alias `upload`) | podepisuje balíček, který nahrajeme do Play Console; APK na vyzkoušení | soubor a heslo v RoboFormu, kopie v tajných proměnných GitHubu `ANDROID_KEYSTORE_B64` a `ANDROID_KEYSTORE_PASSWORD` | `F8:7E:08:87:6A:29:CB:F1:94:B8:6C:32:63:FB:35:73:35:6B:EA:F7:6B:39:9C:98:37:15:EE:D4:12:36:EE:EE` |
 | podpisový klíč Google Play | Google jím přepodepíše aplikaci pro uživatele (Play App Signing) | jen u Googlu | doplnit z Play Console → Testování a vydání → Integrita aplikace → Podpis aplikace |
 
 Ztracený nahrávací klíč jde u Googlu vyměnit (Play Console → Integrita aplikace → Požádat o reset nahrávacího klíče);

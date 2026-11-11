@@ -25,7 +25,7 @@ jobs:
         run: |
           test -n "$KEY_B64" || { echo "Chybí tajná proměnná ANDROID_KEYSTORE_B64"; exit 1; }
           printf %s "$KEY_B64" | tr -d '\r\n ' | base64 -d > "$RUNNER_TEMP/upload.p12"
-      - name: Kontrola klíče a hesla (otisk souboru musí začínat 4a44ae3634be9b91)
+      - name: Kontrola klíče a hesla (otisk souboru musí začínat 7149a12b681afa1d)
         env:
           PW: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
         run: |

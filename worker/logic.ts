@@ -81,7 +81,7 @@ export const validPlayerId = (x: unknown): x is string => typeof x === 'string' 
 // 1. nahrávací klíč (soubor upload.p12 mimo repo, heslo v RoboFormu), 2. podpisový klíč Google Play (Play Console → Integrita aplikace).
 export const ANDROID_PACKAGE = 'games.schoolcraft.app';
 export const ANDROID_FINGERPRINTS = [
-  'D7:E4:0B:29:34:CC:B0:49:21:C3:CD:3F:2A:B5:63:34:CF:D0:E4:C4:26:8E:DE:73:F2:FD:AE:40:4C:EA:51:34',
+  'F8:7E:08:87:6A:29:CB:F1:94:B8:6C:32:63:FB:35:73:35:6B:EA:F7:6B:39:9C:98:37:15:EE:D4:12:36:EE:EE',
 ];
 export const assetLinks = () => [{
   relation: ['delegate_permission/common.handle_all_urls'],
