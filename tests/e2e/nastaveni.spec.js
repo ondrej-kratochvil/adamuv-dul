@@ -6,7 +6,7 @@ import { openGame, openSettings, settingsTab } from './helpers.js';
 const PARTS = {
   player: '#plName', family: '#noteText', game: '#segCase', strict: '#segStrict', voice: '#pronList',
   push: '#btnPushOn', pass: '#passInfo', device: '#btnVibrate',
-  progress: '#btnStats', profiles: '#profileName', online: '#cloudNick', sync: '#syncUrl',
+  week: '#btnWeekShare', progress: '#btnStats', profiles: '#profileName', online: '#cloudNick', sync: '#syncUrl',
 };
 const GROUPS = ['Hráč a rodina', 'Učení', 'Zařízení', 'Postup a data'];
 
