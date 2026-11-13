@@ -23,7 +23,9 @@
    a obsahuje návod, jak ho nainstalovat (Android: Nastavení → Převod textu na řeč → Google → čeština).
    Hra čte hlasem tabletu (od verze 90 výchozí; s přirozeným hlasem se na Androidu slovo občas nepřečetlo). V části Hlas
    jde v poli **Kdo čte** zapnout přirozený hlas přes internet; bez internetu pak čte hlas tabletu, věty už jednou slyšené
-   přirozeným hlasem jdou i bez internetu.
+   přirozeným hlasem jdou i bez internetu. U přirozených hlasů (Kore, Aoede, Leda, Zephyr, Puck, Charon) čte samotná
+   písmena a slabiky vždy hlas Wavenet, protože ostatní je občas vynechají (od verze 92); věty a pochvaly čte vybraný hlas,
+   včetně jména dítěte. Kdyby od Googlu přišlo ticho, hlásku řekne hlas tabletu.
 
 **Dětský účet s Family Link**: některé funkce (upozornění, fotoaparát, otisk prstu) může Family Link blokovat.
 Povolíte je v aplikaci Family Link na svém telefonu: vyberte dítě → **Ovládací prvky** → **Google Chrome a web**
@@ -110,6 +112,9 @@ Vzácné věci v obchodě potřebují i kus zvládnuté hry, aby smaragdy nesta�
 Při prvním otevření dne přijde karta: den, datum, kdo má svátek a **dnešní úkol** (třeba „2 povedená kola Čísel“).
 Ohlásí ho ten z rodiny, kdo dnes fandí. Tlačítko **Hrát** otevře patro úkolu.
 
+**V pondělí** karta přidá jednu větu o minulém týdnu, třeba „Minulý týden jsi hrál 3 dny a naučil ses 5 nových věcí.
+Tento týden to zkusíme ještě o den víc?“ (nic, když dítě minulý týden nehrálo). Podrobnosti pro rodiče jsou v části Týden (kapitola 7).
+
 ---
 
 ## 5. Poklad a fotoaparát
@@ -179,6 +184,7 @@ slovo s neznámým písmenem se neobjeví.
 3. **Vyzkoušet hned** pošle zkušební upozornění; když nepřijde, tablet je blokuje (Family Link, nastavení prohlížeče).
 
 Každé ráno pak přijde „Dobré ráno, Jakube! Čeká tě dnešní úkol za 5 smaragdů.“, i když je hra zavřená. Klepnutí otevře hru.
+V neděli místo toho přijde „Souhrn týdne je připravený. Podívejte se, co se Jakub naučil: nastavení, Týden.“
 
 **Předběhnutí v žebříčku** (stejná část): přes den (8 až 19 h, nejvýš jednou denně) přijde „Víťa je v žebříčku před tebou.
 Zahraješ si?“. Potřebuje zapnuté online a hráče v žebříčku.
@@ -196,6 +202,20 @@ Upozornění fungují jen v aplikaci z adresy schoolcraft.games. Na iPadu jen u 
 ---
 
 ## 7. Statistiky
+
+### Týden (od verze 93)
+
+Část **Postup a data → Týden** je krátký přehled, za co dítě pochválit:
+
+- tento a minulý týden (pondělí až neděle): ve které dny dohrálo povedené kolo (●○●○○○○) a kolik povedených kol, nejčastější patra;
+- **nově zvládnuté**: písmena, slabiky, slova, čísla nebo příklady, které dítě ten týden zvládlo poprvé (aspoň 3× správně a teď bez chyby);
+- **na čem pracovat**: tři nejslabší úlohy, případně s čím si je plete, a tip, jak to procvičit doma;
+- **Poslat rodině**: souhrn minulého týdne (v neděli právě končícího) jako text přes WhatsApp, SMS nebo e-mail, třeba babičce.
+
+Počítá se jen v zařízení, nic se kvůli tomu neposílá na server. Úlohy zvládnuté před verzí 93 datum zvládnutí nemají,
+takže první úplný souhrn je za týden od 16. 11. 2026. Souhrn záměrně neporovnává s jinými dětmi a neukazuje čas ve hře.
+
+### Podrobné statistiky
 
 Část **Postup a zálohy** → **Statistiky**:
 
@@ -290,5 +310,8 @@ a v části Online a skupina (bez zámku).
 - Postup je v zařízení. Na server jde jen se zapnutým online: záloha, statistiky úloh a údaje pro žebříček (přezdívka,
   postavička, body, stavby).
 - Fotky z Pokladu a Moje obrázky se nikdy neposílají.
+- Přirozený hlas (jen když ho rodič vybere): věty, které hra právě říká (i s oslovením dítěte), jdou přes server Schoolcraft
+  ke službě Google Cloud Text-to-Speech. Jiné údaje o hráči ne.
+- Stejné zásady jsou i na webu: https://schoolcraft.games/soukromi (vzniká z okna O hře, odkazuje na ně i Google Play).
 - Kód hráče a QR kód fungují jako heslo: nesdílejte je.
 - Adresa tabulky Google je jen ve vašem zařízení.

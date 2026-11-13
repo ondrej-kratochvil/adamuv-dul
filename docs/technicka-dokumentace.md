@@ -187,6 +187,20 @@ po dobu 2 s, nebo tlačítko.
   21 až 99, Počty nejvýš 30 příkladů. Z tohoto podílu se počítají očarování, vesnice, nástroje, vzácné věci a oči Enderu.
 - Váha při výběru úkolu: `clamp(1 + 1,5 × chyby − 0,25 × správně, 0,5, 5)`; nedávné úkoly se vynechávají.
 - Počet kostek na výběr (`choiceCount`): 2, od 2. povedeného kola patra 3, od 5. kola 4. Kola řídí jen tohle, obsah řídí stupně.
+- **Datum zvládnutí** (`markGot` v `src/logic/weekly.ts`, volá se hned po `recordResult` v `game/round.js`, `levels/writing.js`,
+  `levels/speech.js`): když úloha poprvé přejde na „zvládnutá“, zapíše se čas do `save.got[klíč]`; další zápisy ho nemění.
+
+### 4.4.1 Týdenní souhrn (`src/logic/weekly.ts`, `src/ui/weekly.js`, od verze 93)
+
+- Týden = pondělí 0:00 až neděle (čas zařízení, `weekStart`). `weekSummary(log, got, stats, od)`: dny s povedeným kolem (index
+  podle data, `Math.round` kvůli změně času), počet povedených kol, 2 patra s nejvíc koly, nově zvládnuté z `got` podle pater
+  (`WEEK_LEVELS`, bez hodnocení výslovnosti `say:`), 3 nejslabší úlohy z `weakItems` s nejčastější záměnou (stav teď).
+- Nastavení → Postup a data → **Týden** (`#weekNow`, `#weekWeak`, `#weekPrev`): tento a minulý týden, tip `parentTip` podle patra
+  nejslabší úlohy. **Poslat rodině** (`shareText`): minulý týden, v neděli tento; `navigator.share`, jinak schránka, jinak textové pole.
+- **Pondělí**: ranní karta (`world/daily.js` `weekLine`, `#dayWeek`) přidá `mondayLine` podle počtu dní (5+, 2 až 4, 1; 0 = nic).
+- **Neděle**: ranní upozornění má text pro rodiče (`sundayText` v `logic/push.ts`; hra ho ukládá do mezipaměti jako `sunday`,
+  `public/sw.js` ho vybere podle dne v týdnu).
+- Nic se neposílá na server; úlohy zvládnuté před verzí 93 datum nemají. Testy `tests/unit/weekly.test.ts`, `tests/e2e/tyden.spec.js`.
 
 ### 4.5 Odměny
 
@@ -226,6 +240,12 @@ vzácné věci (lama 30 / 15 %, kůň 45 / 30 %, helikoptéra 70 / 50 %, zlatá 
   osobní hlášky v 90 % případů, žádná hláška dvakrát v posledních 5, připomínky mámy (škola, jídlo, spaní, dlouhé hraní),
   ranní ptáče do 7:30. Podoby a hlášky jen odsouhlasené rodičem (pravidlo v `CLAUDE.md`).
 - **Hlas** (`src/audio/speech.js`): `speechSynthesis`, český hlas (přednost Google a Zuzana), rychlost 0,85 (pomalu 0,62).
+  **Přirozený hlas** (Google Cloud TTS přes `POST /api/tts`, `src/logic/tts.ts`, podrobně `docs/prirozeny-hlas.md`): výchozí je hlas
+  tabletu, Google jen když ho rodič vybere (`ttsChoice`). Projde jen věta ze hry (`gameText`: slova nad 3 písmena ve slovníku
+  `tts-words.json`, navíc jedno slovo do `NAME_MAX` = 15 písmen pro jméno dítěte, od verze 92). Krátké hlásky do 3 písmen čte
+  u hlasů Chirp 3 HD vždy `SHORT_VOICE` = Wavenet (`voiceFor`; Chirp u nich často vrací ticho). Zvuk tišší než `SILENT_RMS`
+  (`isSilent`, po `decodeAudioData`) se nepřehraje a hlásku řekne tablet. Přehrává se přes Web Audio, záloha `<audio>`,
+  záznam posledních 40 vět je v nastavení (Hlas → Záznam hlasu).
   Slabiky a slova přes `pronounce()` (`src/logic/pronounce.ts`): varianty `plain`, `split`, `letters`; výchozí „s písmeny“
   jen u SO a ME, rodič vybere variantu podle tabletu (`save.pron`).
 
@@ -238,7 +258,7 @@ vzácné věci (lama 30 / 15 %, kůň 45 / 30 %, helikoptéra 70 / 50 %, zlatá 
 | Skupina | Pole |
 |---|---|
 | nastavení rodiče | `caseMode` (velká, malá, obojí), `slow`, `strict`, `letters`, `cursive`, `pron` |
-| pokrok | `total` (povedená kola), `rounds` (po patrech), `stats`, `log` (deník kol), `stages`, `practice` |
+| pokrok | `total` (povedená kola), `rounds` (po patrech), `stats`, `got` (kdy byla úloha poprvé zvládnutá), `log` (deník kol), `stages`, `practice` |
 | odměny | `emeralds`, `ench`, `village`, `cards`, `obsidian`, `netherMine`, `weeks`, `babies`, `eyes`, `dragon`, `outfit`, `gear`, `build`, `decor`, `dog`, `dogName`, `famWear`, `famOwned` |
 | dny | `streak`, `daily` (dnešní úkol, karta), `questLog`, `questsDone`, `gifts`, `hunt` |
 | rodina a hlas | `notes`, `recentLines`, `momSaid`, `lastCheer`, `bday`, `player` |
@@ -246,7 +266,7 @@ vzácné věci (lama 30 / 15 %, kůň 45 / 30 %, helikoptéra 70 / 50 %, zlatá 
 
 ### 5.2 Verze schématu a převod
 
-`SCHEMA = 12`. Každá změna tvaru = nové číslo, krok v `migrate()` a test se vzorkem starého stavu v `tests/fixtures/`.
+`SCHEMA = 14`. Každá změna tvaru = nové číslo, krok v `migrate()` a test se vzorkem starého stavu v `tests/fixtures/`.
 
 | Schéma | Verze hry | Co přibylo |
 |---|---|---|
@@ -262,6 +282,8 @@ vzácné věci (lama 30 / 15 %, kůň 45 / 30 %, helikoptéra 70 / 50 %, zlatá 
 | 10 | 57 | počet splněných dnešních úkolů |
 | 11 | 59 | online (`cloud`), dny splněných úkolů |
 | 12 | 70 | poklad (`hunt`) |
+| 13 | 77 | Slova v 5 stupních (dosažený stupeň se přečísluje, `OLD_WORD_STAGE`) |
+| 14 | 93 | datum zvládnutí úloh (`got`) pro týdenní souhrn |
 
 `migrate(raw)` začne výchozím stavem, přepíše ho uloženými daty a vnořené objekty (`NESTED`: rounds, outfit, dog, gifts, streak,
 build, pron, momSaid, sync, famWear, daily, stages, cloud, hunt) sloučí s výchozími hodnotami. Opraví rozbitá pole na prázdná,
@@ -299,7 +321,9 @@ novější schéma nikdy nesníží. Před převodem starší verze i při neči
 
 ### 6.1 Konfigurace (`wrangler.jsonc`)
 
-- Worker `schoolcraft`, vstup `worker/index.ts`, statické soubory z `dist/` (`ASSETS`), API má přednost (`/api/*`).
+- Worker `schoolcraft`, vstup `worker/index.ts`, statické soubory z `dist/` (`ASSETS`), worker má přednost u `/api/*` a `/.well-known/*`.
+- `dist/soukromi.html` (adresa `/soukromi`) vzniká při sestavení z okna O hře v `index.html` (`privacyPage` ve `vite.config.js`):
+  veřejné zásady ochrany soukromí a smazání údajů pro Google Play. Text se upravuje jen v `index.html`.
 - Databáze D1 `schoolcraft` v EU (binding `DB`), migrace ve `worker/migrations/` (nasazený soubor se nikdy nemění, změna = nový soubor).
 - Vlastní doména `schoolcraft.games`, cron `0 * * * *` (každou celou hodinu UTC), zapnuté záznamy (observability).
 
@@ -315,6 +339,7 @@ CORS jen pro `ORIGINS` (`worker/logic.ts`).
 | GET | `/api/me/save` | ano | | `{ nick, save, updated }` |
 | GET | `/api/me/events?kind=kolo\|úloha\|hodnocení&after=<id>` | ano | | `{ rows: [řádky jako do tabulky Google], next }`: vlastní statistiky po 1000, `next` = id pro další stránku (0 = konec) |
 | GET | `/api/admin/players`, `/api/admin/events?player=&kind=&after=` | klíč správce (`Authorization: Admin …`) | | rozbory: jen čtení, jen hráči rodinné skupiny (první „Rodina“); klíč `ADMIN_TOKEN` (tajná proměnná, CI z `SCHOOLCRAFT_ADMIN_TOKEN`) |
+| GET | `/.well-known/assetlinks.json` | ne | | vazba webu a aplikace pro Android (`assetLinks` ve `worker/logic.ts`: balíček `games.schoolcraft.app`, otisky klíčů `ANDROID_FINGERPRINTS`), viz `docs/google-play.md` |
 | GET | `/api/admin/tts` | klíč správce | | spotřeba přirozeného hlasu: stropy, počet uložených vět, znaky za den (`tts_usage`) |
 | POST | `/api/tts` | ne | `{ text, voice, slow }` (text do 300 znaků, hlas ze seznamu, jen věta ze hry `gameText`) | MP3 přirozeného hlasu Google; sdílená mezipaměť (Cloudflare, D1 `tts_audio`); limit 120/min na IP, nové věty 30/min; 422 není ze hry, 429 limit nebo denní/měsíční strop znaků, 503 bez klíče `GOOGLE_TTS_KEY` |
 | POST | `/api/events` | ano | `{ rows }` (nejvýš 300) | `{ ok, n }`; stejný řádek od stejného hráče jen jednou (znovu poslaná dávka, migrace 0007) |
@@ -357,7 +382,8 @@ Týdenní body (`weekPoints` v `src/logic/cloud.ts`): 1 za povedené kolo + 3 za
 - **Předběhnutí**: po `PUT /api/me` veřejného hráče, jehož body stouply, server najde hráče, které přeskočil (`overtaken`),
   a těm, kdo to chtějí (`rank = 1`), pošle zprávu jen mezi 8 a 19 h a nejvýš jednou denně (`rank_day`). Text uloží do `news`.
 - **Zobrazení** (`public/sw.js`): service worker si po zprávě zkusí vyzvednout text z `POST /api/push/news`; když tam nic není,
-  ukáže ranní text z mezipaměti (`/__upozorneni`, píše ho hra při startu podle hráče). Nastaví číslo na ikoně; klepnutí otevře hru.
+  ukáže ranní text z mezipaměti (`/__upozorneni`, píše ho hra při startu podle hráče; v neděli pole `sunday` = souhrn týdne pro
+  rodiče). Nastaví číslo na ikoně; klepnutí otevře hru.
 - **Zařízení** (`src/app/push.js`): souhlas, `pushManager.subscribe` s veřejným klíčem, registrace na serveru; zkušební upozornění
   jde bez serveru (`showNotification`).
 
