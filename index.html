@@ -506,6 +506,7 @@
     <div class="cheer" id="dayWho"></div>
     <h2 id="dayTitle"></h2>
     <p id="dayNames"></p>
+    <p class="day-week" id="dayWeek" hidden></p>
     <p class="day-quest" id="dayQuest"></p>
     <div class="actions"><button class="gbtn go" id="btnDayGo" data-icon="next">Hrát</button><button class="gbtn" id="btnDayLater" data-icon="check">Později</button></div>
   </div>
@@ -550,6 +551,7 @@
         <button class="set-item" type="button" data-tab="pass">Otisk nebo Face ID</button>
         <button class="set-item" type="button" data-tab="device">Vibrace</button></div>
       <div class="set-group"><h3>Postup a data</h3>
+        <button class="set-item" type="button" data-tab="week">Týden</button>
         <button class="set-item" type="button" data-tab="progress">Postup a zálohy</button>
         <button class="set-item" type="button" data-tab="profiles">Profily</button>
         <button class="set-item" type="button" data-tab="online">Online a skupina</button>
@@ -696,6 +698,18 @@
       <h3>Jméno psa</h3>
       <p>Jak se jmenuje pejsek, který k hráči přiběhne na farmě (může ho vymyslet sám).</p>
       <input id="dogName" type="text" maxlength="20" placeholder="Pejsek">
+    </div>
+
+    <!-- TÝDENNÍ SOUHRN (ui/weekly.js, logic/weekly.ts) -->
+    <div class="set-tab week-set" role="tabpanel" data-tab="week">
+    <p class="lbl-small">Co dítě za týden zvládlo, ať ho můžete konkrétně pochválit. Počítá se v tomto zařízení, dny s povedeným kolem (po až ne).</p>
+    <div id="weekNow"></div>
+    <div id="weekWeak"></div>
+    <div id="weekPrev"></div>
+    <div class="seg"><button class="gbtn go" type="button" id="btnWeekShare">Poslat rodině</button></div>
+    <p class="lbl-small">Pošle souhrn minulého týdne (v neděli tohoto) třeba babičce přes WhatsApp nebo SMS.</p>
+    <textarea class="copy-out" id="weekText" hidden readonly></textarea>
+    <p id="weekMsg" role="status"></p>
     </div>
 
     <div class="set-tab" role="tabpanel" data-tab="progress">

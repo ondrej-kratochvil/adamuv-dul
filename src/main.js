@@ -42,6 +42,7 @@ import { initDay } from './world/daily.js';
 import { initPush } from './app/push.js';
 import { persistStorage } from './app/device.js';
 import { initShare } from './ui/share.js';
+import { initWeek } from './ui/weekly.js';
 import { shortcutTarget } from './logic/shortcut.ts';
 import { openDay } from './world/daily.js';
 import { practiceReady } from './levels/practice.js';
@@ -124,6 +125,7 @@ initDevice();
 initPush(); // text ranního upozornění podle hráče (service worker ho zobrazí se zavřenou hrou)
 persistStorage(); // prohlížeč pak uložený postup sám nesmaže (app/device.js)
 initShare(); // Poslat obrázek u domu, farmy, Přerova a Netheru
+initWeek(); // týdenní souhrn v nastavení (Týden)
 updateStages(); persist(); // stupně obtížnosti ze zvládnutých úloh (u staršího postupu poprvé, bez oznámení)
 moveIn().then(m => { if (!m) moveOut(); }); // přestěhování z GitHub Pages na schoolcraft.games (app/move.js)
 flushSync(); syncCloud(true); // co čeká na odeslání do tabulky Google a na server Schoolcraft (třeba z doby bez internetu)

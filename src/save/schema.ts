@@ -10,7 +10,7 @@ import { huntDefaults, type Hunt } from '../logic/hunt';
 import { packText, unpackText } from '../logic/transfer';
 import { OLD_WORD_STAGE } from '../logic/stages';
 
-export const SCHEMA = 13; // 1 = vše do verze hry 15 (bez čísla schématu), 2 = s číslem schématu a nejvyšším stavem vesnice,
+export const SCHEMA = 14; // 1 = vše do verze hry 15 (bez čísla schématu), 2 = s číslem schématu a nejvyšším stavem vesnice,
                         // 3 = doba řešení a záměny u úloh, procvičování, fronta pro tabulku Google (verze hry 27),
                         // 4 = převlékání rodiny (verze hry 28), 5 = název a značka zařízení pro tabulku (verze hry 39),
                         // 6 = ranní karta a dnešní úkol (verze hry 51), 7 = stupně obtížnosti podle zvládnutí (verze hry 52),
@@ -19,6 +19,7 @@ export const SCHEMA = 13; // 1 = vše do verze hry 15 (bez čísla schématu), 2
                         // 11 = Schoolcraft online: přihlášení k serveru, dny splněných úkolů pro týdenní body (verze hry 59)
                         // 12 = hledání pokladu s písmeny (verze hry 70; fotky jen v zařízení, ne v uloženém stavu)
                         // 13 = Slova v 5 stupních místo 3 (verze hry 77): dosažený stupeň Slov se přečísluje
+                        // 14 = datum zvládnutí úloh pro týdenní souhrn (verze hry 93, logic/weekly.ts)
 
 // pauses/pauseSecs: pauzy v kole (od verze 36); secs je doba bez pauz
 export interface LogEntry { t: number; d: string; level: string; clean: number; done: number; len: number; ok: boolean; quit: boolean; secs: number; rate?: number; pauses?: number; pauseSecs?: number; lost?: number }
@@ -28,6 +29,7 @@ export interface SaveState {
   schema: number;
   caseMode: 'upper' | 'lower' | 'both'; slow: boolean; tts: string; // hlas: Google (logic/tts.ts) nebo 'device' = hlas tabletu strict: 'mild' | 'normal' | 'strict';
   total: number; rounds: Record<string, number>; stats: Stats; log: LogEntry[];
+  got: Record<string, number>; // klíč úlohy → kdy ji dítě poprvé zvládlo (týdenní souhrn, od schématu 14)
   ench: string[]; emeralds: number; notes: Note[]; dogName: string; gifts: Record<string, number>; bday: number; lastCheer: string;
   village: Record<string, number> | null; obsidian: number | null; netherMine: boolean; cards: string[] | null;
   weeks: Record<string, number> | null; babies: string[] | null; eyes: number; dragon: number;
@@ -61,7 +63,7 @@ export function defaults(): SaveState {
     schema: SCHEMA,
     caseMode: 'both', slow: false, tts: '', strict: 'normal', total: 0,
     rounds: { letters: 0, syllables: 0, words: 0, numbers: 0, math: 0, writing: 0, reading: 0, speech: 0 },
-    stats: {}, log: [], ench: [], emeralds: 0, notes: [], dogName: '', gifts: {}, bday: 0, lastCheer: '',
+    stats: {}, got: {}, log: [], ench: [], emeralds: 0, notes: [], dogName: '', gifts: {}, bday: 0, lastCheer: '',
     village: null, obsidian: null, netherMine: false, cards: null, weeks: null, babies: null, eyes: 0, dragon: 0,
     seenVersion: 0, gameName: 'Schoolcraft',
     dog: { collar: 'cerveny', owned: ['cerveny'], coat: 'bily' }, decor: [],
@@ -127,6 +129,8 @@ export function migrate(raw: unknown): SaveState {
   if (!Array.isArray(out.famOwned)) out.famOwned = [];
   for (const k of ['log', 'ench', 'notes', 'decor', 'recentLines', 'famOwned'] as const) if (!Array.isArray(out[k])) (out as Record<string, unknown>)[k] = [];
   if (!isObj(out.stats)) out.stats = {};
+  // v13 -> v14: datum zvládnutí začíná prázdné, dřívější zvládnuté úlohy datum nemají (do souhrnu se nepočítají)
+  if (!isObj(out.got)) out.got = {};
   if (!Array.isArray(out.hunt.today)) out.hunt.today = [];
   if (from > SCHEMA) out.schema = from; // novější data ze starší hry nesnižovat
   else out.schema = SCHEMA;

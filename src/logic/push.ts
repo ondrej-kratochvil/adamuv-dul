@@ -13,6 +13,9 @@ export function parsePushState(raw: string | null): PushState {
 // text upozornění (service worker ho zobrazí, i když je hra zavřená); oslovení hráče v 5. pádě
 export const pushText = (voc: string): { title: string; body: string } =>
   ({ title: 'Schoolcraft', body: `Dobré ráno, ${voc}! Čeká tě dnešní úkol za ${DAILY_BONUS} smaragdů.` });
+// v neděli místo ranního textu (týdenní souhrn, logic/weekly.ts): upozornění čte rodič, jméno v 1. pádě
+export const sundayText = (name: string, g: (m: string, f: string) => string): { title: string; body: string } =>
+  ({ title: 'Schoolcraft', body: `Souhrn týdne je připravený. Podívejte se, co se ${name} ${g('naučil', 'naučila')}: nastavení, Týden.` });
 // base64url → bajty (veřejný klíč serveru pro pushManager.subscribe)
 export function keyBytes(s: string): Uint8Array<ArrayBuffer> {
   const bin = atob(s.replace(/-/g, '+').replace(/_/g, '/') + '==='.slice((s.length + 3) % 4)), out = new Uint8Array(new ArrayBuffer(bin.length));

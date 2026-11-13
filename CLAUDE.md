@@ -155,6 +155,17 @@ přidej i odměny, aby Adam nedošel na strop dřív, než dojde obsah.
 - Na každou položku v dialogu po kole (kartička, očarování, smaragdy, dům, stupeň…) jde klepnout a hra ji přečte znovu
   (`#endOverlay` v `main.js`; text pro hlas v `data-say`, jinak text na obrazovce). Nová položka = nastavit i `data-say`.
 
+## Týdenní souhrn pro rodiče (Ondřej 11. 11. 2026)
+
+- Podnět ze statistik: Adam i Víťa 8. 11. odehráli desítky kol a pak skoro přestali; nejvíc motivuje konkrétní pochvala od dospělého.
+- Nastavení → Postup a data → **Týden** (`src/ui/weekly.js`, pravidla `src/logic/weekly.ts`): dny s povedeným kolem (po až ne),
+  povedená kola, nově zvládnuté úlohy podle pater, na čem pracovat a tip pro rodiče; **Poslat rodině** (Web Share, jinak schránka).
+- Nově zvládnuté = `save.got` (klíč úlohy → kdy poprvé `mastery() === 'good'`, `markGot` hned po `recordResult`; schéma 14).
+  Úlohy zvládnuté před verzí 93 datum nemají a v souhrnu nejsou.
+- **Pondělí:** ranní karta řekne větu o minulém týdnu (`mondayLine`, `#dayWeek`). **Neděle:** ranní upozornění (když je zapnuté) má text
+  pro rodiče (`sundayText`, service worker ho vybere podle dne).
+- Bez porovnávání s jinými dětmi a bez času ve hře. Všechno v zařízení, nic nového na server. Návrh: `docs/tydenni-souhrn-navrh.md`.
+
 ## Verze a novinky
 
 Každá úprava, která jde na `main`, zvýší `APP_VERSION` v `src/app/version.js` a přidá do `version.json` záznam se stejným

@@ -1,5 +1,6 @@
 // Patro Mluvení: sluch na kostkách, ostatní úkoly v panelu (vyslovit s rodičem, cvik, foukání). Logika v logic/speech.ts.
 import { gx } from '../app/player.js';
+import { markGot } from '../logic/weekly.ts';
 import { G } from '../core/state.js';
 import { $ } from '../core/dom.js';
 import { persist, save } from '../save/save.ts';
@@ -90,7 +91,7 @@ function finishSpeech(clean, judged, tok) {
   spDoneTok = tok;
   G.R.busy = true; stopMic();
   const ms = Date.now() - (G.R.shownAt || Date.now());
-  if (judged && G.R.statKey) recordResult(save.stats, G.R.statKey, clean, { ms });
+  if (judged && G.R.statKey) markGot(save.got, G.R.statKey, recordResult(save.stats, G.R.statKey, clean, { ms }), Date.now());
   logTask(ms, [], 0);
   const texName = mineTex(curLevel().tex);
   if (clean) { G.R.clean++; save.emeralds += 1 + luckBonus(); updateGems('hudGems'); dogHappy($('#gameDog')); }

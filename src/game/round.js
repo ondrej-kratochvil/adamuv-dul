@@ -1,5 +1,6 @@
 // Herní kolo
 import { gx, player, voc } from '../app/player.js';
+import { markGot } from '../logic/weekly.ts';
 import { G } from '../core/state.js';
 import { QUICK_WRONG_MS, recordResult } from '../logic/mastery.ts';
 import { BUILD_UNLOCK, addBlocks } from '../logic/build.ts';
@@ -180,7 +181,7 @@ const PRAISE = ['Výborně!', 'Super!', 'Ano!', 'Paráda!', 'Skvěle!', 'To je o
 function breakBlock(el) {
   G.R.busy = true;
   const ms = Date.now() - G.R.shownAt;
-  recordResult(save.stats, G.R.statKey, G.R.firstTry, { ms, wrong: G.R.wrongPicks, quick: G.R.quick }); persist();
+  markGot(save.got, G.R.statKey, recordResult(save.stats, G.R.statKey, G.R.firstTry, { ms, wrong: G.R.wrongPicks, quick: G.R.quick }), Date.now()); persist();
   logTask(ms, G.R.wrongPicks || [], G.R.quick || 0);
   el.querySelector('.crack').style.backgroundImage = `url(${cracks[3]})`;
   sfx.breakIt();

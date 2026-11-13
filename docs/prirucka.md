@@ -144,7 +144,8 @@ na seznam; na tabletu naležato a na počítači je seznam vlevo a část vpravo
 | Zařízení | **Upozornění** | ranní upozornění, předběhnutí v žebříčku, zkušební upozornění |
 | | **Otisk nebo Face ID** | vstup do nastavení otiskem nebo Face ID na zařízení, nebo telefonem rodiče |
 | | **Vibrace** | zapnout / vypnout |
-| Postup a data | **Postup a zálohy** | přehled, Statistiky, Začít od začátku, Vrátit zálohu, přenos textem, stav uložení |
+| Postup a data | **Týden** | co dítě tento a minulý týden zvládlo, kolik dní hrálo, na čem pracovat; Poslat rodině |
+| | **Postup a zálohy** | přehled, Statistiky, Začít od začátku, Vrátit zálohu, přenos textem, stav uložení |
 | | **Profily** | další hráči nebo testovací profil |
 | | **Online a skupina** | zapnutí online, skupina pro žebříček, přezdívka, QR kód a kód hráče, výměna kódu, smazání ze serveru |
 | | **Statistiky** | stažení statistik z databáze (CSV); tabulka Google už není potřeba |

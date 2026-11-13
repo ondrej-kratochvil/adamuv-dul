@@ -1,6 +1,14 @@
 {
-  "version": 92,
+  "version": 93,
   "changes": [
+    {
+      "version": 93,
+      "date": "2026-11-13",
+      "notes": [
+        "V pondělí ti hra řekne, jak se ti dařilo minulý týden.",
+        "Táta a máma uvidí, co ses za týden naučil, a můžou to poslat babičce."
+      ]
+    },
     {
       "version": 92,
       "date": "2026-11-11",

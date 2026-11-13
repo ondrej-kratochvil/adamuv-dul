@@ -29,6 +29,7 @@ import { applyLetters, normalizeLetters } from '../logic/letters.ts';
 import { SYLL } from '../content/letters.ts';
 import { WORDS } from '../content/words.ts';
 import { downloadStats, sendOldRounds } from '../app/stats-download.js';
+import { renderWeek } from './weekly.js';
 
 // karta Hlas upozorní, když chybí český hlas (návod je až uvnitř karty)
 function voiceTabWarn() { const t = $('.set-tree [data-tab="voice"]'); if (t) t.classList.toggle('warn', !$('#voiceHelp').hidden); }
@@ -95,7 +96,7 @@ function showSetTab(tab) {
 function showSetTree() { $('#setOverlay .panel').classList.remove('in-tab'); $('#setTitle').textContent = 'Pro rodiče'; const panel = $('#setOverlay .panel'); if (panel) panel.scrollTop = 0; }
 document.querySelectorAll('.set-tree [data-tab]').forEach(b => b.addEventListener('click', () => showSetTab(b.dataset.tab)));
 setBtn($('#btnSetBack'), 'back', 'Nastavení'); $('#btnSetBack').addEventListener('click', showSetTree);
-function openSettings() { renderProfiles(); updateSettings(); renderNotes(); updateRestore(); renderPron(); updateSync(); $('#resetConfirm').hidden = true; showSetTab(pendingCode ? 'online' : setTab); if (narrow() && !pendingCode) showSetTree(); $('#setOverlay').hidden = false; if (pendingCode) { offerRestore(pendingCode); pendingCode = null; } }
+function openSettings() { renderProfiles(); updateSettings(); renderNotes(); renderWeek(); updateRestore(); renderPron(); updateSync(); $('#resetConfirm').hidden = true; showSetTab(pendingCode ? 'online' : setTab); if (narrow() && !pendingCode) showSetTree(); $('#setOverlay').hidden = false; if (pendingCode) { offerRestore(pendingCode); pendingCode = null; } }
 // kód hráče z QR (adresa #kod=…) na zařízení, kde už někdo hraje: nahrazení postupu jen přes zámek pro rodiče
 let pendingCode = null;
 function openGateForCode(code) { pendingCode = code; openGate(); }

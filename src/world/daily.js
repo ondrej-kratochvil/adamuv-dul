@@ -18,7 +18,14 @@ import { setBtn } from '../ui/icons.js';
 import { restingLevel, suggestLevel } from '../logic/rotation.ts';
 import { petForQuest } from '../logic/pets.ts';
 import { checkVersion, updatePending, whenVersionKnown } from '../app/name.js';
+import { mondayLine, weekStart, weekSummary } from '../logic/weekly.ts';
 
+// v pondělí jedna věta o minulém týdnu (týdenní souhrn, Ondřej 11. 11. 2026); jinak prázdné
+function weekLine(now) {
+  if (now.getDay() !== 1) return '';
+  const m = weekStart(now), prev = new Date(m.getFullYear(), m.getMonth(), m.getDate() - 7);
+  return mondayLine(weekSummary(save.log, save.got || {}, save.stats, prev), gx);
+}
 function levelName(lv) { return lv === 'practice' ? 'Procvičit' : (LEVELS[lv] || {}).name || lv; }
 // dnešní úkol (založí se, když ještě není)
 function ensureDaily() {
@@ -37,13 +44,13 @@ function dayTexts() {
   const state = stateHoliday(now);
   // svátek Adama (Štědrý den) a Davídka už říká rodinná hláška, jméno z kalendáře by se opakovalo
   const names = h && /svatek|vanoce/.test(h.id) ? null : nameDay(now);
-  const task = questText(q, levelName(q.level));
+  const task = questText(q, levelName(q.level)), week = weekLine(now);
   const show = {
     title: dateShow(now)[0].toUpperCase() + dateShow(now).slice(1),
     names: [state ? `Státní svátek: ${state}.` : '', names ? `Svátek má ${names}.` : '', h ? h.text : ''].filter(Boolean).join(' '),
-    task: `${task}.`,
+    task: `${task}.`, week,
   };
-  const say = `${who} říká: ${greeting(now)}, ${voc()}! Dnes je ${dateSay(now)}.` + (state ? ` Je státní svátek, ${state}.` : '') + (names ? ` Svátek má ${names}.` : '') + (h ? ' ' + h.text : '')
+  const say = `${who} říká: ${greeting(now)}, ${voc()}! Dnes je ${dateSay(now)}.` + (state ? ` Je státní svátek, ${state}.` : '') + (names ? ` Svátek má ${names}.` : '') + (h ? ' ' + h.text : '') + (week ? ' ' + week : '')
     + (q.done ? ' Dnešní úkol už máš splněný.' : ` Dnešní úkol: ${task}. Za splnění dostaneš ${DAILY_BONUS} ${gemWord(DAILY_BONUS)}.`);
   return { people, who, show, say, q };
 }
@@ -54,6 +61,7 @@ function openDay() {
   const b = document.createElement('div'); b.className = 'bubble'; b.innerHTML = `<b>${t.people.length > 1 ? 'celá rodina' : t.people[0].name}</b>`; b.append(`${greeting(new Date())}, ${voc()}!`); w.appendChild(b);
   $('#dayTitle').textContent = t.show.title;
   $('#dayNames').textContent = t.show.names; $('#dayNames').hidden = !t.show.names;
+  $('#dayWeek').textContent = t.show.week; $('#dayWeek').hidden = !t.show.week;
   const dq = $('#dayQuest'); dq.innerHTML = ''; dq.appendChild(sprIcon('emerald'));
   dq.append(t.q.done ? 'Dnešní úkol máš splněný!' : `Dnešní úkol: ${t.show.task} Odměna: ${DAILY_BONUS} ${gemWord(DAILY_BONUS)}.`);
   const go = $('#btnDayGo'); go.hidden = t.q.done; setBtn(go, 'next', `Hrát ${levelName(t.q.level)}`);

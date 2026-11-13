@@ -2,9 +2,9 @@
 // Upozornění zobrazí service worker (public/sw.js) i se zavřenou hrou; text si bere z mezipaměti (PUSH_TEXT_URL).
 import { save } from '../save/save.ts';
 import { codeOf } from '../logic/cloud.ts';
-import { PUSH_KEY, PUSH_TEXT_CACHE, PUSH_TEXT_URL, keyBytes, parsePushState, pushText } from '../logic/push.ts';
+import { PUSH_KEY, PUSH_TEXT_CACHE, PUSH_TEXT_URL, keyBytes, parsePushState, pushText, sundayText } from '../logic/push.ts';
 import { API } from './cloud.js';
-import { voc } from './player.js';
+import { gx, player, voc } from './player.js';
 
 function pushState() { try { return parsePushState(localStorage.getItem(PUSH_KEY)); } catch (e) { return parsePushState(null); } }
 function storeState(s) { try { localStorage.setItem(PUSH_KEY, JSON.stringify(s)); } catch (e) { /* nic */ } }
@@ -27,7 +27,7 @@ async function api(method, body) {
 }
 // text pro service worker (oslovení se mění s hráčem, proto při každém startu hry)
 async function writePushText() {
-  try { const c = await caches.open(PUSH_TEXT_CACHE); await c.put(PUSH_TEXT_URL, new Response(JSON.stringify(pushText(voc())), { headers: { 'Content-Type': 'application/json' } })); } catch (e) { /* bez mezipaměti řekne obecný text */ }
+  try { const c = await caches.open(PUSH_TEXT_CACHE); await c.put(PUSH_TEXT_URL, new Response(JSON.stringify({ ...pushText(voc()), sunday: sundayText(player().name || 'dítě', gx) }), { headers: { 'Content-Type': 'application/json' } })); } catch (e) { /* bez mezipaměti řekne obecný text */ }
 }
 // zapnout (nebo změnit hodinu): souhlas musí přijít z klepnutí rodiče
 async function enablePush(hour, rank = pushState().rank) {

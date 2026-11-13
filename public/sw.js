@@ -18,7 +18,7 @@ self.addEventListener('fetch', e => {
 self.addEventListener('push', e => {
   e.waitUntil((async () => {
     let t = { title: 'Schoolcraft', body: 'Dobré ráno! Čeká tě dnešní úkol.' };
-    try { const r = await (await caches.open('schoolcraft-upozorneni')).match('/__upozorneni'); if (r) t = { ...t, ...await r.json() }; } catch (x) { /* obecný text */ }
+    try { const r = await (await caches.open('schoolcraft-upozorneni')).match('/__upozorneni'); if (r) { const j = await r.json(); t = { title: j.title || t.title, body: j.body || t.body }; if (new Date().getDay() === 0 && j.sunday && j.sunday.body) t = j.sunday; } } catch (x) { /* obecný text */ }
     // předběhnutí v žebříčku: text čeká na serveru (worker/index.ts /api/push/news), jinak zůstane ranní
     try {
       const sub = await self.registration.pushManager.getSubscription();

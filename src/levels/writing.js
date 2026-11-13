@@ -1,5 +1,6 @@
 // Psaní: obtahování prstem
 import { gx } from '../app/player.js';
+import { markGot } from '../logic/weekly.ts';
 import { G } from '../core/state.js';
 import { recordResult } from '../logic/mastery.ts';
 import { $ } from '../core/dom.js';
@@ -109,7 +110,7 @@ function traceSlip() {
 function finishTrace() {
   G.R.busy = true;
   const ms = Date.now() - (G.R.shownAt || Date.now());
-  recordResult(save.stats, G.R.statKey, G.R.firstTry, { ms });
+  markGot(save.got, G.R.statKey, recordResult(save.stats, G.R.statKey, G.R.firstTry, { ms }), Date.now());
   logTask(ms, [], 0);
   const clean = G.R.firstTry, texName = mineTex(curLevel().tex);
   if (clean) { G.R.clean++; save.emeralds += 1 + luckBonus(); updateGems('hudGems'); dogHappy($('#gameDog')); }

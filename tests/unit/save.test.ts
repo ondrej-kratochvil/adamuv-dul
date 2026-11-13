@@ -165,6 +165,17 @@ describe('schéma 13 (verze hry 77): Slova v 5 stupních', () => {
     expect(migrate({ schema: 13, total: 1, rounds: {}, stages: { words: 1 } }).stages.words).toBe(1);
     const old = fixture('save-v11'), s = migrate(old);
     for (const k of Object.keys(old)) if (k !== 'schema' && k !== 'stages') kept(s[k], old[k], k);
-    expect(s.schema).toBe(13);
+    expect(s.schema).toBe(SCHEMA);
+  });
+});
+
+describe('schéma 14 (verze hry 93): datum zvládnutí pro týdenní souhrn', () => {
+  it('starší postup dostane prázdné got, nic se neztratí; uložené datum zůstane', () => {
+    const old = fixture('save-v11'), s = migrate(old);
+    expect(s.got).toEqual({});
+    expect(s.stats).toEqual(old.stats);
+    expect(migrate({ schema: 14, total: 1, rounds: {}, got: { 'letters:A': 5 } }).got).toEqual({ 'letters:A': 5 });
+    expect(migrate({ schema: 14, total: 1, rounds: {}, got: 'nesmysl' }).got).toEqual({});
+    expect(s.schema).toBe(14);
   });
 });
